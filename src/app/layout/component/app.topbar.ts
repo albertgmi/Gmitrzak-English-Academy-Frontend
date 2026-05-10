@@ -77,7 +77,7 @@ export class AppTopbar {
     goToProfile() {
         const userId = this.authService.getUserId();
         if (userId) {
-            this.router.navigate(['/profile', userId]);
+            this.router.navigate(['/profiles', userId]); 
         } else {
             console.error('User ID not found in token');
             this.router.navigate(['/login']);

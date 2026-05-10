@@ -54,9 +54,14 @@ export class ProfileDetailComponent implements OnInit {
   ];
 
   ngOnInit() {
-    this.userId = Number(this.route.snapshot.paramMap.get('userId'));
-    this.loadProfile();
-  }
+    this.route.paramMap.subscribe(params => {
+        const id = params.get('userId');
+        if (id) {
+            this.userId = Number(id);
+            this.loadProfile();
+        }
+    });
+}
 
   loadProfile() {
     this.profileService.getProfile(this.userId).subscribe({
