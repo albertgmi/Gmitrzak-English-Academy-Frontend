@@ -1,6 +1,5 @@
 <p-toolbar styleClass="mb-6">
   <ng-template #start>
-    <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
     <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length" />
   </ng-template>
 
@@ -15,7 +14,7 @@
   [rows]="10"
   [columns]="cols"
   [paginator]="true"
-  [globalFilterFields]="['email', 'first_name', 'last_name', 'role']"
+  [globalFilterFields]="['email', 'username', 'role']"
   [tableStyle]="{ 'min-width': '75rem' }"
   [(selection)]="selectedUsers"
   [rowHover]="true"
@@ -26,7 +25,7 @@
 >
   <ng-template #caption>
     <div class="flex items-center justify-between">
-      <h5 class="m-0">Manage Products</h5>
+      <h5 class="m-0">Users</h5>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />
         <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
@@ -44,13 +43,9 @@
         email
         <p-sortIcon field="email" />
       </th>
-      <th pSortableColumn="first_name" style="min-width:10rem">
-        first_name
-        <p-sortIcon field="first_name" />
-      </th>
-      <th pSortableColumn="last_name" style="min-width: 12rem">
-        last_name
-        <p-sortIcon field="last_name" />
+      <th pSortableColumn="username" style="min-width:10rem">
+        username
+        <p-sortIcon field="username" />
       </th>
       <th pSortableColumn="role" style="min-width: 12rem">
         role
@@ -66,8 +61,7 @@
       </td>
       <td style="min-width: 12rem">{{ user.id }}</td>
       <td style="min-width: 16rem">{{ user.email }}</td>
-      <td>{{ user.first_name }}</td>
-      <td>{{ user.last_name }}</td>
+      <td>{{ user.username }}</td>
       <td>{{ user.role }}</td>
       <td>
         <p-button icon="pi pi-pencil" class="mr-2" [rounded]="true" [outlined]="true" (click)="editUser(user)" />
@@ -77,7 +71,7 @@
   </ng-template>
 </p-table>
 
-<p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="Product Details" [modal]="true">
+<p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" header="Update user" [modal]="true">
   <ng-template #content>
     <div class="flex flex-col gap-6">
       <div>
@@ -86,19 +80,19 @@
         <small class="text-red-500" *ngIf="submitted && !user.email">email is required.</small>
       </div>
       <div>
-        <label for="first_name" class="block font-bold mb-3">first_name</label>
-        <input type="text" pInputText id="first_name" [(ngModel)]="user.first_name" required autofocus fluid />
-        <small class="text-red-500" *ngIf="submitted && !user.first_name">first_name is required.</small>
-      </div>
-      <div>
-        <label for="last_name" class="block font-bold mb-3">last_name</label>
-        <input type="text" pInputText id="last_name" [(ngModel)]="user.last_name" required autofocus fluid />
-        <small class="text-red-500" *ngIf="submitted && !user.last_name">last_name is required.</small>
+        <label for="username" class="block font-bold mb-3">username</label>
+        <input type="text" pInputText id="username" [(ngModel)]="user.username" required autofocus fluid />
+        <small class="text-red-500" *ngIf="submitted && !user.username">username is required.</small>
       </div>
 
       <div>
         <label for="role" class="block font-bold mb-3">Role</label>
         <p-select [(ngModel)]="user.role" inputId="role" [options]="roles" optionLabel="label" optionValue="label" placeholder="Select a Status" fluid />
+      </div>
+
+      <div>
+        <label for="password" class="block font-bold mb-3">Password (optional)</label>
+        <input type="password" pInputText id="password" [(ngModel)]="user.password" autofocus fluid />
       </div>
 
     </div>

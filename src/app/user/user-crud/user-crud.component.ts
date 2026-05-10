@@ -99,14 +99,12 @@ export class UserCrudComponent implements OnInit {
 
     this.roles = [
       { label: 'admin', value: 'admin' },
-      { label: 'student', value: 'student' },
-      { label: 'teacher', value: 'teacher' }
+      { label: 'user', value: 'user' }
     ];
 
     this.cols = [
       { field: 'email', header: 'email' },
-      { field: 'first_name', header: 'first_name' },
-      { field: 'last_name', header: 'last_name' },
+      { field: 'username', header: 'username' },
       { field: 'role', header: 'role' }
     ];
 
@@ -129,14 +127,37 @@ export class UserCrudComponent implements OnInit {
   }
 
   deleteSelectedUsers() {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete the selected users?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
+      if (!this.selectedUsers || this.selectedUsers.length === 0) return;
 
-      }
-    });
+      const ids = this.selectedUsers.map(user => user.id);
+
+      this.confirmationService.confirm({
+          message: 'Are you sure you want to delete the selected users?',
+          header: 'Confirm',
+          icon: 'pi pi-exclamation-triangle',
+          accept: () => {
+              this.userService.deleteManyUsers(ids).subscribe({
+                  next: () => {
+                      this.userService.users.reload(); 
+                      this.selectedUsers = null;
+                      this.messageService.add({ 
+                          severity: 'success', 
+                          summary: 'Successful', 
+                          detail: 'Users Deleted', 
+                          life: 3000 
+                      });
+                  },
+                  error: (err) => {
+                      this.messageService.add({ 
+                          severity: 'error', 
+                          summary: 'Error', 
+                          detail: 'Failed to delete users', 
+                          life: 3000 
+                      });
+                  }
+              });
+          }
+      });
   }
 
   hideDialog() {
@@ -146,7 +167,7 @@ export class UserCrudComponent implements OnInit {
 
   deleteUser(user: User) {
     this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + user.first_name + '?',
+      message: 'Are you sure you want to delete ' + user.username + '?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
@@ -156,6 +177,18 @@ export class UserCrudComponent implements OnInit {
   }
 
   saveUser() {
+    this.submitted = true;
 
+    if (!this.user.email || !this.user.username) return;
+
+    this.userService.updateUser(this.user.id, {
+      username: this.user.username,
+      email: this.user.email,
+      role: this.user.role,
+      password: this.user.password || undefined
+    });
+
+    this.userDialog = false;
+    this.submitted = false;
   }
 }

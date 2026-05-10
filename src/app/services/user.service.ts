@@ -6,10 +6,11 @@ import {lastValueFrom, throwError} from 'rxjs';
 
 export interface User {
   id: number;
+  username?: string;
   email?: string;
-  first_name?: string;
-  last_name?: string;
-  role?: number;
+  role?: string;
+  isActive?: boolean;
+  password?: string;
 }
 
 export interface Users {
@@ -37,17 +38,29 @@ export class UserService {
   }
 
   deleteUser(userId: number) {
-    this.http.post(`${this.apiUrl}/delete-user`, {
-      user_id: userId
-    }).subscribe({
+    this.http.delete(`${this.apiUrl}/delete/${userId}`).subscribe({
       next: (data) => {
-        this.users.reload()
+        this.users.reload();
       },
       error: (err) => {
         console.error('Error deleting user:', err);
-        return throwError(() => err);
       }
     });
+  }
+
+  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string }) {
+    this.http.put(`${this.apiUrl}/update/${userId}`, request).subscribe({
+      next: () => {
+        this.users.reload();
+      },
+      error: (err) => {
+        console.error('Error updating user:', err);
+      }
+    });
+  }
+
+  deleteManyUsers(ids: number[]) {
+    return this.http.delete(`${this.apiUrl}/delete`, { params: { userIds: ids } });
   }
 
 }

@@ -57,7 +57,6 @@ interface ExportColumn {
     template: `
         <p-toolbar styleClass="mb-6">
             <ng-template #start>
-                <p-button label="New" icon="pi pi-plus" severity="secondary" class="mr-2" (onClick)="openNew()" />
                 <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length" />
             </ng-template>
 
@@ -146,7 +145,7 @@ interface ExportColumn {
             </ng-template>
         </p-table>
 
-        <p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Product Details" [modal]="true">
+        <p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Update user" [modal]="true">
             <ng-template #content>
                 <div class="flex flex-col gap-6">
                     <img [src]="'https://primefaces.org/cdn/primeng/images/demo/product/' + product.image" [alt]="product.image" class="block m-auto pb-4" *ngIf="product.image" />

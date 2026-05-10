@@ -1,0 +1,174 @@
+<div class="card" *ngIf="profile">
+
+  <div class="flex items-center gap-4 mb-6">
+    <p-button icon="pi pi-arrow-left" [outlined]="true" [rounded]="true" (click)="goBack()" />
+
+    <div class="relative" *ngIf="!editMode">
+      <img
+        *ngIf="profile.avatarUrl"
+        [src]="apiUrl + profile.avatarUrl"
+        [alt]="profile.username"
+        class="w-16 h-16 rounded-full object-cover border-2 border-surface-200 dark:border-surface-600"
+        (error)="onAvatarError($event)"
+      />
+      <div
+        *ngIf="!profile.avatarUrl"
+        class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white text-xl font-bold border-2 border-surface-200 dark:border-surface-600"
+      >
+        {{ initials }}
+      </div>
+    </div>
+
+    <div>
+      <h2 class="text-2xl font-semibold m-0">{{ profile.username }}</h2>
+      <p class="text-muted-color mt-1">{{ profile.email }}</p>
+    </div>
+    
+    <div class="ml-auto">
+      <p-button 
+        [label]="editMode ? 'Cancel' : 'Edit'" 
+        [icon]="editMode ? 'pi pi-times' : 'pi pi-pencil'" 
+        (click)="toggleEdit()" 
+        [outlined]="!editMode"
+        [severity]="editMode ? 'secondary' : 'primary'"
+      />
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
+
+    <div class="md:col-span-2 border-b border-surface-200 dark:border-surface-700 pb-6">
+      <label class="block font-bold mb-2">Avatar</label>
+
+      <div *ngIf="editMode" class="flex flex-col gap-4">
+        <div class="flex items-center gap-4">
+          
+          <img
+            *ngIf="profile.avatarUrl && !avatarPreview"
+            [src]="apiUrl + profile.avatarUrl"
+            alt="Current avatar"
+            class="w-20 h-20 rounded-full object-cover border-2 border-surface-200 dark:border-surface-600"
+            (error)="onAvatarError($event)"
+          />
+          
+          <img
+            *ngIf="avatarPreview"
+            [src]="avatarPreview"
+            alt="Avatar preview"
+            class="w-20 h-20 rounded-full object-cover border-2 border-primary"
+          />
+
+          <div
+            *ngIf="!profile.avatarUrl && !avatarPreview"
+            class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-bold"
+          >
+            {{ initials }}
+          </div>
+
+          <div class="flex flex-col gap-2">
+            <input
+              #fileInput
+              type="file"
+              accept=".jpg,.jpeg,.png"
+              class="hidden"
+              (change)="onFileSelected($event)"
+            />
+            <p-button
+              label="Choose photo"
+              icon="pi pi-upload"
+              [outlined]="true"
+              size="small"
+              (click)="fileInput.click()"
+            />
+            <p-button
+              *ngIf="avatarPreview"
+              label="Remove selected"
+              icon="pi pi-times"
+              severity="danger"
+              [outlined]="true"
+              size="small"
+              (click)="clearSelectedFile()"
+            />
+          </div>
+        </div>
+
+        <small class="text-muted-color">Allowed formats: JPG, JPEG, PNG</small>
+        <p-message *ngIf="avatarError" severity="error" [text]="avatarError" />
+      </div>
+
+      <div *ngIf="!editMode">
+        <img
+          *ngIf="profile.avatarUrl"
+          [src]="apiUrl + profile.avatarUrl"
+          [alt]="profile.username"
+          class="w-20 h-20 rounded-full object-cover border-2 border-surface-200 dark:border-surface-600"
+          (error)="onAvatarError($event)"
+        />
+        <div
+          *ngIf="!profile.avatarUrl"
+          class="w-20 h-20 rounded-full bg-primary flex items-center justify-center text-white text-2xl font-bold"
+        >
+          {{ initials }}
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <label class="block font-bold mb-2">Username</label>
+      <div class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.username }}</div>
+    </div>
+
+    <div>
+      <label class="block font-bold mb-2">Email</label>
+      <div class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.email }}</div>
+    </div>
+
+    <div>
+      <label class="block font-bold mb-2">Role</label>
+      <div class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.role }}</div>
+    </div>
+
+    <div>
+      <label class="block font-bold mb-2">Active Status</label>
+      <div class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">
+        <i class="pi" [ngClass]="profile.isActive ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'"></i>
+        {{ profile.isActive ? ' Active' : ' Inactive' }}
+      </div>
+    </div>
+
+    <div>
+      <label class="block font-bold mb-2">English Level</label>
+      <p-select *ngIf="editMode" [(ngModel)]="profile.englishLevel" [options]="englishLevels" optionLabel="label" optionValue="value" placeholder="Select level" fluid />
+      <div *ngIf="!editMode" class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.englishLevel || '—' }}</div>
+    </div>
+
+    <div>
+      <label class="block font-bold mb-2">Current Semester</label>
+      <p-inputNumber *ngIf="editMode" [(ngModel)]="profile.currentSemester" [min]="1" [max]="20" fluid />
+      <div *ngIf="!editMode" class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.currentSemester || '—' }}</div>
+    </div>
+
+  </div>
+
+  <div class="mb-6">
+    <label class="block font-bold mb-4">Completed Semesters</label>
+    <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
+      <div *ngFor="let s of semesters" class="flex flex-col items-center gap-1">
+        <span class="text-sm text-muted-color">{{ s }}</span>
+        <p-checkbox
+          [(ngModel)]="$any(profile)['semester' + s]"
+          [binary]="true"
+          [disabled]="!editMode"
+        />
+      </div>
+    </div>
+  </div>
+
+  <div class="flex gap-3" *ngIf="editMode">
+    <p-button label="Save Changes" icon="pi pi-check" (click)="save()" />
+    <p-button label="Cancel" icon="pi pi-times" severity="secondary" outlined (click)="toggleEdit()" />
+  </div>
+
+</div>
+
+<p-toast />

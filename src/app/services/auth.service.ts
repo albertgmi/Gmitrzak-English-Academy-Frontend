@@ -3,7 +3,13 @@ import { HttpClient } from '@angular/common/http';
 import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
+import { jwtDecode } from 'jwt-decode';
 
+interface JwtPayload {
+    'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': string;
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name': string;
+    'http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier': string;
+  }
 @Injectable({
   providedIn: 'root'
 })
@@ -63,6 +69,40 @@ export class AuthService {
 
   getToken(): string | null {
     return localStorage.getItem(this.tokenKey);
+  }
+
+  getRole(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+    } catch {
+      return null;
+    }
+  }
+
+  getUsername(): string | null {
+    const token = this.getToken();
+    if (!token) return null;
+    try {
+      const decoded = jwtDecode<JwtPayload>(token);
+      return decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/name'];
+    } catch {
+      return null;
+    }
+  }
+
+  getUserId(): number | null {
+      const token = this.getToken();
+      if (!token) return null;
+      try {
+          const decoded = jwtDecode<JwtPayload>(token);
+          const id = decoded['http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier'];
+          return id ? Number(id) : null;
+      } catch {
+          return null;
+      }
   }
 
   private handleError(error: any): Observable<never> {
