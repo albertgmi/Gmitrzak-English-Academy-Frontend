@@ -31,7 +31,7 @@ export class LoginComponent {
     private messageService: MessageService
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', Validators.required],
       password: ['', Validators.required],
       // rememberme: [false],
     });

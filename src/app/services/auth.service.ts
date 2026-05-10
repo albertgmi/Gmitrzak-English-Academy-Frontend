@@ -20,11 +20,11 @@ export class AuthService {
   }
 
   login(credentials: any): Observable<any> {
-    return this.http.post(`${this.apiUrl}/login`, credentials).pipe(
-      tap((response: any) => {
-        if (response.access_token) {
-          localStorage.setItem(this.tokenKey, response.access_token);
-        }
+    return this.http.post(`${this.apiUrl}/login`, credentials, { 
+      responseType: 'text'
+    }).pipe(
+      tap((token: string) => {
+        localStorage.setItem(this.tokenKey, token);
       }),
       catchError(this.handleError)
     );
