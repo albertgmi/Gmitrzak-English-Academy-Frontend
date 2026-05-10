@@ -1,0 +1,31 @@
+<div class="p-d-flex p-jc-center p-ai-center" style="height: 100vh;">
+  <div class="p-shadow-3 p-p-4" style="width: 400px;">
+    <h2 class="p-text-center">Register</h2>
+    <form [formGroup]="registerForm" (ngSubmit)="onSubmit()">
+      <div class="p-field">
+        <label for="email">Email</label>
+        <input pInputText id="email" formControlName="email" />
+      </div>
+      <div class="p-field">
+        <label for="password">Password</label>
+        <p-password id="password" formControlName="password" [feedback]="true"></p-password>
+      </div>
+      <div class="p-field">
+        <label for="first_name">First Name</label>
+        <input pInputText id="first_name" formControlName="first_name" />
+      </div>
+      <div class="p-field">
+        <label for="last_name">Last Name</label>
+        <input pInputText id="last_name" formControlName="last_name" />
+      </div>
+      <div class="p-field">
+        <label for="role">Role</label>
+        <p-dropdown id="role" [options]="roles" formControlName="role" placeholder="Select a role"></p-dropdown>
+      </div>
+      <div class="p-field">
+        <button pButton type="submit" label="Register" [disabled]="registerForm.invalid"></button>
+      </div>
+    </form>
+    <p-toast></p-toast>
+  </div>
+</div>
