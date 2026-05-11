@@ -73,8 +73,8 @@ export class AppMenu {
             label: 'Users',
             icon: 'pi pi-users',
             items: [
-              { label: 'All Users',        icon: 'pi pi-users',       routerLink: ['/users'] },
-              { label: 'Inactive Clients', icon: 'pi pi-user-minus',  routerLink: ['/users/inactive'] },
+              { label: 'Active Users',     icon: 'pi pi-users',       routerLink: ['/users'] },
+              { label: 'Inactive Users', icon: 'pi pi-user-minus',  routerLink: ['/users/inactive'] },
               { label: 'Register User',    icon: 'pi pi-user-plus',   routerLink: ['/users/register'] },
               { label: 'Profiles',         icon: 'pi pi-id-card',     routerLink: ['/profiles'] },
               { label: 'Onboard Client',   icon: 'pi pi-play-circle', routerLink: ['/users/onboard'] },
