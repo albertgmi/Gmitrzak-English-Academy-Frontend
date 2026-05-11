@@ -98,6 +98,14 @@
         <label for="password" class="block font-bold mb-3">Password (optional)</label>
         <input type="password" pInputText id="password" [(ngModel)]="user.password" fluid />
       </div>
+
+      <div class="flex items-center gap-2">
+        <p-checkbox 
+          [(ngModel)]="user.isActive" 
+          [binary]="true" 
+          inputId="isActive" />
+        <label for="isActive" class="font-bold">Active Account</label>
+      </div>
     </div>
   </ng-template>
 

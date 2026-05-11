@@ -20,6 +20,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { User, UserService } from '../../services/user.service';
+import { CheckboxModule } from 'primeng/checkbox';
 
 interface Column {
   field: string;
@@ -55,7 +56,8 @@ interface ExportColumn {
     TagModule,
     InputIconModule,
     IconFieldModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    CheckboxModule
   ],
   providers: [MessageService, UserService, ConfirmationService]
 })
@@ -175,7 +177,8 @@ export class UserCrudComponent implements OnInit {
       username: this.user.username,
       email: this.user.email,
       role: this.user.role,
-      password: this.user.password || undefined
+      password: this.user.password || undefined,
+      isActive: this.user.isActive,
     });
 
     this.userDialog = false;

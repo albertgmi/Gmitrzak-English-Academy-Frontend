@@ -48,7 +48,7 @@ export class UserService {
     });
   }
 
-  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string }) {
+  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string; isActive?: boolean }) {
     this.http.put(`${this.apiUrl}/update/${userId}`, request).subscribe({
       next: () => {
         this.users.reload();
