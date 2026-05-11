@@ -84,8 +84,8 @@ export class AppMenu {
             label: 'Curriculum',
             icon: 'pi pi-sitemap',
             items: [
-              { label: 'Programs',      icon: 'pi pi-sitemap',       routerLink: ['/system/programs'] },
-              { label: 'Add Program',   icon: 'pi pi-plus-circle',   routerLink: ['/system/programs/add'] },
+              { label: 'Programs',      icon: 'pi pi-sitemap',       routerLink: ['/curriculum/programs'] },
+              { label: 'Add Program',   icon: 'pi pi-plus-circle',   routerLink: ['/curriculum/programs/add'] },
               { label: 'Courses',       icon: 'pi pi-book',          routerLink: ['/system/courses'] },
               { label: 'Add Course',    icon: 'pi pi-plus-circle',   routerLink: ['/system/courses/add'] },
               { label: 'Matrices',      icon: 'pi pi-table',         routerLink: ['/system/matrices'] },

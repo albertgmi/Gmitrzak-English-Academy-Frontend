@@ -24,7 +24,7 @@
       <p class="text-muted-color mt-1">{{ profile.email }}</p>
     </div>
     
-    <div class="ml-auto">
+    <div class="ml-auto" *ngIf="isAdmin">
       <p-button 
         [label]="editMode ? 'Cancel' : 'Edit'" 
         [icon]="editMode ? 'pi pi-times' : 'pi pi-pencil'" 

@@ -1,0 +1,265 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="selectedProgram() as program; else listView" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <p-button
+      icon="pi pi-arrow-left"
+      severity="secondary"
+      outlined
+      (onClick)="backToList()"
+      pTooltip="Back to list"
+    />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ program.name }}</h2>
+      <p class="text-muted-color mt-1 m-0">Program details</p>
+    </div>
+    <p-tag
+      [severity]="program.isHidden ? 'warn' : 'success'"
+      [value]="program.isHidden ? 'Hidden' : 'Visible'"
+    />
+    <p-button
+      icon="pi pi-pencil"
+      label="Edit"
+      class="mr-2"
+      (onClick)="openEditDialog(program)"
+    />
+    <p-button
+      icon="pi pi-trash"
+      label="Delete"
+      severity="danger"
+      outlined
+      (onClick)="confirmDelete(program)"
+    />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">ID</span>
+      <span class="text-surface-900 dark:text-surface-0 font-medium">{{ program.id }}</span>
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Visibility</span>
+      <p-tag
+        [severity]="program.isHidden ? 'warn' : 'success'"
+        [value]="program.isHidden ? 'Hidden' : 'Visible'"
+      />
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 md:col-span-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Description</span>
+      <span class="text-surface-900 dark:text-surface-0">{{ program.description || '—' }}</span>
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-3 text-surface-900 dark:text-surface-0">
+      Assigned Courses
+      <span class="ml-2 text-sm font-normal text-muted-color">({{ program.courseDtos?.length || 0 }})</span>
+    </h3>
+
+    <p-table
+      [value]="program.courseDtos || []"
+      dataKey="id"
+      [rows]="10"
+      [paginator]="(program.courseDtos?.length ?? 0) > 10"
+      [rowHover]="true"
+      [tableStyle]="{ 'min-width': '40rem' }"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 5rem">ID</th>
+          <th>Name</th>
+          <th>Description</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-course>
+        <tr>
+          <td class="text-muted-color">{{ course.id }}</td>
+          <td class="font-semibold text-surface-900 dark:text-surface-0">{{ course.name }}</td>
+          <td class="text-muted-color">{{ course.description || '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="3" class="text-center text-muted-color py-6">
+            <i class="pi pi-inbox text-3xl block mb-2"></i>
+            No courses assigned to this program.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<ng-template #listView>
+  <div class="card">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <span class="text-xl font-semibold">Programs</span>
+      </ng-template>
+      <ng-template #end>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input
+            pInputText
+            type="text"
+            (input)="onGlobalFilter(dt, $event)"
+            placeholder="Search..."
+          />
+        </p-iconfield>
+        <p-button
+          icon="pi pi-refresh"
+          severity="secondary"
+          outlined
+          class="ml-2"
+          (onClick)="reload()"
+          pTooltip="Refresh"
+        />
+      </ng-template>
+    </p-toolbar>
+
+    <p-table
+      #dt
+      [value]="programs.value() || []"
+      dataKey="id"
+      [loading]="programs.isLoading()"
+      [rows]="10"
+      [paginator]="true"
+      [globalFilterFields]="['name', 'description']"
+      [tableStyle]="{ 'min-width': '50rem' }"
+      [rowHover]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} programs"
+      [showCurrentPageReport]="true"
+      [rowsPerPageOptions]="[10, 20, 30]"
+    >
+      <ng-template #header>
+        <tr>
+          <th style="width: 4rem">ID</th>
+          <th pSortableColumn="name">
+            Name <p-sortIcon field="name" />
+          </th>
+          <th>Description</th>
+          <th style="width: 8rem">Courses</th>
+          <th style="width: 8rem">Status</th>
+          <th style="width: 8rem">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-program>
+        <tr>
+          <td class="text-muted-color">{{ program.id }}</td>
+          <td>
+            <span
+              class="font-bold text-primary cursor-pointer hover:underline"
+              (click)="selectProgram(program)"
+            >
+              {{ program.name }}
+            </span>
+          </td>
+          <td class="text-muted-color">
+            <span *ngIf="program.description; else noDesc">
+              {{ program.description.length > 60 ? (program.description | slice:0:60) + '…' : program.description }}
+            </span>
+            <ng-template #noDesc><span class="text-muted-color">—</span></ng-template>
+          </td>
+          <td>
+            <span class="inline-flex items-center gap-1 text-sm">
+              <i class="pi pi-book text-muted-color"></i>
+              {{ program.courseDtos?.length || 0 }}
+            </span>
+          </td>
+          <td>
+            <p-tag
+              [severity]="program.isHidden ? 'warn' : 'success'"
+              [value]="program.isHidden ? 'Hidden' : 'Visible'"
+            />
+          </td>
+          <td>
+            <p-button
+              icon="pi pi-pencil"
+              [rounded]="true"
+              outlined
+              class="mr-2"
+              (onClick)="openEditDialog(program)"
+              pTooltip="Edit"
+            />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [rounded]="true"
+              outlined
+              (onClick)="confirmDelete(program)"
+              pTooltip="Delete"
+            />
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-muted-color py-8">
+            <i class="pi pi-inbox text-4xl block mb-2"></i>
+            No programs found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<p-dialog
+  [(visible)]="editDialog"
+  [style]="{ width: '480px' }"
+  header="Edit Program"
+  [modal]="true"
+  [closable]="true"
+  (onHide)="hideEditDialog()"
+>
+  <ng-template #content>
+    <div class="flex flex-col gap-4" *ngIf="editedProgram">
+
+      <div>
+        <label for="prog-name" class="block font-bold mb-2">Name</label>
+        <input
+          type="text"
+          pInputText
+          id="prog-name"
+          [(ngModel)]="editedProgram.name"
+          placeholder="Program name"
+          fluid
+        />
+        <small class="text-red-500" *ngIf="submitted && !editedProgram.name?.trim()">
+          Name is required.
+        </small>
+      </div>
+
+      <div>
+        <label for="prog-desc" class="block font-bold mb-2">Description</label>
+        <textarea
+          pTextarea
+          id="prog-desc"
+          [(ngModel)]="editedProgram.description"
+          placeholder="Program description"
+          rows="4"
+          fluid
+        ></textarea>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <p-checkbox
+          [(ngModel)]="editedProgram.isHidden"
+          [binary]="true"
+          inputId="prog-hidden"
+        />
+        <label for="prog-hidden" class="font-bold">Hidden</label>
+      </div>
+
+    </div>
+  </ng-template>
+
+  <ng-template #footer>
+    <p-button label="Cancel" icon="pi pi-times" severity="secondary" outlined (onClick)="hideEditDialog()" />
+    <p-button label="Save" icon="pi pi-check" (onClick)="saveProgram()" />
+  </ng-template>
+</p-dialog>

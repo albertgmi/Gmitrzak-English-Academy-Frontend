@@ -7,7 +7,9 @@ import {Notfound} from './pages/notfound/notfound';
 import {AuthGuard} from './shared/guards/auth.guard';
 import {UserCrudComponent} from './user/user-crud/user-crud.component';
 import {FlashcardPanelComponent} from './flashcards/flashcard-panel/flashcard-panel.component';
-import { ProfileComponent } from './user/profile/profile.component';
+import {ProfileComponent} from './user/profile/profile.component';
+import {ProgramComponent} from './curriculum/program/program.component';
+import {ProgramAddingComponent} from './curriculum/program-adding/program-adding.component';
 export const appRoutes: Routes = [
   {
     path: '',
@@ -20,6 +22,8 @@ export const appRoutes: Routes = [
       { path: 'users', component: UserCrudComponent, canActivate: [AuthGuard] },
       { path: 'users/inactive', component: UserCrudComponent, canActivate: [AuthGuard] },
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/programs', component: ProgramComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/programs/add', component: ProgramAddingComponent, canActivate: [AuthGuard] },
       { path: 'users/register', loadComponent: () => import('./user/register-user/register-user.component').then(m => m.RegisterUserComponent), canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { 

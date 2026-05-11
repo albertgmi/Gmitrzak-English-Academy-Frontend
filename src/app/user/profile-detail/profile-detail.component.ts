@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ProfileDto, ProfileService } from '../../services/profile.service';
+import { AuthService } from '../../services/auth.service';
 
 @Component({
   selector: 'app-profile-detail',
@@ -34,8 +35,9 @@ export class ProfileDetailComponent implements OnInit {
   private router = inject(Router);
   private profileService = inject(ProfileService);
   private messageService = inject(MessageService);
+  private authService = inject(AuthService);
 
-  // Po wdrożeniu zmień tę wartość na adres swojego serwera produkcyjnego
+  // Po wdrożeniu zmiana na adres swojego serwera produkcyjnego
   readonly apiUrl = 'https://localhost:7100'; 
 
   profile: ProfileDto | null = null;
@@ -75,6 +77,8 @@ export class ProfileDetailComponent implements OnInit {
   }
 
   toggleEdit() {
+    if (!this.isAdmin) return;
+
     this.editMode = !this.editMode;
     if (!this.editMode) {
       this.loadProfile();
@@ -111,8 +115,12 @@ export class ProfileDetailComponent implements OnInit {
     }
   }
 
+  get isAdmin(): boolean {
+    return this.authService.getRole() === 'Admin';
+  }
+
   save() {
-    if (!this.profile) return;
+    if (!this.profile || !this.isAdmin) return;
     if (this.selectedFile) {
       this.profileService.uploadAvatar(this.userId, this.selectedFile).subscribe({
         next: (url) => {
