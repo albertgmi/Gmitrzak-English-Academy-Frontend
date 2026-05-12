@@ -54,6 +54,10 @@ export class ProgramComponent {
     editedProgram!: Program;
     submitted = false;
 
+    ngOnInit() {
+        this.programService.reloadPrograms();
+    }
+
     selectProgram(program: Program): void {
         this.selectedProgram.set(program);
     }
