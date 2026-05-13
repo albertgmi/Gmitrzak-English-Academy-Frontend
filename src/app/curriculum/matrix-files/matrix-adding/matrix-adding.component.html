@@ -1,0 +1,44 @@
+<p-toast></p-toast>
+<div class="flex flex-col gap-5">
+
+  <div>
+    <label for="m-name" class="block font-bold mb-2">Name <span class="text-red-500">*</span></label>
+    <input type="text" pInputText id="m-name" [(ngModel)]="newMatrix.name"
+      placeholder="e.g. Business Grammar — 10 weeks" fluid />
+    <small class="text-red-500" *ngIf="submitted && !newMatrix.name?.trim()">Name is required.</small>
+  </div>
+
+  <div>
+    <label for="m-desc" class="block font-bold mb-2">Description</label>
+    <textarea pTextarea id="m-desc" [(ngModel)]="newMatrix.description"
+      placeholder="What does this matrix cover?" rows="3" fluid></textarea>
+  </div>
+
+  <div>
+    <label class="block font-bold mb-3">Refresh Interval</label>
+    <div class="flex flex-wrap gap-2 mb-3">
+      <p-button *ngFor="let p of intervalPresets"
+        [label]="p.label"
+        [outlined]="newMatrix.refreshIntervalDays !== p.value"
+        size="small"
+        (onClick)="newMatrix.refreshIntervalDays = p.value" />
+    </div>
+    <div class="flex items-center gap-3">
+      <p-inputNumber [(ngModel)]="newMatrix.refreshIntervalDays"
+        [min]="1" [max]="365" suffix=" days"
+        inputStyleClass="w-28" />
+      <span class="text-sm text-muted-color">or enter custom value</span>
+    </div>
+  </div>
+
+  <div class="flex items-center gap-3">
+    <p-checkbox [(ngModel)]="newMatrix.isHidden" [binary]="true" inputId="m-hidden" />
+    <label for="m-hidden" class="font-bold">Hidden from students</label>
+  </div>
+
+  <div class="flex gap-3 pt-2">
+    <p-button label="Create Matrix" icon="pi pi-plus" [loading]="loading" (onClick)="save()" />
+    <p-button label="Clear" icon="pi pi-times" severity="secondary" outlined (onClick)="reset()" />
+  </div>
+
+</div>

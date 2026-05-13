@@ -1,5 +1,5 @@
 import { Component, computed, inject, OnInit, ViewChild } from '@angular/core';
-import { Router } from '@angular/router';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -64,6 +64,7 @@ interface ExportColumn {
 export class UserCrudComponent implements OnInit {
   userService = inject(UserService);
   public router = inject(Router);
+  route = inject(ActivatedRoute);
 
   userDialog: boolean = false;
   user!: User;
@@ -75,24 +76,20 @@ export class UserCrudComponent implements OnInit {
 
   @ViewChild('dt') dt!: Table;
 
-  displayUsers = computed(() => {
-    const allUsers = this.userService.users.value() || [];
-    const isInactiveRoute = this.router.url.includes('inactive');
-    
-    if (isInactiveRoute) {
-      return allUsers.filter(u => u.isActive === false);
-    } else {
-      return allUsers.filter(u => u.isActive === true);
-    }
-  });
+  displayUsers = computed(() => this.userService.users.value() || []);
 
   constructor(
-    private messageService: MessageService,
-    private confirmationService: ConfirmationService
-  ) {}
+      private messageService: MessageService,
+      private confirmationService: ConfirmationService
+  ) {
+      this.route.url.subscribe(() => {
+          const isInactive = this.router.url.includes('inactive');
+          this.userService.filterActive.set(!isInactive);
+      });
+  }
 
   ngOnInit() {
-    this.loadData();
+      this.loadData();
   }
 
   loadData() {
@@ -119,9 +116,9 @@ export class UserCrudComponent implements OnInit {
   }
 
   openNew() {
-    this.user = { id: 0 };
-    this.submitted = false;
-    this.userDialog = true;
+      this.user = { id: 0, isActive: true };
+      this.submitted = false;
+      this.userDialog = true;
   }
 
   editUser(user: User) {

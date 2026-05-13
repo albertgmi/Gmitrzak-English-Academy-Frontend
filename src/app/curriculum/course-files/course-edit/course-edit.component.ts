@@ -10,8 +10,8 @@ import { ChipModule } from 'primeng/chip';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { Course, CourseService, UpdateCourseRequest, ProgramSimple } from '../../services/course.service';
-import { ProgramService } from '../../services/program.service';
+import { Course, CourseService, UpdateCourseRequest, ProgramSimple } from '../../../services/course.service';
+import { ProgramService } from '../../../services/program.service';
 
 @Component({
     selector: 'app-course-edit',

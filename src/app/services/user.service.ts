@@ -27,11 +27,17 @@ export class UserService {
 
   http = inject(HttpClient);
 
-  users = resource<User[], string>({
-    loader: (request) => {
-      const request$ = this.http.get(`${this.apiUrl}/users`);
-      return lastValueFrom<any>(request$);
-    }});
+  filterActive = signal<boolean>(true);
+
+  users = resource<User[], { active: boolean }>({
+    request: () => ({ active: this.filterActive() }),
+    loader: ({ request }) => {
+      const request$ = this.http.get<User[]>(`${this.apiUrl}/users`, {
+        params: { active: request.active }
+      });
+      return lastValueFrom(request$);
+    }
+  });
 
   getProfile(): Observable<any> {
     return this.http.get(`${this.apiUrl}/profile`);

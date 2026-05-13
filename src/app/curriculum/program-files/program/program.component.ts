@@ -16,7 +16,7 @@ import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService, ConfirmationService } from 'primeng/api';
 
-import { Program, ProgramService, UpdateProgramRequest } from '../../services/program.service';
+import { Program, ProgramService, UpdateProgramRequest } from '../../../services/program.service';
 
 @Component({
     selector: 'app-program',

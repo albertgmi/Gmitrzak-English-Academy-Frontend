@@ -8,10 +8,21 @@ import {AuthGuard} from './shared/guards/auth.guard';
 import {UserCrudComponent} from './user/user-crud/user-crud.component';
 import {FlashcardPanelComponent} from './flashcards/flashcard-panel/flashcard-panel.component';
 import {ProfileComponent} from './user/profile/profile.component';
-import {ProgramComponent} from './curriculum/program/program.component';
-import {ProgramAddingComponent} from './curriculum/program-adding/program-adding.component';
-import { CourseComponent } from './curriculum/course/course.component';
-import { CourseEditComponent } from './curriculum/course-edit/course-edit.component';
+import {ProgramComponent} from './curriculum/program-files/program/program.component';
+import {ProgramAddingComponent} from './curriculum/program-files/program-adding/program-adding.component';
+import {CourseComponent} from './curriculum/course-files/course/course.component';
+import {CourseEditComponent} from './curriculum/course-files/course-edit/course-edit.component';
+import {CourseAddingComponent} from './curriculum/course-files/course-adding/course-adding.component';
+import {MatrixComponent} from './curriculum/matrix-files/matrix/matrix.component';
+import {MatrixAddingComponent} from './curriculum/matrix-files/matrix-adding/matrix-adding.component';
+import {MatrixEditComponent} from './curriculum/matrix-files/matrix-edit/matrix-edit.component';
+import {PlanMatrixComponent} from './curriculum/matrix-files/plan-matrix/plan-matrix.component';
+import {ModuleComponent} from './curriculum/module-files/module/module.component';
+import {PlanModuleComponent} from './curriculum/module-files/plan-module/plan-module.component';
+import {ModuleAddingComponent} from './curriculum/module-files/module-adding/module-adding.component';
+import {ModuleEditComponent} from './curriculum/module-files/module-edit/module-edit.component';
+
+
 export const appRoutes: Routes = [
   {
     path: '',
@@ -28,6 +39,15 @@ export const appRoutes: Routes = [
       { path: 'curriculum/programs/add', component: ProgramAddingComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/courses', component: CourseComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/course/:id/edit', component: CourseEditComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/courses/add', component: CourseAddingComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/matrices', component: MatrixComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/matrices/add', component: MatrixAddingComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/matrices/:id/edit', component: MatrixEditComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/matrices/plan', component: PlanMatrixComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/modules', component: ModuleComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/modules/:id/edit', component: ModuleEditComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/modules/create', component: ModuleAddingComponent, canActivate: [AuthGuard] },
+      { path: 'curriculum/modules/plan', component: PlanModuleComponent, canActivate: [AuthGuard] },
       { path: 'users/register', loadComponent: () => import('./user/register-user/register-user.component').then(m => m.RegisterUserComponent), canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { 

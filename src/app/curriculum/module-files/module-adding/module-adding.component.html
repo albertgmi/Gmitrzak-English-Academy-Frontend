@@ -1,0 +1,40 @@
+<p-toast />
+
+<div class="card">
+    <div class="flex items-center justify-between mb-6">
+        <div>
+            <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">New Module</h2>
+            <p class="text-muted-color mt-1 m-0">Define the details of the new task module</p>
+        </div>
+    </div>
+
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+            <div>
+                <label class="block font-bold mb-2">Name <span class="text-red-500">*</span></label>
+                <input type="text" pInputText [(ngModel)]="newModule.name"
+                    placeholder="e.g. Translate sentences 1–10" fluid />
+                <small class="text-red-500" *ngIf="submitted && !newModule.name?.trim()">Name is required.</small>
+            </div>
+
+            <div class="md:col-span-2">
+                <label class="block font-bold mb-2">Description</label>
+                <textarea pTextarea [(ngModel)]="newModule.description"
+                    placeholder="What does this module require the student to do?"
+                    rows="4" fluid></textarea>
+            </div>
+
+            <div class="flex items-end gap-3">
+                <div class="flex items-center gap-2 mb-2">
+                    <p-checkbox [(ngModel)]="newModule.isHidden" [binary]="true" inputId="add-hidden" />
+                    <label for="add-hidden" class="font-bold">Hidden</label>
+                </div>
+            </div>
+        </div>
+
+        <div class="flex gap-3 mt-6">
+            <p-button label="Create Module" icon="pi pi-check" (onClick)="save()" />
+            <p-button label="Cancel" severity="secondary" outlined (onClick)="cancel()" />
+        </div>
+    </div>
+</div>

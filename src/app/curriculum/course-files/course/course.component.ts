@@ -14,7 +14,7 @@ import { RippleModule } from 'primeng/ripple';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ChipModule } from 'primeng/chip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { Course, CourseService } from '../../services/course.service';
+import { Course, CourseService } from '../../../services/course.service';
 
 @Component({
     selector: 'app-course',
@@ -45,6 +45,10 @@ export class CourseComponent {
 
     courses = this.courseService.courses;
     selectedCourse = signal<Course | null>(null);
+
+    ngOnInit() {
+        this.courseService.reloadCourses();
+    }
 
     selectCourse(course: Course): void {
         this.selectedCourse.set(course);
