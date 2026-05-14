@@ -1,0 +1,63 @@
+<p-toast />
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Vocabulary</h2>
+      <p class="text-muted-color mt-1 m-0">All your flashcards</p>
+    </div>
+  </div>
+
+  <p-table #dt [value]="flashcards.value() || []" [loading]="flashcards.isLoading()"
+    [rows]="15" [paginator]="true" [rowHover]="true"
+    [globalFilterFields]="['front', 'back', 'category']"
+    [tableStyle]="{'min-width': '40rem'}"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} cards"
+    [showCurrentPageReport]="true" [rowsPerPageOptions]="[15, 30, 50]">
+
+    <ng-template #caption>
+      <div class="flex items-center justify-between">
+        <span class="text-sm text-muted-color">{{ flashcards.value()?.length || 0 }} total cards</span>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="front">Front <p-sortIcon field="front" /></th>
+        <th pSortableColumn="back">Back <p-sortIcon field="back" /></th>
+        <th pSortableColumn="category" style="width: 10rem">Category <p-sortIcon field="category" /></th>
+        <th style="width: 8rem">Interval</th>
+        <th style="width: 6rem">Leech</th>
+        <th pSortableColumn="nextReviewDate" style="width: 10rem">Next Review <p-sortIcon field="nextReviewDate" /></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-card>
+      <tr>
+        <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.front }}</td>
+        <td class="text-muted-color">{{ card.back }}</td>
+        <td>
+          <p-tag [value]="card.category" severity="info" />
+        </td>
+        <td class="text-sm">{{ intervalLabel(card.interval) }}</td>
+        <td>
+          <i *ngIf="card.isLeech" class="pi pi-exclamation-triangle text-red-500"
+            pTooltip="Leech — this card is difficult"></i>
+        </td>
+        <td class="text-sm">{{ card.nextReviewDate | date:'d MMM yyyy' }}</td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="text-center text-muted-color py-8">
+          <i class="pi pi-clone text-4xl block mb-2"></i>
+          No flashcards yet.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

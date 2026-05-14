@@ -4,7 +4,7 @@ import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
-import { StudentService, GradeDto } from '../../services/student.service';
+import { StudentService, GradeDto } from '../../services/student-services/student.service';
 
 @Component({
     selector: 'app-grades',

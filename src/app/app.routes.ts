@@ -6,7 +6,7 @@ import {Landing} from './pages/landing/landing';
 import {Notfound} from './pages/notfound/notfound';
 import {AuthGuard} from './shared/guards/auth.guard';
 import {UserCrudComponent} from './user/user-crud/user-crud.component';
-import {FlashcardPanelComponent} from './flashcards/flashcard-panel/flashcard-panel.component';
+import {FlashcardPanelComponent} from './student-view/flashcard-panel/flashcard-panel.component';
 import {ProfileComponent} from './user/profile/profile.component';
 import {ProgramComponent} from './curriculum/program-files/program/program.component';
 import {ProgramAddingComponent} from './curriculum/program-files/program-adding/program-adding.component';
@@ -21,12 +21,18 @@ import {ModuleComponent} from './curriculum/module-files/module/module.component
 import {PlanModuleComponent} from './curriculum/module-files/plan-module/plan-module.component';
 import {ModuleAddingComponent} from './curriculum/module-files/module-adding/module-adding.component';
 import {ModuleEditComponent} from './curriculum/module-files/module-edit/module-edit.component';
-import { RegisterUserComponent } from './user/register-user/register-user.component';
-import { UserCourseComponent } from './student-view/user-course/user-course.component';
-import { LastWeekComponent } from './student-view/last-week/last-week.component';
-import { ActivityPointsComponent } from './student-view/activity-points/activity-points.component';
-import { GradesComponent } from './student-view/grades/grades.component';
-import { StatsComponent } from './student-view/stats/stats.component';
+import {RegisterUserComponent } from './user/register-user/register-user.component';
+import {UserCourseComponent } from './student-view/user-course/user-course.component';
+import {LastWeekComponent } from './student-view/last-week/last-week.component';
+import {ActivityPointsComponent } from './student-view/activity-points/activity-points.component';
+import {GradesComponent } from './student-view/grades/grades.component';
+import {StatsComponent } from './student-view/stats/stats.component';
+import {VocabularyComponent} from './student-view/vocabulary/vocabulary.component';
+import {SentencesComponent} from './student-view/sentences/sentences.component';
+import {MemoriesComponent} from './student-view/memories/memories.component';
+import {PronunciationComponent} from './student-view/pronunciation/pronunciation.component';
+import {AssignmentsComponent} from './student-view/assignments/assignments.component';
+import {FlashcardStudyModeComponent} from './student-view/flashcard-study-mode/flashcard-study-mode.component';
 
 
 
@@ -41,7 +47,6 @@ export const appRoutes: Routes = [
       { path: 'pages', loadChildren: () => import('./pages/pages.routes') },
       { path: 'users', component: UserCrudComponent, canActivate: [AuthGuard] },
       { path: 'users/inactive', component: UserCrudComponent, canActivate: [AuthGuard] },
-      { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/programs', component: ProgramComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/programs/add', component: ProgramAddingComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/courses', component: CourseComponent, canActivate: [AuthGuard] },
@@ -60,6 +65,13 @@ export const appRoutes: Routes = [
       { path: 'activity-points',  component: ActivityPointsComponent,  canActivate: [AuthGuard] },
       { path: 'grades', component: GradesComponent, canActivate: [AuthGuard] },
       { path: 'stats', component: StatsComponent, canActivate: [AuthGuard] },
+      { path: 'vocabulary', component: VocabularyComponent, canActivate: [AuthGuard] },
+      { path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard] },
+      { path: 'memories', component: MemoriesComponent, canActivate: [AuthGuard] },
+      { path: 'pronunciation', component: PronunciationComponent, canActivate: [AuthGuard] },
+      { path: 'assignments', component: AssignmentsComponent, canActivate: [AuthGuard] },
+      { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
+      { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { 

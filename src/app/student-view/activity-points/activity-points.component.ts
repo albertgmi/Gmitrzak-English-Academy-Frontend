@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { TableModule } from 'primeng/table';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { StudentService, ActivityPointsHistoryDto } from '../../services/student.service';
+import { StudentService, ActivityPointsHistoryDto } from '../../services/student-services/student.service';
 
 @Component({
     selector: 'app-activity-points',

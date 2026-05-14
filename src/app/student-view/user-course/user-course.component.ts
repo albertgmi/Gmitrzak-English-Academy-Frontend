@@ -7,7 +7,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
-import { StudentService, StudentAssignmentDto, StudentModuleDto } from '../../services/student.service';
+import { StudentService, StudentAssignmentDto, StudentModuleDto } from '../../services/student-services/student.service';
 
 @Component({
     selector: 'app-user-course',

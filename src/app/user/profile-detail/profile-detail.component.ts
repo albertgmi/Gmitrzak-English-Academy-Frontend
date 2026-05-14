@@ -176,7 +176,7 @@ export class ProfileDetailComponent implements OnInit {
     if (this.isAdmin) {
       this.router.navigate(['/profiles']);
     } else {
-      this.router.navigate(['/']); // Powrót do dashboardu
+      this.router.navigate(['/']);
     }
   }
 

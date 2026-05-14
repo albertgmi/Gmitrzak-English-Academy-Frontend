@@ -3,7 +3,7 @@ import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
 import { MessageService } from 'primeng/api';
-import { StudentService, StatsDto } from '../../services/student.service';
+import { StudentService, StatsDto } from '../../services/student-services/student.service';
 
 @Component({
     selector: 'app-stats',

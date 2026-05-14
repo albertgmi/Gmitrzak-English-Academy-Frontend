@@ -5,7 +5,7 @@ import { TagModule } from 'primeng/tag';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { MessageService } from 'primeng/api';
-import { StudentService, LastWeekDto } from '../../services/student.service';
+import { StudentService, LastWeekDto } from '../../services/student-services/student.service';
 
 @Component({
     selector: 'app-last-week',
