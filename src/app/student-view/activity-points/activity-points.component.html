@@ -1,0 +1,54 @@
+<p-toast />
+<div class="card">
+  <h2 class="text-2xl font-bold m-0 mb-6 text-surface-900 dark:text-surface-0">Activity Points</h2>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && data() as d">
+
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-primary/10 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-primary">{{ d.totalAllTime }}</div>
+        <div class="text-xs text-muted-color mt-1">All Time</div>
+      </div>
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalThisWeek }}</div>
+        <div class="text-xs text-muted-color mt-1">This Week</div>
+      </div>
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalLastWeek }}</div>
+        <div class="text-xs text-muted-color mt-1">Last Week</div>
+      </div>
+    </div>
+
+    <p-table [value]="d.history" [rows]="15" [paginator]="d.history.length > 15"
+      [tableStyle]="{'min-width': '30rem'}" [rowHover]="true">
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="pointDate">Date <p-sortIcon field="pointDate" /></th>
+          <th pSortableColumn="points">Points <p-sortIcon field="points" /></th>
+          <th>Reason</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-p>
+        <tr>
+          <td>{{ p.pointDate | date:'d MMM yyyy' }}</td>
+          <td>
+            <span class="font-bold text-primary">+{{ p.points }}</span>
+          </td>
+          <td class="text-muted-color">{{ p.reason || '—' }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="3" class="text-center text-muted-color py-8">
+            <i class="pi pi-chart-line text-3xl block mb-2"></i>
+            No activity points yet.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>

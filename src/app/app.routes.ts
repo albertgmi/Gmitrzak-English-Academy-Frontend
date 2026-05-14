@@ -21,6 +21,13 @@ import {ModuleComponent} from './curriculum/module-files/module/module.component
 import {PlanModuleComponent} from './curriculum/module-files/plan-module/plan-module.component';
 import {ModuleAddingComponent} from './curriculum/module-files/module-adding/module-adding.component';
 import {ModuleEditComponent} from './curriculum/module-files/module-edit/module-edit.component';
+import { RegisterUserComponent } from './user/register-user/register-user.component';
+import { UserCourseComponent } from './student-view/user-course/user-course.component';
+import { LastWeekComponent } from './student-view/last-week/last-week.component';
+import { ActivityPointsComponent } from './student-view/activity-points/activity-points.component';
+import { GradesComponent } from './student-view/grades/grades.component';
+import { StatsComponent } from './student-view/stats/stats.component';
+
 
 
 export const appRoutes: Routes = [
@@ -48,7 +55,12 @@ export const appRoutes: Routes = [
       { path: 'curriculum/modules/:id/edit', component: ModuleEditComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/modules/create', component: ModuleAddingComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/modules/plan', component: PlanModuleComponent, canActivate: [AuthGuard] },
-      { path: 'users/register', loadComponent: () => import('./user/register-user/register-user.component').then(m => m.RegisterUserComponent), canActivate: [AuthGuard] },
+      { path: 'courses', component: UserCourseComponent, canActivate: [AuthGuard] },
+      { path: 'last-week', component: LastWeekComponent, canActivate: [AuthGuard] },
+      { path: 'activity-points',  component: ActivityPointsComponent,  canActivate: [AuthGuard] },
+      { path: 'grades', component: GradesComponent, canActivate: [AuthGuard] },
+      { path: 'stats', component: StatsComponent, canActivate: [AuthGuard] },
+      { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { 
           path: 'profiles/:userId', 

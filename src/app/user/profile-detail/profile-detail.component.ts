@@ -37,7 +37,6 @@ export class ProfileDetailComponent implements OnInit {
   private messageService = inject(MessageService);
   private authService = inject(AuthService);
 
-  // Po wdrożeniu zmiana na adres swojego serwera produkcyjnego
   readonly apiUrl = 'https://localhost:7100'; 
 
   profile: ProfileDto | null = null;
@@ -63,7 +62,7 @@ export class ProfileDetailComponent implements OnInit {
             this.loadProfile();
         }
     });
-}
+  }
 
   loadProfile() {
     this.profileService.getProfile(this.userId).subscribe({
@@ -76,9 +75,26 @@ export class ProfileDetailComponent implements OnInit {
     });
   }
 
+  get isAdmin(): boolean {
+    return this.authService.getRole() === 'Admin';
+  }
+
+  get isOwnProfile(): boolean {
+    return this.authService.getUserId() === this.userId;
+  }
+
+  get initials(): string {
+    if (!this.profile?.username) return '?';
+    return this.profile.username
+      .split(' ')
+      .map(w => w[0])
+      .join('')
+      .substring(0, 2)
+      .toUpperCase();
+  }
+
   toggleEdit() {
     if (!this.isAdmin) return;
-
     this.editMode = !this.editMode;
     if (!this.editMode) {
       this.loadProfile();
@@ -109,14 +125,25 @@ export class ProfileDetailComponent implements OnInit {
     this.avatarError = null;
   }
 
-  onAvatarError(event: Event) {
-    if (this.profile) {
-      this.profile.avatarUrl = '';
-    }
-  }
+  saveAvatar() {
+    if (!this.selectedFile) return;
 
-  get isAdmin(): boolean {
-    return this.authService.getRole() === 'Admin';
+    this.profileService.uploadAvatar(this.userId, this.selectedFile).subscribe({
+      next: (url) => {
+        if (this.profile) this.profile.avatarUrl = url;
+        this.clearSelectedFile();
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Saved',
+          detail: 'Avatar updated successfully'
+        });
+      },
+      error: () => this.messageService.add({
+        severity: 'error',
+        summary: 'Error',
+        detail: 'Could not upload avatar'
+      })
+    });
   }
 
   save() {
@@ -128,11 +155,7 @@ export class ProfileDetailComponent implements OnInit {
           this.clearSelectedFile();
           this.saveProfileData();
         },
-        error: () => this.messageService.add({
-          severity: 'error',
-          summary: 'Error',
-          detail: 'Could not upload avatar'
-        })
+        error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Avatar upload failed' })
       });
     } else {
       this.saveProfileData();
@@ -142,32 +165,22 @@ export class ProfileDetailComponent implements OnInit {
   private saveProfileData() {
     this.profileService.updateProfile(this.userId, this.profile!).subscribe({
       next: () => {
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Saved',
-          detail: 'Profile updated'
-        });
+        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Profile updated' });
         this.editMode = false;
       },
-      error: () => this.messageService.add({
-        severity: 'error',
-        summary: 'Error',
-        detail: 'Could not save profile'
-      })
+      error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Save failed' })
     });
   }
 
-  get initials(): string {
-    if (!this.profile?.username) return '?';
-    return this.profile.username
-      .split(' ')
-      .map(w => w[0])
-      .join('')
-      .substring(0, 2)
-      .toUpperCase();
+  goBack() {
+    if (this.isAdmin) {
+      this.router.navigate(['/profiles']);
+    } else {
+      this.router.navigate(['/']); // Powrót do dashboardu
+    }
   }
 
-  goBack() {
-    this.router.navigate(['/profiles']);
+  onAvatarError(event: Event) {
+    if (this.profile) this.profile.avatarUrl = '';
   }
 }
