@@ -41,8 +41,12 @@ export class UserCourseComponent implements OnInit {
         return allCourses.find(c => c.matrixId === matrixId) ?? null;
     });
 
+    singleModules = this.studentService.singleModules;
+
     ngOnInit() {
         this.studentService.reloadCourses();
+        this.studentService.reloadCourses();
+        this.studentService.reloadSingleModules();
     }
 
     selectAssignment(assignment: StudentAssignmentDto) {
@@ -94,5 +98,25 @@ export class UserCourseComponent implements OnInit {
 
     getCompletedCount(assignment: StudentAssignmentDto): number {
         return assignment.modules?.filter(m => m.isCompleted).length ?? 0;
+    }
+
+    toggleSingleModule(module: StudentModuleDto) {
+        if (!module.isUnlocked) return;
+        
+        const action = module.isCompleted
+            ? this.studentService.uncompleteSingleModule(module.id)
+            : this.studentService.completeSingleModule(module.id);
+        
+        action.subscribe({
+            next: () => {
+                this.studentService.reloadSingleModules();
+            },
+            error: () => this.messageService.add({
+                severity: 'error',
+                summary: 'Error',
+                detail: 'Failed to update module status.',
+                life: 3000
+            })
+        });
     }
 }

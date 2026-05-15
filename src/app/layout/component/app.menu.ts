@@ -209,7 +209,7 @@ export class AppMenu implements OnInit {
       { label: 'Flashcards', icon: 'pi pi-clone', routerLink: ['/lesson/flashcards'] },
       { label: 'Report Listening', icon: 'pi pi-video', routerLink: ['/lesson/listening'] },
       { label: 'Stream Entries', icon: 'pi pi-server', routerLink: ['/lesson/stream'] },
-      { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/study-time'] },
+      { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/flashcards-study-time'] },
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },
       { label: 'Stats', icon: 'pi pi-chart-line', routerLink: ['/lesson/stats'] },
     ];

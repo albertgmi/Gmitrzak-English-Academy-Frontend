@@ -11,14 +11,22 @@
         (click)="backToList()">
         <i class="pi pi-arrow-left"></i>
       </button>
+
       <div class="flex-1">
-        <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ assignment.matrixName }}</h2>
+        <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+          {{ assignment.matrixName }}
+        </h2>
+
         <p class="text-muted-color mt-1 m-0">
-          Started {{ assignment.startDate | date:'longDate' }} · every {{ assignment.refreshIntervalDays }} days
+          Started {{ assignment.startDate | date:'longDate' }}
+          · every {{ assignment.refreshIntervalDays }} days
         </p>
       </div>
+
       <div class="text-right">
-        <div class="text-2xl font-bold text-primary">{{ progress(assignment) }}%</div>
+        <div class="text-2xl font-bold text-primary">
+          {{ progress(assignment) }}%
+        </div>
         <div class="text-xs text-muted-color">completed</div>
       </div>
     </div>
@@ -32,26 +40,44 @@
 
     <!-- Stats -->
     <div class="grid grid-cols-3 gap-4 mb-6">
+
       <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
-        <div class="text-2xl font-bold text-surface-900 dark:text-surface-0">{{ assignment.modules.length }}</div>
-        <div class="text-xs text-muted-color mt-1">Total modules</div>
+        <div class="text-2xl font-bold text-surface-900 dark:text-surface-0">
+          {{ assignment.modules.length }}
+        </div>
+
+        <div class="text-xs text-muted-color mt-1">
+          Total modules
+        </div>
       </div>
+
       <div class="bg-primary/10 rounded-xl p-4 text-center">
-        <div class="text-2xl font-bold text-primary">{{ unlockedCount(assignment) }}</div>
-        <div class="text-xs text-muted-color mt-1">Unlocked</div>
+        <div class="text-2xl font-bold text-primary">
+          {{ unlockedCount(assignment) }}
+        </div>
+
+        <div class="text-xs text-muted-color mt-1">
+          Unlocked
+        </div>
       </div>
+
       <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
         <div class="text-2xl font-bold text-green-600">
           {{ getCompletedCount(assignment) }}
         </div>
-        <div class="text-xs text-muted-color mt-1">Completed</div>
+
+        <div class="text-xs text-muted-color mt-1">
+          Completed
+        </div>
       </div>
+
     </div>
 
     <!-- Module list -->
     <div class="flex flex-col gap-3">
+
       <div *ngFor="let m of assignment.modules"
-        class="flex items-center gap-4 p-4 rounded-xl border transition-all"
+        class="flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ease-in-out hover:scale-[1.01]"
         [ngClass]="{
           'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 cursor-pointer hover:border-primary/50': m.isUnlocked && !m.isCompleted,
           'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': m.isCompleted,
@@ -68,90 +94,147 @@
             'bg-primary/10 text-primary': m.isUnlocked && !m.isCompleted,
             'bg-surface-200 dark:bg-surface-700 text-muted-color': !m.isUnlocked
           }">
+
           <i *ngIf="m.isCompleted" class="pi pi-check"></i>
           <i *ngIf="!m.isUnlocked" class="pi pi-lock text-xs"></i>
           <span *ngIf="m.isUnlocked && !m.isCompleted">{{ m.order }}</span>
+
         </div>
 
         <!-- Treść -->
         <div class="flex-1 min-w-0">
-          <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
-          <div class="text-xs text-muted-color mt-0.5">{{ m.description || '—' }}</div>
+
+          <div class="font-semibold text-surface-900 dark:text-surface-0">
+            {{ m.name }}
+          </div>
+
+          <div class="text-xs text-muted-color mt-0.5">
+            {{ m.description || '—' }}
+          </div>
+
         </div>
 
         <!-- Data + dzień -->
         <div class="text-right flex-shrink-0">
+
           <div class="text-sm font-medium"
             [ngClass]="m.isUnlocked ? 'text-surface-900 dark:text-surface-0' : 'text-muted-color'">
             {{ m.unlockDate | date:'d MMM' }}
           </div>
-          <div class="text-xs text-muted-color">{{ dayLabel(m.dayOfWeek) }}, week {{ m.weekNumber }}</div>
+
+          <div class="text-xs text-muted-color">
+            {{ dayLabel(m.dayOfWeek) }}, week {{ m.weekNumber }}
+          </div>
+
         </div>
 
         <!-- Status tag -->
         <div class="flex-shrink-0">
+
           <p-tag
             *ngIf="m.isCompleted"
             severity="success"
             value="Done" />
+
           <p-tag
             *ngIf="m.isUnlocked && !m.isCompleted"
             severity="info"
             value="Available" />
+
           <p-tag
             *ngIf="!m.isUnlocked"
             severity="secondary"
             value="Locked" />
+
         </div>
+
       </div>
+
     </div>
+
   </div>
 
   <!-- List view -->
   <ng-template #listView>
 
     <div class="flex items-center justify-between mb-6">
+
       <div>
-        <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">My Courses</h2>
-        <p class="text-muted-color mt-1 m-0">Your assigned learning matrices</p>
+        <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+          My Courses
+        </h2>
+
+        <p class="text-muted-color mt-1 m-0">
+          Your assigned learning matrices
+        </p>
       </div>
+
     </div>
 
     <!-- Loading -->
-    <div *ngIf="courses.isLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-      <div *ngFor="let i of [1,2,3]" class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5">
+    <div *ngIf="courses.isLoading()"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
+      <div *ngFor="let i of [1,2,3]"
+        class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5">
+
         <p-skeleton height="1.5rem" styleClass="mb-3" />
         <p-skeleton height="0.75rem" styleClass="mb-4" />
         <p-skeleton height="0.5rem" styleClass="mb-4" />
+
         <div class="flex gap-2">
-          <p-skeleton *ngFor="let j of [1,2,3,4,5]" width="2.5rem" height="2.5rem" borderRadius="8px" />
+          <p-skeleton
+            *ngFor="let j of [1,2,3,4,5]"
+            width="2.5rem"
+            height="2.5rem"
+            borderRadius="8px" />
         </div>
+
       </div>
+
     </div>
 
     <!-- Empty -->
     <div *ngIf="!courses.isLoading() && !courses.value()?.length"
       class="text-center py-16 text-muted-color">
+
       <i class="pi pi-book text-5xl block mb-4"></i>
-      <p class="text-xl">You are not enrolled in any courses yet.</p>
-      <p class="text-sm">Ask your teacher to assign a matrix.</p>
+
+      <p class="text-xl">
+        You are not enrolled in any courses yet.
+      </p>
+
+      <p class="text-sm">
+        Ask your teacher to assign a matrix.
+      </p>
+
     </div>
 
-    <!-- Cards -->
-    <div *ngIf="!courses.isLoading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+    <!-- Matrix Cards -->
+    <div *ngIf="!courses.isLoading()"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+
       <div *ngFor="let assignment of courses.value()"
         class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5 cursor-pointer hover:border-primary/50 hover:shadow-md transition-all"
         (click)="selectAssignment(assignment)">
 
         <!-- Header -->
         <div class="flex items-start justify-between mb-3">
+
           <div>
-            <h3 class="font-bold text-surface-900 dark:text-surface-0 m-0">{{ assignment.matrixName }}</h3>
+            <h3 class="font-bold text-surface-900 dark:text-surface-0 m-0">
+              {{ assignment.matrixName }}
+            </h3>
+
             <p class="text-xs text-muted-color mt-1 m-0">
               Started {{ assignment.startDate | date:'d MMM yyyy' }}
             </p>
           </div>
-          <span class="text-lg font-bold text-primary">{{ progress(assignment) }}%</span>
+
+          <span class="text-lg font-bold text-primary">
+            {{ progress(assignment) }}%
+          </span>
+
         </div>
 
         <!-- Progress bar -->
@@ -163,6 +246,7 @@
 
         <!-- Module bubbles -->
         <div class="flex flex-wrap gap-1.5">
+
           <div *ngFor="let m of assignment.modules"
             class="w-8 h-8 rounded-lg flex items-center justify-center text-xs font-bold"
             [ngClass]="{
@@ -172,21 +256,131 @@
             }"
             [pTooltip]="moduleTooltip(m)"
             tooltipPosition="top">
+
             <i *ngIf="m.isCompleted" class="pi pi-check text-xs"></i>
             <i *ngIf="!m.isUnlocked" class="pi pi-lock" style="font-size: 0.6rem"></i>
             <span *ngIf="m.isUnlocked && !m.isCompleted">{{ m.order }}</span>
+
           </div>
+
         </div>
 
         <!-- Footer -->
         <div class="flex items-center justify-between mt-4 pt-3 border-t border-surface-100 dark:border-surface-700">
+
           <span class="text-xs text-muted-color">
             {{ unlockedCount(assignment) }} / {{ assignment.modules.length }} unlocked
           </span>
-          <span class="text-xs text-primary font-medium">View details →</span>
+
+          <span class="text-xs text-primary font-medium">
+            View details →
+          </span>
+
         </div>
+
       </div>
+
+    </div>
+
+    <!-- Single modules -->
+    <div
+      *ngIf="singleModules.value()?.length"
+      class="mt-10">
+
+      <div class="flex items-center justify-between mb-4">
+
+        <div>
+          <h3 class="text-xl font-bold m-0 text-surface-900 dark:text-surface-0">
+            Individual Modules
+          </h3>
+
+          <p class="text-muted-color mt-1 m-0">
+            Additional standalone assignments
+          </p>
+        </div>
+
+      </div>
+
+      <div class="flex flex-col gap-3">
+
+        <div *ngFor="let m of singleModules.value()"
+          class="flex items-center gap-4 p-4 rounded-xl border transition-all"
+          [ngClass]="{
+            'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 cursor-pointer hover:border-primary/50': m.isUnlocked && !m.isCompleted,
+            'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': m.isCompleted,
+            'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700 opacity-60': !m.isUnlocked
+          }"
+          [pTooltip]="moduleTooltip(m)"
+          tooltipPosition="top"
+          (click)="toggleSingleModule(m)">
+
+          <!-- Icon -->
+          <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+            [ngClass]="{
+              'bg-green-500 text-white': m.isCompleted,
+              'bg-primary/10 text-primary': m.isUnlocked && !m.isCompleted,
+              'bg-surface-200 dark:bg-surface-700 text-muted-color': !m.isUnlocked
+            }">
+
+            <i *ngIf="m.isCompleted" class="pi pi-check"></i>
+            <i *ngIf="!m.isUnlocked" class="pi pi-lock text-xs"></i>
+            <i *ngIf="m.isUnlocked && !m.isCompleted" class="pi pi-book"></i>
+
+          </div>
+
+          <!-- Content -->
+          <div class="flex-1 min-w-0">
+
+            <div class="font-semibold text-surface-900 dark:text-surface-0">
+              {{ m.name }}
+            </div>
+
+            <div class="text-xs text-muted-color mt-0.5">
+              {{ m.description || '—' }}
+            </div>
+
+          </div>
+
+          <!-- Date -->
+          <div class="text-right flex-shrink-0">
+
+            <div class="text-sm font-medium"
+              [ngClass]="m.isUnlocked ? 'text-surface-900 dark:text-surface-0' : 'text-muted-color'">
+              {{ m.unlockDate | date:'d MMM' }}
+            </div>
+
+            <div class="text-xs text-muted-color">
+              Individual task
+            </div>
+
+          </div>
+
+          <!-- Status -->
+          <div class="flex-shrink-0">
+
+            <p-tag
+              *ngIf="m.isCompleted"
+              severity="success"
+              value="Done" />
+
+            <p-tag
+              *ngIf="m.isUnlocked && !m.isCompleted"
+              severity="info"
+              value="Available" />
+
+            <p-tag
+              *ngIf="!m.isUnlocked"
+              severity="secondary"
+              value="Locked" />
+
+          </div>
+
+        </div>
+
+      </div>
+
     </div>
 
   </ng-template>
+
 </div>

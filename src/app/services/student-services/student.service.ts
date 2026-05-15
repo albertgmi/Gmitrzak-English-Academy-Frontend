@@ -90,6 +90,13 @@ export class StudentService {
         loader: () => lastValueFrom(this.http.get<StudentAssignmentDto[]>(`${this.apiUrl}/courses`))
     });
 
+    singleModules = resource<StudentModuleDto[], unknown>({
+        loader: () =>
+            lastValueFrom(
+                this.http.get<StudentModuleDto[]>(`${this.apiUrl}/single-modules`)
+            )
+    });
+
     reloadCourses() {
         this.courses.reload();
     }
@@ -116,5 +123,17 @@ export class StudentService {
 
     getStats() {
         return this.http.get<StatsDto>(`${this.apiUrl}/stats`);
+    }
+
+    reloadSingleModules() {
+        this.singleModules.reload();
+    }
+
+    completeSingleModule(id: number) {
+        return this.http.post(`${this.apiUrl}/single-modules/complete/${id}`, {});
+    }
+    
+    uncompleteSingleModule(id: number) {
+        return this.http.delete(`${this.apiUrl}/single-modules/complete/${id}`);
     }
 }

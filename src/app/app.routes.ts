@@ -33,6 +33,7 @@ import {MemoriesComponent} from './student-view/memories/memories.component';
 import {PronunciationComponent} from './student-view/pronunciation/pronunciation.component';
 import {AssignmentsComponent} from './student-view/assignments/assignments.component';
 import {FlashcardStudyModeComponent} from './student-view/flashcard-study-mode/flashcard-study-mode.component';
+import { FlashcardStudyTimeComponent } from './lesson/flashcard-study-time/flashcard-study-time.component';
 
 
 
@@ -72,6 +73,7 @@ export const appRoutes: Routes = [
       { path: 'assignments', component: AssignmentsComponent, canActivate: [AuthGuard] },
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/flashcards-study-time', component: FlashcardStudyTimeComponent, canActivate: [AuthGuard] },
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { 
