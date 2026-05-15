@@ -1,5 +1,6 @@
 import { Component, inject, signal, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -11,7 +12,6 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { FlashcardService, FlashcardDto, FlashcardStudyLogDto } from '../../services/student-services/flashcard.service';
-import { FlashcardStudyModeComponent } from '../flashcard-study-mode/flashcard-study-mode.component';
 
 type Tab = 'all' | 'today' | 'leeches' | 'search' | 'logs';
 
@@ -20,8 +20,7 @@ type Tab = 'all' | 'today' | 'leeches' | 'search' | 'logs';
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule,
         InputTextModule, IconFieldModule, InputIconModule,
-        TagModule, ToastModule, TooltipModule, FlashcardStudyModeComponent,
-        FlashcardStudyModeComponent],
+        TagModule, ToastModule, TooltipModule, RouterModule],
     providers: [MessageService],
     templateUrl: './flashcard-panel.component.html'
 })
@@ -30,7 +29,6 @@ export class FlashcardPanelComponent implements OnInit {
     private messageService = inject(MessageService);
 
     activeTab = signal<Tab>('all');
-    studyModeVisible = signal(false);
 
     allFlashcards = this.flashcardService.flashcards;
     studiedToday = signal<FlashcardDto[]>([]);
@@ -40,14 +38,16 @@ export class FlashcardPanelComponent implements OnInit {
 
     searchQuery = signal('');
     loadingTab = signal(false);
+    tabs = [
+        { id: 'all',     label: 'All cards',     icon: 'pi pi-clone' },
+        { id: 'today',   label: 'Studied today', icon: 'pi pi-calendar' },
+        { id: 'leeches', label: 'Leeches',       icon: 'pi pi-exclamation-triangle' },
+        { id: 'search',  label: 'Search',        icon: 'pi pi-search' },
+        { id: 'logs',    label: 'Study logs',    icon: 'pi pi-history' },
+    ];
 
     ngOnInit() {
         this.flashcardService.flashcards.reload();
-    }
-
-    startStudySession() {
-        if (!this.allFlashcards.value()?.length) return;
-        this.studyModeVisible.set(true);
     }
 
     setTab(tabId: string) {

@@ -1,6 +1,6 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 
 export interface FlashcardDto {
   id: number;
@@ -17,39 +17,47 @@ export interface FlashcardDto {
 export interface FlashcardStudyLogDto {
   id: number;
   studyDate: string;
+  flashcardFront: string;
   easyCount: number;
   hardCount: number;
   incorrectCount: number;
   timeSpentSeconds: number;
 }
+export interface ReviewCardRequest {
+  quality: 'incorrect' | 'hard' | 'easy';
+  timeSpentSeconds: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class FlashcardService {
-  private apiUrl = '/api/student-learning/flashcards'; // Zakładam wydzielony endpoint
-  http = inject(HttpClient);
+  private apiUrl = '/api/student-learning/flashcards';
+  private http = inject(HttpClient);
 
   flashcards = resource<FlashcardDto[], unknown>({
     loader: () => lastValueFrom(this.http.get<FlashcardDto[]>(this.apiUrl))
   });
 
-  getLeeches() {
+  getLeeches(): Observable<FlashcardDto[]> {
     return this.http.get<FlashcardDto[]>(`${this.apiUrl}/leeches`);
   }
 
-  getStudiedToday() {
+  getStudiedToday(): Observable<FlashcardDto[]> {
     return this.http.get<FlashcardDto[]>(`${this.apiUrl}/studied-today`);
   }
 
-  getStudyLogs() {
+  getStudyLogs(): Observable<FlashcardStudyLogDto[]> {
     return this.http.get<FlashcardStudyLogDto[]>(`${this.apiUrl}/logs`);
   }
 
-  searchFlashcards(query: string) {
+  searchFlashcards(query: string): Observable<FlashcardDto[]> {
     return this.http.get<FlashcardDto[]>(`${this.apiUrl}/search?q=${encodeURIComponent(query)}`);
   }
 
-  // Nowa metoda do wysyłania wyniku powtórki na backend
-  reviewCard(id: number, quality: 'incorrect' | 'hard' | 'easy') {
-    return this.http.patch(`${this.apiUrl}/${id}/review`, { quality });
+  reviewCard(id: number, quality: 'incorrect' | 'hard' | 'easy', timeSpentSeconds: number): Observable<void> {
+    const body: ReviewCardRequest = {
+      quality,
+      timeSpentSeconds
+    };
+    return this.http.patch<void>(`${this.apiUrl}/${id}/review`, body);
   }
 }
