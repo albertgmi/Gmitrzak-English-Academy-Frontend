@@ -1,0 +1,65 @@
+<p-toast />
+<div class="card">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Switch Client</h2>
+    <p class="text-muted-color mt-1 m-0">Select a student to start the lesson</p>
+  </div>
+
+  <div *ngIf="activeStudent() as s"
+    class="flex items-center gap-3 p-4 mb-6 bg-primary/10 border border-primary/30 rounded-xl">
+    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
+      {{ s.username[0]?.toUpperCase() }}
+    </div>
+    <div class="flex-1">
+      <div class="font-semibold text-surface-900 dark:text-surface-0">{{ s.username }}</div>
+      <div class="text-sm text-muted-color">Current active student</div>
+    </div>
+    <p-tag severity="success" value="Active" />
+  </div>
+
+  <p-table #dt [value]="students()" [loading]="loading()"
+    [rows]="15" [paginator]="true" [rowHover]="true"
+    [globalFilterFields]="['username', 'email']"
+    [tableStyle]="{'min-width': '35rem'}"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} students"
+    [showCurrentPageReport]="true">
+    <ng-template #caption>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search student..." />
+      </p-iconfield>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="username">Username <p-sortIcon field="username" /></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+        <th style="width: 10rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-s>
+      <tr>
+        <td>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+              {{ s.username[0]?.toUpperCase() }}
+            </div>
+            <span class="font-semibold">{{ s.username }}</span>
+          </div>
+        </td>
+        <td class="text-muted-color">{{ s.email }}</td>
+        <td>
+          <p-button label="Select" icon="pi pi-user"
+            [outlined]="activeStudent()?.id !== s.id"
+            [severity]="activeStudent()?.id === s.id ? 'success' : 'primary'"
+            size="small"
+            (onClick)="selectStudent(s)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="3" class="text-center text-muted-color py-8">No students found.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

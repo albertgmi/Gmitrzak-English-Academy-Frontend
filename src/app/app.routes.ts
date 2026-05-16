@@ -33,7 +33,15 @@ import {MemoriesComponent} from './student-view/memories/memories.component';
 import {PronunciationComponent} from './student-view/pronunciation/pronunciation.component';
 import {AssignmentsComponent} from './student-view/assignments/assignments.component';
 import {FlashcardStudyModeComponent} from './student-view/flashcard-study-mode/flashcard-study-mode.component';
-import { FlashcardStudyTimeComponent } from './lesson/flashcard-study-time/flashcard-study-time.component';
+import {FlashcardStudyTimeComponent} from './lesson/flashcard-study-time/flashcard-study-time.component';
+import {SwitchClientComponent} from './lesson/switch-client/switch-client.component';
+import {LessonModeComponent} from './lesson/lesson-mode/lesson-mode.component';
+import {HomeworkCheckComponent} from './lesson/homework-check/homework-check.component';
+import {PronunciationTestComponent} from './pronunciation-test/pronunciation-test.component';
+import {GradeStudentComponent} from './lesson/grade-student/grade-student.component';
+import {LessonNotesComponent} from './lesson/lesson-notes/lesson-notes.component';
+import {ReportListeningComponent} from './lesson/report-listening/report-listening.component';
+import { ProfileDetailComponent } from './user/profile-detail/profile-detail.component';
 
 
 
@@ -74,13 +82,16 @@ export const appRoutes: Routes = [
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards-study-time', component: FlashcardStudyTimeComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/switch-client', component: SwitchClientComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/mode', component: LessonModeComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/homework', component: HomeworkCheckComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/pronunciation', component: PronunciationTestComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/grade', component: GradeStudentComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/list', component: LessonNotesComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/listening', component: ReportListeningComponent, canActivate: [AuthGuard] },
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
-      { 
-          path: 'profiles/:userId', 
-          loadComponent: () => import('./user/profile-detail/profile-detail.component').then(m => m.ProfileDetailComponent), 
-          canActivate: [AuthGuard] 
-      },
+      { path: 'profiles/:userId', component: ProfileDetailComponent, canActivate: [AuthGuard] },
     ]
   },
   { path: 'auth', loadChildren: () => import('./auth/auth.routes') },

@@ -1,0 +1,91 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
+      {{ student.username[0]?.toUpperCase() }}
+    </div>
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Report Listening</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+    <!-- Add form -->
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5">
+      <h3 class="font-semibold text-surface-900 dark:text-surface-0 mb-4 m-0">Add Report</h3>
+      <div class="flex flex-col gap-4">
+
+        <div>
+          <label class="block font-bold mb-2">Title *</label>
+          <input pInputText type="text"
+            [ngModel]="title()" (ngModelChange)="title.set($event)"
+            placeholder="e.g. Breaking Bad S01E01" fluid />
+          <small class="text-red-500" *ngIf="submitted && !title().trim()">
+            Title is required.
+          </small>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-2">Type</label>
+          <p-select [options]="mediaTypes" optionLabel="label" optionValue="value"
+            [ngModel]="mediaType()" (ngModelChange)="mediaType.set($event)"
+            placeholder="Select type" fluid />
+        </div>
+
+        <div>
+          <label class="block font-bold mb-2">Episodes / Count</label>
+          <p-inputNumber
+            [ngModel]="episodeCount()" (ngModelChange)="episodeCount.set($event)"
+            [min]="1" fluid />
+        </div>
+
+        <p-button label="Add report" icon="pi pi-plus"
+          [loading]="saving()" (onClick)="addReport()" />
+      </div>
+    </div>
+
+    <!-- History -->
+    <div>
+      <h3 class="font-semibold text-surface-900 dark:text-surface-0 mb-4 m-0">
+        History
+        <span class="ml-2 text-sm font-normal text-muted-color">({{ reports().length }})</span>
+      </h3>
+
+      <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+        <i class="pi pi-spin pi-spinner text-3xl"></i>
+      </div>
+
+      <div *ngIf="!loading()" class="flex flex-col gap-2">
+        <div *ngFor="let r of reports()"
+          class="flex items-center gap-3 p-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+          <p-tag [severity]="mediaTypeSeverity(r.mediaType)" [value]="r.mediaType" />
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ r.title }}</div>
+            <div class="text-xs text-muted-color">
+              {{ r.reportDate | date:'d MMM yyyy' }}
+              <span *ngIf="r.episodeCount > 1"> · {{ r.episodeCount }} episodes</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!reports().length" class="text-center py-8 text-muted-color">
+          <i class="pi pi-video text-3xl block mb-2"></i>
+          No listening reports yet.
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>

@@ -1,0 +1,99 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
+      {{ student.username[0]?.toUpperCase() }}
+    </div>
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Homework Check</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — this week</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading()">
+
+    <!-- Summary -->
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-surface-900 dark:text-surface-0">
+          {{ homework().length }}
+        </div>
+        <div class="text-xs text-muted-color mt-1">Total this week</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-green-600">{{ completed().length }}</div>
+        <div class="text-xs text-muted-color mt-1">Completed</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-red-500">{{ pending().length }}</div>
+        <div class="text-xs text-muted-color mt-1">Pending</div>
+      </div>
+    </div>
+
+    <!-- Pending -->
+    <div *ngIf="pending().length" class="mb-6">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
+        Pending ({{ pending().length }})
+      </h3>
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let h of pending()"
+          class="flex items-center gap-4 p-4 rounded-xl border cursor-pointer transition-colors"
+          [ngClass]="h.isOverdue
+            ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+            : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/50'"
+          (click)="toggle(h)">
+          <div class="w-6 h-6 rounded-full border-2 flex items-center justify-center flex-shrink-0"
+            [ngClass]="h.isOverdue ? 'border-red-400' : 'border-surface-300 dark:border-surface-600'">
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ h.moduleName }}</div>
+            <div class="text-xs text-muted-color mt-0.5">{{ h.moduleDescription || '—' }}</div>
+          </div>
+          <p-tag [severity]="dueSeverity(h)" [value]="dueLabel(h)" />
+        </div>
+      </div>
+    </div>
+
+    <!-- Completed -->
+    <div *ngIf="completed().length">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
+        Completed ({{ completed().length }})
+      </h3>
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let h of completed()"
+          class="flex items-center gap-4 p-4 rounded-xl border cursor-pointer
+            bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 hover:opacity-80 transition-opacity"
+          (click)="toggle(h)">
+          <div class="w-6 h-6 rounded-full bg-green-500 flex items-center justify-center flex-shrink-0">
+            <i class="pi pi-check text-white" style="font-size: 0.7rem"></i>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-surface-900 dark:text-surface-0 line-through opacity-60">
+              {{ h.moduleName }}
+            </div>
+          </div>
+          <p-tag severity="success" value="Done" />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!homework().length" class="text-center py-16 text-muted-color">
+      <i class="pi pi-check-circle text-green-500 text-5xl block mb-4"></i>
+      <p class="text-lg">No homework assigned this week.</p>
+    </div>
+  </div>
+</div>

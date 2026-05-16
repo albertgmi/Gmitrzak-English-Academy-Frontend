@@ -16,11 +16,9 @@ export class StatsComponent implements OnInit {
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
 
-    // Signals dla stanu danych
     data = signal<StatsDto | null>(null);
     loading = signal(true);
 
-    // Użycie computed zamiast getterów - lepsza wydajność (memoizacja)
     totalPoints = computed(() => {
         const d = this.data();
         if (!d) return 0;
@@ -107,7 +105,6 @@ export class StatsComponent implements OnInit {
         };
     });
 
-    // Opcje wykresów mogą zostać jako gettery lub stałe, bo są statyczne
     get chartOptions() {
         return {
             responsive: true,
