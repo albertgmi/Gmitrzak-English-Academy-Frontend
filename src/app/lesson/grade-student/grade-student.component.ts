@@ -14,6 +14,8 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonService, GradeListDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 
+type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
+
 @Component({
     selector: 'app-grade-student',
     standalone: true,
@@ -102,7 +104,7 @@ export class GradeStudentComponent implements OnInit {
         });
     }
 
-    gradeSeverity(p: number): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
+    gradeSeverity(p: number): SeverityType {
         if (p >= 80) return 'success';
         if (p >= 60) return 'warn';
         return 'danger';

@@ -13,6 +13,8 @@ import { MessageService } from 'primeng/api';
 import { LessonService, ListeningReportDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 
+type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
+
 @Component({
     selector: 'app-report-listening',
     standalone: true,
@@ -84,8 +86,8 @@ export class ReportListeningComponent implements OnInit {
         });
     }
 
-    mediaTypeSeverity(type: string): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
-        const map: Record<string, "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined> = {
+    mediaTypeSeverity(type: string): SeverityType {
+        const map: Record<string, SeverityType> = {
             Movie: 'info', YouTube: 'danger', Podcast: 'warn',
             Video: 'info', Book: 'success', Article: 'secondary', Other: 'secondary'
         };

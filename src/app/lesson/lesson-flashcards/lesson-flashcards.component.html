@@ -1,0 +1,103 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
+      {{ student.username[0]?.toUpperCase() }}
+    </div>
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && data() as d">
+
+    <!-- Summary stats -->
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalCards }}</div>
+        <div class="text-xs text-muted-color mt-1">Total Cards</div>
+      </div>
+      <div class="bg-primary/10 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-primary">{{ d.dueCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Due Today</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-green-600">{{ d.studiedTodayCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Studied Today</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-red-500">{{ d.leechCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Leeches</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <!-- Leeches -->
+      <div>
+        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">
+          Leeches <span class="text-sm font-normal text-muted-color">({{ d.leeches.length }})</span>
+        </h3>
+        <div class="flex flex-col gap-2">
+          <div *ngFor="let c of d.leeches"
+            class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+            <i class="pi pi-exclamation-triangle text-red-500 flex-shrink-0"></i>
+            <div class="flex-1 min-w-0">
+              <div class="font-semibold truncate">{{ c.front }}</div>
+              <div class="text-xs text-muted-color">{{ c.back }}</div>
+            </div>
+            <span class="text-xs text-muted-color">{{ c.interval }}d</span>
+          </div>
+          <div *ngIf="!d.leeches.length" class="text-center py-6 text-muted-color text-sm">
+            No leeches — great!
+          </div>
+        </div>
+      </div>
+
+      <!-- Recent study logs -->
+      <div>
+        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Recent Study Sessions</h3>
+        <p-table [value]="d.recentLogs" [tableStyle]="{'min-width': '100%'}">
+          <ng-template #header>
+            <tr>
+              <th>Date</th>
+              <th style="width: 4rem">Easy</th>
+              <th style="width: 4rem">Hard</th>
+              <th style="width: 4rem">❌</th>
+              <th style="width: 6rem">Time</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-log>
+            <tr>
+              <td class="text-sm">{{ log.studyDate | date:'d MMM' }}</td>
+              <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
+              <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
+              <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
+              <td class="text-xs text-muted-color">{{ formatTime(log.timeSpentSeconds) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="5" class="text-center text-muted-color py-4 text-sm">No sessions yet.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+    </div>
+  </div>
+</div>

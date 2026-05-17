@@ -4,8 +4,8 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonService, PronunciationTestItemDto } from '../services/lesson.service';
-import { LessonContextService } from '../services/lesson-context.service';
+import { LessonService, PronunciationTestItemDto } from '../../services/lesson.service';
+import { LessonContextService } from '../../services/lesson-context.service';
 
 @Component({
     selector: 'app-pronunciation-test',

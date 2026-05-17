@@ -1,0 +1,114 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
+      {{ student.username[0]?.toUpperCase() }}
+    </div>
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Last Week</h2>
+      <p class="text-muted-color mt-0.5 m-0" *ngIf="data()">
+        {{ student.username }} · {{ data()!.weekStart | date:'d MMM' }} — {{ data()!.weekEnd | date:'d MMM yyyy' }}
+      </p>
+    </div>
+    <div class="flex items-center gap-3">
+      <p-tag *ngIf="data()"
+        [severity]="data()!.rankingCriteriaMet ? 'success' : 'danger'"
+        [value]="data()!.rankingCriteriaMet ? '✓ Criteria met' : '✗ Not met'" />
+      <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+        size="small" (onClick)="goToSwitchClient()" />
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && data() as d">
+
+    <!-- Stats vs targets -->
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+
+      <div class="rounded-xl p-4 border"
+        [ngClass]="d.totalActivityPoints >= d.activityPointTarget
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
+          : 'bg-surface-50 dark:bg-surface-800 border-surface-200'">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-semibold text-muted-color">Activity Points</span>
+          <i class="pi" [ngClass]="d.totalActivityPoints >= d.activityPointTarget
+            ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+        </div>
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">
+          {{ d.totalActivityPoints }}
+        </div>
+        <div class="text-xs text-muted-color mt-1">target: {{ d.activityPointTarget }}</div>
+      </div>
+
+      <div class="rounded-xl p-4 border"
+        [ngClass]="d.flashcardsStudied >= d.flashcardTarget
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
+          : 'bg-surface-50 dark:bg-surface-800 border-surface-200'">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-semibold text-muted-color">Flashcards</span>
+          <i class="pi" [ngClass]="d.flashcardsStudied >= d.flashcardTarget
+            ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+        </div>
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">
+          {{ d.flashcardsStudied }}
+        </div>
+        <div class="text-xs text-muted-color mt-1">
+          target: {{ d.flashcardTarget }} · {{ formatTime(d.flashcardTimeSeconds) }}
+        </div>
+      </div>
+
+      <div class="rounded-xl p-4 border"
+        [ngClass]="d.listeningEpisodesWatched >= d.listeningEpisodeTarget
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
+          : 'bg-surface-50 dark:bg-surface-800 border-surface-200'">
+        <div class="flex items-center justify-between mb-2">
+          <span class="text-sm font-semibold text-muted-color">Listening</span>
+          <i class="pi" [ngClass]="d.listeningEpisodesWatched >= d.listeningEpisodeTarget
+            ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-400'"></i>
+        </div>
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">
+          {{ d.listeningEpisodesWatched }}
+        </div>
+        <div class="text-xs text-muted-color mt-1">target: {{ d.listeningEpisodeTarget }} episodes</div>
+      </div>
+
+    </div>
+
+    <!-- Grades -->
+    <div *ngIf="d.gradesThisWeek.length">
+      <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Grades this week</h3>
+      <p-table [value]="d.gradesThisWeek" [tableStyle]="{'min-width': '30rem'}">
+        <ng-template #header>
+          <tr>
+            <th>Date</th>
+            <th>Category</th>
+            <th>Score</th>
+            <th>Notes</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-g>
+          <tr>
+            <td>{{ g.gradeDate | date:'d MMM' }}</td>
+            <td><p-tag [value]="g.category" severity="info" /></td>
+            <td><p-tag [value]="g.percentage + '%'" [severity]="gradeSeverity(g.percentage)" /></td>
+            <td class="text-muted-color text-sm">{{ g.notes || '—' }}</td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+
+    <div *ngIf="!d.gradesThisWeek.length" class="text-center py-6 text-muted-color text-sm">
+      No grades this week.
+    </div>
+  </div>
+</div>

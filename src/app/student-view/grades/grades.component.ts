@@ -6,6 +6,8 @@ import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { StudentService, GradeDto } from '../../services/student-services/student.service';
 
+type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
+
 @Component({
     selector: 'app-grades',
     standalone: true,
@@ -30,7 +32,7 @@ export class GradesComponent implements OnInit {
         });
     }
 
-    gradeSeverity(percentage: number): 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined {
+    gradeSeverity(percentage: number): SeverityType {
         if (percentage >= 80) return 'success';
         if (percentage >= 60) return 'warn';
         return 'danger';

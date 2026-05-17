@@ -1,6 +1,6 @@
 import {Routes} from '@angular/router';
 import {AppLayout} from './layout/component/app.layout';
-import {Dashboard} from './pages/dashboard/dashboard';
+import {Dashboard} from './other/dashboard/dashboard.component';
 import {Documentation} from './pages/documentation/documentation';
 import {Landing} from './pages/landing/landing';
 import {Notfound} from './pages/notfound/notfound';
@@ -33,16 +33,23 @@ import {MemoriesComponent} from './student-view/memories/memories.component';
 import {PronunciationComponent} from './student-view/pronunciation/pronunciation.component';
 import {AssignmentsComponent} from './student-view/assignments/assignments.component';
 import {FlashcardStudyModeComponent} from './student-view/flashcard-study-mode/flashcard-study-mode.component';
-import {FlashcardStudyTimeComponent} from './lesson/flashcard-study-time/flashcard-study-time.component';
 import {SwitchClientComponent} from './lesson/switch-client/switch-client.component';
 import {LessonModeComponent} from './lesson/lesson-mode/lesson-mode.component';
 import {HomeworkCheckComponent} from './lesson/homework-check/homework-check.component';
-import {PronunciationTestComponent} from './pronunciation-test/pronunciation-test.component';
+import {PronunciationTestComponent} from './lesson/pronunciation-test/pronunciation-test.component';
 import {GradeStudentComponent} from './lesson/grade-student/grade-student.component';
 import {LessonNotesComponent} from './lesson/lesson-notes/lesson-notes.component';
 import {ReportListeningComponent} from './lesson/report-listening/report-listening.component';
-import { ProfileDetailComponent } from './user/profile-detail/profile-detail.component';
-
+import {ProfileDetailComponent} from './user/profile-detail/profile-detail.component';
+import {LessonAgendaComponent}       from './lesson/lesson-agenda/lesson-agenda.component';
+import {LessonGradesComponent}       from './lesson/lesson-grades/lesson-grades.component';
+import {LessonActivityPointsComponent} from './lesson/lesson-activity-points/lesson-activity-points.component';
+import {LessonFlashcardsComponent}   from './lesson/lesson-flashcards/lesson-flashcards.component';
+import {LessonStreamComponent}       from './lesson/lesson-stream/lesson-stream.component';
+import {LessonStudyTimeComponent}    from './lesson/lesson-study-time/lesson-study-time.component';
+import {LessonLastWeekComponent}     from './lesson/lesson-last-week/lesson-last-week.component';
+import {LessonStatsComponent}        from './lesson/lesson-stats/lesson-stats.component';
+import {LoginComponent} from './auth/login/login.component';
 
 
 export const appRoutes: Routes = [
@@ -81,7 +88,6 @@ export const appRoutes: Routes = [
       { path: 'assignments', component: AssignmentsComponent, canActivate: [AuthGuard] },
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
-      { path: 'lesson/flashcards-study-time', component: FlashcardStudyTimeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/switch-client', component: SwitchClientComponent, canActivate: [AuthGuard] },
       { path: 'lesson/mode', component: LessonModeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/homework', component: HomeworkCheckComponent, canActivate: [AuthGuard] },
@@ -89,16 +95,21 @@ export const appRoutes: Routes = [
       { path: 'lesson/grade', component: GradeStudentComponent, canActivate: [AuthGuard] },
       { path: 'lesson/list', component: LessonNotesComponent, canActivate: [AuthGuard] },
       { path: 'lesson/listening', component: ReportListeningComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/agenda', component: LessonAgendaComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/grades', component: LessonGradesComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/activity-points', component: LessonActivityPointsComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/flashcards', component: LessonFlashcardsComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/stream', component: LessonStreamComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/flashcards-study-time', component: LessonStudyTimeComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/last-week', component: LessonLastWeekComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/stats', component: LessonStatsComponent, canActivate: [AuthGuard] },  
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { path: 'profiles/:userId', component: ProfileDetailComponent, canActivate: [AuthGuard] },
     ]
   },
   { path: 'auth', loadChildren: () => import('./auth/auth.routes') },
-  { path: 'login',
-    loadComponent: () =>
-      import('./auth/login/login.component')
-        .then(m => m.LoginComponent) },
+  { path: 'login', component: LoginComponent },
   { path: 'landing', component: Landing },
   { path: 'notfound', component: Notfound },
 ];

@@ -18,6 +18,8 @@ import { AssignmentService, ModuleAssignmentDto, CreateModuleAssignmentRequest }
 import { UserService } from '../../../services/user.service';
 import { ModuleItemService } from '../../../services/module.service';
 
+type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
+
 @Component({
     selector: 'app-plan-module',
     standalone: true,
@@ -166,7 +168,7 @@ export class PlanModuleComponent implements OnInit {
         });
     }
 
-    dueDateSeverity(a: ModuleAssignmentDto): 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined {
+    dueDateSeverity(a: ModuleAssignmentDto): SeverityType {
         if (a.isCompleted) return 'success';
         if (a.isOverdue) return 'danger';
         return 'info';

@@ -9,6 +9,8 @@ import { MessageService } from 'primeng/api';
 import { LessonService, HomeworkItemDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 
+type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
+
 @Component({
     selector: 'app-homework-check',
     standalone: true,
@@ -60,7 +62,7 @@ export class HomeworkCheckComponent implements OnInit {
         });
     }
 
-    dueSeverity(item: HomeworkItemDto): "success" | "info" | "warn" | "danger" | "secondary" | "contrast" | undefined {
+    dueSeverity(item: HomeworkItemDto): SeverityType {
         if (item.isCompleted) return 'success';
         if (item.isOverdue) return 'danger';
         return 'info';
