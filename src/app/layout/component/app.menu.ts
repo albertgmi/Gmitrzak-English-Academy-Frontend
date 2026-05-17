@@ -111,8 +111,8 @@ export class AppMenu implements OnInit {
             label: 'Content',
             icon: 'pi pi-folder',
             items: [
-              { label: 'Catalogues', icon: 'pi pi-folder-open', routerLink: ['/system/catalogues'] },
-              { label: 'Upload Catalogue', icon: 'pi pi-upload', routerLink: ['/system/catalogues/upload'] },
+              { label: 'Catalogues', icon: 'pi pi-folder-open', routerLink: ['/catalogues'] },
+              { label: 'Global Flashcards', icon: 'pi pi-clone', routerLink: ['/flashcards/global'] },
               { label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
               { label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
               { label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },

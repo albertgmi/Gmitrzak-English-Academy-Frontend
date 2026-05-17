@@ -41,15 +41,17 @@ import {GradeStudentComponent} from './lesson/grade-student/grade-student.compon
 import {LessonNotesComponent} from './lesson/lesson-notes/lesson-notes.component';
 import {ReportListeningComponent} from './lesson/report-listening/report-listening.component';
 import {ProfileDetailComponent} from './user/profile-detail/profile-detail.component';
-import {LessonAgendaComponent}       from './lesson/lesson-agenda/lesson-agenda.component';
-import {LessonGradesComponent}       from './lesson/lesson-grades/lesson-grades.component';
+import {LessonAgendaComponent} from './lesson/lesson-agenda/lesson-agenda.component';
+import {LessonGradesComponent} from './lesson/lesson-grades/lesson-grades.component';
 import {LessonActivityPointsComponent} from './lesson/lesson-activity-points/lesson-activity-points.component';
-import {LessonFlashcardsComponent}   from './lesson/lesson-flashcards/lesson-flashcards.component';
-import {LessonStreamComponent}       from './lesson/lesson-stream/lesson-stream.component';
-import {LessonStudyTimeComponent}    from './lesson/lesson-study-time/lesson-study-time.component';
-import {LessonLastWeekComponent}     from './lesson/lesson-last-week/lesson-last-week.component';
-import {LessonStatsComponent}        from './lesson/lesson-stats/lesson-stats.component';
+import {LessonFlashcardsComponent} from './lesson/lesson-flashcards/lesson-flashcards.component';
+import {LessonStreamComponent} from './lesson/lesson-stream/lesson-stream.component';
+import {LessonStudyTimeComponent} from './lesson/lesson-study-time/lesson-study-time.component';
+import {LessonLastWeekComponent} from './lesson/lesson-last-week/lesson-last-week.component';
+import {LessonStatsComponent} from './lesson/lesson-stats/lesson-stats.component';
 import {LoginComponent} from './auth/login/login.component';
+import {CataloguesComponent} from './other/catalogues/catalogues.component';
+import {GlobalFlashcardComponent} from './other/global-flashcard/global-flashcard.component';
 
 
 export const appRoutes: Routes = [
@@ -106,6 +108,9 @@ export const appRoutes: Routes = [
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { path: 'profiles/:userId', component: ProfileDetailComponent, canActivate: [AuthGuard] },
+      { path: 'catalogues', component: CataloguesComponent, canActivate: [AuthGuard] },
+      { path: 'flashcards/global', component: GlobalFlashcardComponent, canActivate: [AuthGuard] },
+
     ]
   },
   { path: 'auth', loadChildren: () => import('./auth/auth.routes') },
