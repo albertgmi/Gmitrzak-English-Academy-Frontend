@@ -10,7 +10,8 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonService, SearchFlashcardResult } from '../../services/lesson.service';
+import { LessonService } from '../../services/lesson.service';
+import { VocabularyService, SearchVocabularyResult } from '../../services/vocabulary.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 
@@ -26,6 +27,7 @@ type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation';
 })
 export class LessonModeComponent {
     private lessonService = inject(LessonService);
+    private vocabularyService = inject(VocabularyService);
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
     private messageService = inject(MessageService);
@@ -34,7 +36,7 @@ export class LessonModeComponent {
     activeTab = signal<LessonTab>('flashcard');
 
     searchQuery = signal('');
-    searchResult = signal<SearchFlashcardResult | null>(null);
+    searchResult = signal<SearchVocabularyResult | null>(null);
     searching = signal(false);
     saving = signal(false);
 
@@ -90,7 +92,7 @@ export class LessonModeComponent {
                         return of(null);
                     }
                     this.searching.set(true);
-                    return this.lessonService.searchFlashcard(q.trim(), studentId);
+                    return this.vocabularyService.searchVocabulary(q.trim(), studentId);
                 })
             )
             .subscribe({
@@ -113,7 +115,7 @@ export class LessonModeComponent {
         if (!result?.id || !studentId) return;
 
         this.saving.set(true);
-        this.lessonService.assignFlashcard(result.id, studentId).subscribe({
+        this.vocabularyService.assignSingleVocabularyToStudent(result.id, studentId).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success', summary: 'Assigned',
@@ -131,24 +133,23 @@ export class LessonModeComponent {
         if (!this.newFront().trim() || !this.newBack().trim() || !studentId) return;
 
         this.saving.set(true);
-        this.lessonService.addTranslation(
+        this.vocabularyService.addTranslation(
             this.newFront(),
             this.newBack(),
             this.newCategory()
+        ).pipe(
+            switchMap((global) => {
+                return this.vocabularyService.assignSingleVocabularyToStudent(global.id, studentId);
+            })
         ).subscribe({
-            next: (global) => {
-                this.lessonService.assignFlashcard(global.id, studentId).subscribe({
-                    next: () => {
-                        this.messageService.add({
-                            severity: 'success', summary: 'Added & assigned',
-                            detail: `"${this.newFront()}" added to global DB and assigned to student`,
-                            life: 3000
-                        });
-                        this.resetFlashcardForm();
-                        this.saving.set(false);
-                    },
-                    error: () => this.saving.set(false)
+            next: () => {
+                this.messageService.add({
+                    severity: 'success', summary: 'Added & assigned',
+                    detail: `"${this.newFront()}" added to global DB and assigned to student`,
+                    life: 3000
                 });
+                this.resetFlashcardForm();
+                this.saving.set(false);
             },
             error: () => this.saving.set(false)
         });

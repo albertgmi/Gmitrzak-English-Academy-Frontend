@@ -64,23 +64,6 @@ export class LessonService {
         return this.http.get<StudentSimple[]>(`${this.userApiUrl}/users`);
     }
 
-    searchFlashcard(q: string, studentUserId: number) {
-        return this.http.get<SearchFlashcardResult>(
-            `${this.apiUrl}/flashcard/search?q=${encodeURIComponent(q)}&studentUserId=${studentUserId}`
-        );
-    }
-
-    addTranslation(front: string, back: string, category: string) {
-        return this.http.post<{ id: number; front: string; back: string; category: string }>(
-            `${this.apiUrl}/flashcard/translation`, { front, back, category }
-        );
-    }
-
-    assignFlashcard(globalFlashcardId: number, studentUserId: number) {
-        return this.http.post(`${this.apiUrl}/flashcard/assign`,
-            { globalFlashcardId, studentUserId });
-    }
-
     addSentence(studentUserId: number, content: string, translation: string, notes?: string) {
         return this.http.post(`${this.apiUrl}/sentence`, { studentUserId, content, translation, notes });
     }
