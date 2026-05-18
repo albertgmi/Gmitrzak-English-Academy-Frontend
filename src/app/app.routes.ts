@@ -51,7 +51,11 @@ import {LessonLastWeekComponent} from './lesson/lesson-last-week/lesson-last-wee
 import {LessonStatsComponent} from './lesson/lesson-stats/lesson-stats.component';
 import {LoginComponent} from './auth/login/login.component';
 import {CataloguesComponent} from './other/catalogues/catalogues.component';
-import {GlobalFlashcardComponent} from './other/global-flashcard/global-flashcard.component';
+import {StreamComponent} from './other/stream/stream.component';
+import {TheaterComponent} from './other/theater/theater.component';
+import {RepertoireComponent} from './other/repertoire/repertoire.component';
+import { GlobalVocabularyComponent } from './vocabulary/global-vocabulary/global-vocabulary.component';
+import { AssignGlobalVocabularyComponent } from './vocabulary/assign-global-vocabulary/assign-global-vocabulary.component';
 
 
 export const appRoutes: Routes = [
@@ -108,8 +112,12 @@ export const appRoutes: Routes = [
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { path: 'profiles/:userId', component: ProfileDetailComponent, canActivate: [AuthGuard] },
-      { path: 'catalogues', component: CataloguesComponent, canActivate: [AuthGuard] },
-      { path: 'flashcards/global', component: GlobalFlashcardComponent, canActivate: [AuthGuard] },
+      { path: 'system/catalogues', component: CataloguesComponent, canActivate: [AuthGuard] },
+      { path: 'system/global-vocabulary', component: GlobalVocabularyComponent, canActivate: [AuthGuard] },
+      { path: 'system/global-vocabulary/assign', component: AssignGlobalVocabularyComponent, canActivate: [AuthGuard] },
+      { path: 'system/stream', component: StreamComponent, canActivate: [AuthGuard] },
+      { path: 'system/theater', component: TheaterComponent, canActivate: [AuthGuard] },
+      { path: 'system/theater/repertoire', component: RepertoireComponent, canActivate: [AuthGuard] },
 
     ]
   },

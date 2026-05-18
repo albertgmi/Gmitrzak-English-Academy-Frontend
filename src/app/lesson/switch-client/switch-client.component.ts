@@ -31,6 +31,7 @@ export class SwitchClientComponent implements OnInit {
     loading = signal(true);
     activeStudent = this.lessonContext.activeStudent;
 
+    // TODO popraw i wyswietlaj tylko active students, bo teraz to troche bez sensu
     ngOnInit() {
         this.lessonService.getStudents().subscribe({
             next: (d) => { this.students.set(d); this.loading.set(false); },

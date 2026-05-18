@@ -1,18 +1,18 @@
 import { ComponentFixture, TestBed } from '@angular/core/testing';
 
-import { GlobalFlashcardComponent } from './global-flashcard.component';
+import { RepertoireComponent } from './repertoire.component';
 
-describe('GlobalFlashcardComponent', () => {
-  let component: GlobalFlashcardComponent;
-  let fixture: ComponentFixture<GlobalFlashcardComponent>;
+describe('RepertoireComponent', () => {
+  let component: RepertoireComponent;
+  let fixture: ComponentFixture<RepertoireComponent>;
 
   beforeEach(async () => {
     await TestBed.configureTestingModule({
-      imports: [GlobalFlashcardComponent]
+      imports: [RepertoireComponent]
     })
     .compileComponents();
 
-    fixture = TestBed.createComponent(GlobalFlashcardComponent);
+    fixture = TestBed.createComponent(RepertoireComponent);
     component = fixture.componentInstance;
     fixture.detectChanges();
   });

@@ -108,37 +108,38 @@ export class AppMenu implements OnInit {
             ]
           },
           {
-            label: 'Content',
+            label: 'Content  & Stream',
             icon: 'pi pi-folder',
             items: [
-              { label: 'Catalogues', icon: 'pi pi-folder-open', routerLink: ['/catalogues'] },
-              { label: 'Global Flashcards', icon: 'pi pi-clone', routerLink: ['/flashcards/global'] },
-              { label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
-              { label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
-              { label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },
-              { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
-              { label: 'Composed Sentences', icon: 'pi pi-file-edit', routerLink: ['/system/sentences/composed'] },
-            ]
-          },
-          {
-            label: 'Stream & Grading',
-            icon: 'pi pi-server',
-            items: [
+              { label: 'Catalogues', icon: 'pi pi-folder-open', routerLink: ['/system/catalogues'] },
+              { label: 'Global Vocabulary', icon: 'pi pi-book', routerLink: ['/system/global-vocabulary'] },
+              { label: 'Assign Global Vocabulary', icon: 'pi pi-user-plus', routerLink: ['/system/global-vocabulary/assign'] },
               { label: 'Stream', icon: 'pi pi-server', routerLink: ['/system/stream'] },
-              { label: 'Add Stream', icon: 'pi pi-plus-circle', routerLink: ['/system/stream/add'] },
-              { label: 'Grade Assignments', icon: 'pi pi-check-square', routerLink: ['/system/grade/assignments'] },
-              { label: 'Grade Sentences', icon: 'pi pi-check-square', routerLink: ['/system/grade/sentences'] },
-              { label: 'Label Sentences', icon: 'pi pi-tag', routerLink: ['/system/sentences/label'] },
-              { label: 'Download Assignments', icon: 'pi pi-download', routerLink: ['/system/assignments/download'] },
+              //{ label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
+              //{ label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
+              //{ label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },
+              //{ label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
+              //{ label: 'Composed Sentences', icon: 'pi pi-file-edit', routerLink: ['/system/sentences/composed'] },
             ]
           },
+          //{
+          //  label: 'Stream & Grading',
+          //  icon: 'pi pi-server',
+          //  items: [
+          //    { label: 'Stream', icon: 'pi pi-server', routerLink: ['/system/stream'] },
+          //    { label: 'Add Stream', icon: 'pi pi-plus-circle', routerLink: ['/system/stream/add'] },
+          //    { label: 'Grade Assignments', icon: 'pi pi-check-square', routerLink: ['/system/grade/assignments'] },
+          //    { label: 'Grade Sentences', icon: 'pi pi-check-square', routerLink: ['/system/grade/sentences'] },
+          //    { label: 'Label Sentences', icon: 'pi pi-tag', routerLink: ['/system/sentences/label'] },
+          //    { label: 'Download Assignments', icon: 'pi pi-download', routerLink: ['/system/assignments/download'] },
+          //  ]
+          //},
           {
             label: 'Theater',
             icon: 'pi pi-video',
             items: [
               { label: 'Theater', icon: 'pi pi-video', routerLink: ['/system/theater'] },
               { label: 'Repertoire', icon: 'pi pi-list', routerLink: ['/system/theater/repertoire'] },
-              { label: 'Upload Theater', icon: 'pi pi-upload', routerLink: ['/system/theater/upload'] },
             ]
           },
           {

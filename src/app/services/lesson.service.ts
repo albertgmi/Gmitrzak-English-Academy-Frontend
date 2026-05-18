@@ -151,8 +151,4 @@ export class LessonService {
         return this.http.post(`${this.apiUrl}/listening`,
             { studentUserId, title, mediaType, episodeCount });
     }
-
-    getAllGlobalFlashcards() {
-        return this.http.get<SearchFlashcardResult[]>(`${this.apiUrl}/flashcard-global`);
-    }
 }
