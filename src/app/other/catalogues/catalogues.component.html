@@ -1,7 +1,6 @@
 <p-toast />
 <p-confirmDialog />
 
-<!-- ENTRIES VIEW -->
 <div *ngIf="view() === 'entries' && selectedCatalogue() as cat" class="card">
 
   <div class="flex items-center gap-3 mb-6">
@@ -16,7 +15,6 @@
     </div>
   </div>
 
-  <!-- Filters -->
   <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
     <h3 class="font-semibold mb-4 m-0">Filters</h3>
     <div class="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -48,38 +46,33 @@
     </div>
   </div>
 
-  <!-- Entries table -->
-  <p-table #dt [value]="entries()" [loading]="loadingEntries()"
+  <!-- POPRAWKA: Zmiana cudzysłowów w [tableStyle] oraz unikalna nazwa #dtEntries -->
+  <p-table #dtEntries [value]="entries()" [loading]="loadingEntries()"
     [rows]="20" [paginator]="true" [rowHover]="true"
-    [globalFilterFields]="['entry', 'userRef', 'computedKey']"
-    [tableStyle]="{'min-width': '45rem'}"
+    [globalFilterFields]="['entry', 'userRef', 'computedKey', 'translatedEntry']"
+    [tableStyle]="{'min-width': '55rem'}"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} entries"
-    [showCurrentPageReport]="true" [rowsPerPageOptions]="[20, 50, 100]">
+    [showCurrentPageReport]="true" [rowsPerPageOptions]="[20, 50, 100]"
+    dataKey="id"
+    editMode="cell">
 
     <ng-template #caption>
       <div class="flex items-center justify-between">
         <span class="text-sm text-muted-color">{{ entries().length }} entries</span>
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
-          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+          <input pInputText type="text" (input)="onGlobalFilter(dtEntries, $event)" placeholder="Search..." />
         </p-iconfield>
       </div>
     </ng-template>
 
     <ng-template #header>
       <tr>
-        <th pSortableColumn="entryDate" style="width: 9rem">
-          Date <p-sortIcon field="entryDate" />
-        </th>
-        <th pSortableColumn="userRef" style="width: 12rem">
-          User <p-sortIcon field="userRef" />
-        </th>
-        <th pSortableColumn="entry">
-          Entry <p-sortIcon field="entry" />
-        </th>
-        <th pSortableColumn="computedKey" style="width: 12rem">
-          Computed Key <p-sortIcon field="computedKey" />
-        </th>
+        <th pSortableColumn="entryDate" style="width: 9rem">Date <p-sortIcon field="entryDate" /></th>
+        <th pSortableColumn="userRef" style="width: 12rem">User <p-sortIcon field="userRef" /></th>
+        <th pSortableColumn="entry">Entry <p-sortIcon field="entry" /></th>
+        <th pSortableColumn="translatedEntry">Translation (AI) <i class="pi pi-pencil text-xs ml-1 text-muted-color"></i> <p-sortIcon field="translatedEntry" /></th>
+        <th pSortableColumn="computedKey" style="width: 12rem">Computed Key <p-sortIcon field="computedKey" /></th>
       </tr>
     </ng-template>
 
@@ -95,6 +88,23 @@
           </div>
         </td>
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ e.entry }}</td>
+        
+        <td [pEditableColumn]="e" [pEditableColumnField]="'translatedEntry'">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input pInputText type="text" [(ngModel)]="e.translatedEntry" 
+                     (keydown.enter)="onRowEditSave(e)"
+                     (blur)="onRowEditSave(e)"
+                     class="w-full p-1 text-sm font-medium" />
+            </ng-template>
+            <ng-template pTemplate="output">
+              <span class="text-primary font-medium hover:bg-surface-100 dark:hover:bg-surface-700 px-2 py-1 rounded block cursor-pointer transition-colors">
+                {{ e.translatedEntry || 'Click to translate...' }}
+              </span>
+            </ng-template>
+          </p-cellEditor>
+        </td>
+
         <td>
           <span class="font-mono text-sm bg-surface-100 dark:bg-surface-700 px-2 py-1 rounded">
             {{ e.computedKey || '—' }}
@@ -105,18 +115,15 @@
 
     <ng-template #emptymessage>
       <tr>
-        <td colspan="4" class="text-center text-muted-color py-10">
-          <i class="pi pi-inbox text-4xl block mb-3"></i>
-          No entries found.
+        <td colspan="5" class="text-center text-muted-color py-10">
+          <i class="pi pi-inbox text-4xl block mb-3"></i>No entries found.
         </td>
       </tr>
     </ng-template>
   </p-table>
 </div>
 
-<!-- LIST VIEW -->
 <div *ngIf="view() === 'list'" class="card">
-
   <div class="flex items-center justify-between mb-6">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Catalogues</h2>
@@ -124,37 +131,21 @@
     </div>
   </div>
 
-  <!-- Upload zone -->
-  <div
-    class="mb-6 border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer"
-    [ngClass]="dragOver()
-      ? 'border-primary bg-primary/5'
-      : 'border-surface-300 dark:border-surface-600 hover:border-primary/50'"
-    (dragover)="onDragOver($event)"
-    (dragleave)="onDragLeave()"
-    (drop)="onDrop($event)"
-    (click)="fileInput.click()">
-
-    <input #fileInput type="file" accept=".xlsx,.xls" class="hidden"
-      (change)="onFileSelected($event)" />
-
+  <div class="mb-6 border-2 border-dashed rounded-xl p-8 text-center transition-colors cursor-pointer"
+    [ngClass]="dragOver() ? 'border-primary bg-primary/5' : 'border-surface-300 dark:border-surface-600 hover:border-primary/50'"
+    (dragover)="onDragOver($event)" (dragleave)="onDragLeave()" (drop)="onDrop($event)" (click)="fileInput.click()">
+    <input #fileInput type="file" accept=".xlsx,.xls" class="hidden" (change)="onFileSelected($event)" />
     <div *ngIf="!uploading()">
       <i class="pi pi-upload text-4xl text-muted-color block mb-3"></i>
-      <p class="text-surface-900 dark:text-surface-0 font-semibold mb-1">
-        Drop Excel file here or click to browse
-      </p>
-      <p class="text-muted-color text-sm m-0">
-        Supported: .xlsx, .xls · Columns: Date, User, Entry, Computed Key, Catalogue Name
-      </p>
+      <p class="text-surface-900 dark:text-surface-0 font-semibold mb-1">Drop Excel file here or click to browse</p>
+      <p class="text-muted-color text-sm m-0">Supported: .xlsx, .xls · Columns: Date, User, Entry, Computed Key, Catalogue Name</p>
     </div>
-
     <div *ngIf="uploading()" class="flex flex-col items-center gap-3">
       <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
-      <p class="text-muted-color">Processing file...</p>
+      <p class="text-muted-color">Processing file & generating AI translations...</p>
     </div>
   </div>
 
-  <!-- Excel format hint -->
   <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-xl p-4 mb-6">
     <div class="flex items-start gap-3">
       <i class="pi pi-info-circle text-blue-500 mt-0.5 flex-shrink-0"></i>
@@ -172,63 +163,43 @@
     </div>
   </div>
 
-  <!-- Catalogues table -->
   <p-toolbar styleClass="mb-4">
     <ng-template #end>
       <p-iconfield>
         <p-inputicon styleClass="pi pi-search" />
-        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+        <input pInputText type="text" (input)="onGlobalFilter(dtCatalogues, $event)" placeholder="Search..." />
       </p-iconfield>
-      <p-button icon="pi pi-refresh" severity="secondary" outlined class="ml-2"
-        (onClick)="reload()" pTooltip="Refresh" />
+      <p-button icon="pi pi-refresh" severity="secondary" outlined class="ml-2" (onClick)="reload()" pTooltip="Refresh" />
     </ng-template>
   </p-toolbar>
 
-  <p-table #dt [value]="catalogues.value() || []"
-    [loading]="catalogues.isLoading()"
-    [rows]="10" [paginator]="true" [rowHover]="true"
-    [globalFilterFields]="['name', 'uploadedBy']"
-    [tableStyle]="{'min-width': '40rem'}"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
-    [showCurrentPageReport]="true">
-
+  <!-- POPRAWKA: Zmiana cudzysłowów w [tableStyle] oraz unikalna nazwa #dtCatalogues -->
+  <p-table #dtCatalogues [value]="catalogues() || []" [rows]="10" [paginator]="true" [rowHover]="true"
+    [globalFilterFields]="['name', 'uploadedBy']" [tableStyle]="{'min-width': '40rem'}"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues" [showCurrentPageReport]="true">
     <ng-template #header>
       <tr>
         <th pSortableColumn="name">Name <p-sortIcon field="name" /></th>
-        <th pSortableColumn="uploadedDate" style="width: 10rem">
-          Uploaded <p-sortIcon field="uploadedDate" />
-        </th>
+        <th pSortableColumn="uploadedDate" style="width: 10rem">Uploaded <p-sortIcon field="uploadedDate" /></th>
         <th style="width: 10rem">Uploaded by</th>
-        <th pSortableColumn="entryCount" style="width: 8rem">
-          Entries <p-sortIcon field="entryCount" />
-        </th>
+        <th pSortableColumn="entryCount" style="width: 8rem">Entries <p-sortIcon field="entryCount" /></th>
         <th style="width: 10rem">Actions</th>
       </tr>
     </ng-template>
-
     <ng-template #body let-cat>
       <tr>
-        <td>
-          <span class="font-bold text-primary cursor-pointer hover:underline"
-            (click)="viewEntries(cat)">{{ cat.name }}</span>
-        </td>
+        <td><span class="font-bold text-primary cursor-pointer hover:underline" (click)="viewEntries(cat)">{{ cat.name }}</span></td>
         <td class="text-sm text-muted-color">{{ cat.uploadedDate | date:'d MMM yyyy' }}</td>
         <td class="text-sm">{{ cat.uploadedBy }}</td>
         <td>
-          <span class="inline-flex items-center gap-1 text-sm">
-            <i class="pi pi-list text-muted-color"></i>
-            {{ cat.entryCount }}
-          </span>
+          <span class="inline-flex items-center gap-1 text-sm"><i class="pi pi-list text-muted-color"></i>{{ cat.entryCount }}</span>
         </td>
         <td>
-          <p-button icon="pi pi-eye" [rounded]="true" outlined class="mr-2"
-            (onClick)="viewEntries(cat)" pTooltip="View entries" />
-          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" outlined
-            (onClick)="confirmDelete(cat)" pTooltip="Delete" />
+          <p-button icon="pi pi-eye" [rounded]="true" outlined class="mr-2" (onClick)="viewEntries(cat)" pTooltip="View entries" />
+          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" outlined (onClick)="confirmDelete(cat)" pTooltip="Delete" />
         </td>
       </tr>
     </ng-template>
-
     <ng-template #emptymessage>
       <tr>
         <td colspan="5" class="text-center text-muted-color py-10">

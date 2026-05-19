@@ -34,7 +34,7 @@ export class CataloguesComponent implements OnInit {
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
 
-    catalogues = this.catalogueService.catalogues;
+    catalogues = computed(() => this.catalogueService.catalogues.value());
     view = signal<View>('list');
     selectedCatalogue = signal<CatalogueDto | null>(null);
 
@@ -125,8 +125,6 @@ export class CataloguesComponent implements OnInit {
         this.filterDateTo.set(null);
     }
 
-    // todo poprawic filtrowanie po dacie (jeden dzien wczesniej filtruje)
-
     loadEntries(catalogueName?: string) {
         const name = catalogueName ?? this.selectedCatalogue()?.name;
         if (!name) return;
@@ -135,20 +133,33 @@ export class CataloguesComponent implements OnInit {
         this.catalogueService.getEntries({
             catalogueName: name,
             userRef: this.filterUserRef() || undefined,
-            dateFrom: this.filterDateFrom()
-                ? this.formatDate(this.filterDateFrom()!) : undefined,
-            dateTo: this.filterDateTo()
-                ? this.formatDate(this.filterDateTo()!) : undefined
+            dateFrom: this.filterDateFrom() ? this.formatDate(this.filterDateFrom()!) : undefined,
+            dateTo: this.filterDateTo() ? this.formatDate(this.filterDateTo()!) : undefined
         }).subscribe({
             next: (d) => { this.entries.set(d); this.loadingEntries.set(false); },
             error: () => this.loadingEntries.set(false)
         });
     }
 
-    applyFilters() {
-        this.loadEntries();
+    onRowEditSave(entry: CatalogueEntryDto) {
+        this.catalogueService.updateEntry(entry.id, { translatedEntry: entry.translatedEntry }).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success', summary: 'Updated',
+                    detail: 'Translation saved successfully', life: 2000
+                });
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error', summary: 'Error',
+                    detail: 'Failed to save translation', life: 3000
+                });
+                this.loadEntries();
+            }
+        });
     }
 
+    applyFilters() { this.loadEntries(); }
     clearFilters() {
         this.filterUserRef.set('');
         this.filterDateFrom.set(null);
@@ -183,11 +194,6 @@ export class CataloguesComponent implements OnInit {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
-    formatDate(date: Date): string {
-        return date.toISOString().split('T')[0];
-    }
-
-    reload() {
-        this.catalogueService.reloadCatalogues();
-    }
+    formatDate(date: Date): string { return date.toISOString().split('T')[0]; }
+    reload() { this.catalogueService.reloadCatalogues(); }
 }

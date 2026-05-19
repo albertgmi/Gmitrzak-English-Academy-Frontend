@@ -1,6 +1,6 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
-import { lastValueFrom } from 'rxjs';
+import { lastValueFrom, Observable } from 'rxjs';
 
 export interface CatalogueDto {
     id: number;
@@ -17,6 +17,7 @@ export interface CatalogueEntryDto {
     entry: string;
     computedKey: string;
     catalogueName: string;
+    translatedEntry?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -35,7 +36,7 @@ export class CatalogueService {
     uploadCatalogue(file: File) {
         const formData = new FormData();
         formData.append('file', file);
-        return this.http.post<CatalogueDto>(`${this.apiUrl}/upload`, formData);
+        return this.http.post<CatalogueDto>(`${`${this.apiUrl}/upload`}`, formData);
     }
 
     getEntries(filters: {
@@ -49,10 +50,14 @@ export class CatalogueService {
         if (filters.userRef)       params = params.set('userRef', filters.userRef);
         if (filters.dateFrom)      params = params.set('dateFrom', filters.dateFrom);
         if (filters.dateTo)        params = params.set('dateTo', filters.dateTo);
-        return this.http.get<CatalogueEntryDto[]>(`${this.apiUrl}/entries`, { params });
+        return this.http.get<CatalogueEntryDto[]>(`${`${this.apiUrl}/entries`}`, { params });
     }
 
     deleteCatalogue(id: number) {
-        return this.http.delete(`${this.apiUrl}/${id}`);
+        return this.http.delete(`${`${this.apiUrl}/${id}`}`);
+    }
+
+    updateEntry(id: number, body: { translatedEntry?: string }): Observable<void> {
+      return this.http.put<void>(`${`${this.apiUrl}/entries/${id}`}`, body);
     }
 }
