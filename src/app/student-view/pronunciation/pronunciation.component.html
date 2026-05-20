@@ -1,8 +1,12 @@
 <p-toast />
+
 <div class="card">
   <div class="flex items-center justify-between mb-6">
     <div>
-      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Pronunciation</h2>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+        Pronunciation
+      </h2>
+
       <p class="text-muted-color mt-1 m-0">
         {{ unchecked().length }} remaining · {{ checked().length }} done
       </p>
@@ -20,42 +24,93 @@
       <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
         To practice ({{ unchecked().length }})
       </h3>
+
       <div class="flex flex-col gap-2 mb-6">
-        <div *ngFor="let e of unchecked()"
+
+        <div
+          *ngFor="let e of unchecked()"
           class="flex items-center justify-between bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3 hover:border-primary/50 transition-colors">
-          <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">{{ e.word }}</span>
+
+          <!-- Left side -->
+          <div class="flex items-center gap-3">
+
+            <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">
+              {{ e.word }}
+            </span>
+
+            <!-- Speaker button -->
+            <button
+              type="button"
+              class="p-button p-button-text p-button-sm"
+              (click)="$event.stopPropagation(); speak(e.word)">
+
+              <i class="pi pi-volume-up"></i>
+            </button>
+
+          </div>
+
+          <!-- Done button -->
           <p-button
             icon="pi pi-check"
             label="Mark as done"
             severity="success"
             [outlined]="true"
             size="small"
-            (onClick)="toggle(e)" />
+            (onClick)="toggle(e)">
+          </p-button>
+
         </div>
+
       </div>
     </div>
 
     <!-- Checked — done -->
     <div *ngIf="checked().length">
+
       <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
         Done ({{ checked().length }})
       </h3>
+
       <div class="flex flex-wrap gap-2">
-        <div *ngFor="let e of checked()"
+
+        <div
+          *ngFor="let e of checked()"
           class="flex items-center gap-2 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-lg px-3 py-2 cursor-pointer hover:opacity-80 transition-opacity"
           (click)="toggle(e)"
           pTooltip="Click to unmark">
+
+          <!-- Check icon -->
           <i class="pi pi-check-circle text-green-500 text-sm"></i>
-          <span class="text-sm font-medium text-green-700 dark:text-green-300">{{ e.word }}</span>
+
+          <!-- Word -->
+          <span class="text-sm font-medium text-green-700 dark:text-green-300">
+            {{ e.word }}
+          </span>
+
+          <!-- Speaker -->
+          <button
+            type="button"
+            class="p-button p-button-text p-button-sm"
+            (click)="$event.stopPropagation(); speak(e.word)">
+
+            <i class="pi pi-volume-up"></i>
+          </button>
+
         </div>
+
       </div>
     </div>
 
     <!-- Empty -->
-    <div *ngIf="!unchecked().length && !checked().length"
+    <div
+      *ngIf="!unchecked().length && !checked().length"
       class="text-center py-16 text-muted-color">
+
       <i class="pi pi-microphone text-5xl block mb-4"></i>
-      <p class="text-lg">No pronunciation entries yet.</p>
+
+      <p class="text-lg">
+        No pronunciation entries yet.
+      </p>
     </div>
 
   </div>

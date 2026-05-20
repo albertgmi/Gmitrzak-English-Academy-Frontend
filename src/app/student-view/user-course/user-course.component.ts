@@ -8,6 +8,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
 import { StudentService, StudentAssignmentDto, StudentModuleDto } from '../../services/student-services/student.service';
+import confetti from 'canvas-confetti';
 
 @Component({
     selector: 'app-user-course',
@@ -103,12 +104,17 @@ export class UserCourseComponent implements OnInit {
     toggleSingleModule(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
         
+        const checkingAsCompleted = !module.isCompleted;
+        
         const action = module.isCompleted
             ? this.studentService.uncompleteSingleModule(module.id)
             : this.studentService.completeSingleModule(module.id);
         
         action.subscribe({
             next: () => {
+                if (checkingAsCompleted) {
+                    this.triggerTeamsCelebration();
+                }
                 this.studentService.reloadSingleModules();
             },
             error: () => this.messageService.add({
@@ -118,5 +124,49 @@ export class UserCourseComponent implements OnInit {
                 life: 3000
             })
         });
+    }
+
+    private triggerTeamsCelebration() {
+        const scalar = 4.5; 
+        
+        const discoBall = confetti.shapeFromText({ text: '🪩', scalar });
+        const partyPopper = confetti.shapeFromText({ text: '🎉', scalar });
+        const star = confetti.shapeFromText({ text: '⭐', scalar });
+
+        const duration = 3500;
+        const animationEnd = Date.now() + duration;
+
+        const defaults = { 
+            startVelocity: 35,
+            spread: 360,
+            ticks: 80,
+            gravity: 1.0,
+            shapes: [discoBall, partyPopper, star],
+            scalar 
+        };
+
+        const randomInRange = (min: number, max: number) => Math.random() * (max - min) + min;
+
+        const interval = setInterval(() => {
+            const timeLeft = animationEnd - Date.now();
+
+            if (timeLeft <= 0) {
+                return clearInterval(interval);
+            }
+
+            const particleCount = 25 * (timeLeft / duration);
+
+            confetti({ 
+                ...defaults, 
+                particleCount, 
+                origin: { x: randomInRange(0.1, 0.3), y: Math.random() - 0.2 } 
+            });
+
+            confetti({ 
+                ...defaults, 
+                particleCount, 
+                origin: { x: randomInRange(0.7, 0.9), y: Math.random() - 0.2 } 
+            });
+        }, 200);
     }
 }

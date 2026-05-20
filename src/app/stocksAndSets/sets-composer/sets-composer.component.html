@@ -1,0 +1,145 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="card">
+
+  <!-- Header + tabs -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sets & Composer</h2>
+      <p class="text-muted-color mt-1 m-0">Manage sentence sets and assign to students</p>
+    </div>
+  </div>
+
+  <div class="flex gap-2 mb-6">
+    <p-button label="All Sets" icon="pi pi-list"
+      [outlined]="view() !== 'groups'" size="small" (onClick)="view.set('groups')" />
+    <p-button label="Create Set" icon="pi pi-plus"
+      [outlined]="view() !== 'create'" size="small" (onClick)="view.set('create')" />
+    <p-button label="Assign to Student" icon="pi pi-user-plus"
+      [outlined]="view() !== 'assign'" size="small" (onClick)="view.set('assign')" />
+  </div>
+
+  <!-- GROUPS VIEW -->
+  <div *ngIf="view() === 'groups'">
+    <div *ngIf="groups.isLoading()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+
+    <div *ngIf="!groups.isLoading()" class="flex flex-col gap-6">
+      <div *ngFor="let group of groups.value()"
+        class="border border-surface-200 dark:border-surface-700 rounded-xl overflow-hidden">
+
+        <div class="bg-surface-50 dark:bg-surface-800 px-5 py-3 flex items-center justify-between">
+          <h3 class="font-bold text-surface-900 dark:text-surface-0 m-0">{{ group.groupName }}</h3>
+          <span class="text-sm text-muted-color">{{ group.sets.length }} sets</span>
+        </div>
+
+        <div class="divide-y divide-surface-200 dark:divide-surface-700">
+          <div *ngFor="let set of group.sets"
+            class="flex items-center gap-4 px-5 py-3 bg-white dark:bg-surface-900">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center
+              text-primary font-bold text-sm flex-shrink-0">
+              {{ set.order }}
+            </div>
+            <div class="flex-1">
+              <div class="font-semibold text-surface-900 dark:text-surface-0">{{ set.name }}</div>
+              <div class="text-xs text-muted-color">{{ set.itemCount }} sentences</div>
+            </div>
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
+              size="small" (onClick)="confirmDeleteSet(set.id, set.name)" />
+          </div>
+        </div>
+      </div>
+
+      <div *ngIf="!groups.value()?.length" class="text-center py-16 text-muted-color">
+        <i class="pi pi-folder-open text-5xl block mb-4"></i>
+        <p class="text-lg">No sets yet. Create your first set.</p>
+      </div>
+    </div>
+  </div>
+
+  <!-- CREATE SET VIEW -->
+  <div *ngIf="view() === 'create'" class="max-w-2xl">
+    <h3 class="font-semibold text-lg mb-5 m-0">Create New Set</h3>
+    <div class="flex flex-col gap-5">
+
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+        <div>
+          <label class="block font-bold mb-2">Set Name *</label>
+          <input pInputText type="text" [ngModel]="newName()" (ngModelChange)="newName.set($event)"
+            placeholder="e.g. Sentences 1.1" fluid />
+          <small class="text-red-500" *ngIf="submitted && !newName().trim()">Required.</small>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Group Name *</label>
+          <input pInputText type="text" [ngModel]="newGroupName()" (ngModelChange)="newGroupName.set($event)"
+            placeholder="e.g. Advanced 1" fluid />
+          <small class="text-red-500" *ngIf="submitted && !newGroupName().trim()">Required.</small>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Order in group</label>
+          <p-inputNumber [ngModel]="newOrder()" (ngModelChange)="newOrder.set($event)"
+            [min]="1" fluid />
+        </div>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">
+          Select Sentences *
+          <span class="text-sm font-normal text-muted-color ml-2">
+            ({{ selectedStockIds().length }} selected — recommended: 10)
+          </span>
+        </label>
+        <p-multiselect [options]="stockOptions()" optionLabel="label" optionValue="id"
+          [ngModel]="selectedStockIds()" (ngModelChange)="selectedStockIds.set($event)"
+          [filter]="true" filterPlaceholder="Search sentences..."
+          placeholder="Select sentences for this set..." fluid />
+        <small class="text-red-500"
+          *ngIf="submitted && selectedStockIds().length === 0">
+          At least one sentence is required.
+        </small>
+      </div>
+
+      <div class="flex gap-3">
+        <p-button label="Create Set" icon="pi pi-check" [loading]="saving()"
+          (onClick)="createSet()" />
+        <p-button label="Reset" severity="secondary" outlined (onClick)="resetCreateForm()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- ASSIGN VIEW -->
+  <div *ngIf="view() === 'assign'" class="max-w-xl">
+    <h3 class="font-semibold text-lg mb-5 m-0">Assign Set to Student</h3>
+    <div class="flex flex-col gap-5">
+
+      <div>
+        <label class="block font-bold mb-2">Student *</label>
+        <p-select [options]="students()" optionLabel="label" optionValue="id"
+          [ngModel]="assignUserId()" (ngModelChange)="assignUserId.set($event)"
+          placeholder="Select student" [filter]="true" fluid />
+        <small class="text-red-500" *ngIf="assignSubmitted && !assignUserId()">Required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Set *</label>
+        <p-select [options]="allSets()" optionLabel="label" optionValue="id"
+          [ngModel]="assignSetId()" (ngModelChange)="assignSetId.set($event)"
+          placeholder="Select set" [filter]="true" fluid />
+        <small class="text-red-500" *ngIf="assignSubmitted && !assignSetId()">Required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Due Date *</label>
+        <p-datepicker [ngModel]="assignDueDate()" (ngModelChange)="assignDueDate.set($event)"
+          dateFormat="yy-mm-dd" [showIcon]="true" placeholder="Pick due date..." fluid />
+        <small class="text-red-500" *ngIf="assignSubmitted && !assignDueDate()">Required.</small>
+      </div>
+
+      <p-button label="Assign" icon="pi pi-user-plus" [loading]="assigning()"
+        (onClick)="assignSet()" />
+    </div>
+  </div>
+
+</div>

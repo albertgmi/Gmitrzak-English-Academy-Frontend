@@ -44,4 +44,16 @@ export class PronunciationComponent {
             })
         });
     }
+    
+    speak(word: string) {
+        speechSynthesis.cancel();
+
+        const utterance = new SpeechSynthesisUtterance(word);
+
+        utterance.lang = 'en-US';
+        utterance.rate = 0.9;
+        utterance.pitch = 1;
+
+        speechSynthesis.speak(utterance);
+    }
 }

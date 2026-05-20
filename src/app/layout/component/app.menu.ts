@@ -115,10 +115,10 @@ export class AppMenu implements OnInit {
               { label: 'Global Vocabulary', icon: 'pi pi-book', routerLink: ['/system/global-vocabulary'] },
               { label: 'Assign Global Vocabulary', icon: 'pi pi-user-plus', routerLink: ['/system/global-vocabulary/assign'] },
               { label: 'Stream', icon: 'pi pi-server', routerLink: ['/system/stream'] },
-              //{ label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
+              { label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
               //{ label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
               //{ label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },
-              //{ label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
+              { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
               //{ label: 'Composed Sentences', icon: 'pi pi-file-edit', routerLink: ['/system/sentences/composed'] },
             ]
           },
@@ -147,7 +147,6 @@ export class AppMenu implements OnInit {
             icon: 'pi pi-cog',
             items: [
               { label: 'Announcements', icon: 'pi pi-bell', routerLink: ['/system/announcements'] },
-              { label: 'Make Announcement', icon: 'pi pi-plus-circle', routerLink: ['/system/announcements/create'] },
               { label: 'Options', icon: 'pi pi-sliders-h', routerLink: ['/system/options'] },
             ]
           }

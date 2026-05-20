@@ -1,0 +1,106 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="card">
+
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Announcements</h2>
+      <p class="text-muted-color mt-1 m-0">Send messages to students</p>
+    </div>
+    <p-button *ngIf="!showForm()" label="New Announcement" icon="pi pi-plus"
+      (onClick)="showForm.set(true)" />
+  </div>
+
+  <!-- Create form -->
+  <div *ngIf="showForm()"
+    class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 mb-6 border border-surface-200 dark:border-surface-700">
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-semibold m-0">New Announcement</h3>
+      <p-button icon="pi pi-times" severity="secondary" [text]="true" (onClick)="reset()" />
+    </div>
+
+    <div class="flex flex-col gap-5">
+      <div>
+        <label class="block font-bold mb-2">Title *</label>
+        <input pInputText type="text" [ngModel]="title()" (ngModelChange)="title.set($event)"
+          placeholder="Announcement title..." fluid />
+        <small class="text-red-500" *ngIf="submitted && !title().trim()">Required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Content *</label>
+        <textarea pTextarea [ngModel]="content()" (ngModelChange)="content.set($event)"
+          placeholder="Write your announcement..." rows="5" fluid></textarea>
+        <small class="text-red-500" *ngIf="submitted && !content().trim()">Required.</small>
+      </div>
+
+      <div>
+        <div class="flex items-center gap-3 mb-3">
+          <p-checkbox [ngModel]="sendToAll()" (ngModelChange)="sendToAll.set($event)"
+            [binary]="true" inputId="sendAll" />
+          <label for="sendAll" class="font-bold">Send to all students</label>
+        </div>
+
+        <div *ngIf="!sendToAll()">
+          <label class="block font-bold mb-2">Select recipients</label>
+          <p-multiselect [options]="students()" optionLabel="label" optionValue="id"
+            [ngModel]="selectedRecipients()" (ngModelChange)="selectedRecipients.set($event)"
+            placeholder="Select students..." [filter]="true"
+            fluid />
+        </div>
+      </div>
+
+      <div class="flex gap-3">
+        <p-button label="Send" icon="pi pi-send" [loading]="saving()" (onClick)="send()" />
+        <p-button label="Cancel" severity="secondary" outlined (onClick)="reset()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Table -->
+  <p-table #dt [value]="announcements()" [loading]="loading()"
+    [rows]="10" [paginator]="true" [rowHover]="true"
+    [globalFilterFields]="['title', 'senderUsername']"
+    [tableStyle]="{'min-width': '45rem'}"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} announcements"
+    [showCurrentPageReport]="true">
+    <ng-template #caption>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+      </p-iconfield>
+    </ng-template>
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="title">Title <p-sortIcon field="title" /></th>
+        <th style="width: 10rem">Sent by</th>
+        <th pSortableColumn="createdAt" style="width: 10rem">Date <p-sortIcon field="createdAt" /></th>
+        <th style="width: 10rem">Read</th>
+        <th style="width: 6rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-a>
+      <tr>
+        <td>
+          <div class="font-semibold text-surface-900 dark:text-surface-0">{{ a.title }}</div>
+          <div class="text-xs text-muted-color mt-0.5 truncate max-w-sm">{{ a.content }}</div>
+        </td>
+        <td class="text-sm">{{ a.senderUsername }}</td>
+        <td class="text-sm text-muted-color">{{ a.createdAt | date:'d MMM yyyy HH:mm' }}</td>
+        <td>
+          <span class="text-sm">{{ a.readCount }} / {{ a.totalRecipients }}</span>
+        </td>
+        <td>
+          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
+            (onClick)="confirmDelete(a)" pTooltip="Delete" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="5" class="text-center text-muted-color py-10">No announcements yet.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

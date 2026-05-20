@@ -56,6 +56,11 @@ import {TheaterComponent} from './other/theater/theater.component';
 import {RepertoireComponent} from './other/repertoire/repertoire.component';
 import { GlobalVocabularyComponent } from './vocabulary/global-vocabulary/global-vocabulary.component';
 import { AssignGlobalVocabularyComponent } from './vocabulary/assign-global-vocabulary/assign-global-vocabulary.component';
+import { AnnouncementsComponent } from './announcements/announcements/announcements.component';
+import { MessagesComponent } from './announcements/messages/messages.component';
+import { SentenceStockComponent } from './stocksAndSets/sentence-stock/sentence-stock.component';
+import { SetsComposerComponent } from './stocksAndSets/sets-composer/sets-composer.component';
+import { OptionsComponent } from './other/options/options.component';
 
 
 export const appRoutes: Routes = [
@@ -118,6 +123,11 @@ export const appRoutes: Routes = [
       { path: 'system/stream', component: StreamComponent, canActivate: [AuthGuard] },
       { path: 'system/theater', component: TheaterComponent, canActivate: [AuthGuard] },
       { path: 'system/theater/repertoire', component: RepertoireComponent, canActivate: [AuthGuard] },
+      { path: 'system/announcements', component: AnnouncementsComponent, canActivate: [AuthGuard] },
+      { path: 'messages', component: MessagesComponent, canActivate: [AuthGuard] },
+      { path: 'system/sentences/stock', component: SentenceStockComponent, canActivate: [AuthGuard] },
+      { path: 'system/sets/compose', component: SetsComposerComponent, canActivate: [AuthGuard] },
+      { path: 'system/options', component: OptionsComponent, canActivate: [AuthGuard] },
 
     ]
   },
