@@ -28,6 +28,7 @@ export interface SentenceDto {
     content: string;
     translation: string;
     notes?: string;
+    isReviewed: boolean;
 }
 
 export interface MemoryDto {
@@ -104,5 +105,9 @@ export class ContentService {
 
     getAssignmentHistory() {
         return this.http.get<AssignmentStudentDto[]>(`${this.apiUrl}/assignments/history`);
+    }
+
+    reviewSentence(id: number) {
+      return this.http.patch(`api/student-learning/sentences/${id}/review`, {});
     }
 }

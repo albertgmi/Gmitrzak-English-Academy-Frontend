@@ -5,63 +5,60 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
-import { DatePickerModule } from 'primeng/datepicker';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { SentenceService, SentenceSetGroupDto, SentenceStockDto } from '../../services/sentence.service';
-import { UserService } from '../../services/user.service';
-import { MultiSelectModule } from 'primeng/multiselect';
+import { SentenceService, SentenceSetGroupDto } from '../../services/sentence.service';
+import { ModuleItemService } from '../../services/module.service';
 
-type View = 'groups' | 'create' | 'assign';
+type View = 'groups' | 'create' | 'assign-module';
+
+interface ModuleSimple {
+    id: number;
+    name: string;
+}
 
 @Component({
     selector: 'app-sets-composer',
     standalone: true,
     imports: [
         CommonModule, FormsModule, ButtonModule, InputTextModule,
-        InputNumberModule, SelectModule, DatePickerModule, TagModule,
-        ToastModule, ConfirmDialogModule, MultiSelectModule
+        InputNumberModule, SelectModule, MultiSelectModule, TagModule,
+        ToastModule, ConfirmDialogModule
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './sets-composer.component.html'
 })
 export class SetsComposerComponent implements OnInit {
-    private sentenceService = inject(SentenceService);
-    private userService = inject(UserService);
-    private messageService = inject(MessageService);
+    private sentenceService     = inject(SentenceService);
+    private moduleItemService   = inject(ModuleItemService);
+    private messageService      = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
 
-    groups = this.sentenceService.sets;
-    stock = this.sentenceService.stock;
-    view = signal<View>('groups');
-    saving = signal(false);
+    groups  = this.sentenceService.sets;
+    stock   = this.sentenceService.stock;
+    view    = signal<View>('groups');
+    saving  = signal(false);
     submitted = false;
 
-    // create form
-    newName = signal('');
+    newName      = signal('');
     newGroupName = signal('');
-    newOrder = signal(1);
+    newOrder     = signal(1);
     selectedStockIds = signal<number[]>([]);
 
-    // assign form
-    assignUserId = signal<number | null>(null);
-    assignSetId = signal<number | null>(null);
-    assignDueDate = signal<Date | null>(null);
+    assignModuleId  = signal<number | null>(null);
+    assignSetId     = signal<number | null>(null);
     assignSubmitted = false;
-    assigning = signal(false);
+    assigning       = signal(false);
 
-    students = computed(() =>
-        (this.userService.users.value() ?? [])
-            .filter(u => u.role === 'User')
-            .map(u => ({ id: u.id, label: u.username }))
-    );
+    modules = signal<ModuleSimple[]>([]);
 
     allSets = computed(() =>
         (this.sentenceService.sets.value() ?? [])
             .flatMap(g => g.sets)
-            .map(s => ({ id: s.id, label: `${s.groupName} / ${s.name}` }))
+            .map(s => ({ id: s.id, label: `${s.groupName} / ${s.name} (${s.itemCount} sentences)` }))
     );
 
     stockOptions = computed(() =>
@@ -72,7 +69,16 @@ export class SetsComposerComponent implements OnInit {
     ngOnInit() {
         this.sentenceService.reloadSets();
         this.sentenceService.reloadStock();
-        this.userService.users.reload();
+
+        this.moduleItemService.modules.reload();
+
+        const interval = setInterval(() => {
+            const data = this.moduleItemService.modules.value();
+            if (data !== undefined) {
+                clearInterval(interval);
+                this.modules.set(data.map(m => ({ id: m.id, name: m.name })));
+            }
+        }, 100);
     }
 
     createSet() {
@@ -100,22 +106,21 @@ export class SetsComposerComponent implements OnInit {
         });
     }
 
-    assignSet() {
+    assignToModule() {
         this.assignSubmitted = true;
-        const uid  = this.assignUserId();
-        const sid  = this.assignSetId();
-        const date = this.assignDueDate();
-        if (!uid || !sid || !date) return;
+        const mid = this.assignModuleId();
+        const sid = this.assignSetId();
+        if (!mid || !sid) return;
 
         this.assigning.set(true);
-        this.sentenceService.assign(uid, this.formatDate(date), sid).subscribe({
+        this.sentenceService.assignSetToModule(mid, sid).subscribe({
             next: () => {
                 this.messageService.add({
-                    severity: 'success', summary: 'Assigned', life: 3000
+                    severity: 'success', summary: 'Assigned',
+                    detail: 'Sentence set assigned to module', life: 3000
                 });
-                this.assignUserId.set(null);
+                this.assignModuleId.set(null);
                 this.assignSetId.set(null);
-                this.assignDueDate.set(null);
                 this.assignSubmitted = false;
                 this.assigning.set(false);
             },
@@ -148,9 +153,5 @@ export class SetsComposerComponent implements OnInit {
         this.selectedStockIds.set([]);
         this.submitted = false;
         this.saving.set(false);
-    }
-
-    formatDate(date: Date): string {
-        return date.toISOString().split('T')[0];
     }
 }

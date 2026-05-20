@@ -1,0 +1,190 @@
+<p-toast />
+
+<div *ngIf="mode() === 'browse'" class="card">
+
+  <div class="flex flex-col md:flex-row md:items-center md:justify-between gap-4 mb-6">
+
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+        Sentences
+      </h2>
+
+      <p class="text-muted-color mt-1 m-0 text-sm">
+        Total: <b>{{ cards().length }}</b> |
+        New: <span class="text-blue-500 font-semibold">{{ newCount() }}</span> |
+        Reviewed: <span class="text-green-500 font-semibold">{{ reviewedCount() }}</span>
+      </p>
+    </div>
+
+    <div *ngIf="cards().length" class="flex items-center gap-3">
+
+      <p-select
+        [options]="filterOptions"
+        [ngModel]="selectedFilter()"
+        (ngModelChange)="selectedFilter.set($event)"
+        optionLabel="label"
+        optionValue="value"
+        styleClass="w-52"
+      />
+
+      <p-button
+        label="Study mode"
+        icon="pi pi-play"
+        (onClick)="startStudy()" />
+    </div>
+
+  </div>
+
+  <!-- loading -->
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <!-- empty -->
+  <div *ngIf="!loading() && !cards().length"
+       class="text-center py-16 text-muted-color">
+    <i class="pi pi-align-left text-5xl block mb-4"></i>
+    <p class="text-lg">No sentences yet.</p>
+  </div>
+
+  <!-- select all -->
+  <div *ngIf="!loading() && cards().length"
+       class="flex items-center gap-3 px-4 py-2 bg-surface-50 dark:bg-surface-800/50 rounded-lg mb-2">
+
+    <p-checkbox
+      [binary]="true"
+      [ngModel]="areAllVisibleSelected()"
+      (onChange)="toggleSelectAll($event)"
+    />
+
+    <span class="text-xs font-medium text-muted-color uppercase tracking-wider">
+      Select all listed
+    </span>
+  </div>
+
+  <!-- cards -->
+  <div *ngIf="!loading()" class="flex flex-col gap-3">
+
+    <div *ngFor="let s of cards()"
+      [style.display]="
+        (selectedFilter() === 'new' && s.isReviewed) ||
+        (selectedFilter() === 'reviewed' && !s.isReviewed)
+          ? 'none'
+          : 'block'
+      ">
+
+      <div class="flex items-start gap-4 p-4 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+        <p-checkbox
+          [binary]="true"
+          [ngModel]="isCardSelected(s.id)"
+          (onChange)="toggleSelect(s.id, $event.checked)"
+          class="mt-1"
+        />
+        <div class="flex-1">
+          <div class="flex justify-between items-start mb-1 gap-4">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">
+              {{ s.content }}
+            </div>
+
+            <p-tag
+              [severity]="s.isReviewed ? 'success' : 'info'"
+              [value]="s.isReviewed ? 'Reviewed' : 'New'" />
+          </div>
+
+          <div class="text-muted-color text-sm">
+            {{ s.translation }}
+          </div>
+
+          <div *ngIf="s.notes" class="text-xs italic mt-1">
+            {{ s.notes }}
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+<div *ngIf="mode() === 'study'" class="card overflow-hidden flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+
+  <!-- Finished screen -->
+  <div *ngIf="finished()" class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-10 text-center max-w-xl w-full shadow-sm animate-fadein">
+    <i class="pi pi-check-circle text-green-500 text-6xl mb-4 block"></i>
+    <h2 class="text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2">All reviewed!</h2>
+    <p class="text-muted-color mb-6">
+      You have successfully finished reviewing your custom queue ({{ studyCards().length }} items).
+    </p>
+    <p-button label="Back to list" icon="pi pi-list" (onClick)="backToBrowse()" />
+  </div>
+
+  <!-- Main study area -->
+  <div *ngIf="!finished() && currentCard() as s" class="w-full max-w-2xl flex flex-col">
+
+    <div class="flex items-center justify-between mb-6 shrink-0">
+      <button class="w-10 h-10 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer bg-transparent"
+              (click)="backToBrowse()">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      <div class="flex-1 mx-4">
+        <div class="flex justify-between text-xs text-muted-color mb-1">
+          <span>Sentences</span>
+          <span>{{ current() + 1 }} / {{ studyCards().length }}</span>
+        </div>
+        <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-2">
+          <div class="bg-primary h-2 rounded-full transition-all duration-300" [style.width]="progress() + '%'"></div>
+        </div>
+      </div>
+      <p-tag severity="secondary" [value]="studyCards().length + ' active items'" />
+    </div>
+
+    <!-- FLASHCARD - POPRAWIONA -->
+    <div class="sentence-card-wrapper shrink-0 mx-auto"
+         [class.revealed]="revealed()"
+         (click)="toggleReveal()">
+      
+      <div class="sentence-card-inner">
+      
+        <div class="sentence-card-face sentence-card-front">
+          <p-tag severity="info" value="Polish" styleClass="mb-5" />
+          <h2 class="text-3xl md:text-4xl font-bold text-surface-900 dark:text-surface-0 text-center px-4 m-0 break-words">
+            {{ s.content }}
+          </h2>
+          <div class="mt-8 text-sm text-muted-color opacity-70">
+            Kliknij, aby zobaczyć tłumaczenie
+          </div>
+        </div>
+      
+        <div class="sentence-card-face sentence-card-back">
+          <p-tag severity="success" value="Translation" styleClass="mb-5" />
+          <h2 class="text-3xl md:text-4xl font-bold text-primary text-center px-4 m-0 break-words">
+            {{ s.translation }}
+          </h2>
+          <div *ngIf="s.notes" class="mt-4 text-sm text-muted-color italic">
+            {{ s.notes }}
+          </div>
+          <div class="mt-8 text-sm text-muted-color opacity-70">
+            Kliknij, aby wrócić
+          </div>
+        </div>
+      
+      </div>
+    </div>
+
+    <!-- ACTIONS -->
+    <div class="h-20 mt-6 shrink-0 overflow-hidden">
+      <div *ngIf="revealed()" class="flex gap-3 justify-center animate-fadein">
+        <p-button
+          icon="pi pi-arrow-left"
+          severity="secondary"
+          outlined
+          [disabled]="current() === 0"
+          (onClick)="prev()" />
+
+        <p-button
+          [label]="current() === studyCards().length - 1 ? 'Finish' : 'Next'"
+          [icon]="current() === studyCards().length - 1 ? 'pi pi-check' : 'pi pi-arrow-right'"
+          iconPos="right"
+          (onClick)="next()" />
+      </div>
+    </div>
+  </div>
+</div>

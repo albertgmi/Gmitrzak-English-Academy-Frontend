@@ -42,6 +42,19 @@ export interface AnswerResultDto {
     teacherReviewed: boolean;
 }
 
+export interface ModuleSentenceItemDto {
+    sentenceStockId: number;
+    polish: string;
+    order: string;
+}
+
+export interface ModuleSentenceSessionDto {
+    moduleId: number;
+    moduleName: string;
+    assignmentId: number;
+    sentences: ModuleSentenceItemDto[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class SentenceService {
     private apiUrl = '/api/sentence';
@@ -92,5 +105,26 @@ export class SentenceService {
     overrideAnswer(answerId: number, override: string) {
         return this.http.patch(`${this.apiUrl}/answers/${answerId}/override`,
             { override });
+    }
+
+    assignSetToModule(moduleId: number, sentenceSetId: number) {
+        return this.http.post(`${this.apiUrl}/assign-to-module`, { moduleId, sentenceSetId });
+    }
+
+    getSetsForModule(moduleId: number) {
+        return this.http.get<SentenceSetDto[]>(`${this.apiUrl}/module/${moduleId}/sets`);
+    }
+
+    removeSetFromModule(moduleId: number, setId: number) {
+        return this.http.delete(`${this.apiUrl}/module/${moduleId}/set/${setId}`);
+    }
+
+    getModuleSentences(moduleId: number) {
+        return this.http.get<ModuleSentenceSessionDto>(`/api/student-learning/module/${moduleId}/sentences`);
+    }
+
+    submitAnswer(assignmentId: number, sentenceStockId: number, userAnswer: string) {
+        return this.http.post<AnswerResultDto>(`${this.apiUrl}/answer`,
+            { assignmentId, sentenceStockId, userAnswer });
     }
 }

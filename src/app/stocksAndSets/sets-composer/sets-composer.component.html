@@ -3,11 +3,10 @@
 
 <div class="card">
 
-  <!-- Header + tabs -->
   <div class="flex items-center justify-between mb-6">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sets & Composer</h2>
-      <p class="text-muted-color mt-1 m-0">Manage sentence sets and assign to students</p>
+      <p class="text-muted-color mt-1 m-0">Manage sentence sets and assign to modules</p>
     </div>
   </div>
 
@@ -16,8 +15,8 @@
       [outlined]="view() !== 'groups'" size="small" (onClick)="view.set('groups')" />
     <p-button label="Create Set" icon="pi pi-plus"
       [outlined]="view() !== 'create'" size="small" (onClick)="view.set('create')" />
-    <p-button label="Assign to Student" icon="pi pi-user-plus"
-      [outlined]="view() !== 'assign'" size="small" (onClick)="view.set('assign')" />
+    <p-button label="Assign to Module" icon="pi pi-link"
+      [outlined]="view() !== 'assign-module'" size="small" (onClick)="view.set('assign-module')" />
   </div>
 
   <!-- GROUPS VIEW -->
@@ -88,15 +87,15 @@
         <label class="block font-bold mb-2">
           Select Sentences *
           <span class="text-sm font-normal text-muted-color ml-2">
-            ({{ selectedStockIds().length }} selected — recommended: 10)
+            ({{ selectedStockIds().length }} selected)
           </span>
         </label>
-        <p-multiselect [options]="stockOptions()" optionLabel="label" optionValue="id"
+        <!-- ZMIENIONE Z p-select na p-multiSelect i usunięte [multiple]="true" -->
+        <p-multiSelect [options]="stockOptions()" optionLabel="label" optionValue="id"
           [ngModel]="selectedStockIds()" (ngModelChange)="selectedStockIds.set($event)"
           [filter]="true" filterPlaceholder="Search sentences..."
           placeholder="Select sentences for this set..." fluid />
-        <small class="text-red-500"
-          *ngIf="submitted && selectedStockIds().length === 0">
+        <small class="text-red-500" *ngIf="submitted && selectedStockIds().length === 0">
           At least one sentence is required.
         </small>
       </div>
@@ -109,36 +108,40 @@
     </div>
   </div>
 
-  <!-- ASSIGN VIEW -->
-  <div *ngIf="view() === 'assign'" class="max-w-xl">
-    <h3 class="font-semibold text-lg mb-5 m-0">Assign Set to Student</h3>
-    <div class="flex flex-col gap-5">
+  <!-- ASSIGN TO MODULE VIEW -->
+  <div *ngIf="view() === 'assign-module'" class="max-w-xl">
+    <h3 class="font-semibold text-lg mb-5 m-0">Assign Set to Module</h3>
 
+    <div class="bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800
+      rounded-xl p-4 mb-5">
+      <div class="flex items-start gap-3">
+        <i class="pi pi-info-circle text-blue-500 mt-0.5"></i>
+        <p class="text-sm text-blue-700 dark:text-blue-300 m-0">
+          Assign a sentence set to a module of category <strong>Sentences</strong>.
+          Students will see the sentences as translation tasks when they open that module.
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-5">
       <div>
-        <label class="block font-bold mb-2">Student *</label>
-        <p-select [options]="students()" optionLabel="label" optionValue="id"
-          [ngModel]="assignUserId()" (ngModelChange)="assignUserId.set($event)"
-          placeholder="Select student" [filter]="true" fluid />
-        <small class="text-red-500" *ngIf="assignSubmitted && !assignUserId()">Required.</small>
+        <label class="block font-bold mb-2">Module *</label>
+        <p-select [options]="modules()" optionLabel="name" optionValue="id"
+          [ngModel]="assignModuleId()" (ngModelChange)="assignModuleId.set($event)"
+          placeholder="Select module" [filter]="true" fluid />
+        <small class="text-red-500" *ngIf="assignSubmitted && !assignModuleId()">Required.</small>
       </div>
 
       <div>
-        <label class="block font-bold mb-2">Set *</label>
+        <label class="block font-bold mb-2">Sentence Set *</label>
         <p-select [options]="allSets()" optionLabel="label" optionValue="id"
           [ngModel]="assignSetId()" (ngModelChange)="assignSetId.set($event)"
           placeholder="Select set" [filter]="true" fluid />
         <small class="text-red-500" *ngIf="assignSubmitted && !assignSetId()">Required.</small>
       </div>
 
-      <div>
-        <label class="block font-bold mb-2">Due Date *</label>
-        <p-datepicker [ngModel]="assignDueDate()" (ngModelChange)="assignDueDate.set($event)"
-          dateFormat="yy-mm-dd" [showIcon]="true" placeholder="Pick due date..." fluid />
-        <small class="text-red-500" *ngIf="assignSubmitted && !assignDueDate()">Required.</small>
-      </div>
-
-      <p-button label="Assign" icon="pi pi-user-plus" [loading]="assigning()"
-        (onClick)="assignSet()" />
+      <p-button label="Assign to Module" icon="pi pi-link" [loading]="assigning()"
+        (onClick)="assignToModule()" />
     </div>
   </div>
 

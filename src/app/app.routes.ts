@@ -61,6 +61,9 @@ import { MessagesComponent } from './announcements/messages/messages.component';
 import { SentenceStockComponent } from './stocksAndSets/sentence-stock/sentence-stock.component';
 import { SetsComposerComponent } from './stocksAndSets/sets-composer/sets-composer.component';
 import { OptionsComponent } from './other/options/options.component';
+import { SentenceTaskComponent } from './stocksAndSets/sentence-task/sentence-task.component';
+import { SentencesCardsComponent } from './student-view/sentences-cards/sentences-cards.component';
+
 
 
 export const appRoutes: Routes = [
@@ -128,6 +131,8 @@ export const appRoutes: Routes = [
       { path: 'system/sentences/stock', component: SentenceStockComponent, canActivate: [AuthGuard] },
       { path: 'system/sets/compose', component: SetsComposerComponent, canActivate: [AuthGuard] },
       { path: 'system/options', component: OptionsComponent, canActivate: [AuthGuard] },
+      { path: 'modules/:moduleId/sentences', component: SentenceTaskComponent, canActivate: [AuthGuard] },
+      { path: 'sentences-cards', component: SentencesCardsComponent, canActivate: [AuthGuard] },
 
     ]
   },
