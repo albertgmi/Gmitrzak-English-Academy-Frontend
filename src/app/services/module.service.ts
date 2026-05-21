@@ -6,6 +6,7 @@ export interface ModuleItem {
     id: number;
     name: string;
     description: string;
+    category: string;
     isHidden: boolean;
     matrices: MatrixSimple[];
 }
@@ -19,6 +20,7 @@ export interface MatrixSimple {
 export interface CreateModuleRequest {
     name: string;
     description?: string;
+    category: string;
     isHidden?: boolean;
 }
 
@@ -26,6 +28,7 @@ export interface UpdateModuleRequest {
     name?: string;
     description?: string;
     isHidden?: boolean;
+    category?: string;
 }
 
 export interface AssignModuleToMatrixRequest {

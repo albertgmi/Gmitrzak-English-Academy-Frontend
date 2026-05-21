@@ -204,6 +204,7 @@ export class AppMenu implements OnInit {
       { label: 'Lesson Mode', icon: 'pi pi-bolt', routerLink: ['/lesson/mode'] },
       { label: 'List / Notes', icon: 'pi pi-file-edit', routerLink: ['/lesson/list'] },
       { label: 'Test Pronunciation', icon: 'pi pi-microphone', routerLink: ['/lesson/pronunciation'] },
+      { label: 'Sentence Answers', icon: 'pi pi-check-square', routerLink: '/lesson/sentence-answers' },
       { label: 'Grade Student', icon: 'pi pi-star', routerLink: ['/lesson/grade'] },
       { label: 'Grades', icon: 'pi pi-chart-bar', routerLink: ['/lesson/grades'] },
       { label: 'Activity Points', icon: 'pi pi-history', routerLink: ['/lesson/activity-points'] },

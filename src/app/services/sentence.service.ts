@@ -39,19 +39,24 @@ export interface AnswerResultDto {
     aiResult: string;
     aiExplanation: string;
     teacherOverride?: string;
+    teacherExplanation?: string;
     teacherReviewed: boolean;
+    finalResult?: string;
 }
 
 export interface ModuleSentenceItemDto {
     sentenceStockId: number;
     polish: string;
-    order: string;
+    order: number;
+    previousAnswer?: string;
+    previousResult?: string;
+    previousExplanation?: string;
+    previousAnswerId?: number;
 }
 
 export interface ModuleSentenceSessionDto {
     moduleId: number;
     moduleName: string;
-    assignmentId: number;
     sentences: ModuleSentenceItemDto[];
 }
 
@@ -98,15 +103,6 @@ export class SentenceService {
             { userId, sentenceSetId, sentenceStockId, dueDate });
     }
 
-    getAnswers(assignmentId: number) {
-        return this.http.get<AnswerResultDto[]>(`${this.apiUrl}/answers/${assignmentId}`);
-    }
-
-    overrideAnswer(answerId: number, override: string) {
-        return this.http.patch(`${this.apiUrl}/answers/${answerId}/override`,
-            { override });
-    }
-
     assignSetToModule(moduleId: number, sentenceSetId: number) {
         return this.http.post(`${this.apiUrl}/assign-to-module`, { moduleId, sentenceSetId });
     }
@@ -123,8 +119,37 @@ export class SentenceService {
         return this.http.get<ModuleSentenceSessionDto>(`/api/student-learning/module/${moduleId}/sentences`);
     }
 
-    submitAnswer(assignmentId: number, sentenceStockId: number, userAnswer: string) {
-        return this.http.post<AnswerResultDto>(`${this.apiUrl}/answer`,
-            { assignmentId, sentenceStockId, userAnswer });
+    submitAnswer(moduleId: number, sentenceStockId: number, userAnswer: string) {
+        return this.http.post<AnswerResultDto>('/api/answers',
+            { moduleId, sentenceStockId, userAnswer });
+    }
+
+    getAnswersForModule(moduleId: number) {
+        return this.http.get<AnswerResultDto[]>(`/api/answers/module/${moduleId}`);
+    }
+
+    getAnswersForStudent(moduleId: number, studentId: number) {
+        return this.http.get<AnswerResultDto[]>(
+            `/api/answers/module/${moduleId}/student/${studentId}`
+        );
+    }
+
+    overrideAnswer(answerId: number, override: string | null, teacherExplanation?: string) {
+        return this.http.patch(`/api/answers/${answerId}/override`,
+            { override, teacherExplanation });
+    }
+
+    downloadReportPdf(moduleId: number, studentId: number) {
+        return this.http.get(
+            `/api/answers/module/${moduleId}/student/${studentId}/report/pdf`,
+            { responseType: 'blob' }
+        );
+    }
+
+    downloadReportDocx(moduleId: number, studentId: number) {
+        return this.http.get(
+            `/api/answers/module/${moduleId}/student/${studentId}/report/docx`,
+            { responseType: 'blob' }
+        );
     }
 }

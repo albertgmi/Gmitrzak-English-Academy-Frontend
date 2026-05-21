@@ -1,0 +1,142 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
+      {{ student.username[0]?.toUpperCase() }}
+    </div>
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sentence Answers</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — review and override AI results</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
+    <label class="block font-bold mb-3">Select Sentences Module</label>
+    <div class="flex gap-3">
+      <p-select [options]="sentenceModules()" optionLabel="label" optionValue="id" [ngModel]="selectedModuleId()" (ngModelChange)="selectedModuleId.set($event)" placeholder="Select module..." [filter]="true" class="flex-1" />
+      <p-button label="Load answers" icon="pi pi-search" [disabled]="!selectedModuleId()" [loading]="loading()" (onClick)="loadAnswers()" />
+    </div>
+    <small class="text-muted-color text-xs mt-2 block">
+      Only modules of category <strong>Sentences</strong> are shown.
+    </small>
+  </div>
+
+  <div *ngIf="!loading() && !answers().length && selectedModuleId()" class="text-center py-12 text-muted-color">
+    <i class="pi pi-inbox text-4xl block mb-3"></i>
+    <p>No answers submitted yet for this module.</p>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && answers().length" class="flex flex-col gap-4">
+    <div class="flex justify-between items-center mb-4">
+      <span class="text-sm text-muted-color">
+        {{ answers().length }} answers
+      </span>
+
+      <div class="flex gap-2">
+        <p-button
+          label="Download PDF"
+          icon="pi pi-file-pdf"
+          severity="secondary"
+          outlined
+          [loading]="downloadingPdf()"
+          (onClick)="downloadPdf()" />
+
+        <p-button
+          label="Download DOCX"
+          icon="pi pi-file-word"
+          severity="info"
+          outlined
+          [loading]="downloadingDocx()"
+          (onClick)="downloadDocx()" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-2">
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
+        <div class="text-xl font-bold text-green-600">{{ correctCount() }}</div>
+        <div class="text-xs text-muted-color">Correct</div>
+      </div>
+      <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-3 text-center">
+        <div class="text-xl font-bold text-yellow-600">{{ partialCount() }}</div>
+        <div class="text-xs text-muted-color">Partial</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 text-center">
+        <div class="text-xl font-bold text-red-500">{{ incorrectCount() }}</div>
+        <div class="text-xs text-muted-color">Incorrect</div>
+      </div>
+    </div>
+
+    <div *ngFor="let a of answers(); let i = index" class="border rounded-xl overflow-hidden" [ngClass]="{'border-green-200 dark:border-green-800': a.aiResult === 'Correct', 'border-yellow-200 dark:border-yellow-800': a.aiResult === 'Partial', 'border-red-200 dark:border-red-800': a.aiResult === 'Incorrect'}">
+      <div class="flex items-center gap-3 px-5 py-3" [ngClass]="{'bg-green-50 dark:bg-green-900/20': a.aiResult === 'Correct', 'bg-yellow-50 dark:bg-yellow-900/20': a.aiResult === 'Partial', 'bg-red-50 dark:bg-red-900/20': a.aiResult === 'Incorrect'}">
+        <span class="font-bold text-muted-color text-sm">{{ i + 1 }}</span>
+        <p-tag [severity]="resultSeverity(a.aiResult)" [value]="a.aiResult" />
+        <span *ngIf="a.teacherOverride" class="text-xs text-muted-color italic">
+          (AI: {{ a.teacherOverride === 'Correct' ? 'was Incorrect/Partial' : 'was Correct/Partial' }}, overridden by teacher)
+        </span>
+        <div class="ml-auto flex items-center gap-1">
+          <i *ngIf="a.teacherReviewed" class="pi pi-check-circle text-primary text-sm" pTooltip="Teacher reviewed"></i>
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-surface-900 px-5 py-4 flex flex-col gap-3">
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+          <div>
+            <div class="text-xs font-bold uppercase text-muted-color mb-1">Polish</div>
+            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ a.polish }}</div>
+          </div>
+          <div>
+            <div class="text-xs font-bold uppercase text-muted-color mb-1">Expected</div>
+            <div class="text-muted-color">{{ a.expectedTranslation }}</div>
+          </div>
+        </div>
+        <div>
+          <div class="text-xs font-bold uppercase text-muted-color mb-1">Student's answer</div>
+          <div class="font-semibold text-surface-900 dark:text-surface-0 text-lg">{{ a.userAnswer }}</div>
+        </div>
+        <div class="bg-surface-50 dark:bg-surface-800 rounded-lg px-3 py-2">
+          <div class="text-xs font-bold uppercase text-muted-color mb-1">AI explanation</div>
+          <div class="text-sm text-surface-900 dark:text-surface-0 italic">{{ a.aiExplanation }}</div>
+        </div>
+        <div class="flex items-center gap-2 pt-1 border-t border-surface-100 dark:border-surface-700 mt-1">
+          <p-button label="Review & Override" icon="pi pi-pencil" severity="info" size="small" outlined [loading]="overriding() === a.id" (onClick)="openOverride(a)" />
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog [visible]="!!overrideForm()" (visibleChange)="!$event ? overrideForm.set(null) : null" header="Override AI Result" [modal]="true" [style]="{width: '480px'}">
+  <ng-template pTemplate="content">
+    <div *ngIf="overrideForm() as f" class="flex flex-col gap-4">
+      <div>
+        <label class="block font-bold mb-2">Result</label>
+        <div class="flex gap-2">
+          <p-button label="Correct" severity="success" [outlined]="f.result !== 'Correct'" (onClick)="updateFormResult('Correct')" />
+          <p-button label="Partial" severity="warn" [outlined]="f.result !== 'Partial'" (onClick)="updateFormResult('Partial')" />
+          <p-button label="Incorrect" severity="danger" [outlined]="f.result !== 'Incorrect'" (onClick)="updateFormResult('Incorrect')" />
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold mb-2">Your explanation (visible to student)</label>
+        <textarea pTextarea [ngModel]="f.explanation" (ngModelChange)="updateFormExplanation($event)" placeholder="Explain your decision to the student..." rows="4" fluid></textarea>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" outlined (onClick)="overrideForm.set(null)" />
+    <p-button label="Save override" icon="pi pi-check" [loading]="overriding() !== null" (onClick)="saveOverride()" />
+  </ng-template>
+</p-dialog>

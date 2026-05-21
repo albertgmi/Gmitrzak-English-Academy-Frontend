@@ -6,6 +6,7 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
+import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ModuleItemService, CreateModuleRequest } from '../../../services/module.service';
@@ -15,8 +16,8 @@ import { ModuleItemService, CreateModuleRequest } from '../../../services/module
     standalone: true,
     imports: [
         CommonModule, FormsModule, RouterModule,
-        ButtonModule, InputTextModule, TextareaModule, 
-        CheckboxModule, ToastModule
+        ButtonModule, InputTextModule, TextareaModule,
+        CheckboxModule, SelectModule, ToastModule
     ],
     providers: [MessageService],
     templateUrl: './module-adding.component.html'
@@ -26,8 +27,23 @@ export class ModuleAddingComponent {
     private messageService = inject(MessageService);
     private router = inject(Router);
 
-    newModule: CreateModuleRequest = { name: '', description: '', isHidden: false };
+    newModule: CreateModuleRequest = {
+        name: '',
+        description: '',
+        isHidden: false,
+        category: 'General'
+    };
     submitted = false;
+
+    categories = [
+        { label: 'General',    value: 'General' },
+        { label: 'Sentences',  value: 'Sentences' },
+        { label: 'Listening',  value: 'Listening' },
+        { label: 'Grammar',    value: 'Grammar' },
+        { label: 'Vocabulary', value: 'Vocabulary' },
+        { label: 'Speaking',   value: 'Speaking' },
+        { label: 'Other',      value: 'Other' }
+    ];
 
     save() {
         this.submitted = true;
@@ -36,18 +52,18 @@ export class ModuleAddingComponent {
         this.moduleService.createModule(this.newModule).subscribe({
             next: () => {
                 this.messageService.add({
-                    severity: 'success', 
+                    severity: 'success',
                     summary: 'Created',
-                    detail: `Module "${this.newModule.name}" created.`, 
+                    detail: `Module "${this.newModule.name}" created.`,
                     life: 3000
                 });
                 this.router.navigate(['/curriculum/modules']);
             },
             error: () => {
                 this.messageService.add({
-                    severity: 'error', 
+                    severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to create module.', 
+                    detail: 'Failed to create module.',
                     life: 3000
                 });
             }

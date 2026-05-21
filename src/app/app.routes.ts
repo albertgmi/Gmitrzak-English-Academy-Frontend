@@ -63,6 +63,8 @@ import { SetsComposerComponent } from './stocksAndSets/sets-composer/sets-compos
 import { OptionsComponent } from './other/options/options.component';
 import { SentenceTaskComponent } from './stocksAndSets/sentence-task/sentence-task.component';
 import { SentencesCardsComponent } from './student-view/sentences-cards/sentences-cards.component';
+import { LessonSentenceAnswersComponent } from './lesson/lesson-sentence-answers/lesson-sentence-answers.component';
+
 
 
 
@@ -133,6 +135,8 @@ export const appRoutes: Routes = [
       { path: 'system/options', component: OptionsComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/sentences', component: SentenceTaskComponent, canActivate: [AuthGuard] },
       { path: 'sentences-cards', component: SentencesCardsComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/sentence-answers', component: LessonSentenceAnswersComponent, canActivate: [AuthGuard] },
+
 
     ]
   },

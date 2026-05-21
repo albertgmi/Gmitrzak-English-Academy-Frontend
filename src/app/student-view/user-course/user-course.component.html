@@ -85,7 +85,7 @@
         }"
         [pTooltip]="moduleTooltip(m)"
         tooltipPosition="top"
-        (click)="toggleComplete(m)">
+        (click)="handleModuleClick(m)">
 
         <!-- Numer / ikona -->
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
@@ -94,11 +94,10 @@
             'bg-primary/10 text-primary': m.isUnlocked && !m.isCompleted,
             'bg-surface-200 dark:bg-surface-700 text-muted-color': !m.isUnlocked
           }">
-
           <i *ngIf="m.isCompleted" class="pi pi-check"></i>
           <i *ngIf="!m.isUnlocked" class="pi pi-lock text-xs"></i>
-          <span *ngIf="m.isUnlocked && !m.isCompleted">{{ m.order }}</span>
-
+          <i *ngIf="m.isUnlocked && !m.isCompleted && isSentences(m)" class="pi pi-pencil"></i>
+          <span *ngIf="m.isUnlocked && !m.isCompleted && !isSentences(m)">{{ m.order }}</span>
         </div>
 
         <!-- Treść -->
@@ -137,7 +136,12 @@
             value="Done" />
 
           <p-tag
-            *ngIf="m.isUnlocked && !m.isCompleted"
+            *ngIf="m.isUnlocked && !m.isCompleted && isSentences(m)"
+            severity="warn"
+            value="Translate" />
+
+          <p-tag
+            *ngIf="m.isUnlocked && !m.isCompleted && !isSentences(m)"
             severity="info"
             value="Available" />
 
@@ -149,7 +153,6 @@
         </div>
 
       </div>
-
     </div>
 
   </div>
@@ -312,7 +315,7 @@
           }"
           [pTooltip]="moduleTooltip(m)"
           tooltipPosition="top"
-          (click)="toggleSingleModule(m)">
+          (click)="handleSingleModuleClick(m)">
 
           <!-- Icon -->
           <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
@@ -324,8 +327,8 @@
 
             <i *ngIf="m.isCompleted" class="pi pi-check"></i>
             <i *ngIf="!m.isUnlocked" class="pi pi-lock text-xs"></i>
-            <i *ngIf="m.isUnlocked && !m.isCompleted" class="pi pi-book"></i>
-
+            <i *ngIf="m.isUnlocked && !m.isCompleted && isSentences(m)" class="pi pi-pencil"></i>
+            <i *ngIf="m.isUnlocked && !m.isCompleted && !isSentences(m)" class="pi pi-book"></i>
           </div>
 
           <!-- Content -->
@@ -364,7 +367,12 @@
               value="Done" />
 
             <p-tag
-              *ngIf="m.isUnlocked && !m.isCompleted"
+              *ngIf="m.isUnlocked && !m.isCompleted && isSentences(m)"
+              severity="warn"
+              value="Translate" />
+
+            <p-tag
+              *ngIf="m.isUnlocked && !m.isCompleted && !isSentences(m)"
               severity="info"
               value="Available" />
 

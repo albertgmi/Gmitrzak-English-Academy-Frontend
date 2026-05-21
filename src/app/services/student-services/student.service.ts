@@ -7,6 +7,7 @@ export interface StudentModuleDto {
     moduleId: number;
     name: string;
     description: string;
+    category: string;
     order: number;
     weekNumber: number;
     dayOfWeek: number;

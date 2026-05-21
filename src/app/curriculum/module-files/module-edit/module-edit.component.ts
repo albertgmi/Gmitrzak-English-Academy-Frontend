@@ -9,8 +9,11 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { SelectModule } from 'primeng/select';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { ModuleItem, ModuleItemService, MatrixSimple, UpdateModuleRequest } from '../../../services/module.service';
-import { MatrixService } from '../../../services/matrix.service'; // upewnij się co do ścieżki
+import {
+    ModuleItem, ModuleItemService,
+    MatrixSimple, UpdateModuleRequest
+} from '../../../services/module.service';
+import { MatrixService } from '../../../services/matrix.service';
 
 @Component({
     selector: 'app-module-edit',
@@ -24,24 +27,34 @@ import { MatrixService } from '../../../services/matrix.service'; // upewnij si�
     templateUrl: './module-edit.component.html'
 })
 export class ModuleEditComponent implements OnInit {
-    private route = inject(ActivatedRoute);
-    private router = inject(Router);
-    private moduleService = inject(ModuleItemService);
-    private matrixService = inject(MatrixService);
+    private route          = inject(ActivatedRoute);
+    private router         = inject(Router);
+    private moduleService  = inject(ModuleItemService);
+    private matrixService  = inject(MatrixService);
     private messageService = inject(MessageService);
 
     moduleId!: number;
     editedModule = signal<ModuleItem | null>(null);
     submitted = false;
-    loading = false;
+    loading   = false;
+
     selectedMatrixToAdd = signal<MatrixSimple | null>(null);
     weekNumber = signal<number>(1);
-    dayOfWeek = signal<number>(1);
+    dayOfWeek  = signal<number>(1);
+
+    categories = [
+        { label: 'General',    value: 'General' },
+        { label: 'Sentences',  value: 'Sentences' },
+        { label: 'Listening',  value: 'Listening' },
+        { label: 'Grammar',    value: 'Grammar' },
+        { label: 'Vocabulary', value: 'Vocabulary' },
+        { label: 'Speaking',   value: 'Speaking' },
+        { label: 'Other',      value: 'Other' }
+    ];
 
     availableDays = computed(() => {
-        const matrix = this.selectedMatrixToAdd();
+        const matrix   = this.selectedMatrixToAdd();
         const interval = matrix?.refreshIntervalDays || 7;
-        
         return Array.from({ length: interval }, (_, i) => ({
             label: `Day ${i + 1}`,
             value: i + 1
@@ -49,7 +62,7 @@ export class ModuleEditComponent implements OnInit {
     });
 
     availableMatrices = computed(() => {
-        const all = this.matrixService.matrices.value() ?? [];
+        const all      = this.matrixService.matrices.value() ?? [];
         const assigned = this.editedModule()?.matrices ?? [];
         return all.filter(m => !assigned.some(a => a.id === m.id));
     });
@@ -72,24 +85,29 @@ export class ModuleEditComponent implements OnInit {
     }
 
     assignMatrix() {
-        const matrix = this.selectedMatrixToAdd();
+        const matrix  = this.selectedMatrixToAdd();
         const current = this.editedModule();
-        const week = this.weekNumber();
-        const day = this.dayOfWeek();
-
         if (!matrix || !current) return;
 
-        this.moduleService.assignMatrix(this.moduleId, matrix.id, week, day).subscribe({
+        this.moduleService.assignMatrix(
+            this.moduleId, matrix.id, this.weekNumber(), this.dayOfWeek()
+        ).subscribe({
             next: () => {
-                this.editedModule.set({ 
-                    ...current, 
-                    matrices: [...current.matrices, matrix] 
+                this.editedModule.set({
+                    ...current,
+                    matrices: [...current.matrices, matrix]
                 });
                 this.selectedMatrixToAdd.set(null);
-                this.messageService.add({ severity: 'success', summary: 'Assigned', detail: 'Added to matrix schedule.' });
+                this.messageService.add({
+                    severity: 'success', summary: 'Assigned',
+                    detail: 'Added to matrix schedule.'
+                });
                 this.moduleService.reloadModules();
             },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to assign matrix.' })
+            error: () => this.messageService.add({
+                severity: 'error', summary: 'Error',
+                detail: 'Failed to assign matrix.'
+            })
         });
     }
 
@@ -97,7 +115,7 @@ export class ModuleEditComponent implements OnInit {
         const current = this.editedModule();
         if (!current) return;
 
-        this.moduleService.removeMatrix?.(this.moduleId, matrix.id).subscribe({
+        this.moduleService.removeMatrix(this.moduleId, matrix.id).subscribe({
             next: () => {
                 this.editedModule.set({
                     ...current,
@@ -105,52 +123,52 @@ export class ModuleEditComponent implements OnInit {
                 });
                 this.moduleService.reloadModules();
             },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to remove matrix.' })
+            error: () => this.messageService.add({
+                severity: 'error', summary: 'Error',
+                detail: 'Failed to remove matrix.'
+            })
         });
     }
 
     save() {
-      const current = this.editedModule();
-      
-      if (!current?.name?.trim()) {
-          this.submitted = true;
-          return;
-      }
+        const current = this.editedModule();
+        if (!current?.name?.trim()) {
+            this.submitted = true;
+            return;
+        }
 
-      this.loading = true;
+        this.loading = true;
 
-      const request: UpdateModuleRequest = {
-          name: current.name,
-          description: current.description,
-          isHidden: current.isHidden
-      };
+        const request: UpdateModuleRequest = {
+            name:        current.name,
+            description: current.description,
+            isHidden:    current.isHidden,
+            category:    current.category
+        };
 
-      this.moduleService.updateModule(this.moduleId, request).subscribe({
-          next: () => {
-              this.moduleService.reloadModules();
-              this.messageService.add({ 
-                  severity: 'success', 
-                  summary: 'Saved', 
-                  detail: 'Module updated successfully.' 
-              });
-              setTimeout(() => this.goBack(), 1000);
-          },
-          error: (err) => {
-              this.loading = false;
-              console.error('Update error:', err);
-              this.messageService.add({ 
-                  severity: 'error', 
-                  summary: 'Error', 
-                  detail: 'Update failed. Check if name is unique.' 
-              });
-          }
-      });
-  }
+        this.moduleService.updateModule(this.moduleId, request).subscribe({
+            next: () => {
+                this.moduleService.reloadModules();
+                this.messageService.add({
+                    severity: 'success', summary: 'Saved',
+                    detail: 'Module updated successfully.'
+                });
+                setTimeout(() => this.goBack(), 1000);
+            },
+            error: () => {
+                this.loading = false;
+                this.messageService.add({
+                    severity: 'error', summary: 'Error',
+                    detail: 'Update failed. Check if name is unique.'
+                });
+            }
+        });
+    }
 
     goBack() {
         this.router.navigate(['/curriculum/modules']);
     }
-    
+
     onMatrixChange(matrix: MatrixSimple | null) {
         this.selectedMatrixToAdd.set(matrix);
         if (matrix && this.dayOfWeek() > matrix.refreshIntervalDays) {
