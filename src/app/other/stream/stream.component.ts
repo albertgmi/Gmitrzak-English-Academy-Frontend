@@ -39,12 +39,10 @@ export class StreamComponent implements OnInit {
     saving = signal(false);
     submitted = false;
 
-    // add form
     newUserId = signal<number | null>(null);
     newCommand = signal('');
     newPayload = signal('');
 
-    // filter
     filterUserId = signal<number | null>(null);
 
     users = computed(() =>

@@ -43,7 +43,6 @@ export class PronunciationTestComponent implements OnInit {
     markCorrect(entry: PronunciationTestItemDto) {
         this.lessonService.checkWord(entry.id).subscribe({
             next: () => {
-                // remove from list — odhaczone znikają
                 this.entries.update(list => list.filter(e => e.id !== entry.id));
             },
             error: () => this.messageService.add({
@@ -53,7 +52,6 @@ export class PronunciationTestComponent implements OnInit {
     }
 
     markIncorrect(entry: PronunciationTestItemDto) {
-        // incorrect — idzie na górę listy
         this.entries.update(list => {
             const rest = list.filter(e => e.id !== entry.id);
             return [entry, ...rest];

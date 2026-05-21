@@ -64,7 +64,6 @@ export class SentencesCardsComponent implements OnInit {
     });
 
     constructor() {
-        // Automatyczny reset revealed przy zmianie karty
         effect(() => {
             this.current();
             this.revealed.set(false);
@@ -208,7 +207,6 @@ export class SentencesCardsComponent implements OnInit {
     prev() {
         if (this.current() > 0) {
             this.current.update(n => n - 1);
-            // revealed resetuje się automatycznie przez effect
         }
     }
 
