@@ -1,8 +1,6 @@
-import {computed, inject, Injectable, resource, signal} from '@angular/core';
+import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable } from 'rxjs';
-import {lastValueFrom, throwError} from 'rxjs';
-
+import { Observable, lastValueFrom } from 'rxjs';
 
 export interface User {
   id: number;
@@ -17,26 +15,26 @@ export interface Users {
   users: User[];
 }
 
-
-
 @Injectable({
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = '/api/user'; // Adjust to your backend URL
+  private apiUrl = '/api/user';
 
   http = inject(HttpClient);
 
-  filterActive = signal<boolean>(true);
-
-  users = resource<User[], { active: boolean }>({
-    request: () => ({ active: this.filterActive() }),
-    loader: ({ request }) => {
-      const request$ = this.http.get<User[]>(`${this.apiUrl}/users`, {
-        params: { active: request.active }
-      });
-      return lastValueFrom(request$);
+  users = resource<User[], never>({
+    loader: () => {
+      return lastValueFrom(
+        this.http.get<User[]>(`${this.apiUrl}/users`)
+      );
     }
+  });
+
+  inactiveUsers = resource<User[], never>({
+    loader: () => lastValueFrom(
+      this.http.get<User[]>(`${this.apiUrl}/users/inactive`)
+    )
   });
 
   getProfile(): Observable<any> {
@@ -45,8 +43,9 @@ export class UserService {
 
   deleteUser(userId: number) {
     this.http.delete(`${this.apiUrl}/delete/${userId}`).subscribe({
-      next: (data) => {
+      next: () => {
         this.users.reload();
+        this.inactiveUsers.reload();
       },
       error: (err) => {
         console.error('Error deleting user:', err);
@@ -58,6 +57,7 @@ export class UserService {
     this.http.put(`${this.apiUrl}/update/${userId}`, request).subscribe({
       next: () => {
         this.users.reload();
+        this.inactiveUsers.reload();
       },
       error: (err) => {
         console.error('Error updating user:', err);

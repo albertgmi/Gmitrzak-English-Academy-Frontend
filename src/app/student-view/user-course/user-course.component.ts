@@ -15,6 +15,8 @@ import {
 } from '../../services/student-services/student.service';
 import confetti from 'canvas-confetti';
 
+type View = 'active' | 'history';
+
 @Component({
     selector: 'app-user-course',
     standalone: true,
@@ -34,6 +36,19 @@ export class UserCourseComponent implements OnInit {
     courses          = this.studentService.courses;
     singleModules    = this.studentService.singleModules;
     selectedMatrixId = signal<number | null>(null);
+    activeView       = signal<View>('active');
+
+    activeMatrices = computed(() => {
+        const all = this.courses.value() ?? [];
+        return all.filter(c => this.progress(c) < 100);
+    });
+
+    historyMatrices = computed(() => {
+        const all = this.courses.value() ?? [];
+        return all.filter(c => this.progress(c) >= 100);
+    });
+
+    historySingleModules = signal<StudentModuleDto[]>([]);
 
     selectedAssignment = computed(() => {
         const matrixId   = this.selectedMatrixId();
@@ -45,6 +60,7 @@ export class UserCourseComponent implements OnInit {
     ngOnInit() {
         this.studentService.reloadCourses();
         this.studentService.reloadSingleModules();
+        this.loadHistory();
     }
 
     selectAssignment(assignment: StudentAssignmentDto) {
@@ -74,7 +90,6 @@ export class UserCourseComponent implements OnInit {
             this.toggleSingleModule(module);
         }
     }
-
 
     toggleComplete(module: StudentModuleDto) {
         const action = module.isCompleted
@@ -139,12 +154,30 @@ export class UserCourseComponent implements OnInit {
         return module.category === 'Sentences';
     }
 
+    loadHistory() {
+        this.studentService.getCompletedSingleModules().subscribe(data => {
+            this.historySingleModules.set(data);
+        });
+    }
+
+    setHistoryView() {
+    this.activeView.set('history');
+    
+    // Pobierz moduły, jeśli jeszcze ich nie mamy
+    if (this.historySingleModules().length === 0) {
+        this.studentService.getCompletedSingleModules().subscribe({
+            next: (data) => this.historySingleModules.set(data),
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load history' })
+        });
+    }
+}
+
     private triggerTeamsCelebration() {
-        const scalar       = 4.5;
-        const discoBall    = confetti.shapeFromText({ text: '🪩', scalar });
-        const partyPopper  = confetti.shapeFromText({ text: '🎉', scalar });
-        const star         = confetti.shapeFromText({ text: '⭐', scalar });
-        const duration     = 3500;
+        const scalar     = 4.5;
+        const discoBall  = confetti.shapeFromText({ text: '🪩', scalar });
+        const partyPopper = confetti.shapeFromText({ text: '🎉', scalar });
+        const star       = confetti.shapeFromText({ text: '⭐', scalar });
+        const duration   = 3500;
         const animationEnd = Date.now() + duration;
         const defaults     = {
             startVelocity: 35, spread: 360, ticks: 80, gravity: 1.0,

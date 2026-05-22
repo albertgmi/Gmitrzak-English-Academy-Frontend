@@ -76,7 +76,14 @@ export class SetsComposerComponent implements OnInit {
             const data = this.moduleItemService.modules.value();
             if (data !== undefined) {
                 clearInterval(interval);
-                this.modules.set(data.map(m => ({ id: m.id, name: m.name })));
+                this.modules.set(
+                    data
+                        .filter(m => m.category === 'Sentences')
+                        .map(m => ({
+                            id: m.id,
+                            name: m.name
+                        }))
+                );
             }
         }, 100);
     }

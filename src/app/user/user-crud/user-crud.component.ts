@@ -19,8 +19,8 @@ import { TagModule } from 'primeng/tag';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
-import { User, UserService } from '../../services/user.service';
 import { CheckboxModule } from 'primeng/checkbox';
+import { User, UserService } from '../../services/user.service';
 
 interface Column {
   field: string;
@@ -76,20 +76,19 @@ export class UserCrudComponent implements OnInit {
 
   @ViewChild('dt') dt!: Table;
 
-  displayUsers = computed(() => this.userService.users.value() || []);
+  displayUsers = computed(() => {
+    return this.router.url.includes('inactive')
+      ? this.userService.inactiveUsers.value() || []
+      : this.userService.users.value() || [];
+  });
 
   constructor(
-      private messageService: MessageService,
-      private confirmationService: ConfirmationService
-  ) {
-      this.route.url.subscribe(() => {
-          const isInactive = this.router.url.includes('inactive');
-          this.userService.filterActive.set(!isInactive);
-      });
-  }
+    private messageService: MessageService,
+    private confirmationService: ConfirmationService
+  ) {}
 
   ngOnInit() {
-      this.loadData();
+    this.loadData();
   }
 
   loadData() {
@@ -116,9 +115,9 @@ export class UserCrudComponent implements OnInit {
   }
 
   openNew() {
-      this.user = { id: 0, isActive: true };
-      this.submitted = false;
-      this.userDialog = true;
+    this.user = { id: 0, isActive: true };
+    this.submitted = false;
+    this.userDialog = true;
   }
 
   editUser(user: User) {
@@ -129,7 +128,7 @@ export class UserCrudComponent implements OnInit {
   deleteSelectedUsers() {
     if (!this.selectedUsers || this.selectedUsers.length === 0) return;
 
-    const ids = this.selectedUsers.map(user => user.id);
+    const ids = this.selectedUsers.map((user) => user.id);
 
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete the selected users?',
@@ -139,6 +138,7 @@ export class UserCrudComponent implements OnInit {
         this.userService.deleteManyUsers(ids).subscribe({
           next: () => {
             this.userService.users.reload();
+            this.userService.inactiveUsers.reload();
             this.selectedUsers = null;
             this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Users Deleted', life: 3000 });
           },
@@ -175,7 +175,7 @@ export class UserCrudComponent implements OnInit {
       email: this.user.email,
       role: this.user.role,
       password: this.user.password || undefined,
-      isActive: this.user.isActive,
+      isActive: this.user.isActive
     });
 
     this.userDialog = false;

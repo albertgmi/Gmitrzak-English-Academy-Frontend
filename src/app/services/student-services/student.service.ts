@@ -137,4 +137,8 @@ export class StudentService {
     uncompleteSingleModule(id: number) {
         return this.http.delete(`${this.apiUrl}/single-modules/complete/${id}`);
     }
+    
+    getCompletedSingleModules() {
+        return this.http.get<StudentModuleDto[]>(`${this.apiUrl}/completed-single-modules`);
+    }
 }
