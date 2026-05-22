@@ -136,13 +136,6 @@ export class SentenceTaskComponent implements OnInit {
                     list.map((x, i) => i === idx
                         ? { ...x, result, loading: false, isRestored: false } : x)
                 );
-                const allDone = this.sentences().every(s => s.result !== null);
-                if (allDone) {
-                    setTimeout(() => {
-                        this.isFinished.set(true);
-                        this.triggerConfetti();
-                    }, 600);
-                }
             },
             error: () => {
                 this.sentences.update(list =>
@@ -159,6 +152,12 @@ export class SentenceTaskComponent implements OnInit {
     next() {
         if (this.currentIndex() < this.sentences().length - 1) {
             this.currentIndex.update(n => n + 1);
+        } else {
+            const allDone = this.sentences().every(s => s.result !== null);
+            if (allDone) {
+                this.isFinished.set(true);
+                this.triggerConfetti();
+            }
         }
     }
 

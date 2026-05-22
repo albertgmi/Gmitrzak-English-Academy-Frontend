@@ -190,7 +190,8 @@
           [label]="currentIndex() === sentences().length - 1 ? 'Finish' : 'Next'"
           [icon]="currentIndex() === sentences().length - 1 ? 'pi pi-check' : 'pi pi-arrow-right'"
           iconPos="right"
-          (onClick)="currentIndex() === sentences().length - 1 ? isFinished.set(true) : next()" />
+          [disabled]="!current()?.result"
+          (onClick)="next()" />
       </div>
 
     </div>

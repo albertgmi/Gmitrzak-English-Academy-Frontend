@@ -152,4 +152,8 @@ export class SentenceService {
             { responseType: 'blob' }
         );
     }
+
+    updateStock(id: number, polish: string) {
+        return this.http.put(`${this.apiUrl}/stock/${id}`, {polish});
+    }
 }
