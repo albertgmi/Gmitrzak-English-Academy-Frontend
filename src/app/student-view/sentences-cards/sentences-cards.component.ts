@@ -1,221 +1,202 @@
-import { Component, inject, signal, computed, OnInit, effect } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { ToastModule } from 'primeng/toast';
-import { SelectModule } from 'primeng/select';
-import { CheckboxModule, CheckboxChangeEvent } from 'primeng/checkbox';
-import { MessageService } from 'primeng/api';
+import { RouterModule } from '@angular/router';
+import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
+import { take } from 'rxjs';
 import { ContentService, SentenceDto } from '../../services/student-services/content.service';
-import { FormsModule } from '@angular/forms';
 
-interface SentenceCard extends SentenceDto {
-    isReviewed: boolean;
+interface SessionCard extends SentenceDto {
+    incorrectStep: number;
+    availableAt: number;
 }
 
 @Component({
     selector: 'app-sentences-cards',
     standalone: true,
-    imports: [
-        CommonModule,
-        RouterModule,
-        ButtonModule,
-        TagModule,
-        ToastModule,
-        SelectModule,
-        CheckboxModule,
-        FormsModule
-    ],
-    providers: [MessageService],
+    imports: [CommonModule, ButtonModule, TagModule, RouterModule],
     templateUrl: './sentences-cards.component.html',
     styleUrls: ['./sentences-cards.component.scss']
 })
 export class SentencesCardsComponent implements OnInit {
     private contentService = inject(ContentService);
-    private messageService = inject(MessageService);
+    private destroyRef = inject(DestroyRef);
 
-    cards = signal<SentenceCard[]>([]);
+    queue = signal<SessionCard[]>([]);
+    pendingQueue = signal<SessionCard[]>([]);
+    currentCard = signal<SessionCard | null>(null);
+    showBack = signal(false);
+    isFinished = signal(false);
     loading = signal(true);
-    mode = signal<'browse' | 'study'>('browse');
-    current = signal(0);
-    revealed = signal(false);
-    finished = signal(false);
-    studyCards = signal<SentenceCard[]>([]);
-    selectedIds = new Set<number>();
 
-    selectedFilter = signal<'all' | 'new' | 'reviewed'>('all');
+    private cardStartTime = 0;
+    private activeTimeout: any = null;
 
-    filterOptions = [
-        { label: 'All sentences', value: 'all' },
-        { label: 'Only new', value: 'new' },
-        { label: 'Only reviewed', value: 'reviewed' }
+    private readonly INCORRECT_DELAYS_MS = [
+        3 * 60 * 1000,
+        6 * 60 * 1000,
+        10 * 60 * 1000,
+        15 * 60 * 1000
     ];
 
-    newCount = computed(() => this.cards().filter(c => !c.isReviewed).length);
-    reviewedCount = computed(() => this.cards().filter(c => c.isReviewed).length);
-
-    currentCard = computed(() => this.studyCards()[this.current()] ?? null);
-
-    progress = computed(() => {
-        const total = this.studyCards().length;
-        if (!total) return 0;
-        return Math.round(((this.current() + 1) / total) * 100);
+    nextEasyInterval = computed(() => {
+        const card = this.currentCard();
+        if (!card) return 2;
+        return card.interval === 0 ? 2 : card.interval * 2;
     });
 
-    constructor() {
-        effect(() => {
-            this.current();
-            this.revealed.set(false);
-        });
-    }
+    currentIncorrectLabel = computed(() => {
+        const card = this.currentCard();
+        if (!card) return '3 min';
+
+        const step = Math.min(
+            card.incorrectStep,
+            this.INCORRECT_DELAYS_MS.length - 1
+        );
+
+        return `${this.INCORRECT_DELAYS_MS[step] / 60000} min`;
+    });
+
+    totalInSession = computed(() => {
+        return (
+            this.queue().length +
+            this.pendingQueue().length +
+            (this.currentCard() ? 1 : 0)
+        );
+    });
 
     ngOnInit() {
-        this.loadSentences();
+        this.loadCards();
     }
 
-    loadSentences() {
+    loadCards() {
         this.loading.set(true);
+
         this.contentService.sentences.reload();
 
         const interval = setInterval(() => {
-            const data = this.contentService.sentences.value();
+            const cards = this.contentService.sentences.value();
 
-            if (data !== undefined) {
+            if (cards !== undefined) {
                 clearInterval(interval);
-
-                this.cards.set(
-                    data.map(s => ({
-                        ...s,
-                        isReviewed: s.isReviewed
-                    }))
-                );
-
+                this.initializeSession(cards);
                 this.loading.set(false);
             }
         }, 100);
     }
 
-    toggleSelect(id: number, checked?: boolean) {
-        const isChecked = checked ?? !this.selectedIds.has(id);
+    private initializeSession(allCards: SentenceDto[]) {
+        const today = new Date().toISOString().split('T')[0];
 
-        if (isChecked) {
-            this.selectedIds.add(id);
+        const toReview: SessionCard[] = allCards
+            .filter(c => c.nextReviewDate <= today)
+            .map(c => ({
+                ...c,
+                incorrectStep: 0,
+                availableAt: 0
+            }));
+
+        if (toReview.length > 0) {
+            this.queue.set(toReview);
+            this.pendingQueue.set([]);
+            this.isFinished.set(false);
+            this.nextCard();
         } else {
-            this.selectedIds.delete(id);
+            this.currentCard.set(null);
+            this.queue.set([]);
+            this.pendingQueue.set([]);
+            this.isFinished.set(true);
         }
     }
 
-    toggleSelectAll(event: CheckboxChangeEvent) {
-        const isChecked = event.checked;
-        const visible = this.getFilteredCards();
+    nextCard() {
+        if (this.activeTimeout) {
+            clearTimeout(this.activeTimeout);
+        }
 
-        if (isChecked) {
-            visible.forEach(c => this.selectedIds.add(c.id));
+        this.showBack.set(false);
+
+        const now = Date.now();
+
+        const ready = this.pendingQueue().filter(
+            c => c.availableAt <= now
+        );
+
+        const stillWaiting = this.pendingQueue().filter(
+            c => c.availableAt > now
+        );
+
+        if (ready.length > 0) {
+            this.pendingQueue.set(stillWaiting);
+            this.queue.update(q => [...q, ...ready]);
+        }
+
+        const current = this.queue();
+
+        if (current.length > 0) {
+            this.currentCard.set(current[0]);
+            this.queue.set(current.slice(1));
+            this.cardStartTime = Date.now();
+        } else if (stillWaiting.length > 0) {
+            this.currentCard.set(null);
+
+            const nextAvailableAt = Math.min(
+                ...stillWaiting.map(c => c.availableAt)
+            );
+
+            const delay = Math.max(nextAvailableAt - now, 1000);
+
+            this.activeTimeout = setTimeout(() => {
+                this.nextCard();
+            }, delay);
         } else {
-            visible.forEach(c => this.selectedIds.delete(c.id));
+            this.currentCard.set(null);
+            this.isFinished.set(true);
         }
     }
 
-    isCardSelected(id: number) {
-        return this.selectedIds.has(id);
-    }
+    handleReview(type: 'incorrect' | 'hard' | 'easy') {
+        const card = this.currentCard();
 
-    areAllVisibleSelected() {
-        const visible = this.getFilteredCards();
-        if (!visible.length) return false;
-        return visible.every(c => this.selectedIds.has(c.id));
-    }
+        if (!card) return;
 
-    private getFilteredCards() {
-        const f = this.selectedFilter();
+        if (type === 'incorrect') {
+            const step = Math.min(
+                card.incorrectStep,
+                this.INCORRECT_DELAYS_MS.length - 1
+            );
 
-        if (f === 'new') return this.cards().filter(c => !c.isReviewed);
-        if (f === 'reviewed') return this.cards().filter(c => c.isReviewed);
+            const delayMs = this.INCORRECT_DELAYS_MS[step];
 
-        return this.cards();
-    }
+            const updatedCard: SessionCard = {
+                ...card,
+                incorrectStep: card.incorrectStep + 1,
+                availableAt: Date.now() + delayMs
+            };
 
-    startStudy() {
-        const visible = this.getFilteredCards();
-        const newItems = visible.filter(c => !c.isReviewed);
-        const hasSelection = this.selectedIds.size > 0;
-
-        if (newItems.length === 0 && !hasSelection) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Action required',
-                detail: 'Select items or add new sentences first'
-            });
-            return;
+            this.pendingQueue.update(q => [...q, updatedCard]);
         }
 
-        let pool: SentenceCard[] = [];
-
-        if (hasSelection) {
-            pool = visible.filter(c => this.selectedIds.has(c.id));
-
-            newItems.forEach(n => {
-                if (!pool.some(p => p.id === n.id)) {
-                    pool.push(n);
+        this.contentService.reviewSentence(card.id, type)
+            .pipe(
+                take(1),
+                takeUntilDestroyed(this.destroyRef)
+            )
+            .subscribe({
+                error: (err) => {
+                    console.error('Failed to save sentence review:', err);
                 }
             });
-        } else {
-            pool = newItems;
-        }
 
-        this.studyCards.set([...pool]);
-        this.current.set(0);
-        this.revealed.set(false);
-        this.finished.set(false);
-        this.mode.set('study');
-    }
-
-    toggleReveal() {
-        this.revealed.update(v => !v);
-    }
-
-    reveal() {
-        this.revealed.set(true);
-    }
-
-    next() {
-        const card = this.currentCard();
-        if (card) {
-            this.contentService.reviewSentence(card.id)
-                .subscribe({
-                    next: () => this.moveNext(),
-                    error: () => this.moveNext()
-                });
-        } else {
-            this.moveNext();
-        }
-    }
-
-    private moveNext() {
-        this.revealed.set(false);
+        this.showBack.set(false);
 
         setTimeout(() => {
-            if (this.current() < this.studyCards().length - 1) {
-                this.current.update(n => n + 1);
-            } else {
-                this.finished.set(true);
-            }
-        }, 150);
+            this.nextCard();
+        }, 200);
     }
 
-    prev() {
-        if (this.current() > 0) {
-            this.current.update(n => n - 1);
-        }
-    }
-
-    backToBrowse() {
-        this.mode.set('browse');
-        this.finished.set(false);
-        this.current.set(0);
-        this.revealed.set(false);
-        this.selectedIds.clear();
-        this.loadSentences();
+    toggleCard() {
+        this.showBack.set(!this.showBack());
     }
 }

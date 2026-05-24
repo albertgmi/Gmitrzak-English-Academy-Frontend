@@ -29,6 +29,10 @@ export interface SentenceDto {
     translation: string;
     notes?: string;
     isReviewed: boolean;
+    easeFactor: number;
+    interval: number;
+    isLeech: boolean;
+    nextReviewDate: string;
 }
 
 export interface MemoryDto {
@@ -49,6 +53,7 @@ export interface AssignmentStudentDto {
     moduleId: number;
     moduleName: string;
     moduleDescription: string;
+    category: string;
     dueDate: string;
     isCompleted: boolean;
     isOverdue: boolean;
@@ -65,6 +70,10 @@ export class ContentService {
 
     sentences = resource<SentenceDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<SentenceDto[]>(`${this.apiUrl}/sentences`))
+    });
+
+    otherSentences = resource<SentenceDto[], unknown>({
+        loader: () => lastValueFrom(this.http.get<SentenceDto[]>(`${this.apiUrl}/sentences/other`))
     });
 
     memories = resource<MemoryDto[], unknown>({
@@ -107,7 +116,10 @@ export class ContentService {
         return this.http.get<AssignmentStudentDto[]>(`${this.apiUrl}/assignments/history`);
     }
 
-    reviewSentence(id: number) {
-      return this.http.patch(`api/student-learning/sentences/${id}/review`, {});
+    reviewSentence(id: number, quality: 'easy' | 'hard' | 'incorrect') {
+        return this.http.patch(
+            `${this.apiUrl}/sentences/${id}/review`,
+            { quality }
+        );
     }
 }

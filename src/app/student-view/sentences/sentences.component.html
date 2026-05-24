@@ -1,11 +1,24 @@
 <p-toast />
 <div class="card">
-  <div class="mb-6">
-    <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sentences</h2>
-    <p class="text-muted-color mt-1 m-0">Your sentence collection</p>
+  <!-- Nagłówek z tytułem i eleganckim przełącznikiem widoku -->
+  <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sentences</h2>
+      <p class="text-muted-color mt-1 m-0">Your sentence collection and assignments</p>
+    </div>
+    
+    <!-- Przyciski do przełączania -->
+    <p-selectButton 
+      [options]="viewOptions" 
+      [(ngModel)]="selectedView" 
+      optionLabel="label" 
+      optionValue="value" 
+      [allowEmpty]="false"
+      (onChange)="onViewChange()">
+    </p-selectButton>
   </div>
 
-  <p-table #dt [value]="sentences.value() || []" [loading]="sentences.isLoading()"
+  <p-table #dt [value]="currentData" [loading]="isLoading"
     [rows]="15" [paginator]="true" [rowHover]="true"
     [globalFilterFields]="['content', 'translation', 'notes']"
     [tableStyle]="{'min-width': '40rem'}"
@@ -14,7 +27,7 @@
 
     <ng-template #caption>
       <div class="flex items-center justify-between">
-        <span class="text-sm text-muted-color">{{ sentences.value()?.length || 0 }} sentences</span>
+        <span class="text-sm text-muted-color">{{ currentData.length }} sentences</span>
         <p-iconfield>
           <p-inputicon styleClass="pi pi-search" />
           <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
@@ -24,9 +37,9 @@
 
     <ng-template #header>
       <tr>
-        <th>Sentence</th>
-        <th>Translation</th>
-        <th style="width: 12rem">Notes</th>
+        <th pSortableColumn="content">Sentence <p-sortIcon field="content" /></th>
+        <th pSortableColumn="translation">Translation <p-sortIcon field="translation" /></th>
+        <th pSortableColumn="notes" style="width: 14rem">Notes <p-sortIcon field="notes" /></th>
       </tr>
     </ng-template>
 
@@ -34,7 +47,15 @@
       <tr>
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ s.content }}</td>
         <td class="text-muted-color">{{ s.translation }}</td>
-        <td class="text-muted-color text-sm">{{ s.notes || '—' }}</td>
+        <td>
+          <!-- Jeśli to przypisane zadanie, wyświetlamy notatkę jako estetyczny p-tag, w przeciwnym razie zwykły tekst -->
+          <ng-container *ngIf="selectedView === 'other' && s.notes; else normalNotes">
+            <p-tag [value]="s.notes" severity="info" />
+          </ng-container>
+          <ng-template #normalNotes>
+            <span class="text-muted-color text-sm">{{ s.notes || '—' }}</span>
+          </ng-template>
+        </td>
       </tr>
     </ng-template>
 
@@ -42,7 +63,7 @@
       <tr>
         <td colspan="3" class="text-center text-muted-color py-8">
           <i class="pi pi-align-left text-4xl block mb-2"></i>
-          No sentences yet.
+          No sentences found in this category.
         </td>
       </tr>
     </ng-template>

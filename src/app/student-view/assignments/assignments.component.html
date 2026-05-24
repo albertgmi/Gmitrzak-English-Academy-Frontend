@@ -1,4 +1,5 @@
 <p-toast />
+
 <div class="card">
 
   <div class="flex items-center justify-between mb-6">
@@ -18,7 +19,7 @@
     </div>
   </div>
 
-  <!-- Active assignments -->
+  <!-- ── ACTIVE ─────────────────────────────────────────────────────────── -->
   <div *ngIf="activeView() === 'active'">
 
     <div *ngIf="activeAssignments.isLoading()" class="text-center py-10 text-muted-color">
@@ -26,43 +27,61 @@
     </div>
 
     <div *ngIf="!activeAssignments.isLoading()">
-      <div *ngIf="activeAssignments.value()?.length; else noActive"
-        class="flex flex-col gap-3">
-        <div *ngFor="let a of activeAssignments.value()"
-          class="flex items-center gap-4 p-4 rounded-xl border transition-colors"
-          [ngClass]="{
-            'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800': a.isOverdue,
-            'bg-yellow-50 dark:bg-yellow-900/20 border-yellow-200 dark:border-yellow-800': !a.isOverdue && daysUntil(a.dueDate) <= 1,
-            'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700': !a.isOverdue && daysUntil(a.dueDate) > 1
-          }">
 
-          <!-- Icon -->
-          <div class="w-10 h-10 rounded-full flex items-center justify-center flex-shrink-0"
-            [ngClass]="{
-              'bg-red-100 dark:bg-red-900/30': a.isOverdue,
-              'bg-yellow-100 dark:bg-yellow-900/30': !a.isOverdue && daysUntil(a.dueDate) <= 1,
-              'bg-primary/10': !a.isOverdue && daysUntil(a.dueDate) > 1
-            }">
-            <i class="pi pi-file"
-              [ngClass]="{
-                'text-red-500': a.isOverdue,
-                'text-yellow-500': !a.isOverdue && daysUntil(a.dueDate) <= 1,
-                'text-primary': !a.isOverdue && daysUntil(a.dueDate) > 1
-              }"></i>
-          </div>
+      <div *ngIf="activeAssignments.value()?.length; else noActive">
 
-          <!-- Content -->
-          <div class="flex-1 min-w-0">
-            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ a.moduleName }}</div>
-            <div class="text-sm text-muted-color mt-0.5">{{ a.moduleDescription || '—' }}</div>
-          </div>
-
-          <!-- Due date -->
-          <div class="text-right flex-shrink-0">
-            <p-tag [severity]="dueSeverity(a)" [value]="dueLabel(a)" />
-            <div class="text-xs text-muted-color mt-1">{{ a.dueDate | date:'d MMM yyyy' }}</div>
+        <!-- Overdue -->
+        <div *ngIf="overdueAssignments().length" class="mb-6">
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-red-500 mb-3">
+            Overdue ({{ overdueAssignments().length }})
+          </h3>
+          <div class="flex flex-col gap-2">
+            <div *ngFor="let a of overdueAssignments()"
+              class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer
+                bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800
+                hover:opacity-90 transition-opacity"
+              (click)="openModule(a)">
+              <i class="pi pi-exclamation-triangle text-red-500 flex-shrink-0"></i>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-surface-900 dark:text-surface-0">
+                  {{ a.moduleName }}
+                </div>
+                <div class="text-xs text-muted-color">{{ a.moduleDescription || '—' }}</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p-tag severity="danger" value="Overdue" />
+                <div class="text-xs text-muted-color mt-1">{{ a.dueDate | date:'d MMM yyyy' }}</div>
+              </div>
+            </div>
           </div>
         </div>
+
+        <!-- Pending -->
+        <div *ngIf="pendingAssignments().length">
+          <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
+            Pending ({{ pendingAssignments().length }})
+          </h3>
+          <div class="flex flex-col gap-2">
+            <div *ngFor="let a of pendingAssignments()"
+              class="flex items-center gap-3 p-4 rounded-xl border cursor-pointer
+                bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700
+                hover:border-primary/50 transition-colors"
+              (click)="openModule(a)">
+              <i class="pi pi-file text-primary flex-shrink-0"></i>
+              <div class="flex-1 min-w-0">
+                <div class="font-semibold text-surface-900 dark:text-surface-0">
+                  {{ a.moduleName }}
+                </div>
+                <div class="text-xs text-muted-color">{{ a.moduleDescription || '—' }}</div>
+              </div>
+              <div class="text-right flex-shrink-0">
+                <p-tag [severity]="dueSeverity(a)" [value]="dueLabel(a)" />
+                <div class="text-xs text-muted-color mt-1">{{ a.dueDate | date:'d MMM yyyy' }}</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
       </div>
 
       <ng-template #noActive>
@@ -72,14 +91,17 @@
           <p class="text-sm">All caught up!</p>
         </div>
       </ng-template>
+
     </div>
   </div>
 
-  <!-- History -->
+  <!-- ── HISTORY ────────────────────────────────────────────────────────── -->
   <div *ngIf="activeView() === 'history'">
+
     <div *ngIf="loadingHistory()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
+
     <p-table *ngIf="!loadingHistory()" [value]="history()"
       [rows]="15" [paginator]="history().length > 15"
       [tableStyle]="{'min-width': '35rem'}" [rowHover]="true">
@@ -98,16 +120,21 @@
           </td>
           <td class="text-sm">{{ a.dueDate | date:'d MMM yyyy' }}</td>
           <td>
-            <p-tag [severity]="dueSeverity(a)" [value]="a.isCompleted ? 'Completed' : 'Overdue'" />
+            <p-tag
+              [severity]="historyStatusSeverity(a)"
+              [value]="historyStatusLabel(a)" />
           </td>
         </tr>
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="3" class="text-center text-muted-color py-8">No assignment history.</td>
+          <td colspan="3" class="text-center text-muted-color py-8">
+            No assignment history.
+          </td>
         </tr>
       </ng-template>
     </p-table>
+
   </div>
 
 </div>

@@ -14,6 +14,7 @@ export interface StudentModuleDto {
     unlockDate: string;
     isUnlocked: boolean;
     isCompleted: boolean;
+    isOverdue: boolean;
 }
 
 export interface StudentAssignmentDto {

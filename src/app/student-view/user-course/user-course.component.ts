@@ -161,16 +161,15 @@ export class UserCourseComponent implements OnInit {
     }
 
     setHistoryView() {
-    this.activeView.set('history');
-    
-    // Pobierz moduły, jeśli jeszcze ich nie mamy
-    if (this.historySingleModules().length === 0) {
-        this.studentService.getCompletedSingleModules().subscribe({
-            next: (data) => this.historySingleModules.set(data),
-            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load history' })
-        });
+        this.activeView.set('history');
+        
+        if (this.historySingleModules().length === 0) {
+            this.studentService.getCompletedSingleModules().subscribe({
+                next: (data) => this.historySingleModules.set(data),
+                error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load history' })
+            });
+        }
     }
-}
 
     private triggerTeamsCelebration() {
         const scalar     = 4.5;

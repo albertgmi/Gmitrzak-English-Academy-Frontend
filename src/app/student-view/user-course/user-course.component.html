@@ -34,10 +34,11 @@
     </div>
 
     <div class="flex flex-col gap-3">
-      <div *ngFor="let m of assignment.modules" class="flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ease-in-out hover:scale-[1.01]" [ngClass]="{
-          'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 cursor-pointer hover:border-primary/50': m.isUnlocked && !m.isCompleted,
-          'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': m.isCompleted,
-          'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700 opacity-60': !m.isUnlocked
+      <!-- PRZENIESIONO cursor-pointer DO STATYCZNEJ KLASY PONIŻEJ -->
+      <div *ngFor="let m of assignment.modules" class="flex items-center gap-4 p-4 rounded-xl border transition-all duration-300 ease-in-out hover:scale-[1.01] cursor-pointer" [ngClass]="{
+          'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/50': m.isUnlocked && !m.isCompleted,
+          'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 hover:border-green-400': m.isCompleted,
+          'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700 opacity-60 !cursor-not-allowed': !m.isUnlocked
         }" [pTooltip]="moduleTooltip(m)" tooltipPosition="top" (click)="handleModuleClick(m)">
         <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0" [ngClass]="{
             'bg-green-500 text-white': m.isCompleted,
@@ -58,10 +59,13 @@
           <div class="text-xs text-muted-color">{{ dayLabel(m.dayOfWeek) }}, week {{ m.weekNumber }}</div>
         </div>
         <div class="flex-shrink-0">
-          <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
-          <p-tag *ngIf="m.isUnlocked && !m.isCompleted && isSentences(m)" severity="warn" value="Translate" />
-          <p-tag *ngIf="m.isUnlocked && !m.isCompleted && !isSentences(m)" severity="info" value="Available" />
-          <p-tag *ngIf="!m.isUnlocked" severity="secondary" value="Locked" />
+          <p-tag *ngIf="m.isCompleted"  severity="success"  value="Done" />
+          <p-tag *ngIf="!m.isCompleted && m.isOverdue"
+                 severity="danger"   value="Overdue" />
+          <p-tag *ngIf="!m.isCompleted && !m.isOverdue && isSentences(m)"
+                 severity="warn"     value="Translate" />
+          <p-tag *ngIf="!m.isCompleted && !m.isOverdue && !isSentences(m)"
+                 severity="info"     value="Available" />
         </div>
       </div>
     </div>
@@ -115,7 +119,20 @@
           </div>
         </div>
         <div *ngIf="singleModules.value()?.length; else noSingleModules" class="flex flex-col gap-3">
-          <div *ngFor="let m of singleModules.value()" class="flex items-center gap-4 p-4 rounded-xl border transition-all bg-white dark:bg-surface-900 border-surface-200 cursor-pointer hover:border-primary/50" (click)="handleSingleModuleClick(m)">
+          <!-- PRZENIESIONO cursor-pointer DO STATYCZNEJ KLASY PONIŻEJ -->
+          <div *ngFor="let m of singleModules.value()"
+            class="flex items-center gap-4 p-4 rounded-xl border transition-all cursor-pointer"
+            [ngClass]="{
+              'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800 hover:border-red-400':
+                m.isUnlocked && !m.isCompleted && m.isOverdue,
+              'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/50':
+                m.isUnlocked && !m.isCompleted && !m.isOverdue,
+              'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800 hover:border-green-400':
+                m.isCompleted,
+              'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700 opacity-60 !cursor-not-allowed':
+                !m.isUnlocked
+            }"
+            (click)="handleSingleModuleClick(m)">          
             <div class="w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm bg-primary/10 text-primary"><i class="pi pi-book"></i></div>
             <div class="flex-1">
               <div class="font-semibold">{{ m.name }}</div>

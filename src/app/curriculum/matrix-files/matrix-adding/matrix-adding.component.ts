@@ -1,12 +1,13 @@
 import { Component, inject, output } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router, RouterModule } from '@angular/router'; // Dodano RouterModule
+import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectButtonModule } from 'primeng/selectbutton';
 import { MessageService } from 'primeng/api';
 import { CreateMatrixRequest, MatrixService } from '../../../services/matrix.service';
 import { ToastModule } from 'primeng/toast';
@@ -15,32 +16,38 @@ import { ToastModule } from 'primeng/toast';
     selector: 'app-matrix-adding',
     standalone: true,
     imports: [
-        CommonModule, FormsModule, RouterModule, ButtonModule,
+        CommonModule, FormsModule, ButtonModule,
         InputTextModule, TextareaModule, CheckboxModule,
-        InputNumberModule, ToastModule
+        InputNumberModule, SelectButtonModule, ToastModule
     ],
-    providers: [MessageService], // Ważne dla spójności
     templateUrl: './matrix-adding.component.html'
 })
 export class MatrixAddingComponent {
     private matrixService = inject(MatrixService);
     private messageService = inject(MessageService);
     private router = inject(Router);
+    matrixAdded = output<void>();
 
-    newMatrix: CreateMatrixRequest = { name: '', description: '', refreshIntervalDays: 7, isHidden: false };
+    newMatrix: CreateMatrixRequest = this.getEmpty();
     submitted = false;
     loading = false;
 
     intervalPresets = [
-        { label: 'Daily', value: 1 },
-        { label: 'Weekly', value: 7 },
+        { label: 'Daily',     value: 1  },
+        { label: 'Weekly',    value: 7  },
         { label: 'Bi-weekly', value: 14 },
-        { label: 'Monthly', value: 30 },
+        { label: 'Monthly',   value: 30 },
     ];
 
     save() {
         this.submitted = true;
-        if (!this.newMatrix.name.trim()) return;
+        if (!this.newMatrix.name.trim()) {
+            this.messageService.add({
+                severity: 'warn', summary: 'Validation',
+                detail: 'Name is required.', life: 3000
+            });
+            return;
+        }
 
         this.loading = true;
         this.matrixService.createMatrix(this.newMatrix).subscribe({
@@ -50,6 +57,8 @@ export class MatrixAddingComponent {
                     severity: 'success', summary: 'Created',
                     detail: `Matrix "${this.newMatrix.name}" created.`, life: 3000
                 });
+                this.reset();
+                this.matrixAdded.emit();
                 this.router.navigate(['/curriculum/matrices']);
             },
             error: () => {
@@ -62,7 +71,18 @@ export class MatrixAddingComponent {
         });
     }
 
+    reset() {
+        this.newMatrix = this.getEmpty();
+        this.submitted = false;
+        this.loading = false;
+    }
+
     cancel() {
+        this.reset();
         this.router.navigate(['/curriculum/matrices']);
+    }
+
+    private getEmpty(): CreateMatrixRequest {
+        return { name: '', description: '', refreshIntervalDays: 7, isHidden: false };
     }
 }
