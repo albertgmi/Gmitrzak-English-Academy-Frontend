@@ -194,6 +194,9 @@ export class CataloguesComponent implements OnInit {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
-    formatDate(date: Date): string { return date.toISOString().split('T')[0]; }
+    formatDate(date: Date): string { 
+        return new Intl.DateTimeFormat('sv-SE').format(date); 
+    }
+    
     reload() { this.catalogueService.reloadCatalogues(); }
 }

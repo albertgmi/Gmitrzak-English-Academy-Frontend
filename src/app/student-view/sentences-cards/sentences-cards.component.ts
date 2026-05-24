@@ -87,7 +87,7 @@ export class SentencesCardsComponent implements OnInit {
     }
 
     private initializeSession(allCards: SentenceDto[]) {
-        const today = new Date().toISOString().split('T')[0];
+        const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
 
         const toReview: SessionCard[] = allCards
             .filter(c => c.nextReviewDate <= today)

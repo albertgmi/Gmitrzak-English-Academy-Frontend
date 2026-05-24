@@ -306,7 +306,7 @@ export class SentenceStockComponent implements OnInit {
             return;
         }
 
-        const formattedDate = dueDate.toISOString().split('T')[0];
+        const formattedDate = new Intl.DateTimeFormat('sv-SE').format(dueDate);
 
         const sentenceSetId = undefined;
         const sentenceStockId = sentence.id;
