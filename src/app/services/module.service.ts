@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { StudentModuleDto } from './student-services/student.service';
 
 export interface ModuleItem {
     id: number;
@@ -82,5 +83,11 @@ export class ModuleItemService {
 
     removeMatrix(moduleId: number, matrixId: number) {
         return this.http.delete(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`);
+    }
+
+    getSentenceModulesForStudent(studentId: number): Promise<StudentModuleDto[]> {
+        return lastValueFrom(
+            this.http.get<StudentModuleDto[]>(`${this.apiUrl}/student/${studentId}/sentences`)
+        );
     }
 }

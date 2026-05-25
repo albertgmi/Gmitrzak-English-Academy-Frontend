@@ -49,18 +49,8 @@ export class LessonSentenceAnswersComponent implements OnInit {
     partialCount = () => this.answers().filter(a => a.aiResult === 'Partial').length;
     incorrectCount = () => this.answers().filter(a => a.aiResult === 'Incorrect').length;
 
-    ngOnInit() {
-        this.moduleItemService.modules.reload();
-        const interval = setInterval(() => {
-            const mods = this.moduleItemService.modules.value();
-            if (mods !== undefined) {
-                clearInterval(interval);
-                const filtered = mods
-                    .filter(m => m.category === 'Sentences')
-                    .map(m => ({ id: m.id, label: m.name }));
-                this.sentenceModules.set(filtered);
-            }
-        }, 100);
+    async ngOnInit() {
+        await this.loadSentenceModules();
     }
 
     loadAnswers() {
@@ -162,5 +152,19 @@ export class LessonSentenceAnswersComponent implements OnInit {
             },
             error: () => this.downloadingDocx.set(false)
         });
+    }
+
+    private async loadSentenceModules() {
+        const studentId = this.lessonContext.studentId;
+        if (!studentId) return;
+
+        const mods = await this.moduleItemService.getSentenceModulesForStudent(studentId);
+
+        this.sentenceModules.set(
+            mods.map(m => ({
+                id: m.moduleId,
+                label: m.name
+            }))
+        );
     }
 }

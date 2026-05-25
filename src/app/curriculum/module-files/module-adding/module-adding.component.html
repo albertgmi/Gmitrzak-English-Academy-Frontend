@@ -29,9 +29,6 @@
           [(ngModel)]="newModule.category"
           placeholder="Select category"
           fluid />
-        <small class="text-muted-color text-xs mt-1 block">
-          Set to <strong>Sentences</strong> if this module contains translation tasks.
-        </small>
       </div>
       <div class="md:col-span-2" *ngIf="newModule.category === 'Watching'">
         <label class="block font-bold mb-2">Assign Video Material <span class="text-red-500">*</span></label>
