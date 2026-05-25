@@ -7,11 +7,12 @@ import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { LessonPanelService, LessonStatsDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
   selector: 'app-lesson-stats',
   standalone: true,
-  imports: [CommonModule, ChartModule, ToastModule, ButtonModule],
+  imports: [CommonModule, ChartModule, ToastModule, ButtonModule, AvatarComponent],
   providers: [MessageService],
   templateUrl: './lesson-stats.component.html'
 })

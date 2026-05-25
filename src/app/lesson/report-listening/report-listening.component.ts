@@ -12,6 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonService, ListeningReportDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
@@ -19,7 +20,7 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
     selector: 'app-report-listening',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule,
-        SelectModule, InputNumberModule, TableModule, TagModule, ToastModule],
+        SelectModule, InputNumberModule, TableModule, TagModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './report-listening.component.html'
 })

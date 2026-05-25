@@ -8,13 +8,14 @@ import { MessageService } from 'primeng/api';
 import { LessonPanelService, LessonLastWeekDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ButtonModule } from 'primeng/button';
+import { AvatarComponent } from "../../other/avatar/avatar.component";
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
 @Component({
     selector: 'app-lesson-last-week',
     standalone: true,
-    imports: [CommonModule, TableModule, TagModule, ToastModule, ButtonModule],
+    imports: [CommonModule, TableModule, TagModule, ToastModule, ButtonModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './lesson-last-week.component.html'
 })

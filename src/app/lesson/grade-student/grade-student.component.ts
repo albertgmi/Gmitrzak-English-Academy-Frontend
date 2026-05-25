@@ -13,6 +13,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonService, GradeListDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
@@ -21,7 +22,7 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule,
         SelectModule, InputNumberModule, TableModule, TagModule,
-        ToastModule, ConfirmDialogModule],
+        ToastModule, ConfirmDialogModule, AvatarComponent],
     providers: [MessageService, ConfirmationService],
     templateUrl: './grade-student.component.html'
 })

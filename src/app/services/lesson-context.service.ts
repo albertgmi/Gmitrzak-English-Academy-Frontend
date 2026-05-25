@@ -4,6 +4,7 @@ export interface ActiveStudent {
     id: number;
     username: string;
     email: string;
+    avatarUrl?: string | null;
 }
 
 @Injectable({ providedIn: 'root' })

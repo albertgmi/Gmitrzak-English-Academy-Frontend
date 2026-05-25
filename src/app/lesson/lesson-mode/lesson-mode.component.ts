@@ -14,6 +14,7 @@ import { LessonService } from '../../services/lesson.service';
 import { VocabularyService, SearchVocabularyResult } from '../../services/vocabulary.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation';
 
@@ -21,7 +22,7 @@ type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation';
     selector: 'app-lesson-mode',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule,
-        TextareaModule, SelectModule, TagModule, ToastModule],
+        TextareaModule, SelectModule, TagModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './lesson-mode.component.html'
 })

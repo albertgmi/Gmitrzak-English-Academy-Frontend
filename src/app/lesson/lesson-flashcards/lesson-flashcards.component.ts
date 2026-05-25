@@ -8,11 +8,12 @@ import { MessageService } from 'primeng/api';
 import { LessonPanelService, LessonFlashcardSummaryDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ButtonModule } from 'primeng/button';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-flashcards',
     standalone: true,
-    imports: [CommonModule, TableModule, TagModule, ToastModule, ButtonModule],
+    imports: [CommonModule, TableModule, TagModule, ToastModule, ButtonModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './lesson-flashcards.component.html'
 })

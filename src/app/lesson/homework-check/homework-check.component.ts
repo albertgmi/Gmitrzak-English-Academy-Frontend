@@ -8,13 +8,14 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { LessonService, HomeworkItemDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
 @Component({
     selector: 'app-homework-check',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TagModule, ToastModule, TooltipModule],
+    imports: [CommonModule, ButtonModule, TagModule, ToastModule, TooltipModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './homework-check.component.html'
 })

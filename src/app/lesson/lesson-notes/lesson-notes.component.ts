@@ -9,12 +9,13 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonService, TeacherNoteDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-notes',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, TextareaModule,
-        ToastModule, ConfirmDialogModule],
+        ToastModule, ConfirmDialogModule, AvatarComponent],
     providers: [MessageService, ConfirmationService],
     templateUrl: './lesson-notes.component.html'
 })

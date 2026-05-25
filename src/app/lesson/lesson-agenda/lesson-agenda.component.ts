@@ -10,12 +10,13 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonPanelService, AgendaDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-agenda',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule,
-        InputNumberModule, TextareaModule, ToastModule],
+        InputNumberModule, TextareaModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './lesson-agenda.component.html'
 })

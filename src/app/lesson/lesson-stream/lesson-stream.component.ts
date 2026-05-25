@@ -10,12 +10,13 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonPanelService, StreamEntryDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-stream',
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule,
-        InputTextModule, ToastModule, ConfirmDialogModule],
+        InputTextModule, ToastModule, ConfirmDialogModule, AvatarComponent],
     providers: [MessageService, ConfirmationService],
     templateUrl: './lesson-stream.component.html'
 })

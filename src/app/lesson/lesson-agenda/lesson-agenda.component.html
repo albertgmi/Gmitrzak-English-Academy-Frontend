@@ -8,9 +8,12 @@
 
 <div *ngIf="activeStudent() as student" class="card">
   <div class="flex items-center gap-3 mb-6">
-    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
-      {{ student.username[0]?.toUpperCase() }}
-    </div>
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Agenda</h2>
       <p class="text-muted-color mt-0.5 m-0">Weekly targets for {{ student.username }}</p>

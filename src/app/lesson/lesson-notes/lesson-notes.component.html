@@ -10,9 +10,12 @@
 <div *ngIf="activeStudent() as student" class="card">
 
   <div class="flex items-center gap-3 mb-6">
-    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
-      {{ student.username[0]?.toUpperCase() }}
-    </div>
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Notes</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
@@ -21,7 +24,6 @@
       size="small" (onClick)="goToSwitchClient()" />
   </div>
 
-  <!-- New note -->
   <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
     <label class="block font-bold mb-3">New note</label>
     <textarea pTextarea
@@ -36,7 +38,6 @@
     </div>
   </div>
 
-  <!-- Notes list -->
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
     <i class="pi pi-spin pi-spinner text-3xl"></i>
   </div>

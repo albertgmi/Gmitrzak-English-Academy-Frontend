@@ -8,11 +8,12 @@ import { MessageService } from 'primeng/api';
 import { LessonPanelService, StudentStudyTimeDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ButtonModule } from 'primeng/button';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-study-time',
     standalone: true,
-    imports: [CommonModule, TableModule, ChartModule, ToastModule, ButtonModule],
+    imports: [CommonModule, TableModule, ChartModule, ToastModule, ButtonModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './lesson-study-time.component.html'
 })

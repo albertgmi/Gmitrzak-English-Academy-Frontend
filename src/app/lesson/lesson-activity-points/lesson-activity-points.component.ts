@@ -10,12 +10,13 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonPanelService, ActivityPointsLessonSummaryDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-activity-points',
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule,
-        InputTextModule, InputNumberModule, ToastModule],
+        InputTextModule, InputNumberModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './lesson-activity-points.component.html'
 })

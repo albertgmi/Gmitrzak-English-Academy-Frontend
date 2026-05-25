@@ -7,9 +7,13 @@
 
   <div *ngIf="activeStudent() as s"
     class="flex items-center gap-3 p-4 mb-6 bg-primary/10 border border-primary/30 rounded-xl">
-    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
-      {{ s.username[0]?.toUpperCase() }}
-    </div>
+    
+    <app-avatar 
+      [username]="s.username" 
+      [avatarUrl]="$any(s).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
     <div class="flex-1">
       <div class="font-semibold text-surface-900 dark:text-surface-0">{{ s.username }}</div>
       <div class="text-sm text-muted-color">Current active student</div>
@@ -40,9 +44,13 @@
       <tr>
         <td>
           <div class="flex items-center gap-2">
-            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
-              {{ s.username[0]?.toUpperCase() }}
-            </div>
+            
+            <app-avatar 
+              [username]="s.username" 
+              [avatarUrl]="s.avatarUrl" 
+              customClass="w-8 h-8 text-sm"
+              fallbackBgClass="bg-primary/10 text-primary" />
+
             <span class="font-semibold">{{ s.username }}</span>
           </div>
         </td>

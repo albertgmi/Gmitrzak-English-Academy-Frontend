@@ -14,6 +14,7 @@ import { LessonContextService } from '../../services/lesson-context.service';
 import { SentenceService, AnswerResultDto } from '../../services/sentence.service';
 import { ModuleItemService } from '../../services/module.service';
 import { HttpClient } from '@angular/common/http';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-lesson-sentence-answers',
@@ -21,7 +22,7 @@ import { HttpClient } from '@angular/common/http';
     imports: [
         CommonModule, FormsModule, ButtonModule,
         SelectModule, TagModule, ToastModule, ConfirmDialogModule,
-        DialogModule, TextareaModule
+        DialogModule, TextareaModule, AvatarComponent
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './lesson-sentence-answers.component.html'

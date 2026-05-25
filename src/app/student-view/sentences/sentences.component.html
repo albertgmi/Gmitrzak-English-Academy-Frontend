@@ -1,13 +1,11 @@
 <p-toast />
 <div class="card">
-  <!-- Nagłówek z tytułem i eleganckim przełącznikiem widoku -->
   <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sentences</h2>
       <p class="text-muted-color mt-1 m-0">Your sentence collection and assignments</p>
     </div>
     
-    <!-- Przyciski do przełączania -->
     <p-selectButton 
       [options]="viewOptions" 
       [(ngModel)]="selectedView" 
@@ -48,7 +46,6 @@
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ s.content }}</td>
         <td class="text-muted-color">{{ s.translation }}</td>
         <td>
-          <!-- Jeśli to przypisane zadanie, wyświetlamy notatkę jako estetyczny p-tag, w przeciwnym razie zwykły tekst -->
           <ng-container *ngIf="selectedView === 'other' && s.notes; else normalNotes">
             <p-tag [value]="s.notes" severity="info" />
           </ng-container>

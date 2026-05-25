@@ -12,12 +12,13 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonService, StudentSimple } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-switch-client',
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule,
-        InputTextModule, IconFieldModule, InputIconModule, TagModule, ToastModule],
+        InputTextModule, IconFieldModule, InputIconModule, TagModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './switch-client.component.html'
 })

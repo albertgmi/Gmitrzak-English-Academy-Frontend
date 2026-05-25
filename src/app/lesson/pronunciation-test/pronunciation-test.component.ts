@@ -6,11 +6,12 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { LessonService, PronunciationTestItemDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-pronunciation-test',
     standalone: true,
-    imports: [CommonModule, ButtonModule, ToastModule],
+    imports: [CommonModule, ButtonModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './pronunciation-test.component.html'
 })

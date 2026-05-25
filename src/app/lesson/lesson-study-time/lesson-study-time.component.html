@@ -8,9 +8,12 @@
 
 <div *ngIf="activeStudent() as student" class="card">
   <div class="flex items-center gap-3 mb-6">
-    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
-      {{ student.username[0]?.toUpperCase() }}
-    </div>
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcard Study Time</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
@@ -48,7 +51,6 @@
       </div>
     </div>
 
-    <!-- Chart -->
     <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5 mb-6"
       *ngIf="chartData">
       <h3 class="font-semibold mb-4 m-0">Cards per day (last 30 days)</h3>
@@ -57,7 +59,6 @@
       </div>
     </div>
 
-    <!-- Daily table -->
     <p-table [value]="d.dailyBreakdown" [rows]="14"
       [paginator]="d.dailyBreakdown.length > 14"
       [rowHover]="true" [tableStyle]="{'min-width': '35rem'}">

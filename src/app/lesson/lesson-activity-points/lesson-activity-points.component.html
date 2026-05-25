@@ -8,9 +8,12 @@
 
 <div *ngIf="activeStudent() as student" class="card">
   <div class="flex items-center gap-3 mb-6">
-    <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold flex-shrink-0">
-      {{ student.username[0]?.toUpperCase() }}
-    </div>
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Activity Points</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
@@ -25,7 +28,6 @@
 
   <div *ngIf="!loading() && data() as d">
 
-    <!-- Summary -->
     <div class="grid grid-cols-3 gap-4 mb-6">
       <div class="bg-primary/10 rounded-xl p-4 text-center">
         <div class="text-3xl font-bold text-primary">{{ d.totalAllTime }}</div>
@@ -41,7 +43,6 @@
       </div>
     </div>
 
-    <!-- Add points -->
     <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
       <h3 class="font-semibold mb-4 m-0">Add Points Manually</h3>
       <div class="flex gap-3 flex-wrap">
@@ -56,7 +57,6 @@
       </div>
     </div>
 
-    <!-- History -->
     <p-table [value]="d.history" [rows]="15" [paginator]="d.history.length > 15"
       [rowHover]="true" [tableStyle]="{'min-width': '30rem'}">
       <ng-template #header>
