@@ -1,0 +1,99 @@
+<p-toast />
+
+<div class="card p-6 max-w-5xl mx-auto">
+  <div class="flex items-center gap-4 mb-6">
+    <button (click)="goBack()" class="w-10 h-10 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer bg-transparent">
+      <i class="pi pi-arrow-left"></i>
+    </button>
+    <div *ngIf="moduleData() as mod">
+      <span class="text-xs font-semibold text-muted-color uppercase tracking-wider block mb-1">
+        {{ isSingleModule() ? 'Single Assignment' : 'Course Module' }}
+      </span>
+      <h1 class="text-3xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ mod.name }}</h1>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="flex flex-col gap-4 py-8 items-center justify-center">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    <p class="text-muted-color">Loading module content...</p>
+  </div>
+
+  <div *ngIf="!loading() && moduleData() as mod" class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+    <div class="lg:col-span-2 flex flex-col gap-4">
+      
+      <div *ngIf="safeVideoUrl()" class="w-full aspect-video rounded-xl overflow-hidden shadow-lg border border-surface-200 dark:border-surface-700 bg-black">
+        <iframe 
+          [src]="safeVideoUrl()" 
+          class="w-full h-full" 
+          frameborder="0" 
+          allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" 
+          allowfullscreen>
+        </iframe>
+      </div>
+
+      <div *ngIf="(mod.url || mod.theaterItem?.url) && !safeVideoUrl()" class="p-6 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl flex items-center justify-between">
+        <div class="flex items-center gap-3">
+          <i class="pi pi-link text-2xl text-primary"></i>
+          <div>
+            <div class="font-semibold text-surface-900 dark:text-surface-0">External materials for the assignment</div>
+            <div class="text-sm text-muted-color">Click the button next to it to open the resource assigned by the administrator.</div>
+          </div>
+        </div>
+        <a [href]="mod.url || mod.theaterItem?.url" target="_blank" class="no-underline">
+          <p-button label="Open material" icon="pi pi-external-link" severity="secondary" size="small"></p-button>
+        </a>
+      </div>
+
+      <div class="p-6 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+        <h3 class="text-lg font-bold mb-3 flex items-center gap-2 text-surface-900 dark:text-surface-0">
+          <i class="pi pi-info-circle text-primary"></i> Instructions and assignment description
+        </h3>
+        <p class="text-surface-700 dark:text-surface-300 leading-relaxed whitespace-pre-wrap m-0">
+          {{ mod.description || 'No detailed text instructions available for this assignment. Please refer to the material above.' }}
+        </p>
+      </div>
+    </div>
+
+    <div class="flex flex-col gap-4">
+      <div class="p-6 bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl flex flex-col gap-4">
+        
+        <div>
+          <span class="text-xs text-muted-color block mb-1">Assignment type</span>
+          <p-tag [value]="mod.category || 'Other'" [severity]="mod.category === 'Watching' ? 'info' : 'warn'"></p-tag>
+        </div>
+
+        <div *ngIf="mod.theaterItem || mod.name">
+          <span class="text-xs text-muted-color block mb-1">Resource name</span>
+          <div class="font-medium text-surface-900 dark:text-surface-0">{{ mod.theaterItem?.title || mod.name }}</div>
+          <div class="text-xs text-muted-color mt-0.5" *ngIf="mod.theaterItem?.durationMinutes">Duration: {{ mod.theaterItem.durationMinutes }} min</div>
+        </div>
+
+        <hr class="border-surface-200 dark:border-surface-700 my-1">
+
+        <div class="text-center py-2">
+          <div class="mb-4">
+            <span class="text-xs text-muted-color block mb-2">Your status</span>
+            <div *ngIf="mod.isCompleted" class="text-green-500 font-bold flex items-center justify-center gap-2 text-lg">
+              <i class="pi pi-check-circle text-xl"></i> Assignment Completed!
+            </div>
+            <div *ngIf="!mod.isCompleted" class="text-orange-500 font-bold flex items-center justify-center gap-2 text-lg">
+              <i class="pi pi-clock text-xl"></i> Pending completion
+            </div>
+          </div>
+
+          <p-button 
+            [label]="mod.isCompleted ? 'Mark as incomplete' : 'Submit assignment completion'" 
+            [icon]="mod.isCompleted ? 'pi pi-times-circle' : 'pi pi-check-circle'" 
+            [severity]="mod.isCompleted ? 'danger' : 'success'" 
+            [outlined]="mod.isCompleted"
+            (onClick)="toggleComplete()"
+            class="w-full"
+            styleClass="w-full py-3 font-semibold" />
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+</div>

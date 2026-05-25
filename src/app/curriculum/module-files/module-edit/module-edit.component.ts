@@ -14,6 +14,7 @@ import {
     MatrixSimple, UpdateModuleRequest
 } from '../../../services/module.service';
 import { MatrixService } from '../../../services/matrix.service';
+import { TheaterService } from '../../../services/theater.service';
 
 @Component({
     selector: 'app-module-edit',
@@ -32,11 +33,20 @@ export class ModuleEditComponent implements OnInit {
     private moduleService  = inject(ModuleItemService);
     private matrixService  = inject(MatrixService);
     private messageService = inject(MessageService);
+    private theaterService = inject(TheaterService);
 
     moduleId!: number;
     editedModule = signal<ModuleItem | null>(null);
     submitted = false;
     loading   = false;
+
+    theaterItemsOptions = computed(() => {
+        const rawItems = this.theaterService.items.value() ?? [];
+        return rawItems.map(item => ({
+            label: `[${item.level}] ${item.title}`,
+            value: item.id
+        }));
+    });
 
     selectedMatrixToAdd = signal<MatrixSimple | null>(null);
     weekNumber = signal<number>(1);
@@ -49,6 +59,7 @@ export class ModuleEditComponent implements OnInit {
         { label: 'Grammar',    value: 'Grammar' },
         { label: 'Vocabulary', value: 'Vocabulary' },
         { label: 'Speaking',   value: 'Speaking' },
+        { label: 'Watching',   value: 'Watching' },
         { label: 'Other',      value: 'Other' }
     ];
 
@@ -137,13 +148,22 @@ export class ModuleEditComponent implements OnInit {
             return;
         }
 
+        if (current.category === 'Watching' && !current.theaterItemId) {
+            this.submitted = true;
+            this.messageService.add({
+                severity: 'error', summary: 'Error', detail: 'Video material is required.'
+            });
+            return;
+        }
+
         this.loading = true;
 
         const request: UpdateModuleRequest = {
             name:        current.name,
             description: current.description,
             isHidden:    current.isHidden,
-            category:    current.category
+            category:    current.category,
+            theaterItemId: current.category === 'Watching' ? current.theaterItemId : null
         };
 
         this.moduleService.updateModule(this.moduleId, request).subscribe({

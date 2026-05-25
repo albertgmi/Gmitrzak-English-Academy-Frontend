@@ -5,6 +5,7 @@ export interface StudentSimple {
     id: number;
     username: string;
     email: string;
+    avatarUrl?: string | null;
 }
 
 export interface SearchFlashcardResult {

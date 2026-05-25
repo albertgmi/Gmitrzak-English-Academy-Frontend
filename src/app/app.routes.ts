@@ -64,6 +64,7 @@ import { OptionsComponent } from './other/options/options.component';
 import { SentenceTaskComponent } from './stocksAndSets/sentence-task/sentence-task.component';
 import { SentencesCardsComponent } from './student-view/sentences-cards/sentences-cards.component';
 import { LessonSentenceAnswersComponent } from './lesson/lesson-sentence-answers/lesson-sentence-answers.component';
+import { ModulePlayerComponent } from './student-view/module-player/module-player.component';
 
 
 
@@ -136,6 +137,7 @@ export const appRoutes: Routes = [
       { path: 'modules/:moduleId/sentences', component: SentenceTaskComponent, canActivate: [AuthGuard] },
       { path: 'sentences-cards', component: SentencesCardsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/sentence-answers', component: LessonSentenceAnswersComponent, canActivate: [AuthGuard] },
+      { path: 'modules/:id/player', component: ModulePlayerComponent, canActivate: [AuthGuard] },
 
 
     ]

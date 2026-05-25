@@ -43,6 +43,26 @@
               </small>
             </div>
 
+            <div class="md:col-span-2" *ngIf="mod.category === 'Watching'">
+              <label class="block font-bold mb-2">Linked Video Material <span class="text-red-500">*</span></label>
+              <p-select
+                [options]="theaterItemsOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="mod.theaterItemId"
+                placeholder="Change video material..."
+                [filter]="true"
+                fluid />
+            </div>
+            
+            <div *ngIf="mod.category === 'Watching'"
+              class="mt-4 p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl flex items-start gap-2">
+              <i class="pi pi-video text-blue-500 mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-blue-700 dark:text-blue-300 m-0">
+                This module is set to <strong>Watching</strong>. It requires the student to play and complete the video assigned above.
+              </p>
+            </div>
+
             <div class="md:col-span-2">
               <label class="block font-bold mb-2">Description</label>
               <textarea pTextarea [(ngModel)]="mod.description"

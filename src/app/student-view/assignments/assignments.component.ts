@@ -52,9 +52,7 @@ export class AssignmentsComponent implements OnInit {
     }
 
     openModule(a: AssignmentStudentDto) {
-        if (a.category === 'Sentences') {
-            this.router.navigate(['/modules', a.moduleId, 'sentences']);
-        }
+        this.router.navigate(['/courses']);
     }
 
     dueSeverity(a: AssignmentStudentDto): SeverityType {

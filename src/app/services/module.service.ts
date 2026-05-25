@@ -9,6 +9,7 @@ export interface ModuleItem {
     category: string;
     isHidden: boolean;
     matrices: MatrixSimple[];
+    theaterItemId?: number | null;
 }
 
 export interface MatrixSimple {
@@ -22,6 +23,7 @@ export interface CreateModuleRequest {
     description?: string;
     category: string;
     isHidden?: boolean;
+    theaterItemId?: number | null;
 }
 
 export interface UpdateModuleRequest {
@@ -29,6 +31,7 @@ export interface UpdateModuleRequest {
     description?: string;
     isHidden?: boolean;
     category?: string;
+    theaterItemId?: number | null;
 }
 
 export interface AssignModuleToMatrixRequest {

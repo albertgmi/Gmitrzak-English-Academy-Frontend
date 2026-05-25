@@ -33,6 +33,20 @@
           Set to <strong>Sentences</strong> if this module contains translation tasks.
         </small>
       </div>
+      <div class="md:col-span-2" *ngIf="newModule.category === 'Watching'">
+        <label class="block font-bold mb-2">Assign Video Material <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="theaterItemsOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="newModule.theaterItemId"
+          placeholder="Choose video from theater items..."
+          [filter]="true"
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !newModule.theaterItemId">
+          Video selection is required for Watching category.
+        </small>
+      </div>
 
       <div class="md:col-span-2">
         <label class="block font-bold mb-2">Description</label>

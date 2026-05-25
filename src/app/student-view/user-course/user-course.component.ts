@@ -76,6 +76,8 @@ export class UserCourseComponent implements OnInit {
 
         if (module.category === 'Sentences') {
             this.router.navigate(['/modules', module.moduleId, 'sentences']);
+        } else if (module.category === 'Watching') {
+            this.router.navigate(['/modules', module.moduleId, 'player'], { queryParams: { isSingle: false } });
         } else {
             this.toggleComplete(module);
         }
@@ -86,6 +88,8 @@ export class UserCourseComponent implements OnInit {
 
         if (module.category === 'Sentences') {
             this.router.navigate(['/modules', module.moduleId, 'sentences']);
+        } else if (module.category === 'Watching') {
+            this.router.navigate(['/modules', module.moduleId, 'player'], { queryParams: { isSingle: false } });
         } else {
             this.toggleSingleModule(module);
         }
