@@ -200,9 +200,10 @@ export class AppMenu implements OnInit {
   private lessonItems(): MenuItem[] {
     return [
       { label: 'Switch Client', icon: 'pi pi-arrows-h', routerLink: ['/lesson/switch-client'] },
+      { label: 'Attendance', icon: 'pi pi-server', routerLink: ['/lesson/attendance'] },
+      { label: 'Lesson Mode', icon: 'pi pi-bolt', routerLink: ['/lesson/mode'] },
       { label: 'Agenda', icon: 'pi pi-list', routerLink: ['/lesson/agenda'] },
       { label: 'Homework Check', icon: 'pi pi-check-square', routerLink: ['/lesson/homework'] },
-      { label: 'Lesson Mode', icon: 'pi pi-bolt', routerLink: ['/lesson/mode'] },
       { label: 'List / Notes', icon: 'pi pi-file-edit', routerLink: ['/lesson/list'] },
       { label: 'Test Pronunciation', icon: 'pi pi-microphone', routerLink: ['/lesson/pronunciation'] },
       { label: 'Sentence Answers', icon: 'pi pi-check-square', routerLink: '/lesson/sentence-answers' },
@@ -211,7 +212,6 @@ export class AppMenu implements OnInit {
       { label: 'Activity Points', icon: 'pi pi-history', routerLink: ['/lesson/activity-points'] },
       { label: 'Flashcards', icon: 'pi pi-clone', routerLink: ['/lesson/flashcards'] },
       { label: 'Report Listening', icon: 'pi pi-video', routerLink: ['/lesson/listening'] },
-      { label: 'Stream Entries', icon: 'pi pi-server', routerLink: ['/lesson/stream'] },
       { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/flashcards-study-time'] },
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },
       { label: 'Stats', icon: 'pi pi-chart-line', routerLink: ['/lesson/stats'] },

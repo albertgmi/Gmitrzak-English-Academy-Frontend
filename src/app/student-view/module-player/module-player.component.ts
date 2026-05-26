@@ -42,10 +42,6 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
                 this.route.snapshot.queryParamMap.get('isSingle') === 'true'
             );
 
-            console.log('--- ROZPOCZĘCIE ŁADOWANIA MODUŁU ---');
-            console.log('Szukane ID:', this.moduleId);
-            console.log('Flaga isSingle z URL:', this.isSingleModule());
-
             this.studentService.reloadSingleModules();
             this.studentService.reloadCourses();
 
@@ -88,13 +84,11 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
             if (!this.isSingleModule()) {
                 foundModule = singles.find(m => m?.id === this.moduleId || m?.moduleId === this.moduleId);
                 if (foundModule) {
-                    console.log('Sukces! Znaleziono moduł w Single Modules mimo isSingle=false w URL.');
                     this.isSingleModule.set(true);
                 }
             } else {
                 foundModule = this.searchCourses(courses);
                 if (foundModule) {
-                    console.log('Sukces! Znaleziono moduł w Kursach mimo isSingle=true w URL.');
                     this.isSingleModule.set(false);
                 }
             }
@@ -113,29 +107,24 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
 
     private processFoundModule(foundModule: any) {
         if (!foundModule) {
-            console.error('BŁĄD: Modułu o podanym ID nie ma nigdzie na liście zalogowanego studenta.');
             this.messageService.add({
                 severity: 'error',
-                summary: 'Błąd ładowania',
-                detail: 'Nie odnaleziono zadania przypisanego do Twojego konta.'
+                summary: 'Error loading',
+                detail: 'Module not found assigned to your account.'
             });
             this.loading.set(false);
             return;
         }
 
-        console.log('Zlokalizowany moduł:', foundModule);
         this.moduleData.set(foundModule);
 
         const rawUrl = foundModule.url || foundModule.theaterItem?.url || '';
-        console.log('Surowy link wyciągnięty z obiektu zadania:', rawUrl);
 
         if (rawUrl) {
             const safeUrl = this.getSafeYouTubeUrl(rawUrl);
             this.safeVideoUrl.set(safeUrl);
-            console.log('Wynik parsowania YouTube URL:', safeUrl ? 'PRAWIDŁOWY YT' : 'ZASÓB ZEWNĘTRZNY (NULL)');
         } else {
             this.safeVideoUrl.set(null);
-            console.log('Brak jakiegokolwiek linku w zadaniu.');
         }
 
         this.loading.set(false);
@@ -168,7 +157,7 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
             next: () => {
                 if (checkingAsCompleted) {
                     this.triggerCelebration();
-                    this.messageService.add({ severity: 'success', summary: 'Sukces', detail: 'Zadanie ukończone!' });
+                    this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Module finished!' });
                 }
                 
                 if (this.isSingleModule()) {
@@ -179,7 +168,7 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
 
                 this.moduleData.update(m => m ? { ...m, isCompleted: checkingAsCompleted } : null);
             },
-            error: () => this.messageService.add({ severity: 'error', summary: 'Błąd', detail: 'Nie udało się zaktualizować statusu.' })
+            error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update status.' })
         });
     }
 

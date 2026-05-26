@@ -45,6 +45,21 @@
         </small>
       </div>
 
+      <div class="md:col-span-2" *ngIf="newModule.category === 'Sentences'">
+        <label class="block font-bold mb-2">Assign Sentence Set <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="sentenceSetsOptions()"
+          optionLabel="label"
+          optionValue="value"
+          [(ngModel)]="selectedSentenceSetId"
+          placeholder="Choose sentence set..."
+          [filter]="true"
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedSentenceSetId">
+          Sentence set selection is required for Sentences category.
+        </small>
+      </div>
+
       <div class="md:col-span-2">
         <label class="block font-bold mb-2">Description</label>
         <textarea pTextarea [(ngModel)]="newModule.description"

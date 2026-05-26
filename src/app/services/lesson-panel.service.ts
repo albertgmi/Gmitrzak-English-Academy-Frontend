@@ -139,18 +139,6 @@ export class LessonPanelService {
         return this.http.get<LessonFlashcardSummaryDto>(`${this.apiUrl}/flashcards/${studentUserId}`);
     }
 
-    getStream(studentUserId: number) {
-        return this.http.get<StreamEntryDto[]>(`${this.apiUrl}/stream/${studentUserId}`);
-    }
-
-    addStream(studentUserId: number, command: string, payload: string) {
-        return this.http.post(`${this.apiUrl}/stream/${studentUserId}`, { command, payload });
-    }
-
-    deleteStream(entryId: number) {
-        return this.http.delete(`${this.apiUrl}/stream/${entryId}`);
-    }
-
     getStudyTime(studentUserId: number) {
         return this.http.get<StudentStudyTimeDto>(`${this.apiUrl}/study-time/${studentUserId}`);
     }

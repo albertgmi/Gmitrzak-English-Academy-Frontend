@@ -1,0 +1,86 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Attendance Register</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
+    <h3 class="font-semibold mb-4 m-0">Log Attendance</h3>
+    <div class="flex gap-4 flex-wrap items-center">
+      
+      <p-selectButton 
+        [options]="lessonTypeOptions" 
+        [ngModel]="selectedType()" 
+        (ngModelChange)="selectedType.set($event)" 
+        optionLabel="label" 
+        optionValue="value" 
+        [allowEmpty]="false" />
+
+      <p-inputNumber 
+        [ngModel]="duration()" 
+        (ngModelChange)="duration.set($event)"
+        placeholder="Duration..." 
+        suffix=" min"
+        [min]="1"
+        class="flex-1"
+        styleClass="w-full" />
+
+      <p-button label="Log Lesson" icon="pi pi-plus"
+        [loading]="saving()" [disabled]="!duration() || duration()! <= 0"
+        (onClick)="add()" />
+    </div>
+  </div>
+
+  <h3 class="text-xl font-semibold mb-3">Attendance History This Month</h3>
+  <p-table [value]="attendances()" [loading]="loading()"
+    [rows]="20" [paginator]="attendances().length > 20"
+    [rowHover]="true" [tableStyle]="{'min-width': '40rem'}">
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="createdAt">Date <p-sortIcon field="createdAt" /></th>
+        <th pSortableColumn="type">Lesson Type <p-sortIcon field="type" /></th>
+        <th pSortableColumn="duration">Duration <p-sortIcon field="duration" /></th>
+        <th style="width: 5rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-a>
+      <tr>
+        <td class="text-sm text-muted-color">{{ a.createdAt | date:'d MMM yyyy, HH:mm' }}</td>
+        <td>
+          <span [class]="a.type === 'SCHEDULED' ? 'text-primary font-semibold' : 'text-orange-500 font-semibold'">
+            {{ a.type === 'SCHEDULED' ? 'Scheduled' : 'Makeup' }}
+          </span>
+        </td>
+        <td class="font-semibold text-sm">{{ a.duration }} min</td>
+        <td>
+          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
+            size="small" (onClick)="confirmDelete(a)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4" class="text-center text-muted-color py-8">No attendance logged for this month.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

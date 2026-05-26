@@ -90,4 +90,16 @@ export class ModuleItemService {
             this.http.get<StudentModuleDto[]>(`${this.apiUrl}/student/${studentId}/sentences`)
         );
     }
+
+    getAllSentenceSetsGrouped() {
+        return this.http.get<any[]>('/api/sentence/sets'); 
+    }
+    
+    // Przypisuje zestaw do modułu (odpowiednik [HttpPost("assign-to-module")] z kontrolera)
+    assignSentenceSetToModule(moduleId: number, sentenceSetId: number) {
+        return this.http.post('/api/sentence/assign-to-module', {
+            moduleId: moduleId,
+            sentenceSetId: sentenceSetId
+        });
+    }
 }

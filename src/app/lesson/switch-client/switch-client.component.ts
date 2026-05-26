@@ -44,7 +44,7 @@ export class SwitchClientComponent implements OnInit {
             severity: 'success', summary: 'Client switched',
             detail: `Now working with ${student.username}`, life: 2000
         });
-        setTimeout(() => this.router.navigate(['/lesson/mode']), 800);
+        setTimeout(() => this.router.navigate(['/lesson/attendance']), 800);
     }
 
     onGlobalFilter(table: any, event: Event) {

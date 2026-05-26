@@ -99,16 +99,16 @@
         </h3>
         <div class="flex flex-col gap-4">
           <div>
-            <label class="block font-bold mb-2">Front (Polish) *</label>
+            <label class="block font-bold mb-2">Front (English) *</label>
             <input pInputText type="text"
               [ngModel]="newFront()" (ngModelChange)="newFront.set($event)"
-              placeholder="e.g. samochód" fluid />
+              placeholder="e.g. car" fluid />
           </div>
           <div>
-            <label class="block font-bold mb-2">Back (English) *</label>
+            <label class="block font-bold mb-2">Back (Polish) *</label>
             <input pInputText type="text"
               [ngModel]="newBack()" (ngModelChange)="newBack.set($event)"
-              placeholder="e.g. car" fluid />
+              placeholder="e.g. samochód" fluid />
           </div>
           <div>
             <label class="block font-bold mb-2">Category</label>

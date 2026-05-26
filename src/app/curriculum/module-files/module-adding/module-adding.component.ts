@@ -1,4 +1,4 @@
-import { Component, inject, computed } from '@angular/core';
+import { Component, inject, computed, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
@@ -28,6 +28,7 @@ export class ModuleAddingComponent {
     private messageService = inject(MessageService);
     private router = inject(Router);
     private theaterService = inject(TheaterService);
+    private rawSentenceSets = signal<any[]>([]);
 
     theaterItemsOptions = computed(() => {
         const rawItems = this.theaterService.items.value() ?? [];
@@ -38,6 +39,17 @@ export class ModuleAddingComponent {
                 value: item.id
             }));
     });
+
+    sentenceSetsOptions = computed(() => {
+        return this.rawSentenceSets().flatMap(group => 
+            (group.sets || []).map((set: any) => ({
+                label: `[${group.groupName}] ${set.name} (${set.itemCount} zdań)`,
+                value: set.id
+            }))
+        );
+    });
+
+    selectedSentenceSetId: number | null = null;
 
     newModule: CreateModuleRequest = {
         name: '',
@@ -59,41 +71,69 @@ export class ModuleAddingComponent {
         { label: 'Other',      value: 'Other' }
     ];
 
+
+    ngOnInit() {
+        this.moduleService.getAllSentenceSetsGrouped().subscribe({
+            next: (data) => this.rawSentenceSets.set(data),
+            error: () => console.error('Failed to load sentence sets')
+        });
+    }
+
     save() {
         this.submitted = true;
         if (!this.newModule.name.trim()) return;
 
+        // Walidacja dla Watching
         if (this.newModule.category === 'Watching' && !this.newModule.theaterItemId) {
-            this.messageService.add({
-                severity: 'error',
-                summary: 'Validation Error',
-                detail: 'Please select a video for the Watching category.'
-            });
+            this.showError('Please select a video for the Watching category.');
             return;
         }
 
-        if (this.newModule.category !== 'Watching') {
-            this.newModule.theaterItemId = null;
+        // Walidacja dla Sentences
+        if (this.newModule.category === 'Sentences' && !this.selectedSentenceSetId) {
+            this.showError('Please select a sentence set for the Sentences category.');
+            return;
         }
 
+        // Czyszczenie nieaktywnych pól zależnych od kategorii
+        if (this.newModule.category !== 'Watching') this.newModule.theaterItemId = null;
+
+        // 1. Tworzymy moduł
         this.moduleService.createModule(this.newModule).subscribe({
-            next: () => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary: 'Created',
-                    detail: `Module "${this.newModule.name}" created.`,
-                    life: 3000
-                });
-                this.router.navigate(['/curriculum/modules']);
+            next: (createdModule) => {
+                
+                // 2. Jeśli kategoria to 'Sentences', wykonujemy DRUGI krok (przypisanie)
+                if (this.newModule.category === 'Sentences' && this.selectedSentenceSetId) {
+                    this.moduleService.assignSentenceSetToModule(createdModule.id, this.selectedSentenceSetId).subscribe({
+                        next: () => this.handleSuccess(createdModule.name),
+                        error: () => this.showError('Module created, but failed to assign sentence set.')
+                    });
+                } else {
+                    // Dla pozostałych kategorii po prostu kończymy sukcesem
+                    this.handleSuccess(createdModule.name);
+                }
             },
-            error: () => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary: 'Error',
-                    detail: 'Failed to create module.',
-                    life: 3000
-                });
-            }
+            error: () => this.showError('Failed to create module.')
+        });
+    }
+
+    private handleSuccess(moduleName: string) {
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Created',
+            detail: `Module "${moduleName}" created successfully.`,
+            life: 3000
+        });
+        this.moduleService.reloadModules(); // Odświeżamy listę zasobów
+        this.router.navigate(['/curriculum/modules']);
+    }
+
+    private showError(message: string) {
+        this.messageService.add({
+            severity: 'error',
+            summary: 'Error',
+            detail: message,
+            life: 3000
         });
     }
 

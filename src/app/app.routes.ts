@@ -45,7 +45,6 @@ import {LessonAgendaComponent} from './lesson/lesson-agenda/lesson-agenda.compon
 import {LessonGradesComponent} from './lesson/lesson-grades/lesson-grades.component';
 import {LessonActivityPointsComponent} from './lesson/lesson-activity-points/lesson-activity-points.component';
 import {LessonFlashcardsComponent} from './lesson/lesson-flashcards/lesson-flashcards.component';
-import {LessonStreamComponent} from './lesson/lesson-stream/lesson-stream.component';
 import {LessonStudyTimeComponent} from './lesson/lesson-study-time/lesson-study-time.component';
 import {LessonLastWeekComponent} from './lesson/lesson-last-week/lesson-last-week.component';
 import {LessonStatsComponent} from './lesson/lesson-stats/lesson-stats.component';
@@ -66,6 +65,7 @@ import { SentencesCardsComponent } from './student-view/sentences-cards/sentence
 import { LessonSentenceAnswersComponent } from './lesson/lesson-sentence-answers/lesson-sentence-answers.component';
 import { ModulePlayerComponent } from './student-view/module-player/module-player.component';
 import { RankingComponent } from './other/ranking/ranking.component';
+import { AttendanceComponent } from './lesson/attendance/attendance.component';
 
 
 
@@ -117,7 +117,7 @@ export const appRoutes: Routes = [
       { path: 'lesson/grades', component: LessonGradesComponent, canActivate: [AuthGuard] },
       { path: 'lesson/activity-points', component: LessonActivityPointsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards', component: LessonFlashcardsComponent, canActivate: [AuthGuard] },
-      { path: 'lesson/stream', component: LessonStreamComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/attendance', component: AttendanceComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards-study-time', component: LessonStudyTimeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/last-week', component: LessonLastWeekComponent, canActivate: [AuthGuard] },
       { path: 'lesson/stats', component: LessonStatsComponent, canActivate: [AuthGuard] },  
