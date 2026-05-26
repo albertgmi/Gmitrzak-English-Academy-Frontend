@@ -38,7 +38,7 @@ export class LessonSentenceAnswersComponent implements OnInit {
     activeStudent = this.lessonContext.activeStudent;
     answers = signal<AnswerResultDto[]>([]);
     loading = signal(false);
-    selectedModuleId = signal<number | null>(null);
+    selectedModule = signal<{ id: number; label: string } | null>(null);
     overriding = signal<number | null>(null);
     overrideForm = signal<{ answerId: number; result: string; explanation: string } | null>(null);
     downloadingPdf = signal(false);
@@ -55,7 +55,7 @@ export class LessonSentenceAnswersComponent implements OnInit {
 
     loadAnswers() {
         const studentId = this.lessonContext.studentId;
-        const moduleId = this.selectedModuleId();
+        const moduleId = this.selectedModule()?.id;
         if (!studentId || !moduleId) return;
         this.loading.set(true);
         this.sentenceService.getAnswersForStudent(moduleId, studentId).subscribe({
@@ -111,7 +111,7 @@ export class LessonSentenceAnswersComponent implements OnInit {
 
     downloadPdf() {
         const studentId = this.lessonContext.studentId;
-        const moduleId = this.selectedModuleId();
+        const moduleId = this.selectedModule()?.id;
         if (!studentId || !moduleId) return;
         this.downloadingPdf.set(true);
         this.sentenceService.downloadReportPdf(moduleId, studentId).subscribe({
@@ -130,7 +130,7 @@ export class LessonSentenceAnswersComponent implements OnInit {
 
     downloadDocx() {
         const studentId = this.lessonContext.studentId;
-        const moduleId = this.selectedModuleId();
+        const moduleId = this.selectedModule()?.id;
         
         if (!studentId || !moduleId) return;
         
@@ -162,7 +162,7 @@ export class LessonSentenceAnswersComponent implements OnInit {
 
         this.sentenceModules.set(
             mods.map(m => ({
-                id: m.moduleId,
+                id: m.id,
                 label: m.name
             }))
         );

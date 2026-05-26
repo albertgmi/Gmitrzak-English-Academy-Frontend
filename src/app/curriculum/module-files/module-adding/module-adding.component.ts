@@ -61,14 +61,16 @@ export class ModuleAddingComponent {
     submitted = false;
 
     categories = [
-        { label: 'General',    value: 'General' },
-        { label: 'Sentences',  value: 'Sentences' },
-        { label: 'Listening',  value: 'Listening' },
-        { label: 'Grammar',    value: 'Grammar' },
-        { label: 'Vocabulary', value: 'Vocabulary' },
-        { label: 'Speaking',   value: 'Speaking' },
-        { label: 'Watching',   value: 'Watching' },
-        { label: 'Other',      value: 'Other' }
+        { label: 'General', value: 'General'},
+        { label: 'Sentences', value: 'Sentences'},
+        { label: 'Listening', value: 'Listening'},
+        { label: 'Grammar', value: 'Grammar'},
+        { label: 'Vocabulary', value: 'Vocabulary'},
+        { label: 'Speaking', value: 'Speaking'},
+        { label: 'Watching', value: 'Watching'},
+        { label: 'Presentation', value: 'Presentation'},
+        { label: 'Comment', value: 'Comment'},
+        { label: 'Other', value: 'Other'}
     ];
 
 
@@ -83,33 +85,28 @@ export class ModuleAddingComponent {
         this.submitted = true;
         if (!this.newModule.name.trim()) return;
 
-        // Walidacja dla Watching
         if (this.newModule.category === 'Watching' && !this.newModule.theaterItemId) {
             this.showError('Please select a video for the Watching category.');
             return;
         }
 
-        // Walidacja dla Sentences
         if (this.newModule.category === 'Sentences' && !this.selectedSentenceSetId) {
             this.showError('Please select a sentence set for the Sentences category.');
             return;
         }
 
-        // Czyszczenie nieaktywnych pól zależnych od kategorii
         if (this.newModule.category !== 'Watching') this.newModule.theaterItemId = null;
 
         // 1. Tworzymy moduł
         this.moduleService.createModule(this.newModule).subscribe({
             next: (createdModule) => {
                 
-                // 2. Jeśli kategoria to 'Sentences', wykonujemy DRUGI krok (przypisanie)
                 if (this.newModule.category === 'Sentences' && this.selectedSentenceSetId) {
                     this.moduleService.assignSentenceSetToModule(createdModule.id, this.selectedSentenceSetId).subscribe({
                         next: () => this.handleSuccess(createdModule.name),
                         error: () => this.showError('Module created, but failed to assign sentence set.')
                     });
                 } else {
-                    // Dla pozostałych kategorii po prostu kończymy sukcesem
                     this.handleSuccess(createdModule.name);
                 }
             },

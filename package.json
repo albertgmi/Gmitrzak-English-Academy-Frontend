@@ -18,6 +18,7 @@
     "@angular/platform-browser": "^19.1.6",
     "@angular/platform-browser-dynamic": "^19.1.6",
     "@angular/router": "^19.1.6",
+    "@angular/youtube-player": "^19.2.19",
     "@primeng/themes": "^19.0.6",
     "canvas-confetti": "^1.9.4",
     "chart.js": "^4.5.1",
