@@ -183,6 +183,7 @@ export class AppMenu implements OnInit {
         items: [
           { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/last-week'] },
           { label: 'Activity Points', icon: 'pi pi-chart-line', routerLink: ['/activity-points'] },
+          { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
           { label: 'Grades', icon: 'pi pi-star', routerLink: ['/grades'] },
           { label: 'Stats', icon: 'pi pi-chart-bar', routerLink: ['/stats'] },
         ]
@@ -214,6 +215,7 @@ export class AppMenu implements OnInit {
       { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/flashcards-study-time'] },
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },
       { label: 'Stats', icon: 'pi pi-chart-line', routerLink: ['/lesson/stats'] },
+      { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
     ];
   }
 }
