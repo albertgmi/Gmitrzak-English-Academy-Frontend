@@ -72,7 +72,6 @@ export class FlashcardStudyModeComponent implements OnInit {
 
     private initializeSession(allCards: FlashcardDto[]) {
         const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
-        console.log('Todays date:', today);
         const toReview: SessionCard[] = allCards
             .filter(c => c.nextReviewDate <= today)
             .map(c => ({ ...c, incorrectStep: 0, availableAt: 0 }));

@@ -7,13 +7,14 @@ import { ButtonModule } from 'primeng/button';
 import { SkeletonModule } from 'primeng/skeleton';
 import { AuthService } from '../../services/auth.service';
 import { DashboardService, AdminDashboardDto, StudentDashboardDto}  from '../../services/dashboard.service';
+import { AvatarComponent } from '../avatar/avatar.component';
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
 @Component({
     selector: 'app-dashboard',
     standalone: true,
-    imports: [CommonModule, RouterModule, ChartModule, TagModule, ButtonModule, SkeletonModule],
+    imports: [CommonModule, RouterModule, ChartModule, TagModule, ButtonModule, SkeletonModule, AvatarComponent],
     templateUrl: './dashboard.component.html'
 })
 export class Dashboard implements OnInit {

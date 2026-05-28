@@ -74,25 +74,92 @@ export class UserCourseComponent implements OnInit {
     handleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
 
-        if (module.category === 'Sentences') {
-            this.router.navigate(['/modules', module.moduleId, 'sentences']);
-        } else if (module.category === 'Watching') {
-            this.router.navigate(['/modules', module.moduleId, 'player'], { queryParams: { isSingle: false } });
-        } else {
-            this.toggleComplete(module);
+        switch (module.category) {
+            case 'Watching':
+                this.router.navigate(['/modules', module.moduleId, 'player'],
+                    { queryParams: { isSingle: false } });
+                return;
+            case 'Sentences':
+                this.router.navigate(['/modules', module.moduleId, 'sentences']);
+                return;
+            case 'SentenceFlashcards':
+                this.router.navigate(['/sentences-cards']);
+                return;
+            case 'Presentation':
+                this.router.navigate(['/modules', module.moduleId, 'presentation']);
+                return;
+            case 'Flashcards':
+                if (!module.isCompleted && !module.canComplete) {
+                    // nawiguj do sekcji — uczeń musi robić fiszki
+                    this.router.navigate(['/flashcards']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    // gotowy — pozwól oznaczyć
+                    this.toggleComplete(module);
+                }
+                return;
+            case 'Memories':
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/memories']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.toggleComplete(module);
+                }
+                return;
+            case 'Pronunciation':
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/pronunciation']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.toggleComplete(module);
+                }
+                return;
         }
+
+        this.toggleComplete(module);
     }
 
     handleSingleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
 
-        if (module.category === 'Sentences') {
-            this.router.navigate(['/modules', module.moduleId, 'sentences']);
-        } else if (module.category === 'Watching') {
-            this.router.navigate(['/modules', module.moduleId, 'player'], { queryParams: { isSingle: false } });
-        } else {
-            this.toggleSingleModule(module);
+        switch (module.category) {
+            case 'Watching':
+                this.router.navigate(['/modules', module.moduleId, 'player'],
+                    { queryParams: { isSingle: true } });
+                return;
+            case 'Sentences':
+                this.router.navigate(['/modules', module.moduleId, 'sentences']);
+                return;
+            case 'SentenceFlashcards':
+                this.router.navigate(['/sentences-cards']);
+                return;
+            case 'Presentation':
+                this.router.navigate(['/modules', module.moduleId, 'presentation']);
+                return;
+            case 'Flashcards':
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/flashcards']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.triggerTeamsCelebration();
+                    this.toggleSingleModule(module);
+                }
+                return;
+            case 'Memories':
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/memories']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.triggerTeamsCelebration();
+                    this.toggleSingleModule(module);
+                }
+                return;
+            case 'Pronunciation':
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/pronunciation']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.triggerTeamsCelebration();
+                    this.toggleSingleModule(module);
+                }
+                return;
         }
+
+        this.toggleSingleModule(module);
     }
 
     toggleComplete(module: StudentModuleDto) {
@@ -144,8 +211,18 @@ export class UserCourseComponent implements OnInit {
 
     moduleTooltip(module: StudentModuleDto): string {
         if (!module.isUnlocked) return `Locked until ${module.unlockDate}`;
-        if (module.category === 'Sentences') return `${module.name} — click to translate`;
         if (module.isCompleted) return `${module.name} — completed ✓`;
+        
+        if (this.isActivityBased(module)) {
+            if (module.canComplete) return `${module.name} — ready! Click to complete.`;
+            return module.completionBlockReason
+                ?? `${module.name} — keep going!`;
+        }
+    
+        if (module.category === 'Sentences') return `${module.name} — click to translate`;
+        if (module.category === 'Presentation') return `${module.name} — click to read`;
+        if (module.category === 'Watching') return `${module.name} — click to watch`;
+    
         return `${module.name} — click to mark as done`;
     }
 
@@ -174,6 +251,40 @@ export class UserCourseComponent implements OnInit {
             });
         }
     }
+
+    moduleCardClass(m: StudentModuleDto): string {
+        if (!m.isUnlocked) return 'module-locked';
+        if (m.isCompleted) return 'module-done';
+        if (m.isOverdue)   return 'module-overdue';
+
+        if (m.activityDaysRequired > 0 && !m.canComplete)
+            return 'module-in-progress';
+    
+        if (m.activityDaysRequired > 0 && m.canComplete)
+            return 'module-ready';
+
+        return 'module-available';
+    }
+
+    activityProgress(m: StudentModuleDto): number {
+        if (m.activityDaysRequired === 0) return 100;
+        return Math.min(100, Math.round(
+            (m.activityDaysCount / m.activityDaysRequired) * 100
+        ));
+    }
+
+    activityLabel(m: StudentModuleDto): string {
+        if (m.isCompleted)                  return 'Done';
+        if (m.activityDaysRequired === 0)   return 'Click to complete';
+        if (m.canComplete)                  return 'Ready to complete!';
+        return `${m.activityDaysCount}/${m.activityDaysRequired} days`;
+    }
+
+    isActivityBased(m: StudentModuleDto): boolean {
+        return ['Flashcards', 'SentenceFlashcards', 'Memories', 'Pronunciation']
+            .includes(m.category);
+    }
+
 
     private triggerTeamsCelebration() {
         const scalar     = 4.5;

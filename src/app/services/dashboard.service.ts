@@ -27,6 +27,7 @@ export interface RecentGradeDto {
     category: string;
     percentage: number;
     gradeDate: string;
+    avatarUrl?: string | null;
 }
 
 export interface UpcomingAssignmentDto {

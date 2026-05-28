@@ -25,6 +25,8 @@ export interface CreateModuleRequest {
     category: string;
     isHidden?: boolean;
     theaterItemId?: number | null;
+    presentationUrl?: string | null;
+    presentationText?: string | null;
 }
 
 export interface UpdateModuleRequest {
@@ -33,6 +35,8 @@ export interface UpdateModuleRequest {
     isHidden?: boolean;
     category?: string;
     theaterItemId?: number | null;
+    presentationUrl?: string | null;
+    presentationText?: string | null;
 }
 
 export interface AssignModuleToMatrixRequest {
@@ -50,16 +54,14 @@ export class ModuleItemService {
             const data = await lastValueFrom(this.http.get<ModuleItem[]>(this.apiUrl));
             return data.map(m => ({
                 ...m,
-                matrixName: m.matrices && m.matrices.length > 0 
-                    ? m.matrices.map(x => x.name).join(', ') 
+                matrixName: m.matrices?.length
+                    ? m.matrices.map(x => x.name).join(', ')
                     : ''
             }));
         }
     });
 
-    reloadModules() {
-        this.modules.reload();
-    }
+    reloadModules() { this.modules.reload(); }
 
     createModule(request: CreateModuleRequest) {
         return this.http.post<ModuleItem>(this.apiUrl, request);
@@ -74,32 +76,40 @@ export class ModuleItemService {
     }
 
     assignMatrix(moduleId: number, matrixId: number, week: number, day: number) {
-        const payload: AssignModuleToMatrixRequest = {
-            weekNumber: week,
-            dayOfWeek: day
-        };
-        return this.http.post(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`, payload);
+        return this.http.post(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`,
+            { weekNumber: week, dayOfWeek: day });
     }
 
     removeMatrix(moduleId: number, matrixId: number) {
         return this.http.delete(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`);
     }
 
-    getSentenceModulesForStudent(studentId: number): Promise<StudentModuleDto[]> {
-        return lastValueFrom(
-            this.http.get<StudentModuleDto[]>(`${this.apiUrl}/student/${studentId}/sentences`)
-        );
+    getStudentModule(moduleId: number) {
+        return this.http.get<StudentModuleDto>(
+            `${this.apiUrl}/student-module/${moduleId}`);
+    }
+
+    completeStudentModule(moduleId: number) {
+        return this.http.post(
+            `${this.apiUrl}/student-module/${moduleId}/complete`, {});
+    }
+    
+    uncompleteStudentModule(moduleId: number) {
+        return this.http.delete(
+            `${this.apiUrl}/student-module/${moduleId}/complete`);
+    }
+
+    getSentenceModulesForStudent(studentId: number) {
+        return this.http.get<StudentModuleDto[]>(
+            `${this.apiUrl}/student/${studentId}/sentences`);
     }
 
     getAllSentenceSetsGrouped() {
-        return this.http.get<any[]>('/api/sentence/sets'); 
+        return this.http.get<any[]>('/api/sentence/sets');
     }
-    
-    // Przypisuje zestaw do modułu (odpowiednik [HttpPost("assign-to-module")] z kontrolera)
+
     assignSentenceSetToModule(moduleId: number, sentenceSetId: number) {
-        return this.http.post('/api/sentence/assign-to-module', {
-            moduleId: moduleId,
-            sentenceSetId: sentenceSetId
-        });
+        return this.http.post('/api/sentence/assign-to-module',
+            { moduleId, sentenceSetId });
     }
 }

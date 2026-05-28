@@ -15,6 +15,13 @@ export interface StudentModuleDto {
     isUnlocked: boolean;
     isCompleted: boolean;
     isOverdue: boolean;
+    url?: string;
+    activityDaysCount: number;
+    activityDaysRequired: number;
+    canComplete: boolean;
+    completionBlockReason?: string;
+    presentationUrl?: string;
+    presentationText?: string;
 }
 
 export interface StudentAssignmentDto {

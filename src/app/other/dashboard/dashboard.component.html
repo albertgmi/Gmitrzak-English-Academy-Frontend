@@ -92,9 +92,11 @@
         <div class="flex flex-col gap-3">
           <div *ngFor="let g of d.recentGrades"
             class="flex items-center gap-3 p-3 bg-surface-50 dark:bg-surface-800 rounded-xl">
-            <div class="w-9 h-9 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
-              {{ g.username[0]?.toUpperCase() }}
-            </div>
+            <app-avatar
+              [username]="g.username"
+              [avatarUrl]="g.avatarUrl"
+              customClass="w-9 h-9"
+            />
             <div class="flex-1 min-w-0">
               <div class="font-semibold text-surface-900 dark:text-surface-0">{{ g.username }}</div>
               <div class="text-xs text-muted-color">{{ g.gradeDate | date:'d MMM' }}</div>
@@ -273,7 +275,7 @@
       <div class="card mb-0">
         <div class="flex justify-between mb-4">
           <div>
-            <span class="block text-muted-color font-medium mb-2">Upcoming Modules</span>
+            <span class="block text-muted-color font-medium mb-2">Upcoming Matrix Modules</span>
             <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
               {{ d.upcomingModules.length }}
             </div>
@@ -295,7 +297,7 @@
     <div class="col-span-12 xl:col-span-6">
       <div class="card">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="font-semibold text-xl m-0">Active Assignments</h3>
+          <h3 class="font-semibold text-xl m-0">Active Single Assignments</h3>
           <a routerLink="/assignments" class="text-primary text-sm hover:underline cursor-pointer">
             All →
           </a>
@@ -319,7 +321,7 @@
           <div *ngIf="!d.activeAssignments.length"
             class="text-center py-8 text-muted-color">
             <i class="pi pi-check-circle text-green-500 text-3xl block mb-2"></i>
-            All done — no active assignments!
+            All done — no active single assignments!
           </div>
         </div>
       </div>
@@ -328,7 +330,7 @@
     <div class="col-span-12 xl:col-span-6">
       <div class="card">
         <div class="flex items-center justify-between mb-6">
-          <h3 class="font-semibold text-xl m-0">Upcoming Modules</h3>
+          <h3 class="font-semibold text-xl m-0">Upcoming Matrix Modules</h3>
           <a routerLink="/courses" class="text-primary text-sm hover:underline cursor-pointer">
             All courses →
           </a>
@@ -358,7 +360,7 @@
           </div>
           <div *ngIf="!d.upcomingModules.length"
             class="text-center py-8 text-muted-color text-sm">
-            No upcoming modules.
+            No upcoming matrix modules.
           </div>
         </div>
       </div>

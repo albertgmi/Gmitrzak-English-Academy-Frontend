@@ -34,7 +34,7 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
 
     ngOnInit() {
         this.route.paramMap.pipe(takeUntil(this.destroy$)).subscribe(params => {
-            const idParam = params.get('id');
+            const idParam = params.get('moduleId');
             if (!idParam) return;
             this.moduleId = +idParam;
             

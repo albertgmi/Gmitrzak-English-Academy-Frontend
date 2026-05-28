@@ -53,14 +53,20 @@ export class ModuleEditComponent implements OnInit {
     dayOfWeek  = signal<number>(1);
 
     categories = [
-        { label: 'General',    value: 'General' },
-        { label: 'Sentences',  value: 'Sentences' },
-        { label: 'Listening',  value: 'Listening' },
-        { label: 'Grammar',    value: 'Grammar' },
-        { label: 'Vocabulary', value: 'Vocabulary' },
-        { label: 'Speaking',   value: 'Speaking' },
-        { label: 'Watching',   value: 'Watching' },
-        { label: 'Other',      value: 'Other' }
+        { label: 'General',       value: 'General'      },
+        { label: 'Sentences',     value: 'Sentences'    },
+        { label: 'Sentence Flashcards',  value: 'SentenceFlashcards'  },
+        { label: 'Flashcards',    value: 'Flashcards'   },
+        { label: 'Memories',      value: 'Memories'     },
+        { label: 'Pronunciation', value: 'Pronunciation'},
+        { label: 'Listening',     value: 'Listening'    },
+        { label: 'Grammar',       value: 'Grammar'      },
+        { label: 'Vocabulary',    value: 'Vocabulary'   },
+        { label: 'Speaking',      value: 'Speaking'     },
+        { label: 'Watching',      value: 'Watching'     },
+        { label: 'Presentation',  value: 'Presentation' },
+        { label: 'Comment',       value: 'Comment'      },
+        { label: 'Other',         value: 'Other'        }
     ];
 
     availableDays = computed(() => {

@@ -8,6 +8,7 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ContentService } from '../../services/student-services/content.service';
+import { SectionActivityService } from '../../services/section-activity.service';
 
 @Component({
     selector: 'app-memories',
@@ -19,9 +20,14 @@ import { ContentService } from '../../services/student-services/content.service'
 })
 export class MemoriesComponent {
     private contentService = inject(ContentService);
+    private activityService = inject(SectionActivityService);
     memories = this.contentService.memories;
 
     ngOnInit() {
+        this.activityService.logActivity('memories').subscribe({
+            next: () => console.log('memories activity logged'),
+            error: (e) => console.error('Failed to log memories activity', e)
+        });
         this.contentService.memories.reload();
     }
 

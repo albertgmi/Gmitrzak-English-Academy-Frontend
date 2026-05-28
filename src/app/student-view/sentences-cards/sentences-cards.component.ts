@@ -6,6 +6,7 @@ import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { ContentService, SentenceDto } from '../../services/student-services/content.service';
+import { SectionActivityService } from '../../services/section-activity.service';
 
 interface SessionCard extends SentenceDto {
     incorrectStep: number;
@@ -22,6 +23,7 @@ interface SessionCard extends SentenceDto {
 export class SentencesCardsComponent implements OnInit {
     private contentService = inject(ContentService);
     private destroyRef = inject(DestroyRef);
+    private activityService = inject(SectionActivityService);
 
     queue = signal<SessionCard[]>([]);
     pendingQueue = signal<SessionCard[]>([]);
@@ -160,6 +162,8 @@ export class SentencesCardsComponent implements OnInit {
         const card = this.currentCard();
 
         if (!card) return;
+
+        this.activityService.logActivity('sentenceflashcards' as any).subscribe();
 
         if (type === 'incorrect') {
             const step = Math.min(

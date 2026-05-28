@@ -5,6 +5,7 @@ import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { ContentService, PronunciationEntryDto } from '../../services/student-services/content.service';
+import { SectionActivityService } from '../../services/section-activity.service';
 
 @Component({
     selector: 'app-pronunciation',
@@ -16,6 +17,7 @@ import { ContentService, PronunciationEntryDto } from '../../services/student-se
 export class PronunciationComponent {
     private contentService = inject(ContentService);
     private messageService = inject(MessageService);
+    private activityService = inject(SectionActivityService);
 
     entries = this.contentService.pronunciation;
 
@@ -28,6 +30,7 @@ export class PronunciationComponent {
     );
 
     ngOnInit() {
+        this.activityService.logActivity('pronunciation').subscribe();
         this.contentService.pronunciation.reload();
     }
 

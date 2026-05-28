@@ -154,17 +154,18 @@ export class LessonSentenceAnswersComponent implements OnInit {
         });
     }
 
-    private async loadSentenceModules() {
+    private loadSentenceModules() {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
-
-        const mods = await this.moduleItemService.getSentenceModulesForStudent(studentId);
-
-        this.sentenceModules.set(
-            mods.map(m => ({
-                id: m.id,
-                label: m.name
-            }))
-        );
+        
+        this.moduleItemService.getSentenceModulesForStudent(studentId)
+            .subscribe(mods => {
+                this.sentenceModules.set(
+                    mods.map(m => ({
+                        id: m.id,
+                        label: m.name
+                    }))
+                );
+            });
     }
 }

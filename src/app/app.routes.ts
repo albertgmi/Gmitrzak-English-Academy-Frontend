@@ -66,6 +66,7 @@ import { LessonSentenceAnswersComponent } from './lesson/lesson-sentence-answers
 import { ModulePlayerComponent } from './student-view/module-player/module-player.component';
 import { RankingComponent } from './other/ranking/ranking.component';
 import { AttendanceComponent } from './lesson/attendance/attendance.component';
+import { PresentationComponent } from './student-view/presentation/presentation.component';
 
 
 
@@ -138,8 +139,9 @@ export const appRoutes: Routes = [
       { path: 'modules/:moduleId/sentences', component: SentenceTaskComponent, canActivate: [AuthGuard] },
       { path: 'sentences-cards', component: SentencesCardsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/sentence-answers', component: LessonSentenceAnswersComponent, canActivate: [AuthGuard] },
-      { path: 'modules/:id/player', component: ModulePlayerComponent, canActivate: [AuthGuard] },
+      { path: 'modules/:moduleId/player', component: ModulePlayerComponent, canActivate: [AuthGuard] },
       { path: 'ranking', component: RankingComponent, canActivate: [AuthGuard] },
+      { path: 'modules/:moduleId/presentation', component: PresentationComponent, canActivate: [AuthGuard] },
 
 
     ]
