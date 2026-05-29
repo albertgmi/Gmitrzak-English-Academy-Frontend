@@ -93,11 +93,6 @@ export class ModuleItemService {
         return this.http.post(
             `${this.apiUrl}/student-module/${moduleId}/complete`, {});
     }
-    
-    uncompleteStudentModule(moduleId: number) {
-        return this.http.delete(
-            `${this.apiUrl}/student-module/${moduleId}/complete`);
-    }
 
     getSentenceModulesForStudent(studentId: number) {
         return this.http.get<StudentModuleDto[]>(

@@ -132,28 +132,18 @@
 
             </div>
 
-            <div
-                class="flex justify-end gap-3 p-6 border-t
-                    border-surface-200 dark:border-surface-700">
-
-                <button
-                    *ngIf="!completed()"
-                    pButton
-                    label="Mark as done"
-                    icon="pi pi-check"
-                    [loading]="markingDone()"
-                    (click)="markAsDone()">
-                </button>
-
-                <button
-                    *ngIf="completed()"
-                    pButton
-                    label="Completed"
-                    icon="pi pi-check-circle"
-                    severity="success"
-                    disabled>
-                </button>
-
+            <div class="flex justify-end gap-3 p-6 border-t border-surface-200 dark:border-surface-700">
+              <button *ngIf="!completed()" pButton
+                label="Mark as done" icon="pi pi-check"
+                [loading]="markingDone()"
+                (click)="markAsDone()">
+              </button>
+          
+              <div *ngIf="completed()"
+                class="flex items-center gap-2 text-green-600 font-semibold">
+                <i class="pi pi-check-circle text-xl"></i>
+                <span>Completed</span>
+              </div>
             </div>
 
         </div>

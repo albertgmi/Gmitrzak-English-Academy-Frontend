@@ -66,9 +66,9 @@ export class PresentationComponent implements OnInit {
     markAsDone() {
         const m = this.module();
         if (!m || this.markingDone() || this.completed()) return;
-
+        
         this.markingDone.set(true);
-
+        
         this.moduleService.completeStudentModule(m.moduleId).subscribe({
             next: () => {
                 this.completed.set(true);
