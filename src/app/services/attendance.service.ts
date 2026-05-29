@@ -31,4 +31,8 @@ export class AttendanceService {
     deleteAttendance(id: number) {
         return this.http.delete<void>(`${this.apiUrl}/${id}`);
     }
+
+    getAttendanceHistory(userId: number) {
+        return this.http.get<AttendanceDto[]>(`${this.apiUrl}/${userId}/history`);
+    }
 }

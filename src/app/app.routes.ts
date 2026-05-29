@@ -50,7 +50,6 @@ import {LessonLastWeekComponent} from './lesson/lesson-last-week/lesson-last-wee
 import {LessonStatsComponent} from './lesson/lesson-stats/lesson-stats.component';
 import {LoginComponent} from './auth/login/login.component';
 import {CataloguesComponent} from './other/catalogues/catalogues.component';
-import {StreamComponent} from './other/stream/stream.component';
 import {TheaterComponent} from './other/theater/theater.component';
 import {RepertoireComponent} from './other/repertoire/repertoire.component';
 import { GlobalVocabularyComponent } from './vocabulary/global-vocabulary/global-vocabulary.component';
@@ -59,7 +58,6 @@ import { AnnouncementsComponent } from './announcements/announcements/announceme
 import { MessagesComponent } from './announcements/messages/messages.component';
 import { SentenceStockComponent } from './stocksAndSets/sentence-stock/sentence-stock.component';
 import { SetsComposerComponent } from './stocksAndSets/sets-composer/sets-composer.component';
-import { OptionsComponent } from './other/options/options.component';
 import { SentenceTaskComponent } from './stocksAndSets/sentence-task/sentence-task.component';
 import { SentencesCardsComponent } from './student-view/sentences-cards/sentences-cards.component';
 import { LessonSentenceAnswersComponent } from './lesson/lesson-sentence-answers/lesson-sentence-answers.component';
@@ -128,14 +126,12 @@ export const appRoutes: Routes = [
       { path: 'system/catalogues', component: CataloguesComponent, canActivate: [AuthGuard] },
       { path: 'system/global-vocabulary', component: GlobalVocabularyComponent, canActivate: [AuthGuard] },
       { path: 'system/global-vocabulary/assign', component: AssignGlobalVocabularyComponent, canActivate: [AuthGuard] },
-      { path: 'system/stream', component: StreamComponent, canActivate: [AuthGuard] },
       { path: 'system/theater', component: TheaterComponent, canActivate: [AuthGuard] },
       { path: 'system/theater/repertoire', component: RepertoireComponent, canActivate: [AuthGuard] },
       { path: 'system/announcements', component: AnnouncementsComponent, canActivate: [AuthGuard] },
       { path: 'messages', component: MessagesComponent, canActivate: [AuthGuard] },
       { path: 'system/sentences/stock', component: SentenceStockComponent, canActivate: [AuthGuard] },
       { path: 'system/sets/compose', component: SetsComposerComponent, canActivate: [AuthGuard] },
-      { path: 'system/options', component: OptionsComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/sentences', component: SentenceTaskComponent, canActivate: [AuthGuard] },
       { path: 'sentences-cards', component: SentencesCardsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/sentence-answers', component: LessonSentenceAnswersComponent, canActivate: [AuthGuard] },

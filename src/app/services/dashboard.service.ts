@@ -9,6 +9,7 @@ export interface AdminDashboardDto {
     recentGrades: RecentGradeDto[];
     upcomingAssignments: UpcomingAssignmentDto[];
     topStudentsByPoints: StudentPointsDto[];
+    totalUpcomingAssignmentsCount: number;
 }
 
 export interface StudentDashboardDto {

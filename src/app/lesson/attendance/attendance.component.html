@@ -53,7 +53,7 @@
   <h3 class="text-xl font-semibold mb-3">Attendance History This Month</h3>
   <p-table [value]="attendances()" [loading]="loading()"
     [rows]="20" [paginator]="attendances().length > 20"
-    [rowHover]="true" [tableStyle]="{'min-width': '40rem'}">
+    [rowHover]="true" [tableStyle]="{'min-width': '40rem'}" class="block mb-8">
     <ng-template #header>
       <tr>
         <th pSortableColumn="createdAt">Date <p-sortIcon field="createdAt" /></th>
@@ -80,6 +80,40 @@
     <ng-template #emptymessage>
       <tr>
         <td colspan="4" class="text-center text-muted-color py-8">No attendance logged for this month.</td>
+      </tr>
+    </ng-template>
+  </p-table>
+
+  <h3 class="text-xl font-semibold mb-3 mt-8">Older Attendance History</h3>
+  <p-table [value]="historicalAttendances()" [loading]="loadingHistory()"
+    [rows]="20" [paginator]="historicalAttendances().length > 20"
+    [rowHover]="true" [tableStyle]="{'min-width': '40rem'}">
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="createdAt">Date <p-sortIcon field="createdAt" /></th>
+        <th pSortableColumn="type">Lesson Type <p-sortIcon field="type" /></th>
+        <th pSortableColumn="duration">Duration <p-sortIcon field="duration" /></th>
+        <th style="width: 5rem"></th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-a>
+      <tr>
+        <td class="text-sm text-muted-color">{{ a.createdAt | date:'d MMM yyyy, HH:mm' }}</td>
+        <td>
+          <span [class]="a.type === 'SCHEDULED' ? 'text-primary font-semibold' : 'text-orange-500 font-semibold'">
+            {{ a.type === 'SCHEDULED' ? 'Scheduled' : 'Makeup' }}
+          </span>
+        </td>
+        <td class="font-semibold text-sm">{{ a.duration }} min</td>
+        <td>
+          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
+            size="small" (onClick)="confirmDelete(a)" />
+        </td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4" class="text-center text-muted-color py-8">No older attendance records found.</td>
       </tr>
     </ng-template>
   </p-table>

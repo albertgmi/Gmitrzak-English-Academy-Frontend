@@ -84,16 +84,6 @@ export class ModuleItemService {
         return this.http.delete(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`);
     }
 
-    getStudentModule(moduleId: number) {
-        return this.http.get<StudentModuleDto>(
-            `${this.apiUrl}/student-module/${moduleId}`);
-    }
-
-    completeStudentModule(moduleId: number) {
-        return this.http.post(
-            `${this.apiUrl}/student-module/${moduleId}/complete`, {});
-    }
-
     getSentenceModulesForStudent(studentId: number) {
         return this.http.get<StudentModuleDto[]>(
             `${this.apiUrl}/student/${studentId}/sentences`);

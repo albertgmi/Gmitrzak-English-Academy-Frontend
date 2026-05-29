@@ -57,18 +57,20 @@ export class AssignmentsComponent implements OnInit {
 
     dueSeverity(a: AssignmentStudentDto): SeverityType {
         if (a.isCompleted) return 'success';
-        if (a.isOverdue)   return 'danger';
+        if (a.isOverdue) return 'danger';
+        if (!a.hasDeadline) return 'info';
         const days = this.daysUntil(a.dueDate);
-        if (days <= 1)     return 'warn';
+        if (days <= 1) return 'warn';
         return 'info';
     }
 
     dueLabel(a: AssignmentStudentDto): string {
         if (a.isCompleted) return 'Done';
-        if (a.isOverdue)   return 'Overdue';
+        if (a.isOverdue) return 'Overdue';
+        if (!a.hasDeadline) return 'Unlocked';
         const days = this.daysUntil(a.dueDate);
-        if (days === 0)    return 'Today';
-        if (days === 1)    return 'Tomorrow';
+        if (days === 0) return 'Today';
+        if (days === 1) return 'Tomorrow';
         return `In ${days} days`;
     }
 

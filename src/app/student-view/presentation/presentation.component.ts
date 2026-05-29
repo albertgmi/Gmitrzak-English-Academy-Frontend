@@ -7,8 +7,7 @@ import { ProgressSpinnerModule } from 'primeng/progressspinner';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { ModuleItemService } from '../../services/module.service';
-import { StudentModuleDto } from '../../services/student-services/student.service';
+import { StudentService, StudentModuleDto } from '../../services/student-services/student.service';
 
 @Component({
     selector: 'app-presentation',
@@ -22,7 +21,7 @@ import { StudentModuleDto } from '../../services/student-services/student.servic
 })
 export class PresentationComponent implements OnInit {
     private route          = inject(ActivatedRoute);
-    private moduleService  = inject(ModuleItemService);
+    private studentService  = inject(StudentService);
     private messageService = inject(MessageService);
 
     module      = signal<StudentModuleDto | null>(null);
@@ -47,7 +46,7 @@ export class PresentationComponent implements OnInit {
 
     private load(moduleId: number) {
         this.loading.set(true);
-        this.moduleService.getStudentModule(moduleId).subscribe({
+        this.studentService.getStudentModule(moduleId).subscribe({
             next: (m) => {
                 this.module.set(m);
                 this.completed.set(m.isCompleted);
@@ -69,7 +68,7 @@ export class PresentationComponent implements OnInit {
         
         this.markingDone.set(true);
         
-        this.moduleService.completeStudentModule(m.moduleId).subscribe({
+        this.studentService.completeStudentModule(m.moduleId).subscribe({
             next: () => {
                 this.completed.set(true);
                 this.markingDone.set(false);

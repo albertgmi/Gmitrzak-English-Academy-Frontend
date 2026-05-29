@@ -38,8 +38,13 @@ export class AttendanceComponent implements OnInit {
     private confirmationService = inject(ConfirmationService);
 
     activeStudent = this.lessonContext.activeStudent;
+    
     attendances = signal<AttendanceDto[]>([]);
     loading = signal(true);
+    
+    historicalAttendances = signal<AttendanceDto[]>([]);
+    loadingHistory = signal(true);
+    
     saving = signal(false);
 
     selectedType = signal<'SCHEDULED' | 'MAKEUP'>('SCHEDULED');
@@ -58,12 +63,22 @@ export class AttendanceComponent implements OnInit {
 
     load(id: number) {
         this.loading.set(true);
+        this.loadingHistory.set(true);
+
         this.service.getAttendance(id).subscribe({
             next: (data) => { 
                 this.attendances.set(data); 
                 this.loading.set(false); 
             },
             error: () => this.loading.set(false)
+        });
+
+        this.service.getAttendanceHistory(id).subscribe({
+            next: (data) => {
+                this.historicalAttendances.set(data);
+                this.loadingHistory.set(false);
+            },
+            error: () => this.loadingHistory.set(false)
         });
     }
 
@@ -102,6 +117,8 @@ export class AttendanceComponent implements OnInit {
                 this.service.deleteAttendance(attendance.id).subscribe({
                     next: () => {
                         this.attendances.update(list => list.filter(a => a.id !== attendance.id));
+                        this.historicalAttendances.update(list => list.filter(a => a.id !== attendance.id));
+                        
                         this.messageService.add({ severity: 'success', summary: 'Record Deleted', life: 3000 });
                     }
                 });

@@ -54,8 +54,13 @@
                 </div>
               </div>
               <div class="text-right flex-shrink-0">
-                <p-tag severity="danger" value="Overdue" />
-                <div class="text-xs text-muted-color mt-1">{{ a.dueDate | date:'d MMM yyyy' }}</div>
+                <p-tag [severity]="dueSeverity(a)" [value]="dueLabel(a)" />
+                <div *ngIf="a.hasDeadline" class="text-xs text-muted-color mt-1">
+                  {{ a.dueDate | date:'d MMM yyyy' }}
+                </div>
+                <div *ngIf="!a.hasDeadline" class="text-xs text-muted-color mt-1">
+                  Unlocked {{ a.dueDate | date:'d MMM' }}
+                </div>
               </div>
             </div>
           </div>
@@ -85,8 +90,10 @@
                 </div>
               </div>
               <div class="text-right flex-shrink-0">
-                <p-tag [severity]="dueSeverity(a)" [value]="dueLabel(a)" />
-                <div class="text-xs text-muted-color mt-1">{{ a.dueDate | date:'d MMM yyyy' }}</div>
+                <p-tag severity="danger" value="Overdue" />
+                <div class="text-xs text-muted-color mt-1">
+                  {{ a.dueDate | date:'d MMM yyyy' }}
+                </div>
               </div>
             </div>
           </div>

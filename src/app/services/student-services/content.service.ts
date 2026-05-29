@@ -59,6 +59,7 @@ export interface AssignmentStudentDto {
     isOverdue: boolean;
     isFromMatrix: boolean;
     matrixName: string;
+    hasDeadline: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

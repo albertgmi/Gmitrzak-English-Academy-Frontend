@@ -149,4 +149,12 @@ export class StudentService {
     getCompletedSingleModules() {
         return this.http.get<StudentModuleDto[]>(`${this.apiUrl}/completed-single-modules`);
     }
+
+    getStudentModule(moduleId: number) {
+        return this.http.get<StudentModuleDto>(`${this.apiUrl}/module/${moduleId}`);
+    }
+
+    completeStudentModule(moduleId: number) {
+        return this.http.post(`${this.apiUrl}/module/${moduleId}/complete`, {});
+    }
 }
