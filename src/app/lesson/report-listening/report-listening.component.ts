@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
@@ -13,6 +13,7 @@ import { MessageService } from 'primeng/api';
 import { LessonService, ListeningReportDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
+import { PaginatorModule } from 'primeng/paginator';
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
@@ -20,7 +21,7 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
     selector: 'app-report-listening',
     standalone: true,
     imports: [CommonModule, FormsModule, ButtonModule, InputTextModule,
-        SelectModule, InputNumberModule, TableModule, TagModule, ToastModule, AvatarComponent],
+        SelectModule, InputNumberModule, TableModule, TagModule, ToastModule, AvatarComponent, PaginatorModule],
     providers: [MessageService],
     templateUrl: './report-listening.component.html'
 })
@@ -40,6 +41,14 @@ export class ReportListeningComponent implements OnInit {
     mediaType = signal('Movie');
     episodeCount = signal(1);
 
+    rows = 10;
+    first = signal(0);
+
+    pagedReports = computed(() => {
+        const start = this.first();
+        return this.reports().slice(start, start + this.rows);
+    });
+
     mediaTypes = [
         { label: 'Movie',    value: 'Movie' },
         { label: 'YouTube',  value: 'YouTube' },
@@ -58,9 +67,17 @@ export class ReportListeningComponent implements OnInit {
 
     loadReports(studentId: number) {
         this.lessonService.getListeningReports(studentId).subscribe({
-            next: (d) => { this.reports.set(d); this.loading.set(false); },
+            next: (d) => { 
+                this.reports.set(d); 
+                this.first.set(0);
+                this.loading.set(false); 
+            },
             error: () => this.loading.set(false)
         });
+    }
+
+    onPageChange(event: any) {
+        this.first.set(event.first);
     }
 
     addReport() {

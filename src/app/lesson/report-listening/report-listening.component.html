@@ -69,7 +69,7 @@
       </div>
 
       <div *ngIf="!loading()" class="flex flex-col gap-2">
-        <div *ngFor="let r of reports()"
+        <div *ngFor="let r of pagedReports()"
           class="flex items-center gap-3 p-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
           <p-tag [severity]="mediaTypeSeverity(r.mediaType)" [value]="r.mediaType" />
           <div class="flex-1 min-w-0">
@@ -85,6 +85,14 @@
           <i class="pi pi-video text-3xl block mb-2"></i>
           No listening reports yet.
         </div>
+
+        <p-paginator 
+          *ngIf="reports().length > rows"
+          [first]="first()" 
+          [rows]="rows" 
+          [totalRecords]="reports().length" 
+          (onPageChange)="onPageChange($event)"
+          styleClass="bg-transparent border-none pt-4" />
       </div>
     </div>
 

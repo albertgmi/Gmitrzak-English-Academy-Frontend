@@ -216,12 +216,12 @@ export class UserCourseComponent implements OnInit {
         if (this.isActivityBased(module)) {
             if (module.canComplete) return `${module.name} — ready! Click to complete.`;
             return module.completionBlockReason
-                ?? `${module.name} — keep going!`;
+                ?? `${module.name} — keep the streak going!`;
         }
     
-        if (module.category === 'Sentences') return `${module.name} — click to translate`;
-        if (module.category === 'Presentation') return `${module.name} — click to read`;
-        if (module.category === 'Watching') return `${module.name} — click to watch`;
+        if (module.category === 'Sentences')     return `${module.name} — click to translate`;
+        if (module.category === 'Presentation')  return `${module.name} — click to read`;
+        if (module.category === 'Watching')      return `${module.name} — click to watch`;
     
         return `${module.name} — click to mark as done`;
     }
@@ -274,10 +274,15 @@ export class UserCourseComponent implements OnInit {
     }
 
     activityLabel(m: StudentModuleDto): string {
-        if (m.isCompleted)                  return 'Done';
-        if (m.activityDaysRequired === 0)   return 'Click to complete';
-        if (m.canComplete)                  return 'Ready to complete!';
-        return `${m.activityDaysCount}/${m.activityDaysRequired} days`;
+        if (m.isCompleted)                return 'Done';
+        if (m.activityDaysRequired === 0) return 'Click to complete';
+        if (m.canComplete)                return 'Ready to complete!';
+
+        const days = m.activityDaysCount;
+        const required = m.activityDaysRequired;
+
+        if (days === 0) return `${required} consecutive days needed`;
+        return `${days}/${required} consecutive days`;
     }
 
     isActivityBased(m: StudentModuleDto): boolean {
