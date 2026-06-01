@@ -19,6 +19,12 @@ export interface CatalogueEntryDto {
     catalogueName: string;
     translatedEntry?: string;
 }
+export interface CatalogueFilters {
+  catalogueName?: string;
+  userRef?: string;
+  dateFrom?: string;
+  dateTo?: string;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CatalogueService {
@@ -39,18 +45,16 @@ export class CatalogueService {
         return this.http.post<CatalogueDto>(`${`${this.apiUrl}/upload`}`, formData);
     }
 
-    getEntries(filters: {
-        catalogueName?: string;
-        userRef?: string;
-        dateFrom?: string;
-        dateTo?: string;
-    }) {
-        let params = new HttpParams();
-        if (filters.catalogueName) params = params.set('catalogueName', filters.catalogueName);
-        if (filters.userRef)       params = params.set('userRef', filters.userRef);
-        if (filters.dateFrom)      params = params.set('dateFrom', filters.dateFrom);
-        if (filters.dateTo)        params = params.set('dateTo', filters.dateTo);
-        return this.http.get<CatalogueEntryDto[]>(`${`${this.apiUrl}/entries`}`, { params });
+    getEntries(filters: CatalogueFilters): Observable<CatalogueEntryDto[]> {
+      let params = new HttpParams();
+
+      Object.entries(filters).forEach(([key, value]) => {
+        if (value !== undefined && value !== null && value !== '') {
+          params = params.set(key, value);
+        }
+      });
+  
+      return this.http.get<CatalogueEntryDto[]>(`${this.apiUrl}/entries`, { params });
     }
 
     deleteCatalogue(id: number) {
