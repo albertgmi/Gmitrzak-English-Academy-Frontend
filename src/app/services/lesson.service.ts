@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { Observable } from 'rxjs';
 
 export interface StudentSimple {
     id: number;
@@ -53,6 +54,18 @@ export interface ListeningReportDto {
     title: string;
     mediaType: string;
     episodeCount: number;
+}
+export interface SentenceStockDto {
+    id: number;
+    polish: string;
+    englishTranslation: string;
+    category: string;
+}
+
+export interface MemoryItemDto {
+    id: number;
+    content: string;
+    notes?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -134,5 +147,19 @@ export class LessonService {
     addListeningReport(studentUserId: number, title: string, mediaType: string, episodeCount: number) {
         return this.http.post(`${this.apiUrl}/listening`,
             { studentUserId, title, mediaType, episodeCount });
+    }
+
+    getAllStock(): Observable<SentenceStockDto[]> {
+        return this.http.get<SentenceStockDto[]>('/api/sentence/stock');
+    }
+
+    // 2. Przypisanie zdania z bazy do konkretnego studenta (nowo dodany endpoint wyżej)
+    assignToUser(request: { userId: number; sentenceStockId: number; dueDate: string; sentenceSetId?: number | null }): Observable<void> {
+        return this.http.post<void>('/api/sentence/assign', request);
+    }
+
+    // 3. Pobieranie istniejących wspomnień z LessonController do blokady duplikatów
+    getMemories(studentUserId: number): Observable<MemoryItemDto[]> {
+        return this.http.get<MemoryItemDto[]>(`${this.apiUrl}/memory/${studentUserId}`);
     }
 }
