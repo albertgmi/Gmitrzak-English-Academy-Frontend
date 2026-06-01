@@ -19,14 +19,13 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
     templateUrl: './assignments.component.html'
 })
 export class AssignmentsComponent implements OnInit {
-    private contentService  = inject(ContentService);
-    private messageService  = inject(MessageService);
-    private router          = inject(Router);
+    private contentService = inject(ContentService);
+    private router         = inject(Router);
 
-    activeView       = signal<View>('active');
+    activeView        = signal<View>('active');
     activeAssignments = this.contentService.assignments;
-    history          = signal<AssignmentStudentDto[]>([]);
-    loadingHistory   = signal(false);
+    history           = signal<AssignmentStudentDto[]>([]);
+    loadingHistory    = signal(false);
 
     overdueAssignments = computed(() =>
         (this.activeAssignments.value() ?? []).filter(a => a.isOverdue)
@@ -56,21 +55,21 @@ export class AssignmentsComponent implements OnInit {
     }
 
     dueSeverity(a: AssignmentStudentDto): SeverityType {
-        if (a.isCompleted) return 'success';
-        if (a.isOverdue) return 'danger';
-        if (!a.hasDeadline) return 'info';
+        if (a.isCompleted)  return 'success';
+        if (a.isOverdue)    return 'danger';
+        if (!a.hasDeadline) return 'secondary';
         const days = this.daysUntil(a.dueDate);
-        if (days <= 1) return 'warn';
+        if (days <= 1)      return 'warn';
         return 'info';
     }
 
     dueLabel(a: AssignmentStudentDto): string {
-        if (a.isCompleted) return 'Done';
-        if (a.isOverdue) return 'Overdue';
-        if (!a.hasDeadline) return 'Unlocked';
+        if (a.isCompleted)  return 'Done';
+        if (a.isOverdue)    return 'Overdue';
+        if (!a.hasDeadline) return 'No deadline';
         const days = this.daysUntil(a.dueDate);
-        if (days === 0) return 'Today';
-        if (days === 1) return 'Tomorrow';
+        if (days === 0)     return 'Today';
+        if (days === 1)     return 'Tomorrow';
         return `In ${days} days`;
     }
 
@@ -83,8 +82,8 @@ export class AssignmentsComponent implements OnInit {
     }
 
     private daysUntil(dateStr: string): number {
-        const today = new Date(); today.setHours(0,0,0,0);
-        const due   = new Date(dateStr); due.setHours(0,0,0,0);
+        const today = new Date(); today.setHours(0, 0, 0, 0);
+        const due   = new Date(dateStr); due.setHours(0, 0, 0, 0);
         return Math.round((due.getTime() - today.getTime()) / 86400000);
     }
 }
