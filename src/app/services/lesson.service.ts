@@ -82,8 +82,15 @@ export class LessonService {
         return this.http.post(`${this.apiUrl}/sentence`, { studentUserId, content, translation, notes });
     }
 
-    addMemory(studentUserId: number, content: string, notes?: string) {
-        return this.http.post(`${this.apiUrl}/memory`, { studentUserId, content, notes });
+    addMemory(studentId: number, optionA: string, optionB?: string,
+              category?: string | null, notes?: string) {
+        return this.http.post('/api/lesson/memory', {
+            studentUserId: studentId,
+            optionA,
+            optionB:   optionB   ?? null,
+            category:  category  ?? null,
+            notes:     notes     ?? null
+        });
     }
 
     addPronunciation(studentUserId: number, word: string) {
@@ -153,12 +160,10 @@ export class LessonService {
         return this.http.get<SentenceStockDto[]>('/api/sentence/stock');
     }
 
-    // 2. Przypisanie zdania z bazy do konkretnego studenta (nowo dodany endpoint wyżej)
     assignToUser(request: { userId: number; sentenceStockId: number; dueDate: string; sentenceSetId?: number | null }): Observable<void> {
         return this.http.post<void>('/api/sentence/assign', request);
     }
 
-    // 3. Pobieranie istniejących wspomnień z LessonController do blokady duplikatów
     getMemories(studentUserId: number): Observable<MemoryItemDto[]> {
         return this.http.get<MemoryItemDto[]>(`${this.apiUrl}/memory/${studentUserId}`);
     }

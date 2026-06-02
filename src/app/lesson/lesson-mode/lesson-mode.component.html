@@ -207,27 +207,110 @@
     </div>
   </div>
 
-  <div *ngIf="activeTab() === 'memory'" class="max-w-xl flex flex-col gap-4">
-    <div>
-      <label class="block font-bold mb-2">Memory / Association *</label>
-      <textarea pTextarea [ngModel]="memoryContent()"
-        (ngModelChange)="memoryContent.set($event)"
-        placeholder="Enter mnemonic or association..." rows="3" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid></textarea>
-        
-      <small *ngIf="isMemoryDuplicate()" class="text-red-500 block mt-2 flex items-center gap-1">
-        <i class="pi pi-exclamation-triangle"></i> This exact memory note already exists for this student!
-      </small>
+  <div *ngIf="activeTab() === 'memory'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+      <!-- LEWA: Formularz -->
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+            Generate memory prompts
+          </h3>
+          <p class="text-xs text-muted-color m-0">
+            Enter one or two words — the system generates linguistic prompts automatically.
+          </p>
+        </div>
+      
+        <div>
+          <label class="block font-bold mb-2">
+            Option A <span class="text-red-500">*</span>
+            <span class="text-xs font-normal text-muted-color ml-1">(e.g. "although", "stop")</span>
+          </label>
+          <input pInputText type="text"
+            [ngModel]="memoryOptionA()" (ngModelChange)="memoryOptionA.set($event)"
+            placeholder="First word or structure..."
+            class="!text-base !py-2.5 !px-3.5" fluid />
+        </div>
+      
+        <div>
+          <label class="block font-bold mb-2">
+            Option B
+            <span class="text-xs font-normal text-muted-color ml-1">(optional — e.g. "despite")</span>
+          </label>
+          <input pInputText type="text"
+            [ngModel]="memoryOptionB()" (ngModelChange)="memoryOptionB.set($event)"
+            placeholder="Second word for comparison..."
+            class="!text-base !py-2.5 !px-3.5" fluid />
+          <small class="text-muted-color text-xs mt-1 block">
+            Fill Option B to unlock comparison prompts (difference, etc.)
+          </small>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Prompt category</label>
+          <p-select
+            [options]="memoryCategoryOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="memoryCategory()"
+            (ngModelChange)="memoryCategory.set($event)"
+            placeholder="All prompts"
+            fluid />
+          <small class="text-muted-color text-xs mt-1 block">
+            Leave empty to generate all prompts, or pick one specific type.
+          </small>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Notes</label>
+          <input pInputText type="text"
+            [ngModel]="memoryNotes()" (ngModelChange)="memoryNotes.set($event)"
+            placeholder="Optional lesson note..." fluid />
+        </div>
+      
+        <div *ngIf="isMemoryDuplicate()"
+          class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20
+            border border-red-200 dark:border-red-800 rounded-lg">
+          <i class="pi pi-exclamation-triangle text-red-500"></i>
+          <span class="text-sm text-red-600 dark:text-red-400">
+            These prompts have already been generated for this student.
+          </span>
+        </div>
+      
+        <p-button label="Generate & save prompts" icon="pi pi-bolt"
+          [loading]="savingMemory()"
+          [disabled]="!memoryOptionA().trim() || isMemoryDuplicate()"
+          (onClick)="saveMemory()" />
+      </div>
+    
+      <!-- PRAWA: Podgląd promptów -->
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-3">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+          Preview
+          <span class="text-xs font-normal text-muted-color ml-2">
+            {{ memoryCategory() ? '1 prompt selected' : generatedPrompts().length + ' prompts will be generated' }}
+          </span>
+        </h3>
+      
+        <div *ngIf="!memoryOptionA().trim()"
+          class="text-center py-10 text-muted-color text-sm">
+          <i class="pi pi-lightbulb text-3xl block mb-2"></i>
+          Fill in Option A to see the prompt preview
+        </div>
+      
+        <div *ngIf="memoryOptionA().trim()"
+          class="flex flex-col gap-2 overflow-y-auto max-h-[420px] pr-1">
+          <div *ngFor="let prompt of generatedPrompts(); let i = index"
+            class="flex items-start gap-3 p-3 bg-white dark:bg-surface-900
+              border border-surface-200 dark:border-surface-700 rounded-lg">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary
+              text-xs font-bold flex items-center justify-center">
+              {{ i + 1 }}
+            </span>
+            <span class="text-sm text-surface-900 dark:text-surface-0">{{ prompt }}</span>
+          </div>
+        </div>
+      </div>
+    
     </div>
-    <div>
-      <label class="block font-bold mb-2">Notes</label>
-      <input pInputText type="text"
-        [ngModel]="memoryNotes()" (ngModelChange)="memoryNotes.set($event)"
-        placeholder="Optional notes..." class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid />
-    </div>
-    <p-button label="Save memory" icon="pi pi-check"
-      [loading]="savingMemory()"
-      [disabled]="!memoryContent().trim() || isMemoryDuplicate()"
-      (onClick)="saveMemory()" />
   </div>
 
   <div *ngIf="activeTab() === 'pronunciation'" class="max-w-xl flex flex-col gap-4">

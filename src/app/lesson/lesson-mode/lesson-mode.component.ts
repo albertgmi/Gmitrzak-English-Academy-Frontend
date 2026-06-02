@@ -63,9 +63,30 @@ export class LessonModeComponent {
     existingMemories = signal<any[]>([]);
     existingPronunciations = signal<any[]>([]);
 
-    memoryContent = signal('');
-    memoryNotes = signal('');
-    savingMemory = signal(false);
+    memoryOptionA  = signal('');
+    memoryOptionB  = signal('');
+    memoryNotes    = signal('');
+    memoryCategory = signal<string | null>(null); // ← null = wszystkie
+    savingMemory   = signal(false);
+    
+    readonly TEMPLATES = [
+        { key: 'difference',   label: 'Difference',   template: "What's the difference between {A} and {B}? Provide examples.",                needsB: true  },
+        { key: 'comma_before', label: 'Comma before',  template: "Do you put a comma before {A}? Are there any exceptions? Back it up with examples.", needsB: false },
+        { key: 'position',     label: 'Position',      template: "Where do you put the word {A} in a sentence? Is there only one option? Give examples.", needsB: false },
+        { key: 'past',         label: 'Past forms',    template: "What are the past forms of the word {A}? Is it regular or irregular? Use all in sentences.", needsB: false },
+        { key: 'change',       label: 'Verb change',   template: "How do you change a verb after the word {A}?",                                needsB: false },
+        { key: 'synonym',      label: 'Synonyms',      template: "What are the synonyms of {A}? Show the difference between them in context.", needsB: false },
+        { key: 'antonym',      label: 'Antonyms',      template: "What are the antonyms of {A}? Provide example sentences.",                   needsB: false },
+        { key: 'preposition',  label: 'Prepositions',  template: "What prepositions are used with {A}? Give examples for each.",               needsB: false },
+        { key: 'collocations', label: 'Collocations',  template: "What are the most common collocations with {A}? Use them in sentences.",     needsB: false },
+        { key: 'formal',       label: 'Formal/Informal', template: "Is {A} formal or informal? What's the formal/informal alternative?",       needsB: false },
+        { key: 'grammar',      label: 'Grammar rules', template: "Explain the grammar rules for using {A}. What are the most common mistakes?", needsB: false },
+    ];
+
+    memoryCategoryOptions = [
+        { label: 'All prompts', value: null },
+        ...this.TEMPLATES.map(t => ({ label: t.label, value: t.key }))
+    ];
 
     pronunciationWord = signal('');
     savingPronunciation = signal(false);
@@ -103,9 +124,41 @@ export class LessonModeComponent {
         return this.existingPronunciations().some(p => p.word?.toLowerCase() === word);
     });
 
+    generatedPrompts = computed(() => {
+        const a        = this.memoryOptionA().trim();
+        const b        = this.memoryOptionB().trim();
+        const category = this.memoryCategory();
+        if (!a) return [];
+
+        const templates = category
+            ? this.TEMPLATES.filter(t => t.key === category)
+            : this.TEMPLATES;
+
+        return templates
+            .filter(t => !t.needsB || !!b)
+            .map(t => t.template
+                .replace('{A}', a)
+                .replace('{B}', b)
+            );
+    });
+
     isMemoryDuplicate = computed(() => {
-        const content = this.memoryContent().trim().toLowerCase();
-        return this.existingMemories().some(m => m.content?.toLowerCase() === content);
+        const a = this.memoryOptionA().trim().toLowerCase();
+        const b = this.memoryOptionB().trim().toLowerCase();
+        
+        const currentCategory = this.memoryCategory()?.trim() || null;
+
+        if (!a) return false;
+
+        return this.existingMemories().some(m => {
+            const sameWords = m.optionA?.toLowerCase() === a &&
+                              (m.optionB?.toLowerCase() ?? '') === b;
+
+            if (!sameWords) return false;
+            const dbCategory = m.category?.trim() || null;
+
+            return dbCategory === currentCategory;
+        });
     });
 
     constructor() {
@@ -153,7 +206,6 @@ export class LessonModeComponent {
             next: (res) => this.existingMemories.set(res || []),
             error: () => this.existingMemories.set([])
         });
-        
         this.lessonService.getPronunciationTest(studentId).subscribe({
             next: (res) => this.existingPronunciations.set(res || []),
             error: () => this.existingPronunciations.set([])
@@ -275,19 +327,33 @@ export class LessonModeComponent {
 
     saveMemory() {
         const studentId = this.studentId;
-        if (!this.memoryContent().trim() || studentId === null || this.isMemoryDuplicate()) return;
+        const a = this.memoryOptionA().trim();
+        if (!a || studentId === null || this.isMemoryDuplicate()) return;
 
         this.savingMemory.set(true);
         this.lessonService.addMemory(
-            studentId, this.memoryContent(), this.memoryNotes() || undefined
+            studentId,
+            a,
+            this.memoryOptionB().trim() || undefined,
+            this.memoryCategory() ?? undefined,
+            this.memoryNotes().trim() || undefined
         ).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success', summary: 'Saved',
-                    detail: 'Memory added', life: 3000
+                    detail: `Memory prompts generated for "${a}"`, life: 3000
                 });
-                this.existingMemories.set([...this.existingMemories(), { content: this.memoryContent() }]);
-                this.memoryContent.set('');
+                this.existingMemories.update(list => [
+                    ...list,
+                    { 
+                        optionA: a, 
+                        optionB: this.memoryOptionB().trim(),
+                        category: this.memoryCategory()
+                    }
+                ]);
+                this.memoryOptionA.set('');
+                this.memoryOptionB.set('');
+                this.memoryCategory.set(null);
                 this.memoryNotes.set('');
                 this.savingMemory.set(false);
             },
