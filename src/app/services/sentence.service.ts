@@ -60,6 +60,16 @@ export interface ModuleSentenceSessionDto {
     sentences: ModuleSentenceItemDto[];
 }
 
+export interface CompletedSentenceModuleDto {
+    moduleId: number;
+    moduleName: string;
+    completedDate: string;
+    isFromMatrix: boolean;
+    matrixName?: string;
+    totalSentences: number;
+    answeredCount: number;
+}
+
 @Injectable({ providedIn: 'root' })
 export class SentenceService {
     private apiUrl = '/api/sentence';
@@ -139,21 +149,34 @@ export class SentenceService {
             { override, teacherExplanation });
     }
 
-    downloadReportPdf(moduleId: number, studentId: number) {
-        return this.http.get(
-            `/api/answers/module/${moduleId}/student/${studentId}/report/pdf`,
-            { responseType: 'blob' }
-        );
-    }
-
-    downloadReportDocx(moduleId: number, studentId: number) {
-        return this.http.get(
-            `/api/answers/module/${moduleId}/student/${studentId}/report/docx`,
-            { responseType: 'blob' }
-        );
-    }
-
     updateStock(id: number, polish: string) {
         return this.http.put(`${this.apiUrl}/stock/${id}`, {polish});
+    }
+
+    getCompletedModules(studentId: number, dateFrom: string, dateTo: string) {
+        return this.http.get<CompletedSentenceModuleDto[]>(
+            `/api/answers/modules/completed?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+        );
+    }
+
+    downloadRangeReportPdf(studentId: number, dateFrom: string, dateTo: string) {
+        return this.http.get(
+            `/api/answers/report/range?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            { responseType: 'blob' }
+        );
+    }
+
+    downloadRangeReportDocx(studentId: number, dateFrom: string, dateTo: string) {
+        return this.http.get(
+            `/api/answers/report/range/docx?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            { responseType: 'blob' }
+        );
+    }
+
+    downloadAllActiveReportsZip(dateFrom: string, dateTo: string) {
+        return this.http.get('/api/answers/report/all', {
+            params: { dateFrom, dateTo },
+            responseType: 'blob'
+        });
     }
 }

@@ -118,6 +118,7 @@ export class AppMenu implements OnInit {
               //{ label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
               //{ label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },
               { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
+              { label: 'Active Students Reports', icon: 'pi pi-chart-bar', routerLink: ['/system/active-students-reports'] }
               //{ label: 'Composed Sentences', icon: 'pi pi-file-edit', routerLink: ['/system/sentences/composed'] },
             ]
           },

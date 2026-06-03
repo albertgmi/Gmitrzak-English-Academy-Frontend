@@ -49,13 +49,13 @@ import {LessonStudyTimeComponent} from './lesson/lesson-study-time/lesson-study-
 import {LessonLastWeekComponent} from './lesson/lesson-last-week/lesson-last-week.component';
 import {LessonStatsComponent} from './lesson/lesson-stats/lesson-stats.component';
 import {LoginComponent} from './auth/login/login.component';
-import {CataloguesComponent} from './other/catalogues/catalogues.component';
+import {CataloguesComponent} from './content/catalogues/catalogues.component';
 import {TheaterComponent} from './other/theater/theater.component';
 import {RepertoireComponent} from './other/repertoire/repertoire.component';
 import { GlobalVocabularyComponent } from './vocabulary/global-vocabulary/global-vocabulary.component';
 import { AssignGlobalVocabularyComponent } from './vocabulary/assign-global-vocabulary/assign-global-vocabulary.component';
-import { AnnouncementsComponent } from './announcements/announcements/announcements.component';
-import { MessagesComponent } from './announcements/messages/messages.component';
+import { AnnouncementsComponent } from './admin-tools/announcements/announcements.component';
+import { MessagesComponent } from './admin-tools/messages/messages.component';
 import { SentenceStockComponent } from './stocksAndSets/sentence-stock/sentence-stock.component';
 import { SetsComposerComponent } from './stocksAndSets/sets-composer/sets-composer.component';
 import { SentenceTaskComponent } from './stocksAndSets/sentence-task/sentence-task.component';
@@ -65,6 +65,7 @@ import { ModulePlayerComponent } from './student-view/module-player/module-playe
 import { RankingComponent } from './other/ranking/ranking.component';
 import { AttendanceComponent } from './lesson/attendance/attendance.component';
 import { PresentationComponent } from './student-view/presentation/presentation.component';
+import { ActiveStudentsReportsComponent } from './content/active-students-reports/active-students-reports.component';
 
 
 
@@ -138,7 +139,7 @@ export const appRoutes: Routes = [
       { path: 'modules/:moduleId/player', component: ModulePlayerComponent, canActivate: [AuthGuard] },
       { path: 'ranking', component: RankingComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/presentation', component: PresentationComponent, canActivate: [AuthGuard] },
-
+      { path: 'system/active-students-reports', component: ActiveStudentsReportsComponent, canActivate: [AuthGuard] },
 
     ]
   },
