@@ -89,13 +89,19 @@
       </div>
     </div>
 
-    <div *ngFor="let a of answers(); let i = index" class="border rounded-xl overflow-hidden" [ngClass]="{'border-green-200 dark:border-green-800': a.aiResult === 'Correct', 'border-yellow-200 dark:border-yellow-800': a.aiResult === 'Partial', 'border-red-200 dark:border-red-800': a.aiResult === 'Incorrect'}">
-      <div class="flex items-center gap-3 px-5 py-3" [ngClass]="{'bg-green-50 dark:bg-green-900/20': a.aiResult === 'Correct', 'bg-yellow-50 dark:bg-yellow-900/20': a.aiResult === 'Partial', 'bg-red-50 dark:bg-red-900/20': a.aiResult === 'Incorrect'}">
+    <div *ngFor="let a of answers(); let i = index" class="border rounded-xl overflow-hidden" 
+         [ngClass]="{'border-green-200 dark:border-green-800': (a.teacherOverride || a.aiResult) === 'Correct', 
+                     'border-yellow-200 dark:border-yellow-800': (a.teacherOverride || a.aiResult) === 'Partial', 
+                     'border-red-200 dark:border-red-800': (a.teacherOverride || a.aiResult) === 'Incorrect'}">
+      
+      <div class="flex items-center gap-3 px-5 py-3" 
+           [ngClass]="{'bg-green-50 dark:bg-green-900/20': (a.teacherOverride || a.aiResult) === 'Correct', 
+                       'bg-yellow-50 dark:bg-yellow-900/20': (a.teacherOverride || a.aiResult) === 'Partial', 
+                       'bg-red-50 dark:bg-red-900/20': (a.teacherOverride || a.aiResult) === 'Incorrect'}">
         <span class="font-bold text-muted-color text-sm">{{ i + 1 }}</span>
-        <p-tag [severity]="resultSeverity(a.aiResult)" [value]="a.aiResult" />
-        <span *ngIf="a.teacherOverride" class="text-xs text-muted-color italic">
-          (AI: {{ a.teacherOverride === 'Correct' ? 'was Incorrect/Partial' : 'was Correct/Partial' }}, overridden by teacher)
-        </span>
+        
+        <p-tag [severity]="resultSeverity(a.teacherOverride || a.aiResult)" [value]="a.teacherOverride || a.aiResult" />
+        
         <div class="ml-auto flex items-center gap-1">
           <i *ngIf="a.teacherReviewed" class="pi pi-check-circle text-primary text-sm" pTooltip="Teacher reviewed"></i>
         </div>
@@ -116,10 +122,17 @@
           <div class="text-xs font-bold uppercase text-muted-color mb-1">Student's answer</div>
           <div class="font-semibold text-surface-900 dark:text-surface-0 text-lg">{{ a.userAnswer }}</div>
         </div>
+        
         <div class="bg-surface-50 dark:bg-surface-800 rounded-lg px-3 py-2">
           <div class="text-xs font-bold uppercase text-muted-color mb-1">AI explanation</div>
           <div class="text-sm text-surface-900 dark:text-surface-0 italic">{{ a.aiExplanation }}</div>
         </div>
+
+        <div *ngIf="a.teacherExplanation" class="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 dark:border-blue-900 rounded-lg px-3 py-2 mt-1">
+          <div class="text-xs font-bold uppercase text-blue-500 mb-1">Teacher explanation</div>
+          <div class="text-sm text-surface-900 dark:text-surface-0 italic">{{ a.teacherExplanation }}</div>
+        </div>
+
         <div class="flex items-center gap-2 pt-1 border-t border-surface-100 dark:border-surface-700 mt-1">
           <p-button label="Review & Override" icon="pi pi-pencil" severity="info" size="small" outlined [loading]="overriding() === a.id" (click)="openOverride(a)" />
         </div>

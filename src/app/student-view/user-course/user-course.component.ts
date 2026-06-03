@@ -83,17 +83,19 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'sentences']);
                 return;
             case 'SentenceFlashcards':
-                this.router.navigate(['/sentences-cards']);
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/sentences-cards']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.toggleComplete(module);
+                }
                 return;
             case 'Presentation':
                 this.router.navigate(['/modules', module.moduleId, 'presentation']);
                 return;
             case 'Flashcards':
                 if (!module.isCompleted && !module.canComplete) {
-                    // nawiguj do sekcji — uczeń musi robić fiszki
                     this.router.navigate(['/flashcards']);
                 } else if (!module.isCompleted && module.canComplete) {
-                    // gotowy — pozwól oznaczyć
                     this.toggleComplete(module);
                 }
                 return;
@@ -128,7 +130,12 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'sentences']);
                 return;
             case 'SentenceFlashcards':
-                this.router.navigate(['/sentences-cards']);
+                if (!module.isCompleted && !module.canComplete) {
+                    this.router.navigate(['/sentences-cards']);
+                } else if (!module.isCompleted && module.canComplete) {
+                    this.triggerTeamsCelebration();
+                    this.toggleSingleModule(module);
+                }
                 return;
             case 'Presentation':
                 this.router.navigate(['/modules', module.moduleId, 'presentation']);

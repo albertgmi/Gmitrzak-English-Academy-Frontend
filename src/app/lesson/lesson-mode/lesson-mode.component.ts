@@ -10,7 +10,7 @@ import { SelectModule } from 'primeng/select';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonService } from '../../services/lesson.service';
+import { LessonPronunciationTestItemDto, LessonService} from '../../services/lesson.service';
 import { VocabularyService, SearchVocabularyResult } from '../../services/vocabulary.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
@@ -68,6 +68,13 @@ export class LessonModeComponent {
     memoryNotes    = signal('');
     memoryCategory = signal<string | null>(null); // ← null = wszystkie
     savingMemory   = signal(false);
+
+    pronunciationTestList = signal<LessonPronunciationTestItemDto[]>([]);
+    loadingPronunciationTest = signal(false);
+    markingId = signal<number | null>(null);
+    correctPronunciationList  = signal<LessonPronunciationTestItemDto[]>([]);
+    loadingCorrectPronunciation = signal(false);
+    readonly SESSION_SIZE = 20;
     
     readonly TEMPLATES = [
         { key: 'difference',   label: 'Difference',   template: "What's the difference between {A} and {B}? Provide examples.",                needsB: true  },
@@ -105,6 +112,10 @@ export class LessonModeComponent {
         { id: 'memory', label: 'Memory', icon: 'pi pi-lightbulb' },
         { id: 'pronunciation', label: 'Pronunciation', icon: 'pi pi-microphone' }
     ];
+
+    incorrectInSession = computed(() =>
+        this.pronunciationTestList().filter(e => e.status === 'Incorrect').length
+    );
 
     get studentId(): number | null {
         return this.lessonContext.studentId;
@@ -250,7 +261,7 @@ export class LessonModeComponent {
         const request = {
             userId: studentId,
             sentenceStockId: sentence.id,
-            dueDate: new Date().toISOString().split('T')[0]
+            dueDate: new Intl.DateTimeFormat('sv-SE').format(new Date())
         };
 
         this.lessonService.assignToUser(request).subscribe({
@@ -375,6 +386,7 @@ export class LessonModeComponent {
                 this.existingPronunciations.set([...this.existingPronunciations(), { word: this.pronunciationWord() }]);
                 this.pronunciationWord.set('');
                 this.savingPronunciation.set(false);
+                this.loadPronunciationTest();
             },
             error: () => this.savingPronunciation.set(false)
         });
@@ -382,5 +394,61 @@ export class LessonModeComponent {
 
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
+    }
+
+    loadPronunciationTest() {
+        const studentId = this.studentId;
+        if (!studentId) return;
+        this.loadingPronunciationTest.set(true);
+        this.lessonService.getPronunciationTest(studentId).subscribe({
+            next: (res) => {
+                this.pronunciationTestList.set(res || []);
+                this.loadingPronunciationTest.set(false);
+            },
+            error: () => this.loadingPronunciationTest.set(false)
+        });
+    }
+    
+    markPronunciation(entryId: number, result: 'correct' | 'incorrect') {
+        this.markingId.set(entryId);
+        this.lessonService.markPronunciationResult(entryId, result).subscribe({
+            next: () => {
+                if (result === 'correct') {
+                    const entry = this.pronunciationTestList().find(e => e.id === entryId);
+                    this.pronunciationTestList.update(list =>
+                        list.filter(e => e.id !== entryId)
+                    );
+                    if (entry) {
+                        this.correctPronunciationList.update(list => [{
+                            ...entry,
+                            status: 'Correct',
+                            markedCorrectAt: new Intl.DateTimeFormat('sv-SE').format(new Date()),
+                            daysUntilRefresh: 30
+                        }, ...list]);
+                        this.loadCorrectPronunciation();
+                    }
+                } else {
+                    this.pronunciationTestList.update(list =>
+                        list.map(e => e.id === entryId
+                            ? { ...e, status: 'Incorrect' } : e)
+                    );
+                }
+                this.markingId.set(null);
+            },
+            error: () => this.markingId.set(null)
+        });
+    }
+
+    loadCorrectPronunciation() {
+        const studentId = this.studentId;
+        if (!studentId) return;
+        this.loadingCorrectPronunciation.set(true);
+        this.lessonService.getCorrectPronunciationEntries(studentId).subscribe({
+            next: (res) => {
+                this.correctPronunciationList.set(res ?? []);
+                this.loadingCorrectPronunciation.set(false);
+            },
+            error: () => this.loadingCorrectPronunciation.set(false)
+        });
     }
 }

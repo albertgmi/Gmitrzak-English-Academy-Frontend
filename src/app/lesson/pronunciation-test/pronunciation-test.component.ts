@@ -4,7 +4,7 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonService, PronunciationTestItemDto } from '../../services/lesson.service';
+import { LessonService, LessonPronunciationTestItemDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 
@@ -22,11 +22,18 @@ export class PronunciationTestComponent implements OnInit {
     private messageService = inject(MessageService);
 
     activeStudent = this.lessonContext.activeStudent;
-    entries = signal<PronunciationTestItemDto[]>([]);
+    entries = signal<LessonPronunciationTestItemDto[]>([]);
     loading = signal(true);
 
-    unchecked = computed(() => this.entries().filter(e => !e.isChecked));
-    checked   = computed(() => this.entries().filter(e => e.isChecked));
+    unchecked = computed(() =>
+        this.entries().filter(
+            e => e.status === 'Pending' || e.status === 'Incorrect'
+        )
+    );
+    
+    checked = computed(() =>
+        this.entries().filter(e => e.status === 'Correct')
+    );
 
     ngOnInit() {
         const studentId = this.lessonContext.studentId;
@@ -41,7 +48,7 @@ export class PronunciationTestComponent implements OnInit {
         });
     }
 
-    markCorrect(entry: PronunciationTestItemDto) {
+    markCorrect(entry: LessonPronunciationTestItemDto) {
         this.lessonService.checkWord(entry.id).subscribe({
             next: () => {
                 this.entries.update(list => list.filter(e => e.id !== entry.id));
@@ -52,7 +59,7 @@ export class PronunciationTestComponent implements OnInit {
         });
     }
 
-    markIncorrect(entry: PronunciationTestItemDto) {
+    markIncorrect(entry: LessonPronunciationTestItemDto) {
         this.entries.update(list => {
             const rest = list.filter(e => e.id !== entry.id);
             return [entry, ...rest];

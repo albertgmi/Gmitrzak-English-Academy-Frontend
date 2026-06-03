@@ -44,8 +44,9 @@ export interface MemoryDto {
 export interface PronunciationEntryDto {
     id: number;
     word: string;
-    isChecked: boolean;
+    status: string;
     sortOrder: number;
+    isInCurrentSession: boolean;
 }
 
 export interface AssignmentStudentDto {
@@ -60,6 +61,13 @@ export interface AssignmentStudentDto {
     isFromMatrix: boolean;
     matrixName: string;
     hasDeadline: boolean;
+}
+
+export interface CorrectPronunciationDto {
+    id: number;
+    word: string;
+    markedCorrectAt: string;
+    daysUntilRefresh: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -107,14 +115,6 @@ export class ContentService {
         return this.http.get<FlashcardDto[]>(`${this.apiUrl}/flashcards/search?q=${encodeURIComponent(query)}`);
     }
 
-    checkPronunciation(id: number) {
-        return this.http.patch(`${this.apiUrl}/pronunciation/${id}/check`, {});
-    }
-
-    uncheckPronunciation(id: number) {
-        return this.http.patch(`${this.apiUrl}/pronunciation/${id}/uncheck`, {});
-    }
-
     getAssignmentHistory() {
         return this.http.get<AssignmentStudentDto[]>(`${this.apiUrl}/assignments/history`);
     }
@@ -124,5 +124,10 @@ export class ContentService {
             `${this.apiUrl}/sentences/${id}/review`,
             { quality }
         );
+    }
+
+    getCorrectPronunciation() {
+        return this.http.get<CorrectPronunciationDto[]>(
+            '/api/student-learning/pronunciation/correct');
     }
 }

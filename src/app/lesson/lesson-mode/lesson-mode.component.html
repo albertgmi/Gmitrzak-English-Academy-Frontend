@@ -313,24 +313,150 @@
     </div>
   </div>
 
-  <div *ngIf="activeTab() === 'pronunciation'" class="max-w-xl flex flex-col gap-4">
-    <div>
-      <label class="block font-bold mb-2">Word to practice *</label>
-      <div class="flex flex-col gap-2">
-        <div class="flex gap-3">
-          <input pInputText type="text"
-            [ngModel]="pronunciationWord()" (ngModelChange)="pronunciationWord.set($event)"
-            placeholder="Enter word..." class="flex-1 !text-base !py-2.5 !px-3.5 !leading-normal"
-            (keyup.enter)="!isPronunciationDuplicate() && savePronunciation()" />
-          <p-button label="Add" icon="pi pi-plus"
-            [loading]="savingPronunciation()"
-            [disabled]="!pronunciationWord().trim() || isPronunciationDuplicate()"
-            (onClick)="savePronunciation()" />
+  <div *ngIf="activeTab() === 'pronunciation'">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+          Add word to practice
+        </h3>
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-3">
+            <input pInputText type="text"
+              [ngModel]="pronunciationWord()" (ngModelChange)="pronunciationWord.set($event)"
+              placeholder="Enter word..."
+              class="flex-1 !text-base !py-2.5 !px-3.5"
+              (keyup.enter)="!isPronunciationDuplicate() && savePronunciation()" />
+            <p-button label="Add" icon="pi pi-plus"
+              [loading]="savingPronunciation()"
+              [disabled]="!pronunciationWord().trim() || isPronunciationDuplicate()"
+              (onClick)="savePronunciation()" />
+          </div>
+          <small *ngIf="isPronunciationDuplicate()" class="text-red-500 flex items-center gap-1">
+            <i class="pi pi-exclamation-triangle"></i>
+            This word is already in the student's list.
+          </small>
+          <small class="text-muted-color text-xs">
+            Words enter the session automatically (max {{ SESSION_SIZE }} at a time).
+          </small>
         </div>
-        
-        <small *ngIf="isPronunciationDuplicate()" class="text-red-500 block flex items-center gap-1">
-          <i class="pi pi-exclamation-triangle"></i> This word is already in this student's pronunciation practice list!
-        </small>
+      </div>
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+              Test session
+            </h3>
+            <p class="text-xs text-muted-color m-0 mt-0.5">
+              ✅ Correct - removed from session ❌ Incorrect - goes back to the front
+            </p>
+          </div>
+          <p-button label="Load" icon="pi pi-refresh" size="small" outlined
+            [loading]="loadingPronunciationTest()"
+            (onClick)="loadPronunciationTest()" />
+        </div>
+
+        <div *ngIf="pronunciationTestList().length === 0 && !loadingPronunciationTest()"
+          class="text-center py-8 text-muted-color text-sm">
+          <i class="pi pi-list text-2xl block mb-2"></i>
+          Click "Load" to see the current session.
+        </div>
+
+        <div *ngIf="loadingPronunciationTest()" class="text-center py-6 text-muted-color">
+          <i class="pi pi-spin pi-spinner text-2xl"></i>
+        </div>
+
+        <div class="flex flex-col gap-2 overflow-y-auto max-h-[400px] pr-1">
+          <div *ngFor="let e of pronunciationTestList()"
+            class="flex items-center justify-between p-3 rounded-xl border"
+            [ngClass]="{
+              'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800':
+                e.status === 'Incorrect',
+              'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700':
+                e.status === 'Pending'
+            }">
+            <div class="flex items-center gap-2">
+              <i *ngIf="e.status === 'Incorrect'"
+                class="pi pi-times-circle text-red-400 text-sm"></i>
+              <span class="font-semibold text-surface-900 dark:text-surface-0">
+                {{ e.word }}
+              </span>
+              <p-tag *ngIf="e.status === 'Incorrect'" severity="danger" value="Retry" />
+            </div>
+            <div class="flex gap-2">
+              <p-button icon="pi pi-check" severity="success" size="small" outlined
+                [loading]="markingId() === e.id"
+                pTooltip="Correct — removes from session"
+                (onClick)="markPronunciation(e.id, 'correct')" />
+              <p-button icon="pi pi-times" severity="danger" size="small" outlined
+                [loading]="markingId() === e.id"
+                pTooltip="Incorrect — stays in session"
+                (onClick)="markPronunciation(e.id, 'incorrect')" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="pronunciationTestList().length > 0"
+          class="text-xs text-muted-color text-center pt-2
+            border-t border-surface-100 dark:border-surface-700">
+          {{ pronunciationTestList().length }} in session ·
+          <span class="text-red-500">{{ incorrectInSession() }} incorrect</span>
+        </div>
+      </div>
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+              Mastered
+            </h3>
+            <p class="text-xs text-muted-color m-0 mt-0.5">
+              Correct words — refresh after 30 days
+            </p>
+          </div>
+          <p-button label="Load" icon="pi pi-refresh" size="small" outlined
+            [loading]="loadingCorrectPronunciation()"
+            (onClick)="loadCorrectPronunciation()" />
+        </div>
+
+        <div *ngIf="correctPronunciationList().length === 0 && !loadingCorrectPronunciation()"
+          class="text-center py-8 text-muted-color text-sm">
+          <i class="pi pi-check-circle text-2xl block mb-2"></i>
+          No mastered words yet.
+        </div>
+
+        <div class="flex flex-col gap-2 overflow-y-auto max-h-[400px] pr-1">
+          <div *ngFor="let e of correctPronunciationList()"
+            class="flex items-start justify-between p-3 rounded-xl border
+              bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+            <div>
+              <div class="font-semibold text-surface-900 dark:text-surface-0">
+                {{ e.word }}
+              </div>
+              <div class="text-xs text-muted-color mt-0.5">
+                Mastered: {{ e.markedCorrectAt | date:'d MMM yyyy' }}
+              </div>
+              <div *ngIf="e.daysUntilRefresh !== undefined" 
+                   class="text-xs mt-1"
+                   [ngClass]="e.daysUntilRefresh <= 5
+                     ? 'text-orange-500'
+                     : 'text-green-600 dark:text-green-400'">
+                <i class="pi pi-clock mr-1"></i>
+                {{ e.daysUntilRefresh === 0
+                    ? 'Refreshing soon...'
+                    : e.daysUntilRefresh + ' days until refresh' }}
+              </div>
+            </div>
+            <p-tag severity="success" value="✓" />
+          </div>
+        </div>
+
+        <div *ngIf="correctPronunciationList().length > 0"
+          class="text-xs text-muted-color text-center pt-2
+            border-t border-surface-100 dark:border-surface-700">
+          {{ correctPronunciationList().length }} mastered words total
+        </div>
       </div>
     </div>
   </div>

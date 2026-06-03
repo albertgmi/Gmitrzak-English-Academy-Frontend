@@ -133,11 +133,11 @@
 
         <div *ngIf="s.result as r" class="mt-5 animate-fadein">
           <div class="rounded-xl p-4"
-            [ngClass]="{
-              'bg-green-50 dark:bg-green-900/20 border border-green-200':   r.aiResult === 'Correct',
-              'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200': r.aiResult === 'Partial',
-              'bg-red-50 dark:bg-red-900/20 border border-red-200':         r.aiResult === 'Incorrect'
-            }">
+               [ngClass]="{
+                 'bg-green-50 dark:bg-green-900/20 border border-green-200':   r.aiResult === 'Correct',
+                 'bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200': r.aiResult === 'Partial',
+                 'bg-red-50 dark:bg-red-900/20 border border-red-200':         r.aiResult === 'Incorrect'
+               }">
             <div class="flex items-center gap-2 mb-2">
               <i class="pi text-lg"
                 [ngClass]="{
@@ -147,14 +147,17 @@
                 }"></i>
               <p-tag [severity]="resultSeverity(r.aiResult)" [value]="'AI: ' + r.aiResult" />
             </div>
-
-            <div *ngIf="r.aiResult !== 'Correct'" class="text-sm mb-2">
-              <span class="font-semibold">Expected: </span>
-              <span class="text-muted-color italic">{{ r.expectedTranslation }}</span>
-            </div>
-
-            <div class="text-sm text-surface-700 dark:text-surface-300 italic">
-              {{ r.aiExplanation }}
+          
+            <div [ngSwitch]="r.aiResult" class="text-sm font-medium mt-1 leading-relaxed">
+              <p *ngSwitchCase="'Correct'" class="text-green-800 dark:text-green-400">
+                Excellent. The translation is accurate, natural, and grammatically precise.
+              </p>
+              <p *ngSwitchCase="'Partial'" class="text-yellow-800 dark:text-yellow-400">
+                Good effort. The core meaning is clear, though it requires minor grammatical adjustments or a more precise choice of vocabulary.
+              </p>
+              <p *ngSwitchCase="'Incorrect'" class="text-red-800 dark:text-red-400">
+                Not quite accurate. The translation contains significant structural or conceptual errors and requires revision.
+              </p>
             </div>
           </div>
 

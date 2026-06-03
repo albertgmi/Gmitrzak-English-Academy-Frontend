@@ -27,13 +27,6 @@ export interface HomeworkItemDto {
     isOverdue: boolean;
 }
 
-export interface PronunciationTestItemDto {
-    id: number;
-    word: string;
-    isChecked: boolean;
-    sortOrder: number;
-}
-
 export interface GradeListDto {
     id: number;
     gradeDate: string;
@@ -66,6 +59,15 @@ export interface MemoryItemDto {
     id: number;
     content: string;
     notes?: string;
+}
+
+export interface LessonPronunciationTestItemDto {
+    id: number;
+    word: string;
+    status: string;
+    sortOrder: number;
+    markedCorrectAt?: string;
+    daysUntilRefresh?: number;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -110,9 +112,14 @@ export class LessonService {
     }
 
     getPronunciationTest(studentUserId: number) {
-        return this.http.get<PronunciationTestItemDto[]>(
+        return this.http.get<LessonPronunciationTestItemDto[]>(
             `${this.apiUrl}/pronunciation-test/${studentUserId}`
         );
+    }
+
+    getCorrectPronunciationEntries(studentId: number) {
+        return this.http.get<LessonPronunciationTestItemDto[]>(
+            `/api/lesson/pronunciation/correct/${studentId}`);
     }
 
     checkWord(id: number) {
@@ -166,5 +173,11 @@ export class LessonService {
 
     getMemories(studentUserId: number): Observable<MemoryItemDto[]> {
         return this.http.get<MemoryItemDto[]>(`${this.apiUrl}/memory/${studentUserId}`);
+    }
+
+    markPronunciationResult(entryId: number, result: 'correct' | 'incorrect') {
+        return this.http.post('/api/lesson/pronunciation/mark', {
+            entryId, result
+        });
     }
 }

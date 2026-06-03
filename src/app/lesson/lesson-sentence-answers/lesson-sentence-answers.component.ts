@@ -45,9 +45,9 @@ export class LessonSentenceAnswersComponent implements OnInit {
     downloadingDocx = signal(false);
     sentenceModules = signal<{ id: number; label: string }[]>([]);
 
-    correctCount = () => this.answers().filter(a => a.aiResult === 'Correct').length;
-    partialCount = () => this.answers().filter(a => a.aiResult === 'Partial').length;
-    incorrectCount = () => this.answers().filter(a => a.aiResult === 'Incorrect').length;
+    correctCount = () => this.answers().filter(a => (a.teacherOverride || a.aiResult) === 'Correct').length;
+    partialCount = () => this.answers().filter(a => (a.teacherOverride || a.aiResult) === 'Partial').length;
+    incorrectCount = () => this.answers().filter(a => (a.teacherOverride || a.aiResult) === 'Incorrect').length;
 
     async ngOnInit() {
         await this.loadSentenceModules();

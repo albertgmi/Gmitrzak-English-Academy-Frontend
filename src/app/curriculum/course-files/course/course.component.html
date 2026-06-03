@@ -30,7 +30,7 @@
     </div>
     <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 md:col-span-2">
       <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Description</span>
-      <span class="text-surface-900 dark:text-surface-0">{{ course.description || '—' }}</span>
+      <span class="text-surface-900 dark:text-surface-0">{{ course.description || '-' }}</span>
     </div>
   </div>
 
@@ -130,7 +130,7 @@
             <span *ngIf="course.description; else noDesc">
               {{ course.description.length > 60 ? (course.description | slice:0:60) + '…' : course.description }}
             </span>
-            <ng-template #noDesc><span class="text-muted-color">—</span></ng-template>
+            <ng-template #noDesc><span class="text-muted-color">-</span></ng-template>
           </td>
           <td>
             <span class="inline-flex items-center gap-1 text-sm">

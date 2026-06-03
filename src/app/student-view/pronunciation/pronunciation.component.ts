@@ -1,32 +1,46 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
-import { ContentService, PronunciationEntryDto } from '../../services/student-services/content.service';
+import {
+    ContentService,
+    PronunciationEntryDto,
+    CorrectPronunciationDto
+} from '../../services/student-services/content.service';
 import { SectionActivityService } from '../../services/section-activity.service';
+
+type PronunciationView = 'practice' | 'mastered';
 
 @Component({
     selector: 'app-pronunciation',
     standalone: true,
-    imports: [CommonModule, ToastModule, ButtonModule, TagModule],
+    imports: [CommonModule, ToastModule, ButtonModule, TagModule, TooltipModule],
     providers: [MessageService],
     templateUrl: './pronunciation.component.html'
 })
-export class PronunciationComponent {
-    private contentService = inject(ContentService);
-    private messageService = inject(MessageService);
+export class PronunciationComponent implements OnInit {
+    private contentService  = inject(ContentService);
+    private messageService  = inject(MessageService);
     private activityService = inject(SectionActivityService);
 
-    entries = this.contentService.pronunciation;
+    entries         = this.contentService.pronunciation;
+    correctEntries  = signal<CorrectPronunciationDto[]>([]);
+    loadingCorrect  = signal(false);
+    activeView      = signal<PronunciationView>('practice');
 
-    unchecked = computed(() =>
-        (this.entries.value() ?? []).filter(e => !e.isChecked)
+    incorrectEntries = computed(() =>
+        (this.entries.value() ?? []).filter(e => e.status === 'Incorrect')
     );
 
-    checked = computed(() =>
-        (this.entries.value() ?? []).filter(e => e.isChecked)
+    pendingEntries = computed(() =>
+        (this.entries.value() ?? []).filter(e => e.status === 'Pending')
+    );
+
+    sessionCount = computed(() =>
+        (this.entries.value() ?? []).length
     );
 
     ngOnInit() {
@@ -34,29 +48,30 @@ export class PronunciationComponent {
         this.contentService.pronunciation.reload();
     }
 
-    toggle(entry: PronunciationEntryDto) {
-        const action = entry.isChecked
-            ? this.contentService.uncheckPronunciation(entry.id)
-            : this.contentService.checkPronunciation(entry.id);
-
-        action.subscribe({
-            next: () => this.contentService.pronunciation.reload(),
-            error: () => this.messageService.add({
-                severity: 'error', summary: 'Error',
-                detail: 'Failed to update.', life: 3000
-            })
+    loadMastered() {
+        this.loadingCorrect.set(true);
+        this.contentService.getCorrectPronunciation().subscribe({
+            next: (res) => {
+                this.correctEntries.set(res ?? []);
+                this.loadingCorrect.set(false);
+            },
+            error: () => this.loadingCorrect.set(false)
         });
     }
-    
+
+    setView(view: PronunciationView) {
+        this.activeView.set(view);
+        if (view === 'mastered' && !this.correctEntries().length) {
+            this.loadMastered();
+        }
+    }
+
     speak(word: string) {
         speechSynthesis.cancel();
-
-        const utterance = new SpeechSynthesisUtterance(word);
-
-        utterance.lang = 'en-US';
-        utterance.rate = 0.9;
-        utterance.pitch = 1;
-
-        speechSynthesis.speak(utterance);
+        const u  = new SpeechSynthesisUtterance(word);
+        u.lang   = 'en-US';
+        u.rate   = 0.9;
+        u.pitch  = 1;
+        speechSynthesis.speak(u);
     }
 }
