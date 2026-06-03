@@ -1,106 +1,219 @@
 <p-toast />
 <p-confirmDialog />
 
-<div class="card">
-
-  <div class="flex items-center justify-between mb-6">
+<div class="max-w-[95rem] mx-auto px-4 animate-fade-in">
+  <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-surface-200 dark:border-surface-800 pb-5 mb-6">
     <div>
-      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Announcements</h2>
-      <p class="text-muted-color mt-1 m-0">Send messages to students</p>
+      <h1 class="text-3xl font-bold tracking-tight text-surface-900 dark:text-surface-0 m-0">Announcement Manager</h1>
+      <p class="text-sm text-surface-500 dark:text-surface-400 mt-1 m-0">Create, deploy, and monitor your announcements.</p>
     </div>
-    <p-button *ngIf="!showForm()" label="New Announcement" icon="pi pi-plus"
-      (onClick)="showForm.set(true)" />
-  </div>
-
-  <!-- Create form -->
-  <div *ngIf="showForm()"
-    class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 mb-6 border border-surface-200 dark:border-surface-700">
-    <div class="flex items-center justify-between mb-5">
-      <h3 class="text-lg font-semibold m-0">New Announcement</h3>
-      <p-button icon="pi pi-times" severity="secondary" [text]="true" (onClick)="reset()" />
-    </div>
-
-    <div class="flex flex-col gap-5">
-      <div>
-        <label class="block font-bold mb-2">Title *</label>
-        <input pInputText type="text" [ngModel]="title()" (ngModelChange)="title.set($event)"
-          placeholder="Announcement title..." fluid />
-        <small class="text-red-500" *ngIf="submitted && !title().trim()">Required.</small>
-      </div>
-
-      <div>
-        <label class="block font-bold mb-2">Content *</label>
-        <textarea pTextarea [ngModel]="content()" (ngModelChange)="content.set($event)"
-          placeholder="Write your announcement..." rows="5" fluid></textarea>
-        <small class="text-red-500" *ngIf="submitted && !content().trim()">Required.</small>
-      </div>
-
-      <div>
-        <div class="flex items-center gap-3 mb-3">
-          <p-checkbox [ngModel]="sendToAll()" (ngModelChange)="sendToAll.set($event)"
-            [binary]="true" inputId="sendAll" />
-          <label for="sendAll" class="font-bold">Send to all students</label>
-        </div>
-
-        <div *ngIf="!sendToAll()">
-          <label class="block font-bold mb-2">Select recipients</label>
-          <p-multiselect [options]="students()" optionLabel="label" optionValue="id"
-            [ngModel]="selectedRecipients()" (ngModelChange)="selectedRecipients.set($event)"
-            placeholder="Select students..." [filter]="true"
-            fluid />
-        </div>
-      </div>
-
-      <div class="flex gap-3">
-        <p-button label="Send" icon="pi pi-send" [loading]="saving()" (onClick)="send()" />
-        <p-button label="Cancel" severity="secondary" outlined (onClick)="reset()" />
-      </div>
+    <div *ngIf="!showForm()">
+      <p-button label="Compose Message" icon="pi pi-plus" severity="primary" styleClass="rounded-lg shadow-sm text-sm font-medium font-semibold" (onClick)="showForm.set(true)" />
     </div>
   </div>
 
-  <!-- Table -->
-  <p-table #dt [value]="announcements()" [loading]="loading()"
-    [rows]="10" [paginator]="true" [rowHover]="true"
-    [globalFilterFields]="['title', 'senderUsername']"
-    [tableStyle]="{'min-width': '45rem'}"
-    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} announcements"
-    [showCurrentPageReport]="true">
-    <ng-template #caption>
-      <p-iconfield>
-        <p-inputicon styleClass="pi pi-search" />
-        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
-      </p-iconfield>
-    </ng-template>
-    <ng-template #header>
-      <tr>
-        <th pSortableColumn="title">Title <p-sortIcon field="title" /></th>
-        <th style="width: 10rem">Sent by</th>
-        <th pSortableColumn="createdAt" style="width: 10rem">Date <p-sortIcon field="createdAt" /></th>
-        <th style="width: 10rem">Read</th>
-        <th style="width: 6rem"></th>
-      </tr>
-    </ng-template>
-    <ng-template #body let-a>
-      <tr>
-        <td>
-          <div class="font-semibold text-surface-900 dark:text-surface-0">{{ a.title }}</div>
-          <div class="text-xs text-muted-color mt-0.5 truncate max-w-sm">{{ a.content }}</div>
-        </td>
-        <td class="text-sm">{{ a.senderUsername }}</td>
-        <td class="text-sm text-muted-color">{{ a.createdAt | date:'d MMM yyyy HH:mm' }}</td>
-        <td>
-          <span class="text-sm">{{ a.readCount }} / {{ a.totalRecipients }}</span>
-        </td>
-        <td>
-          <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
-            (onClick)="confirmDelete(a)" pTooltip="Delete" />
-        </td>
-      </tr>
-    </ng-template>
-    <ng-template #emptymessage>
-      <tr>
-        <td colspan="5" class="text-center text-muted-color py-10">No announcements yet.</td>
-      </tr>
-    </ng-template>
-  </p-table>
+  <div *ngIf="showForm()" class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl shadow-xl p-6 md:p-8 mb-8 animate-fade-in">
+    <div class="flex items-center justify-between border-b border-surface-100 dark:border-surface-800 pb-4 mb-6">
+      <h3 class="text-lg font-bold text-surface-900 dark:text-surface-0 m-0">Compose New Announcement</h3>
+      <p-button icon="pi pi-times" severity="secondary" [text]="true" styleClass="p-0 text-surface-400 hover:text-surface-600" (onClick)="reset()" />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+      <div class="flex flex-col gap-5">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Announcement Type</label>
+          <p-select [options]="announcementTypes" optionLabel="label" optionValue="value" [ngModel]="type()" (ngModelChange)="type.set($event)" styleClass="w-full rounded-lg" fluid />
+        </div>
+
+        <div>
+          <div class="flex items-center gap-3 mb-3">
+            <p-checkbox [ngModel]="sendToAll()" (ngModelChange)="sendToAll.set($event)" [binary]="true" inputId="sendAll" />
+            <label for="sendAll" class="text-sm font-semibold text-surface-700 dark:text-surface-300">Target all active students</label>
+          </div>
+
+          <div *ngIf="!sendToAll()" class="animate-fade-in">
+            <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Targeted Recipients</label>
+            <p-multiselect [options]="students()" optionLabel="label" optionValue="id" [ngModel]="selectedRecipients()" (ngModelChange)="selectedRecipients.set($event)" placeholder="Select students..." [filter]="true" styleClass="w-full rounded-lg" fluid />
+          </div>
+        </div>
+      </div>
+
+      <div class="md:col-span-2 flex flex-col gap-5">
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Subject Line *</label>
+          <input pInputText type="text" [ngModel]="title()" (ngModelChange)="title.set($event)" placeholder="e.g., Final Examination Schedule - Term 2" class="w-full rounded-lg font-medium" fluid />
+          <small class="text-red-500 mt-1 block" *ngIf="submitted && !title().trim()">Subject line is required.</small>
+        </div>
+
+        <div>
+          <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Message Body *</label>
+          <textarea pTextarea [ngModel]="content()" (ngModelChange)="content.set($event)" placeholder="Type the announcement details here..." rows="5" class="w-full rounded-lg font-normal leading-relaxed" fluid></textarea>
+          <small class="text-red-500 mt-1 block" *ngIf="submitted && !content().trim()">Message body is required.</small>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-3 justify-end border-t border-surface-100 dark:border-surface-800 pt-5 mt-6">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" styleClass="rounded-lg text-sm px-4" (onClick)="reset()" />
+      <p-button label="Deploy Announcement" icon="pi pi-send" [loading]="saving()" styleClass="rounded-lg text-sm px-5" (onClick)="send()" />
+    </div>
+  </div>
+
+  <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl shadow-sm overflow-hidden">
+    <p-table #dt [value]="announcements()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
+      [globalFilterFields]="['title', 'senderUsername', 'type']" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '60rem'}"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} deployed entries" [showCurrentPageReport]="true">
+      
+      <ng-template #caption>
+        <div class="flex justify-end p-4 bg-surface-50/50 dark:bg-surface-950/20 border-b border-surface-100 dark:border-surface-800">
+          <p-iconfield>
+            <p-inputicon styleClass="pi pi-search text-surface-400" />
+            <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search announcements..." class="p-inputtext-sm rounded-lg w-64" />
+          </p-iconfield>
+        </div>
+      </ng-template>
+
+      <ng-template #header>
+        <tr class="bg-surface-50 dark:bg-surface-950 border-b border-surface-200 dark:border-surface-800 text-sm font-bold uppercase tracking-wider text-surface-600">
+          <th pSortableColumn="title" class="p-5">Message Details <p-sortIcon field="title" /></th>
+          <th style="width: 12rem" class="p-5">Classification</th>
+          <th style="width: 12rem" class="p-5">Author</th>
+          <th pSortableColumn="createdAt" style="width: 14rem" class="p-5">Message Date <p-sortIcon field="createdAt" /></th>
+          <th style="width: 18rem" class="p-5">Engagement</th>
+          <th style="width: 6rem" class="p-5"></th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-a>
+        <tr class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50/60 dark:hover:bg-surface-950/60 transition-colors">
+          <td class="p-6">
+            <div class="flex items-center gap-4">
+              <span class="w-2 h-12 rounded-full flex-shrink-0" [style.backgroundColor]="getTypeColor(a.type)"></span>
+              <div class="min-w-0">
+                <div class="font-bold text-surface-900 dark:text-surface-100 text-base truncate">{{ a.title }}</div>
+                <div class="text-sm text-surface-500 dark:text-surface-400 truncate mt-1">{{ a.content }}</div>
+              </div>
+            </div>
+          </td>
+        
+          <td class="p-6">
+            <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg" 
+                  [style.color]="getTypeColor(a.type)" 
+                  [style.backgroundColor]="getTypeColor(a.type) + '15'">
+              {{ a.type }}
+            </span>
+          </td>
+          <td class="p-6 text-base font-semibold text-surface-800 dark:text-surface-200">{{ a.senderUsername }}</td>
+          <td class="p-6 text-sm text-surface-600 dark:text-surface-400">{{ a.createdAt | date:'d MMM yyyy, HH:mm' }}</td>
+          <td class="p-6">
+            <div class="space-y-2">
+              <div class="flex items-center text-sm font-semibold text-surface-900 dark:text-white">
+                <span>Read: {{ a.readCount }} / {{ a.totalRecipients }}</span>
+              </div>
+              <div *ngIf="a.type === 'Listing' || a.type === 'Voting'" class="flex flex-wrap gap-2 pt-1">
+                <span *ngIf="a.type === 'Listing'" class="bg-emerald-500/10 text-emerald-600 dark:text-emerald-400 text-xs font-bold uppercase px-2 py-1 rounded">
+                  Sign-ups: {{ a.signUpCount }}
+                </span>
+                <span *ngIf="a.type === 'Voting'" class="bg-sky-500/10 text-sky-600 dark:text-sky-400 text-xs font-bold uppercase px-2 py-1 rounded flex items-center gap-1">
+                  <i class="pi pi-thumbs-up"></i> {{ a.voteYesCount }}
+                </span>
+                <span *ngIf="a.type === 'Voting'" class="bg-rose-500/10 text-rose-600 dark:text-rose-400 text-xs font-bold uppercase px-2 py-1 rounded flex items-center gap-1">
+                  <i class="pi pi-thumbs-down"></i> {{ a.voteNoCount }}
+                </span>
+              </div>
+            </div>
+          </td>
+          <td class="p-6 text-right">
+            <div class="flex gap-2 justify-end">
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="confirmDelete(a)" pTooltip="Revoke" />
+              <p-button icon="pi pi-users" severity="info" [text]="true" (onClick)="showDetails(a)" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-surface-400 dark:text-surface-600 py-12 text-sm font-medium">No communication history found.</td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <p-dialog header="Announcement Responses" [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '70rem', maxWidth: '95vw' }" [visible]="showDetailsDialog()" (visibleChange)="showDetailsDialog.set($event === true)">
+    <div *ngIf="selectedAnnouncementDetails() as details">
+      <div class="mb-5">
+        <h3 class="text-lg font-bold m-0">{{ details.title }}</h3>
+        <div class="text-sm text-surface-500 mt-1">{{ details.recipients.length }} recipients</div>
+      </div>
+      
+      <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
+        <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 border">
+          <div class="text-xs uppercase font-semibold text-surface-500">Read</div>
+          <div class="text-2xl font-bold mt-1">{{ readCount() }} / {{ details.recipients.length }}</div>
+        </div>
+        <div *ngIf="details.type === 'Listing'" class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 border">
+          <div class="text-xs uppercase font-semibold text-surface-500">Registered</div>
+          <div class="text-2xl font-bold mt-1 text-emerald-600">{{ registeredCount() }}</div>
+        </div>
+        <div *ngIf="details.type === 'Voting'" class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 border">
+          <div class="text-xs uppercase font-semibold text-surface-500 mb-2">Votes</div>
+          <div class="flex items-center gap-4">
+            <div class="text-sm flex items-center gap-1.5 font-medium text-emerald-600">
+              <i class="pi pi-thumbs-up"></i> Yes: {{ yesCount() }}
+            </div>
+            <div class="text-sm flex items-center gap-1.5 font-medium text-rose-600">
+              <i class="pi pi-thumbs-down"></i> No: {{ noCount() }}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div class="border rounded-xl overflow-hidden">
+        <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-surface-50 dark:bg-surface-900 font-semibold text-sm border-b">
+          <div class="col-span-4">Student</div>
+          <div class="col-span-2">Read</div>
+          <div class="col-span-3">Response</div>
+          <div class="col-span-3">Read Date</div>
+        </div>
+        <div *ngFor="let r of details.recipients" class="grid grid-cols-12 gap-4 px-4 py-3 border-b last:border-b-0 items-center">
+          <div class="col-span-4 flex items-center gap-3">
+            <app-avatar 
+              [username]="r.username" 
+              [avatarUrl]="r.avatarUrl" 
+              customClass="w-8 h-8"
+            />
+            <div>
+              <div class="font-medium">{{ r.username }}</div>
+              <div class="text-xs text-surface-500">{{ r.email }}</div>
+            </div>
+          </div>
+          
+          <div class="col-span-2">
+            <span *ngIf="r.isRead" class="text-green-600 font-medium">✓ Read</span>
+            <span *ngIf="!r.isRead" class="text-surface-400">Not read</span>
+          </div>
+          <div class="col-span-3">
+            <ng-container *ngIf="details.type === 'Announcement'">—</ng-container>
+            <ng-container *ngIf="details.type === 'Listing'">
+              <span *ngIf="r.signedUp" class="text-emerald-600 font-medium">✓ Registered</span>
+              <span *ngIf="!r.signedUp" class="text-surface-400">Not registered</span>
+            </ng-container>
+            <ng-container *ngIf="details.type === 'Voting'">
+              <span *ngIf="r.vote === true" class="text-green-600 font-medium flex items-center gap-1.5">
+                <i class="pi pi-thumbs-up"></i> Yes
+              </span>
+              <span *ngIf="r.vote === false" class="text-red-600 font-medium flex items-center gap-1.5">
+                <i class="pi pi-thumbs-down"></i> No
+              </span>
+              <span *ngIf="r.vote === null" class="text-surface-400">No response</span>
+            </ng-container>
+          </div>
+          <div class="col-span-3 text-sm text-surface-500">
+            <span *ngIf="r.readAt">{{ r.readAt | date:'d MMM yyyy, HH:mm' }}</span>
+            <span *ngIf="!r.readAt">—</span>
+          </div>
+        </div>
+      </div>
+    </div>
+  </p-dialog>
 </div>

@@ -5,11 +5,12 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AnnouncementService, AnnouncementInboxDto } from '../../services/announcement.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-messages',
     standalone: true,
-    imports: [CommonModule, ButtonModule, TagModule, ToastModule],
+    imports: [CommonModule, ButtonModule, TagModule, ToastModule, AvatarComponent],
     providers: [MessageService],
     templateUrl: './messages.component.html'
 })
@@ -34,6 +35,14 @@ export class MessagesComponent implements OnInit {
         });
     }
 
+    getTypeColor(type: string): string {
+        switch (type) {
+            case 'Listing': return '#10B981';
+            case 'Voting': return '#F59E0B';
+            default: return '#3B82F6';
+        }
+    }
+
     open(msg: AnnouncementInboxDto) {
         this.selected.set(msg);
         if (!msg.isRead) {
@@ -42,6 +51,7 @@ export class MessagesComponent implements OnInit {
                     this.messages.update(list =>
                         list.map(m => m.id === msg.id ? { ...m, isRead: true } : m)
                     );
+                    this.selected.update(curr => curr ? { ...curr, isRead: true } : null);
                     this.announcementService.refreshUnreadCount();
                 }
             });
@@ -50,6 +60,35 @@ export class MessagesComponent implements OnInit {
 
     back() {
         this.selected.set(null);
+    }
+
+    onSignUp(msg: AnnouncementInboxDto) {
+        this.announcementService.signUp(msg.id).subscribe({
+            next: () => {
+                const updatedStatus = !msg.signedUp;
+                this.messages.update(list => list.map(m => m.id === msg.id ? { ...m, signedUp: updatedStatus } : m));
+                this.selected.update(curr => curr ? { ...curr, signedUp: updatedStatus } : null);
+                
+                this.messageService.add({
+                    severity: 'success', summary: 'Status updated',
+                    detail: updatedStatus ? 'Signed up successfully' : 'Registration cancelled'
+                });
+            }
+        });
+    }
+
+    onVote(msg: AnnouncementInboxDto, value: boolean) {
+        this.announcementService.vote(msg.id, value).subscribe({
+            next: () => {
+                this.messages.update(list => list.map(m => m.id === msg.id ? { ...m, vote: value } : m));
+                this.selected.update(curr => curr ? { ...curr, vote: value } : null);
+
+                this.messageService.add({
+                    severity: 'success', summary: 'Vote registered',
+                    detail: `You voted: ${value ? 'Yes' : 'No'}`
+                });
+            }
+        });
     }
 
     markAllRead() {

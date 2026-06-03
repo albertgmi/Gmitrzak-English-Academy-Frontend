@@ -66,7 +66,7 @@ export class LessonModeComponent {
     memoryOptionA  = signal('');
     memoryOptionB  = signal('');
     memoryNotes    = signal('');
-    memoryCategory = signal<string | null>(null); // ← null = wszystkie
+    memoryCategory = signal<string | null>(null);
     savingMemory   = signal(false);
 
     pronunciationTestList = signal<LessonPronunciationTestItemDto[]>([]);
@@ -74,6 +74,10 @@ export class LessonModeComponent {
     markingId = signal<number | null>(null);
     correctPronunciationList  = signal<LessonPronunciationTestItemDto[]>([]);
     loadingCorrectPronunciation = signal(false);
+
+    checkingDuplicateFlashcard = signal(false);
+    isFlashcardDuplicate = signal(false);
+
     readonly SESSION_SIZE = 20;
     
     readonly TEMPLATES = [
@@ -180,7 +184,6 @@ export class LessonModeComponent {
                 this.loadGlobalSentenceStock();
             }
         });
-
         toObservable(this.searchQuery)
             .pipe(
                 debounceTime(300),
@@ -209,6 +212,40 @@ export class LessonModeComponent {
                     }
                 },
                 error: () => this.searching.set(false)
+            });
+        toObservable(this.newFront)
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim()) {
+                        this.isFlashcardDuplicate.set(false);
+                        this.checkingDuplicateFlashcard.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    const studentId = this.studentId;
+                    if (!q.trim() || !studentId) return of(null);
+                    
+                    this.checkingDuplicateFlashcard.set(true);
+                    return this.vocabularyService.searchVocabulary(q.trim(), studentId);
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.checkingDuplicateFlashcard.set(false);
+                    
+                    if (result && result.existsInGlobal) {
+                        const exactEnglishMatch = result.front.toLowerCase().trim() === this.newFront().toLowerCase().trim();
+                        this.isFlashcardDuplicate.set(exactEnglishMatch);
+                    } else {
+                        this.isFlashcardDuplicate.set(false);
+                    }
+                },
+                error: () => {
+                    this.checkingDuplicateFlashcard.set(false);
+                    this.isFlashcardDuplicate.set(false);
+                }
             });
     }
 
@@ -310,6 +347,7 @@ export class LessonModeComponent {
         this.newFront.set('');
         this.newBack.set('');
         this.newCategory.set('Vocabulary');
+        this.isFlashcardDuplicate.set(false);
     }
 
     saveSentence() {

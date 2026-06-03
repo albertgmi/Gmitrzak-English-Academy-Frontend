@@ -5,7 +5,7 @@ import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
-import { LessonPanelService, LessonFlashcardSummaryDto } from '../../services/lesson-panel.service';
+import { LessonPanelService, LessonFlashcardSummaryDto, LessonFlashcardDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ButtonModule } from 'primeng/button';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
@@ -26,12 +26,20 @@ export class LessonFlashcardsComponent implements OnInit {
     data = signal<LessonFlashcardSummaryDto | null>(null);
     loading = signal(true);
 
+    allFlashcards = signal<LessonFlashcardDto[]>([]);
+    loadingAll = signal(true);
+
     ngOnInit() {
         const id = this.lessonContext.studentId;
         if (!id) return;
         this.service.getFlashcards(id).subscribe({
             next: (d) => { this.data.set(d); this.loading.set(false); },
             error: () => this.loading.set(false)
+        });
+
+        this.service.getAllFlashcards(id).subscribe({
+            next: (cards) => { this.allFlashcards.set(cards); this.loadingAll.set(false); },
+            error: () => this.loadingAll.set(false)
         });
     }
 

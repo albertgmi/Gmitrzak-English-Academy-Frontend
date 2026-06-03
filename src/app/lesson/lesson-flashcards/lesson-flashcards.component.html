@@ -18,8 +18,7 @@
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
     </div>
-    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
-      size="small" (onClick)="goToSwitchClient()" />
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined size="small" (onClick)="goToSwitchClient()" />
   </div>
 
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
@@ -27,7 +26,7 @@
   </div>
 
   <div *ngIf="!loading() && data() as d">
-
+    
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
         <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalCards }}</div>
@@ -47,26 +46,57 @@
       </div>
     </div>
 
+    <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6">
+      <div class="text-sm font-semibold text-red-500 mb-2 uppercase tracking-wider flex items-center gap-1">
+        <i class="pi pi-exclamation-triangle"></i> Attention Required (Leeches)
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span *ngFor="let c of d.leeches" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800/50">
+          <span class="font-bold">{{ c.front }}</span> 
+          <span class="opacity-70">&mdash; {{ c.back }}</span>
+          <span class="text-xs bg-red-100 dark:bg-red-800/50 px-1.5 py-0.5 rounded ml-1">{{ c.interval }}d</span>
+        </span>
+      </div>
+    </div>
+
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
       <div>
-        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">
-          Leeches <span class="text-sm font-normal text-muted-color">({{ d.leeches.length }})</span>
-        </h3>
-        <div class="flex flex-col gap-2">
-          <div *ngFor="let c of d.leeches"
-            class="flex items-center gap-3 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
-            <i class="pi pi-exclamation-triangle text-red-500 flex-shrink-0"></i>
-            <div class="flex-1 min-w-0">
-              <div class="font-semibold truncate">{{ c.front }}</div>
-              <div class="text-xs text-muted-color">{{ c.back }}</div>
-            </div>
-            <span class="text-xs text-muted-color">{{ c.interval }}d</span>
-          </div>
-          <div *ngIf="!d.leeches.length" class="text-center py-6 text-muted-color text-sm">
-            No leeches — great!
-          </div>
+        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">All Assigned Flashcards</h3>
+        
+        <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">
+          <i class="pi pi-spin pi-spinner text-2xl"></i>
         </div>
+
+        <p-table *ngIf="!loadingAll()" [value]="allFlashcards()" [paginator]="true" [rows]="12" [tableStyle]="{'min-width': '100%'}">
+          <ng-template #header>
+            <tr>
+              <th>Front</th>
+              <th>Back</th>
+              <th style="width: 5rem">Int.</th>
+              <th style="width: 7rem">Next Due</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-card>
+            <tr>
+              <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.front }}</td>
+              <td class="text-muted-color text-sm">{{ card.back }}</td>
+              <td>
+                <p-tag [value]="card.interval + 'd'" [severity]="card.interval < 5 ? 'warn' : 'success'"></p-tag>
+              </td>
+              <td class="text-xs text-muted-color">
+                {{ card.nextReviewDate | date:'d MMM yyyy' }}
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="4" class="text-center text-muted-color py-6 text-sm">
+                No flashcards assigned to this student yet.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
       </div>
 
       <div>
@@ -83,7 +113,7 @@
           </ng-template>
           <ng-template #body let-log>
             <tr>
-              <td class="text-sm">{{ log.studyDate | date:'d MMM' }}</td>
+              <td class="text-sm font-medium">{{ log.studyDate | date:'d MMM' }}</td>
               <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
               <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
               <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
@@ -92,7 +122,7 @@
           </ng-template>
           <ng-template #emptymessage>
             <tr>
-              <td colspan="5" class="text-center text-muted-color py-4 text-sm">No sessions yet.</td>
+              <td colspan="5" class="text-center text-muted-color py-6 text-sm">No study sessions recorded yet.</td>
             </tr>
           </ng-template>
         </p-table>

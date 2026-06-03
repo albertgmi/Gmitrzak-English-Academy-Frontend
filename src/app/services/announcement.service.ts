@@ -9,6 +9,10 @@ export interface AnnouncementDto {
     createdAt: string;
     totalRecipients: number;
     readCount: number;
+    type: 'Announcement' | 'Listing' | 'Voting';
+    signUpCount: number;
+    voteYesCount: number;
+    voteNoCount: number;
 }
 
 export interface AnnouncementInboxDto {
@@ -20,6 +24,28 @@ export interface AnnouncementInboxDto {
     createdAt: string;
     isRead: boolean;
     readAt?: string;
+    type: 'Announcement' | 'Listing' | 'Voting';
+    signedUp?: boolean;
+    vote?: boolean;
+    senderAvatarUrl?: string | null;
+}
+
+export interface AnnouncementRecipientDetailsDto {
+  userId: number;
+  username: string;
+  email: string;
+  isRead: boolean;
+  readAt: string | null;
+  signedUp: boolean | null;
+  vote: boolean | null;
+  avatarUrl: string | null;
+}
+
+export interface AnnouncementDetailsDto {
+  announcementId: number;
+  title: string;
+  type: string;
+  recipients: AnnouncementRecipientDetailsDto[];
 }
 
 @Injectable({ providedIn: 'root' })
@@ -43,12 +69,26 @@ export class AnnouncementService {
         return this.http.get<AnnouncementInboxDto[]>(`${this.apiUrl}/inbox`);
     }
 
-    create(title: string, content: string, recipientUserIds?: number[]) {
-        return this.http.post(this.apiUrl, { title, content, recipientUserIds });
+    create(title: string, content: string, type: string, recipientUserIds?: number[]) {
+        return this.http.post(this.apiUrl, { title, content, type, recipientUserIds });
     }
 
     markRead(recipientId: number) {
         return this.http.patch(`${this.apiUrl}/${recipientId}/read`, {});
+    }
+
+    signUp(recipientId: number) {
+        return this.http.patch(`${this.apiUrl}/${recipientId}/signup`, {});
+    }
+
+    vote(recipientId: number, value: boolean) {
+        return this.http.patch(`${this.apiUrl}/${recipientId}/vote?value=${value}`, {});
+    }
+
+    getDetails(id: number) {
+        return this.http.get<AnnouncementDetailsDto>(
+            `${this.apiUrl}/${id}/details`
+        );
     }
 
     markAllRead() {

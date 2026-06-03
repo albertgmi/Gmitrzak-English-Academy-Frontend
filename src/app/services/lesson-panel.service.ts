@@ -139,6 +139,10 @@ export class LessonPanelService {
         return this.http.get<LessonFlashcardSummaryDto>(`${this.apiUrl}/flashcards/${studentUserId}`);
     }
 
+    getAllFlashcards(studentUserId: number) {
+        return this.http.get<LessonFlashcardDto[]>(`${this.apiUrl}/flashcards/all/${studentUserId}`);
+    }
+
     getStudyTime(studentUserId: number) {
         return this.http.get<StudentStudyTimeDto>(`${this.apiUrl}/study-time/${studentUserId}`);
     }

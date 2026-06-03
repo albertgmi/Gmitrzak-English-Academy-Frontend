@@ -17,6 +17,9 @@ import { UserService } from '../../services/user.service';
 import { MultiSelectModule } from 'primeng/multiselect';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { DialogModule } from 'primeng/dialog';
+import { AnnouncementDetailsDto } from '../../services/announcement.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-announcements',
@@ -25,7 +28,7 @@ import { InputIconModule } from 'primeng/inputicon';
         CommonModule, FormsModule, TableModule, ButtonModule,
         InputTextModule, TextareaModule, SelectModule, TagModule,
         ToolbarModule, ToastModule, ConfirmDialogModule, CheckboxModule,
-        MultiSelectModule, IconFieldModule, InputIconModule
+        MultiSelectModule, IconFieldModule, InputIconModule, DialogModule, AvatarComponent
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './announcements.component.html'
@@ -46,6 +49,31 @@ export class AnnouncementsComponent implements OnInit {
     title = signal('');
     content = signal('');
     selectedRecipients = signal<number[]>([]);
+    
+    type = signal('Announcement');
+
+    announcementTypes = [
+        { label: 'Standard Announcement', value: 'Announcement' },
+        { label: 'Listing (Sign up option)', value: 'Listing' },
+        { label: 'Voting (Yes/No poll)', value: 'Voting' }
+    ];
+
+    selectedAnnouncementDetails = signal<AnnouncementDetailsDto | null>(null);
+
+    showDetailsDialog = signal(false);
+
+    readCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.isRead).length ?? 0);
+    registeredCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.signedUp).length ?? 0);
+    yesCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.vote === true).length ?? 0);
+    noCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.vote === false).length ?? 0);
+
+    getTypeColor(type: string): string {
+        switch (type) {
+            case 'Listing': return '#10B981';
+            case 'Voting': return '#F59E0B';
+            default: return '#3B82F6';
+        }
+    }
 
     students = computed(() =>
         (this.userService.users.value() ?? [])
@@ -72,12 +100,12 @@ export class AnnouncementsComponent implements OnInit {
         this.saving.set(true);
         const recipients = this.sendToAll() ? undefined : this.selectedRecipients();
 
-        this.announcementService.create(this.title(), this.content(), recipients).subscribe({
+        this.announcementService.create(this.title(), this.content(), this.type(), recipients).subscribe({
             next: () => {
                 this.announcementService.refreshUnreadCount();
                 this.messageService.add({
                     severity: 'success', summary: 'Sent',
-                    detail: 'Announcement sent', life: 3000
+                    detail: 'Announcement sent successfully', life: 3000
                 });
                 this.reset();
                 this.loadAnnouncements();
@@ -94,6 +122,7 @@ export class AnnouncementsComponent implements OnInit {
     reset() {
         this.title.set('');
         this.content.set('');
+        this.type.set('Announcement');
         this.selectedRecipients.set([]);
         this.sendToAll.set(true);
         this.submitted = false;
@@ -121,5 +150,13 @@ export class AnnouncementsComponent implements OnInit {
 
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    }
+
+    showDetails(a: AnnouncementDto) {
+        this.announcementService.getDetails(a.id)
+            .subscribe(details => {
+                this.selectedAnnouncementDetails.set(details);
+                this.showDetailsDialog.set(true);
+            });
     }
 }
