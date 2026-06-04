@@ -31,7 +31,8 @@ export class AppMenu implements OnInit {
       {
         label: 'Home',
         items: [
-          { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] }
+          { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
+          { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
         ]
       }
     ];
@@ -87,7 +88,6 @@ export class AppMenu implements OnInit {
               { label: 'Inactive Users', icon: 'pi pi-user-minus', routerLink: ['/users/inactive'] },
               { label: 'Register User', icon: 'pi pi-user-plus', routerLink: ['/users/register'] },
               { label: 'Profiles', icon: 'pi pi-id-card', routerLink: ['/profiles'] },
-              { label: 'Onboard Client', icon: 'pi pi-play-circle', routerLink: ['/users/onboard'] },
             ]
           },
           {
@@ -214,7 +214,7 @@ export class AppMenu implements OnInit {
       { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/flashcards-study-time'] },
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },
       { label: 'Stats', icon: 'pi pi-chart-line', routerLink: ['/lesson/stats'] },
-      { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
+      { label: 'Onboard Client', icon: 'pi pi-play-circle', routerLink: ['/onboard'] },
     ];
   }
 }

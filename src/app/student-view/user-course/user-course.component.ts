@@ -300,14 +300,14 @@ export class UserCourseComponent implements OnInit {
 
     private triggerTeamsCelebration() {
         const scalar     = 4.5;
-        const discoBall  = confetti.shapeFromText({ text: '🪩', scalar });
+        const approveSign  = confetti.shapeFromText({ text: '✅️', scalar });
         const partyPopper = confetti.shapeFromText({ text: '🎉', scalar });
         const star       = confetti.shapeFromText({ text: '⭐', scalar });
         const duration   = 3500;
         const animationEnd = Date.now() + duration;
         const defaults     = {
             startVelocity: 35, spread: 360, ticks: 80, gravity: 1.0,
-            shapes: [discoBall, partyPopper, star], scalar
+            shapes: [approveSign, partyPopper, star], scalar
         };
         const rand = (min: number, max: number) => Math.random() * (max - min) + min;
         const interval = setInterval(() => {

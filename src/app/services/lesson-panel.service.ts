@@ -154,4 +154,8 @@ export class LessonPanelService {
     getStats(studentUserId: number) {
         return this.http.get<LessonStatsDto>(`${this.apiUrl}/stats/${studentUserId}`);
     }
+
+    updateInterval(studentUserId: number, flashcardId: number, interval: number) {
+        return this.http.put(`${this.apiUrl}/flashcards/${studentUserId}/${flashcardId}/interval`, interval);
+    }
 }

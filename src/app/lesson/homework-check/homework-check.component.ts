@@ -72,7 +72,7 @@ export class HomeworkCheckComponent implements OnInit {
     dueLabel(item: HomeworkItemDto): string {
         if (item.isCompleted) return 'Done';
         if (item.isOverdue) return 'Overdue';
-        return item.dueDate;
+        return 'Pending';
     }
 
     goToSwitchClient() {

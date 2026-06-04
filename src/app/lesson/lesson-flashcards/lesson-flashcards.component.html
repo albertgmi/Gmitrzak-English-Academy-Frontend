@@ -68,35 +68,52 @@
           <i class="pi pi-spin pi-spinner text-2xl"></i>
         </div>
 
-        <p-table *ngIf="!loadingAll()" [value]="allFlashcards()" [paginator]="true" [rows]="12" [tableStyle]="{'min-width': '100%'}">
-          <ng-template #header>
-            <tr>
-              <th>Front</th>
-              <th>Back</th>
-              <th style="width: 5rem">Int.</th>
-              <th style="width: 7rem">Next Due</th>
-            </tr>
-          </ng-template>
-          <ng-template #body let-card>
-            <tr>
-              <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.front }}</td>
-              <td class="text-muted-color text-sm">{{ card.back }}</td>
-              <td>
-                <p-tag [value]="card.interval + 'd'" [severity]="card.interval < 5 ? 'warn' : 'success'"></p-tag>
-              </td>
-              <td class="text-xs text-muted-color">
-                {{ card.nextReviewDate | date:'d MMM yyyy' }}
-              </td>
-            </tr>
-          </ng-template>
-          <ng-template #emptymessage>
-            <tr>
-              <td colspan="4" class="text-center text-muted-color py-6 text-sm">
-                No flashcards assigned to this student yet.
-              </td>
-            </tr>
-          </ng-template>
-        </p-table>
+        <div *ngIf="!loadingAll()">
+          <div class="flex flex-col sm:flex-row justify-end mb-3">
+            <p-iconfield iconPosition="left">
+              <p-inputicon styleClass="pi pi-search" />
+              <input 
+                pInputText 
+                type="text" 
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                placeholder="Search flashcards..." 
+                class="w-full sm:w-auto" />
+            </p-iconfield>
+          </div>
+
+          <p-table #dt [value]="allFlashcards()" [paginator]="true" [rows]="12" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['front', 'back']">
+            <ng-template #header>
+              <tr>
+                <th>Front</th>
+                <th>Back</th>
+                <th style="width: 5rem">Int.</th>
+                <th style="width: 7rem">Next Due</th>
+                <th style="width: 4rem"></th> </tr>
+            </ng-template>
+            <ng-template #body let-card>
+              <tr>
+                <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.front }}</td>
+                <td class="text-muted-color text-sm">{{ card.back }}</td>
+                <td>
+                  <p-tag [value]="card.interval + 'd'" [severity]="card.interval < 5 ? 'warn' : 'success'"></p-tag>
+                </td>
+                <td class="text-xs text-muted-color">
+                  {{ card.nextReviewDate | date:'d MMM yyyy' }}
+                </td>
+                <td>
+                  <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" (onClick)="openEditDialog(card)" />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="5" class="text-center text-muted-color py-6 text-sm">
+                  No flashcards assigned to this student yet (or none match the search).
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
       </div>
 
       <div>
@@ -127,7 +144,32 @@
           </ng-template>
         </p-table>
       </div>
-
+      <p-dialog header="Edit Flashcard Interval" [modal]="true" [(visible)]="editDialogVisible" [style]="{ width: '25rem' }">
+        <div class="mb-4 text-muted-color text-sm">
+          Adjusting the interval will automatically calculate a new Next Review Date from today.
+        </div>
+        
+        <div class="flex items-center gap-4 mb-6" *ngIf="selectedCard() as card">
+          <label for="interval" class="font-semibold w-24">Interval (days)</label>
+          <p-inputNumber 
+            inputId="interval" 
+            [(ngModel)]="newInterval" 
+            [min]="0" 
+            [showButtons]="true"
+            buttonLayout="horizontal" 
+            spinnerMode="horizontal" 
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus" 
+            decrementButtonIcon="pi pi-minus"
+            class="flex-1" />
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <p-button label="Cancel" severity="secondary" (onClick)="editDialogVisible.set(false)" />
+          <p-button label="Save" (onClick)="saveInterval()" [loading]="saving()" />
+        </div>
+      </p-dialog>
     </div>
   </div>
 </div>

@@ -66,6 +66,7 @@ import { RankingComponent } from './other/ranking/ranking.component';
 import { AttendanceComponent } from './lesson/attendance/attendance.component';
 import { PresentationComponent } from './student-view/presentation/presentation.component';
 import { ActiveStudentsReportsComponent } from './content/active-students-reports/active-students-reports.component';
+import { OnboardClientComponent } from './lesson/onboard-client/onboard-client.component';
 
 
 
@@ -124,6 +125,7 @@ export const appRoutes: Routes = [
       { path: 'users/register', component: RegisterUserComponent, canActivate: [AuthGuard] },
       { path: 'profiles', component: ProfileComponent, canActivate: [AuthGuard] },
       { path: 'profiles/:userId', component: ProfileDetailComponent, canActivate: [AuthGuard] },
+      { path: 'onboard', component: OnboardClientComponent, canActivate: [AuthGuard] },
       { path: 'system/catalogues', component: CataloguesComponent, canActivate: [AuthGuard] },
       { path: 'system/global-vocabulary', component: GlobalVocabularyComponent, canActivate: [AuthGuard] },
       { path: 'system/global-vocabulary/assign', component: AssignGlobalVocabularyComponent, canActivate: [AuthGuard] },

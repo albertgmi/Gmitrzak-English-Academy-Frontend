@@ -97,4 +97,8 @@ export class ModuleItemService {
         return this.http.post('/api/sentence/assign-to-module',
             { moduleId, sentenceSetId });
     }
+
+    getAllModulesForOnboard() {
+        return this.http.get<ModuleItem[]>(this.apiUrl);
+    }
 }

@@ -71,4 +71,8 @@ export class MatrixService {
     removeCourse(matrixId: number, courseId: number) {
         return this.http.delete(`${this.apiUrl}/${matrixId}/courses/${courseId}`);
     }
+
+    getAllMatrices() {
+        return this.http.get<Matrix[]>('/api/matrix');
+    }
 }
