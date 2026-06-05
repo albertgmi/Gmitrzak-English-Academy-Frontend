@@ -18,6 +18,15 @@ export interface SearchFlashcardResult {
     alreadyAssignedToStudent: boolean;
 }
 
+export interface SearchSentenceResult {
+    id?: number;
+    polish: string;
+    englishTranslation: string;
+    category: string;
+    existsInGlobal: boolean;
+    alreadyAssignedToStudent: boolean;
+}
+
 export interface HomeworkItemDto {
     id: number;
     moduleName: string;
@@ -178,6 +187,11 @@ export class LessonService {
     markPronunciationResult(entryId: number, result: 'correct' | 'incorrect') {
         return this.http.post('/api/lesson/pronunciation/mark', {
             entryId, result
+        });
+    }
+    searchSentence(query: string, studentId: number): Observable<SearchSentenceResult> {
+        return this.http.get<SearchSentenceResult>('/api/sentence/search', {
+            params: { query, studentId: studentId.toString() }
         });
     }
 }

@@ -145,7 +145,7 @@
                   'pi-info-circle text-yellow-500':  r.aiResult === 'Partial',
                   'pi-times-circle text-red-500':    r.aiResult === 'Incorrect'
                 }"></i>
-              <p-tag [severity]="resultSeverity(r.aiResult)" [value]="'AI: ' + r.aiResult" />
+              <p-tag [severity]="resultSeverity(r.aiResult)" [value]="r.aiResult" />
             </div>
           
             <div [ngSwitch]="r.aiResult" class="text-sm font-medium mt-1 leading-relaxed">

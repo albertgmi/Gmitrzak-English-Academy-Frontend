@@ -3,17 +3,8 @@
   <div class="mb-6 flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sentences</h2>
-      <p class="text-muted-color mt-1 m-0">Your sentence collection and assignments</p>
+      <p class="text-muted-color mt-1 m-0">Your personal sentence collection and flashcards</p>
     </div>
-    
-    <p-selectButton 
-      [options]="viewOptions" 
-      [(ngModel)]="selectedView" 
-      optionLabel="label" 
-      optionValue="value" 
-      [allowEmpty]="false"
-      (onChange)="onViewChange()">
-    </p-selectButton>
   </div>
 
   <p-table #dt [value]="currentData" [loading]="isLoading"
@@ -46,12 +37,7 @@
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ s.content }}</td>
         <td class="text-muted-color">{{ s.translation }}</td>
         <td>
-          <ng-container *ngIf="selectedView === 'other' && s.notes; else normalNotes">
-            <p-tag [value]="s.notes" severity="info" />
-          </ng-container>
-          <ng-template #normalNotes>
-            <span class="text-muted-color text-sm">{{ s.notes || '—' }}</span>
-          </ng-template>
+          <span class="text-muted-color text-sm">{{ s.notes || '—' }}</span>
         </td>
       </tr>
     </ng-template>
@@ -60,7 +46,7 @@
       <tr>
         <td colspan="3" class="text-center text-muted-color py-8">
           <i class="pi pi-align-left text-4xl block mb-2"></i>
-          No sentences found in this category.
+          No sentences found.
         </td>
       </tr>
     </ng-template>

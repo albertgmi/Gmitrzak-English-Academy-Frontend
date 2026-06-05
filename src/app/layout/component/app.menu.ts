@@ -215,6 +215,7 @@ export class AppMenu implements OnInit {
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },
       { label: 'Stats', icon: 'pi pi-chart-line', routerLink: ['/lesson/stats'] },
       { label: 'Onboard Client', icon: 'pi pi-play-circle', routerLink: ['/onboard'] },
+      { label: 'Examination Mode', icon: 'pi pi-graduation-cap', routerLink: '/lesson/examination' }
     ];
   }
 }

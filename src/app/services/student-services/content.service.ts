@@ -83,10 +83,6 @@ export class ContentService {
         loader: () => lastValueFrom(this.http.get<SentenceDto[]>(`${this.apiUrl}/sentences`))
     });
 
-    otherSentences = resource<SentenceDto[], unknown>({
-        loader: () => lastValueFrom(this.http.get<SentenceDto[]>(`${this.apiUrl}/sentences/other`))
-    });
-
     memories = resource<MemoryDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<MemoryDto[]>(`${this.apiUrl}/memories`))
     });

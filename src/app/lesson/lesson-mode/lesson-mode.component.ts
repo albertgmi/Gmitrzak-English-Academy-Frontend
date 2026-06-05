@@ -50,13 +50,19 @@ export class LessonModeComponent {
     newFront = signal('');
     newBack = signal('');
     newCategory = signal('Vocabulary');
+    checkingDuplicateFlashcard = signal(false);
+    isFlashcardDuplicate = signal(false);
 
     sentenceContent = signal('');
     sentenceTranslation = signal('');
     sentenceNotes = signal('');
     savingSentence = signal(false);
-    
     sentenceSearchQuery = signal('');
+    sentenceSearchResult = signal<any | null>(null);
+    searchingSentence = signal(false);
+    checkingDuplicateSentence = signal(false);
+    isSentenceDuplicate = signal(false);
+    
     allSentenceStock = signal<SentenceStockDto[]>([]);
     loadingSentenceStock = signal(false);
 
@@ -75,22 +81,19 @@ export class LessonModeComponent {
     correctPronunciationList  = signal<LessonPronunciationTestItemDto[]>([]);
     loadingCorrectPronunciation = signal(false);
 
-    checkingDuplicateFlashcard = signal(false);
-    isFlashcardDuplicate = signal(false);
-
     readonly SESSION_SIZE = 20;
     
     readonly TEMPLATES = [
-        { key: 'difference',   label: 'Difference',   template: "What's the difference between {A} and {B}? Provide examples.",                needsB: true  },
+        { key: 'difference',   label: 'Difference',   template: "What's the difference between {A} and {B}? Provide examples.",needsB: true  },
         { key: 'comma_before', label: 'Comma before',  template: "Do you put a comma before {A}? Are there any exceptions? Back it up with examples.", needsB: false },
         { key: 'position',     label: 'Position',      template: "Where do you put the word {A} in a sentence? Is there only one option? Give examples.", needsB: false },
         { key: 'past',         label: 'Past forms',    template: "What are the past forms of the word {A}? Is it regular or irregular? Use all in sentences.", needsB: false },
-        { key: 'change',       label: 'Verb change',   template: "How do you change a verb after the word {A}?",                                needsB: false },
+        { key: 'change',       label: 'Verb change',   template: "How do you change a verb after the word {A}?",needsB: false },
         { key: 'synonym',      label: 'Synonyms',      template: "What are the synonyms of {A}? Show the difference between them in context.", needsB: false },
-        { key: 'antonym',      label: 'Antonyms',      template: "What are the antonyms of {A}? Provide example sentences.",                   needsB: false },
-        { key: 'preposition',  label: 'Prepositions',  template: "What prepositions are used with {A}? Give examples for each.",               needsB: false },
-        { key: 'collocations', label: 'Collocations',  template: "What are the most common collocations with {A}? Use them in sentences.",     needsB: false },
-        { key: 'formal',       label: 'Formal/Informal', template: "Is {A} formal or informal? What's the formal/informal alternative?",       needsB: false },
+        { key: 'antonym',      label: 'Antonyms',      template: "What are the antonyms of {A}? Provide example sentences.",needsB: false },
+        { key: 'preposition',  label: 'Prepositions',  template: "What prepositions are used with {A}? Give examples for each.",needsB: false },
+        { key: 'collocations', label: 'Collocations',  template: "What are the most common collocations with {A}? Use them in sentences.",needsB: false },
+        { key: 'formal',       label: 'Formal/Informal', template: "Is {A} formal or informal? What's the formal/informal alternative?",needsB: false },
         { key: 'grammar',      label: 'Grammar rules', template: "Explain the grammar rules for using {A}. What are the most common mistakes?", needsB: false },
     ];
 
@@ -125,15 +128,6 @@ export class LessonModeComponent {
         return this.lessonContext.studentId;
     }
 
-    filteredSentenceStock = computed(() => {
-        const query = this.sentenceSearchQuery().trim().toLowerCase();
-        if (!query) return [];
-        return this.allSentenceStock().filter(s => 
-            s.polish.toLowerCase().includes(query) || 
-            s.englishTranslation.toLowerCase().includes(query)
-        );
-    });
-
     isPronunciationDuplicate = computed(() => {
         const word = this.pronunciationWord().trim().toLowerCase();
         return this.existingPronunciations().some(p => p.word?.toLowerCase() === word);
@@ -160,7 +154,6 @@ export class LessonModeComponent {
     isMemoryDuplicate = computed(() => {
         const a = this.memoryOptionA().trim().toLowerCase();
         const b = this.memoryOptionB().trim().toLowerCase();
-        
         const currentCategory = this.memoryCategory()?.trim() || null;
 
         if (!a) return false;
@@ -184,6 +177,7 @@ export class LessonModeComponent {
                 this.loadGlobalSentenceStock();
             }
         });
+
         toObservable(this.searchQuery)
             .pipe(
                 debounceTime(300),
@@ -213,6 +207,7 @@ export class LessonModeComponent {
                 },
                 error: () => this.searching.set(false)
             });
+
         toObservable(this.newFront)
             .pipe(
                 debounceTime(300),
@@ -226,7 +221,6 @@ export class LessonModeComponent {
                 switchMap((q) => {
                     const studentId = this.studentId;
                     if (!q.trim() || !studentId) return of(null);
-                    
                     this.checkingDuplicateFlashcard.set(true);
                     return this.vocabularyService.searchVocabulary(q.trim(), studentId);
                 })
@@ -234,7 +228,6 @@ export class LessonModeComponent {
             .subscribe({
                 next: (result) => {
                     this.checkingDuplicateFlashcard.set(false);
-                    
                     if (result && result.existsInGlobal) {
                         const exactEnglishMatch = result.front.toLowerCase().trim() === this.newFront().toLowerCase().trim();
                         this.isFlashcardDuplicate.set(exactEnglishMatch);
@@ -245,6 +238,69 @@ export class LessonModeComponent {
                 error: () => {
                     this.checkingDuplicateFlashcard.set(false);
                     this.isFlashcardDuplicate.set(false);
+                }
+            });
+
+        toObservable(this.sentenceSearchQuery)
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim()) {
+                        this.sentenceSearchResult.set(null);
+                        this.searchingSentence.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    const studentId = this.studentId;
+                    if (!q.trim() || !studentId) return of(null);
+                    this.searchingSentence.set(true);
+                    return this.lessonService.searchSentence(q.trim(), studentId);
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.searchingSentence.set(false);
+                    if (result) {
+                        this.sentenceSearchResult.set(result);
+                        if (!result.existsInGlobal) {
+                            this.sentenceContent.set(result.englishTranslation);
+                        }
+                    }
+                },
+                error: () => this.searchingSentence.set(false)
+            });
+
+        toObservable(this.sentenceContent)
+            .pipe(
+                debounceTime(300),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim()) {
+                        this.isSentenceDuplicate.set(false);
+                        this.checkingDuplicateSentence.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    const studentId = this.studentId;
+                    if (!q.trim() || !studentId) return of(null);
+                    this.checkingDuplicateSentence.set(true);
+                    return this.lessonService.searchSentence(q.trim(), studentId);
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.checkingDuplicateSentence.set(false);
+                    if (result && result.existsInGlobal) {
+                        const exactMatch = result.englishTranslation.toLowerCase().trim() === this.sentenceContent().toLowerCase().trim();
+                        this.isSentenceDuplicate.set(exactMatch);
+                    } else {
+                        this.isSentenceDuplicate.set(false);
+                    }
+                },
+                error: () => {
+                    this.checkingDuplicateSentence.set(false);
+                    this.isSentenceDuplicate.set(false);
                 }
             });
     }
@@ -290,30 +346,6 @@ export class LessonModeComponent {
         });
     }
 
-    assignSentenceFromStock(sentence: SentenceStockDto) {
-        const studentId = this.studentId;
-        if (!studentId) return;
-
-        this.savingSentence.set(true);
-        const request = {
-            userId: studentId,
-            sentenceStockId: sentence.id,
-            dueDate: new Intl.DateTimeFormat('sv-SE').format(new Date())
-        };
-
-        this.lessonService.assignToUser(request).subscribe({
-            next: () => {
-                this.messageService.add({
-                    severity: 'success', summary: 'Assigned',
-                    detail: 'Sentence assigned from database', life: 3000
-                });
-                this.sentenceSearchQuery.set('');
-                this.savingSentence.set(false);
-            },
-            error: () => this.savingSentence.set(false)
-        });
-    }
-
     addManualAndAssign() {
         const studentId = this.studentId;
         if (!this.newFront().trim() || !this.newBack().trim() || !studentId) return;
@@ -352,7 +384,7 @@ export class LessonModeComponent {
 
     saveSentence() {
         const studentId = this.studentId;
-        if (!this.sentenceContent().trim() || !studentId) return;
+        if (!this.sentenceContent().trim() || !studentId || this.isSentenceDuplicate()) return;
 
         this.savingSentence.set(true);
         this.lessonService.addSentence(
@@ -364,14 +396,46 @@ export class LessonModeComponent {
                     severity: 'success', summary: 'Saved',
                     detail: 'Sentence added', life: 3000
                 });
-                this.sentenceContent.set('');
-                this.sentenceTranslation.set('');
-                this.sentenceNotes.set('');
+                this.resetSentenceForm();
                 this.savingSentence.set(false);
                 this.loadGlobalSentenceStock();
             },
             error: () => this.savingSentence.set(false)
         });
+    }
+
+    assignExistingSentence() {
+        const result = this.sentenceSearchResult();
+        const studentId = this.studentId;
+        if (!result?.id || !studentId) return;
+
+        this.savingSentence.set(true);
+        const request = {
+            userId: studentId,
+            sentenceStockId: result.id,
+            dueDate: new Intl.DateTimeFormat('sv-SE').format(new Date())
+        };
+
+        this.lessonService.assignToUser(request).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success', summary: 'Assigned',
+                    detail: 'Sentence assigned from database', life: 3000
+                });
+                this.resetSentenceForm();
+                this.savingSentence.set(false);
+            },
+            error: () => this.savingSentence.set(false)
+        });
+    }
+
+    resetSentenceForm() {
+        this.sentenceSearchQuery.set('');
+        this.sentenceSearchResult.set(null);
+        this.sentenceContent.set('');
+        this.sentenceTranslation.set('');
+        this.sentenceNotes.set('');
+        this.isSentenceDuplicate.set(false);
     }
 
     saveMemory() {

@@ -6,8 +6,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
-import { SelectButtonModule } from 'primeng/selectbutton';
-import { TagModule } from 'primeng/tag';
 import { MessageService } from 'primeng/api';
 import { ContentService } from '../../services/student-services/content.service';
 
@@ -21,9 +19,7 @@ import { ContentService } from '../../services/student-services/content.service'
         InputTextModule,
         IconFieldModule, 
         InputIconModule, 
-        ToastModule, 
-        SelectButtonModule, 
-        TagModule
+        ToastModule
     ],
     providers: [MessageService],
     templateUrl: './sentences.component.html'
@@ -32,39 +28,20 @@ export class SentencesComponent implements OnInit {
     private contentService = inject(ContentService);
     
     sentences = this.contentService.sentences;
-    otherSentences = this.contentService.otherSentences; 
-
-    viewOptions = [
-        { label: 'My Flashcards', value: 'flashcards' },
-        { label: 'Assigned Sentences', value: 'other' }
-    ];
-    
-    selectedView: 'flashcards' | 'other' = 'flashcards';
 
     ngOnInit() {
         this.sentences.reload();
-        this.otherSentences.reload();
     }
 
     get currentData() {
-        return this.selectedView === 'flashcards' 
-            ? this.sentences.value() || [] 
-            : this.otherSentences.value() || [];
+        return this.sentences.value() || [];
     }
 
     get isLoading() {
-        return this.selectedView === 'flashcards' 
-            ? this.sentences.isLoading() 
-            : this.otherSentences.isLoading();
+        return this.sentences.isLoading();
     }
 
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
-    }
-
-    onViewChange() {
-        if (this.selectedView === 'other' && !this.otherSentences.value()) {
-            this.otherSentences.reload();
-        }
     }
 }
