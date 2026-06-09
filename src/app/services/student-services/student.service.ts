@@ -90,6 +90,13 @@ export interface StatsDto {
     categoryBreakdown: CategoryBreakdownDto;
 }
 
+export interface PointEntry {
+    id: number;
+    pointDate: string;
+    points: number;
+    reason: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class StudentService {
     private apiUrl = '/api/student';

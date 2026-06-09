@@ -52,7 +52,6 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
                                     <p-checkbox [(ngModel)]="checked" id="rememberme1" binary class="mr-2"></p-checkbox>
                                     <label for="rememberme1">Remember me</label>
                                 </div>
-                                <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
                             </div>
                             <p-button label="Sign In" styleClass="w-full" routerLink="/"></p-button>
                         </div>

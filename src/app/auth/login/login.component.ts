@@ -47,7 +47,6 @@ export class LoginComponent {
         },
         (error) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
-          this.router.navigate(['/auth/access'])
         }
       );
     }
