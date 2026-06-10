@@ -12,6 +12,7 @@ export interface StudentModuleDto {
     weekNumber: number;
     dayOfWeek: number;
     unlockDate: string;
+    deadline: string;
     isUnlocked: boolean;
     isCompleted: boolean;
     isOverdue: boolean;

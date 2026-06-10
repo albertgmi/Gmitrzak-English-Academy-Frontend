@@ -68,6 +68,7 @@ import { PresentationComponent } from './student-view/presentation/presentation.
 import { ActiveStudentsReportsComponent } from './content/active-students-reports/active-students-reports.component';
 import { OnboardClientComponent } from './lesson/onboard-client/onboard-client.component';
 import { ExaminationModeComponent } from './lesson/examination-mode/examination-mode.component';
+import { CreditsComponent } from './other/credits/credits.component';
 
 
 
@@ -143,7 +144,8 @@ export const appRoutes: Routes = [
       { path: 'ranking', component: RankingComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/presentation', component: PresentationComponent, canActivate: [AuthGuard] },
       { path: 'system/active-students-reports', component: ActiveStudentsReportsComponent, canActivate: [AuthGuard] },
-      { path: 'lesson/examination', component: ExaminationModeComponent, canActivate: [AuthGuard] }
+      { path: 'lesson/examination', component: ExaminationModeComponent, canActivate: [AuthGuard] },
+      { path: 'credits', component: CreditsComponent, canActivate: [AuthGuard] }
 
     ]
   },

@@ -176,24 +176,31 @@
       </div>
 
       <div class="text-right flex-shrink-0">
+
         <div class="text-sm font-medium"
-          [ngClass]="m.isUnlocked ? 'text-surface-900 dark:text-surface-0' : 'text-muted-color'">
-          {{ m.unlockDate | date:'d MMM' }}
+          [ngClass]="m.isUnlocked
+            ? 'text-surface-900 dark:text-surface-0'
+            : 'text-muted-color'">
+          Due: {{ m.deadline | date:'d MMM' }}
         </div>
+
+        <div *ngIf="m.weekNumber > 0" class="text-xs text-muted-color mt-0.5">
+          Unlocks: {{ m.unlockDate | date:'d MMM' }}
+        </div>
+
         <div class="text-xs text-muted-color mb-1">
           {{ dayLabel(m.dayOfWeek) }}, week {{ m.weekNumber }}
         </div>
-
         <div class="mt-1">
           <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
           <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
           <p-tag *ngIf="!m.isUnlocked" severity="secondary"
             [value]="'Unlocks ' + (m.unlockDate | date:'d MMM')" />
           <ng-container *ngIf="!m.isCompleted && !m.isOverdue && m.isUnlocked">
-            <p-tag *ngIf="isActivityBased(m) && m.canComplete"  severity="success" value="Ready!" />
-            <p-tag *ngIf="isActivityBased(m) && !m.canComplete" severity="warn"    [value]="activityLabel(m)" />
-            <p-tag *ngIf="isSentences(m)"                       severity="warn"    value="Translate" />
-            <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info" value="Available" />
+            <p-tag *ngIf="isActivityBased(m) && m.canComplete"    severity="success" value="Ready!" />
+            <p-tag *ngIf="isActivityBased(m) && !m.canComplete"   severity="warn"    [value]="activityLabel(m)" />
+            <p-tag *ngIf="isSentences(m)"                         severity="warn"    value="Translate" />
+            <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info"   value="Available" />
           </ng-container>
         </div>
       </div>

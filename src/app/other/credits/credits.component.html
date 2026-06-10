@@ -1,0 +1,180 @@
+<p-toast />
+
+<div class="card">
+
+  <div *ngIf="loading()" class="text-center py-16 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl block mb-4"></i>
+  </div>
+
+  <div *ngIf="!loading() && summary() as s">
+
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Credits</h2>
+        <p class="text-muted-color mt-1 m-0">Earn credits through daily challenges</p>
+      </div>
+      <div class="text-right">
+        <div class="text-4xl font-bold text-primary">{{ s.totalCredits }}</div>
+        <div class="text-xs text-muted-color">available credits</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-green-600">{{ s.creditsEarned }}</div>
+        <div class="text-xs text-muted-color mt-1">Total earned</div>
+      </div>
+      <div class="bg-primary/10 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-primary">{{ s.totalCredits }}</div>
+        <div class="text-xs text-muted-color mt-1">Available</div>
+      </div>
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-2xl font-bold text-muted-color">{{ s.creditsSpent }}</div>
+        <div class="text-xs text-muted-color mt-1">Spent</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+
+      <div class="p-4 rounded-xl border"
+        [ngClass]="dailyChallengeToday()
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
+          : 'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700'">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">{{ dailyChallengeToday() ? '✅' : '🎯' }}</span>
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">
+              Daily Challenge
+            </div>
+            <div class="text-xs text-muted-color">Do 75 flashcards today</div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-primary">+1 credit</div>
+            <p-tag *ngIf="dailyChallengeToday()" severity="success" value="Done!" />
+            <p-tag *ngIf="!dailyChallengeToday()" severity="secondary" value="Pending" />
+          </div>
+        </div>
+      </div>
+
+      <div class="p-4 rounded-xl border"
+        [ngClass]="weeklyChallengeThisWeek()
+          ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
+          : 'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700'">
+        <div class="flex items-center gap-3">
+          <span class="text-3xl">{{ weeklyChallengeThisWeek() ? '🏆' : '📅' }}</span>
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">
+              Weekly Challenge
+            </div>
+            <div class="text-xs text-muted-color">Do 300 flashcards this week</div>
+          </div>
+          <div class="text-right">
+            <div class="font-bold text-primary">+5 credits</div>
+            <p-tag *ngIf="weeklyChallengeThisWeek()" severity="success" value="Done!" />
+            <p-tag *ngIf="!weeklyChallengeThisWeek()" severity="secondary" value="Pending" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="flex gap-1 mb-6 bg-surface-50 dark:bg-surface-800 rounded-xl p-1">
+      <button *ngFor="let t of tabs"
+        class="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer border-0"
+        [ngClass]="activeTab() === t.id
+          ? 'bg-white dark:bg-surface-900 text-primary shadow-sm'
+          : 'text-muted-color hover:text-surface-900 bg-transparent'"
+        (click)="activeTab.set(t.id)">
+        {{ t.label }}
+      </button>
+    </div>
+
+    <div *ngIf="activeTab() === 'shop'">
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+        <div *ngFor="let item of shop()"
+          class="p-5 rounded-xl border transition-all"
+          [ngClass]="item.canAfford
+            ? 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/50 hover:shadow-sm'
+            : 'bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-800 opacity-70'">
+
+          <div class="text-4xl mb-3">{{ item.iconEmoji }}</div>
+          <div class="font-bold text-surface-900 dark:text-surface-0 mb-1">{{ item.name }}</div>
+          <div class="text-xs text-muted-color mb-4 leading-relaxed">{{ item.description }}</div>
+
+          <div class="flex items-center justify-between">
+            <div class="font-bold text-primary text-lg">{{ item.creditCost }} credits</div>
+            <p-button
+              [label]="item.canAfford ? 'Buy' : 'Not enough'"
+              [icon]="item.canAfford ? 'pi pi-shopping-cart' : 'pi pi-lock'"
+              [severity]="item.canAfford ? 'success' : 'secondary'"
+              [outlined]="!item.canAfford"
+              size="small"
+              [loading]="buying() === item.id"
+              [disabled]="!item.canAfford"
+              (onClick)="buy(item)" />
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab() === 'history'">
+      <div *ngIf="!s.history.length" class="text-center py-12 text-muted-color">
+        <i class="pi pi-history text-4xl block mb-3"></i>
+        <p>No credit history yet.</p>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let h of s.history"
+          class="flex items-center gap-4 p-3 rounded-xl border"
+          [ngClass]="h.type === 'earned'
+            ? 'bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-900'
+            : 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900'">
+
+          <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
+            [ngClass]="h.type === 'earned' ? 'bg-green-500' : 'bg-red-400'">
+            <i class="pi text-white text-xs"
+              [ngClass]="h.type === 'earned' ? 'pi-plus' : 'pi-minus'"></i>
+          </div>
+
+          <div class="flex-1">
+            <div class="text-sm font-medium text-surface-900 dark:text-surface-0">
+              {{ h.reason }}
+            </div>
+            <div class="text-xs text-muted-color">{{ h.date | date:'d MMM yyyy' }}</div>
+          </div>
+
+          <div class="font-bold text-lg"
+            [ngClass]="h.type === 'earned' ? 'text-green-600' : 'text-red-500'">
+            {{ h.type === 'earned' ? '+' : '' }}{{ h.amount }}
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeTab() === 'purchases'">
+      <div *ngIf="!s.purchases.length" class="text-center py-12 text-muted-color">
+        <i class="pi pi-shopping-bag text-4xl block mb-3"></i>
+        <p>No purchases yet.</p>
+        <p class="text-sm">Buy something from the shop!</p>
+      </div>
+
+      <div class="flex flex-col gap-3">
+        <div *ngFor="let p of s.purchases"
+          class="flex items-center gap-4 p-4 rounded-xl border
+            bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700">
+
+          <span class="text-3xl flex-shrink-0">{{ p.iconEmoji }}</span>
+
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ p.itemName }}</div>
+            <div class="text-xs text-muted-color mt-0.5">
+              {{ p.purchaseDate | date:'d MMM yyyy' }} · {{ p.creditCost }} credits
+            </div>
+          </div>
+
+          <p-tag [severity]="statusSeverity(p.status)" [value]="p.status" />
+        </div>
+      </div>
+    </div>
+
+  </div>
+</div>
