@@ -1,10 +1,19 @@
 .module-card {
     transition: all 0.25s ease;
-    border: 1px solid transparent;
+    border: 1px solid rgba(0, 0, 0, 0.15); 
+
+    :host-context(.dark) & {
+        border-color: rgba(255, 255, 255, 0.15);
+    }
 
     &:hover:not(.module-locked) {
         transform: translateY(-1px);
         box-shadow: 0 4px 12px rgba(0,0,0,0.06);
+        border-color: rgba(0, 0, 0, 0.3);
+
+        :host-context(.dark) & {
+            border-color: rgba(255, 255, 255, 0.3);
+        }
     }
 
     &.module-locked {
@@ -71,5 +80,5 @@
 
 @keyframes pulseReady {
     0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0.25); }
-    50%       { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
+    50%      { box-shadow: 0 0 0 5px rgba(16, 185, 129, 0); }
 }

@@ -8,6 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { SkeletonModule } from 'primeng/skeleton';
+import { DividerModule } from 'primeng/divider';
 import {
     StudentService,
     StudentAssignmentDto,
@@ -22,7 +23,8 @@ type View = 'active' | 'history';
     standalone: true,
     imports: [
         CommonModule, ToastModule, ProgressBarModule,
-        TooltipModule, ButtonModule, TagModule, SkeletonModule
+        TooltipModule, ButtonModule, TagModule,
+        SkeletonModule, DividerModule
     ],
     providers: [MessageService],
     templateUrl: './user-course.component.html',
@@ -38,15 +40,13 @@ export class UserCourseComponent implements OnInit {
     selectedMatrixId = signal<number | null>(null);
     activeView       = signal<View>('active');
 
-    activeMatrices = computed(() => {
-        const all = this.courses.value() ?? [];
-        return all.filter(c => this.progress(c) < 100);
-    });
+    activeMatrices = computed(() =>
+        (this.courses.value() ?? []).filter(c => this.progress(c) < 100)
+    );
 
-    historyMatrices = computed(() => {
-        const all = this.courses.value() ?? [];
-        return all.filter(c => this.progress(c) >= 100);
-    });
+    historyMatrices = computed(() =>
+        (this.courses.value() ?? []).filter(c => this.progress(c) >= 100)
+    );
 
     historySingleModules = signal<StudentModuleDto[]>([]);
 
@@ -56,6 +56,30 @@ export class UserCourseComponent implements OnInit {
         if (!matrixId || !allCourses) return null;
         return allCourses.find(c => c.matrixId === matrixId) ?? null;
     });
+
+    overdueModules = computed(() =>
+        (this.selectedAssignment()?.modules ?? [])
+            .filter(m => m.isOverdue && !m.isCompleted)
+            .sort((a, b) => a.unlockDate < b.unlockDate ? -1 : 1)
+    );
+
+    currentWeekModules = computed(() =>
+        (this.selectedAssignment()?.modules ?? [])
+            .filter(m => m.isUnlocked && !m.isCompleted && !m.isOverdue)
+            .sort((a, b) => a.unlockDate < b.unlockDate ? -1 : 1)
+    );
+
+    futureModules = computed(() =>
+        (this.selectedAssignment()?.modules ?? [])
+            .filter(m => !m.isUnlocked && !m.isCompleted)
+            .sort((a, b) => a.unlockDate < b.unlockDate ? -1 : 1)
+    );
+
+    completedModules = computed(() =>
+        (this.selectedAssignment()?.modules ?? [])
+            .filter(m => m.isCompleted)
+            .sort((a, b) => a.unlockDate < b.unlockDate ? -1 : 1)
+    );
 
     ngOnInit() {
         this.studentService.reloadCourses();
@@ -83,38 +107,33 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'sentences']);
                 return;
             case 'SentenceFlashcards':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/sentences-cards']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete)
                     this.toggleComplete(module);
-                }
                 return;
             case 'Presentation':
                 this.router.navigate(['/modules', module.moduleId, 'presentation']);
                 return;
             case 'Flashcards':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/flashcards']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete)
                     this.toggleComplete(module);
-                }
                 return;
             case 'Memories':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/memories']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete)
                     this.toggleComplete(module);
-                }
                 return;
             case 'Pronunciation':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/pronunciation']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete)
                     this.toggleComplete(module);
-                }
                 return;
         }
-
         this.toggleComplete(module);
     }
 
@@ -130,9 +149,9 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'sentences']);
                 return;
             case 'SentenceFlashcards':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/sentences-cards']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete) {
                     this.triggerTeamsCelebration();
                     this.toggleSingleModule(module);
                 }
@@ -141,31 +160,30 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'presentation']);
                 return;
             case 'Flashcards':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/flashcards']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete) {
                     this.triggerTeamsCelebration();
                     this.toggleSingleModule(module);
                 }
                 return;
             case 'Memories':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/memories']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete) {
                     this.triggerTeamsCelebration();
                     this.toggleSingleModule(module);
                 }
                 return;
             case 'Pronunciation':
-                if (!module.isCompleted && !module.canComplete) {
+                if (!module.isCompleted && !module.canComplete)
                     this.router.navigate(['/pronunciation']);
-                } else if (!module.isCompleted && module.canComplete) {
+                else if (!module.isCompleted && module.canComplete) {
                     this.triggerTeamsCelebration();
                     this.toggleSingleModule(module);
                 }
                 return;
         }
-
         this.toggleSingleModule(module);
     }
 
@@ -185,7 +203,6 @@ export class UserCourseComponent implements OnInit {
 
     toggleSingleModule(module: StudentModuleDto) {
         const checkingAsCompleted = !module.isCompleted;
-
         const action = module.isCompleted
             ? this.studentService.uncompleteSingleModule(module.id)
             : this.studentService.completeSingleModule(module.id);
@@ -208,38 +225,43 @@ export class UserCourseComponent implements OnInit {
         return Math.round((completed / assignment.modules.length) * 100);
     }
 
-    unlockedCount(assignment: StudentAssignmentDto): number {
-        return assignment.modules?.filter(m => m.isUnlocked).length ?? 0;
-    }
+    unlockedCount(a: StudentAssignmentDto)  { return a.modules?.filter(m => m.isUnlocked).length ?? 0; }
+    getCompletedCount(a: StudentAssignmentDto) { return a.modules?.filter(m => m.isCompleted).length ?? 0; }
 
-    getCompletedCount(assignment: StudentAssignmentDto): number {
-        return assignment.modules?.filter(m => m.isCompleted).length ?? 0;
-    }
-
-    moduleTooltip(module: StudentModuleDto): string {
-        if (!module.isUnlocked) return `Locked until ${module.unlockDate}`;
-        if (module.isCompleted) return `${module.name} — completed ✓`;
-        
-        if (this.isActivityBased(module)) {
-            if (module.canComplete) return `${module.name} — ready! Click to complete.`;
-            return module.completionBlockReason
-                ?? `${module.name} — keep the streak going!`;
+    moduleTooltip(m: StudentModuleDto): string {
+        if (!m.isUnlocked)  return `Unlocks ${m.unlockDate}`;
+        if (m.isCompleted)  return `${m.name} — completed ✓`;
+        if (this.isActivityBased(m)) {
+            if (m.canComplete) return `${m.name} — ready! Click to complete.`;
+            return m.completionBlockReason ?? `${m.name} — keep the streak going!`;
         }
-    
-        if (module.category === 'Sentences')     return `${module.name} — click to translate`;
-        if (module.category === 'Presentation')  return `${module.name} — click to read`;
-        if (module.category === 'Watching')      return `${module.name} — click to watch`;
-    
-        return `${module.name} — click to mark as done`;
+        if (m.category === 'Sentences')    return `${m.name} — click to translate`;
+        if (m.category === 'Presentation') return `${m.name} — click to read`;
+        if (m.category === 'Watching')     return `${m.name} — click to watch`;
+        return `${m.name} — click to mark as done`;
     }
 
     dayLabel(day: number): string {
-        const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-        return days[day - 1] ?? '';
+        return ['Mon','Tue','Wed','Thu','Fri','Sat','Sun'][day - 1] ?? '';
     }
 
-    isSentences(module: StudentModuleDto): boolean {
-        return module.category === 'Sentences';
+    isSentences(m: StudentModuleDto)   { return m.category === 'Sentences'; }
+    isActivityBased(m: StudentModuleDto) {
+        return ['Flashcards','SentenceFlashcards','Memories','Pronunciation'].includes(m.category);
+    }
+
+    activityProgress(m: StudentModuleDto): number {
+        if (m.activityDaysRequired === 0) return 100;
+        return Math.min(100, Math.round((m.activityDaysCount / m.activityDaysRequired) * 100));
+    }
+
+    activityLabel(m: StudentModuleDto): string {
+        if (m.isCompleted)                return 'Done';
+        if (m.activityDaysRequired === 0) return 'Click to complete';
+        if (m.canComplete)                return 'Ready to complete!';
+        const d = m.activityDaysCount, r = m.activityDaysRequired;
+        if (d === 0) return `${r} consecutive days needed`;
+        return `${d}/${r} consecutive days`;
     }
 
     loadHistory() {
@@ -250,74 +272,38 @@ export class UserCourseComponent implements OnInit {
 
     setHistoryView() {
         this.activeView.set('history');
-        
-        if (this.historySingleModules().length === 0) {
+        if (!this.historySingleModules().length) {
             this.studentService.getCompletedSingleModules().subscribe({
-                next: (data) => this.historySingleModules.set(data),
-                error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Could not load history' })
+                next: d  => this.historySingleModules.set(d),
+                error: () => this.messageService.add({
+                    severity: 'error', summary: 'Error',
+                    detail: 'Could not load history' })
             });
         }
     }
 
-    moduleCardClass(m: StudentModuleDto): string {
-        if (!m.isUnlocked) return 'module-locked';
-        if (m.isCompleted) return 'module-done';
-        if (m.isOverdue)   return 'module-overdue';
-
-        if (m.activityDaysRequired > 0 && !m.canComplete)
-            return 'module-in-progress';
-    
-        if (m.activityDaysRequired > 0 && m.canComplete)
-            return 'module-ready';
-
-        return 'module-available';
+    getOverdueCount(a: StudentAssignmentDto): number {
+        return a.modules?.filter(m => m.isOverdue && !m.isCompleted).length ?? 0;
     }
-
-    activityProgress(m: StudentModuleDto): number {
-        if (m.activityDaysRequired === 0) return 100;
-        return Math.min(100, Math.round(
-            (m.activityDaysCount / m.activityDaysRequired) * 100
-        ));
-    }
-
-    activityLabel(m: StudentModuleDto): string {
-        if (m.isCompleted)                return 'Done';
-        if (m.activityDaysRequired === 0) return 'Click to complete';
-        if (m.canComplete)                return 'Ready to complete!';
-
-        const days = m.activityDaysCount;
-        const required = m.activityDaysRequired;
-
-        if (days === 0) return `${required} consecutive days needed`;
-        return `${days}/${required} consecutive days`;
-    }
-
-    isActivityBased(m: StudentModuleDto): boolean {
-        return ['Flashcards', 'SentenceFlashcards', 'Memories', 'Pronunciation']
-            .includes(m.category);
-    }
-
 
     private triggerTeamsCelebration() {
-        const scalar     = 4.5;
-        const approveSign  = confetti.shapeFromText({ text: '✅️', scalar });
+        const scalar      = 4.5;
+        const approveSign = confetti.shapeFromText({ text: '✅️', scalar });
         const partyPopper = confetti.shapeFromText({ text: '🎉', scalar });
-        const star       = confetti.shapeFromText({ text: '⭐', scalar });
-        const duration   = 3500;
-        const animationEnd = Date.now() + duration;
-        const defaults     = {
+        const star        = confetti.shapeFromText({ text: '⭐', scalar });
+        const duration    = 3500;
+        const animEnd     = Date.now() + duration;
+        const defaults    = {
             startVelocity: 35, spread: 360, ticks: 80, gravity: 1.0,
             shapes: [approveSign, partyPopper, star], scalar
         };
         const rand = (min: number, max: number) => Math.random() * (max - min) + min;
-        const interval = setInterval(() => {
-            const timeLeft = animationEnd - Date.now();
-            if (timeLeft <= 0) return clearInterval(interval);
-            const particleCount = 25 * (timeLeft / duration);
-            confetti({ ...defaults, particleCount,
-                origin: { x: rand(0.1, 0.3), y: Math.random() - 0.2 } });
-            confetti({ ...defaults, particleCount,
-                origin: { x: rand(0.7, 0.9), y: Math.random() - 0.2 } });
+        const iv = setInterval(() => {
+            const tl = animEnd - Date.now();
+            if (tl <= 0) return clearInterval(iv);
+            const pc = 25 * (tl / duration);
+            confetti({ ...defaults, particleCount: pc, origin: { x: rand(0.1,0.3), y: Math.random()-0.2 } });
+            confetti({ ...defaults, particleCount: pc, origin: { x: rand(0.7,0.9), y: Math.random()-0.2 } });
         }, 200);
     }
 }

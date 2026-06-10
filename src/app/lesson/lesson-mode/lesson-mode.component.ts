@@ -58,7 +58,7 @@ export class LessonModeComponent {
     sentenceNotes = signal('');
     savingSentence = signal(false);
     sentenceSearchQuery = signal('');
-    sentenceSearchResult = signal<any | null>(null);
+    sentenceSearchResult = signal<any[] | null>(null);
     searchingSentence = signal(false);
     checkingDuplicateSentence = signal(false);
     isSentenceDuplicate = signal(false);
@@ -259,12 +259,13 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result) => {
+                next: (result: any) => {
                     this.searchingSentence.set(false);
                     if (result) {
                         this.sentenceSearchResult.set(result);
-                        if (!result.existsInGlobal) {
-                            this.sentenceContent.set(result.englishTranslation);
+
+                        if (result.length === 1 && !result[0].existsInGlobal) {
+                            this.sentenceContent.set(result[0].englishTranslation);
                         }
                     }
                 },
@@ -289,11 +290,14 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result) => {
+                next: (result: any) => {
                     this.checkingDuplicateSentence.set(false);
-                    if (result && result.existsInGlobal) {
-                        const exactMatch = result.englishTranslation.toLowerCase().trim() === this.sentenceContent().toLowerCase().trim();
-                        this.isSentenceDuplicate.set(exactMatch);
+                    if (result && result.length > 0) {
+                        const hasExactMatch = result.some((r: any) => 
+                            r.existsInGlobal && 
+                            r.englishTranslation.toLowerCase().trim() === this.sentenceContent().toLowerCase().trim()
+                        );
+                        this.isSentenceDuplicate.set(hasExactMatch);
                     } else {
                         this.isSentenceDuplicate.set(false);
                     }
@@ -404,18 +408,17 @@ export class LessonModeComponent {
         });
     }
 
-    assignExistingSentence() {
-        const result = this.sentenceSearchResult();
+    assignExistingSentence(sentence: any) {
         const studentId = this.studentId;
-        if (!result?.id || !studentId) return;
-
+        if (!sentence?.id || !studentId) return;
+        
         this.savingSentence.set(true);
         const request = {
             userId: studentId,
-            sentenceStockId: result.id,
+            sentenceStockId: sentence.id,
             dueDate: new Intl.DateTimeFormat('sv-SE').format(new Date())
         };
-
+    
         this.lessonService.assignToUser(request).subscribe({
             next: () => {
                 this.messageService.add({

@@ -99,8 +99,7 @@
               <div class="text-right flex-shrink-0">
                 <p-tag [severity]="dueSeverity(a)" [value]="dueLabel(a)" />
                 <div class="text-xs text-muted-color mt-1">
-                  <span *ngIf="a.hasDeadline">{{ a.dueDate | date:'d MMM yyyy' }}</span>
-                  <span *ngIf="!a.hasDeadline" class="italic">No due date</span>
+                  {{ a.dueDate | date:'d MMM yyyy' }}
                 </div>
               </div>
 
@@ -154,8 +153,7 @@
             </div>
           </td>
           <td class="text-sm">
-            <span *ngIf="a.hasDeadline">{{ a.dueDate | date:'d MMM yyyy' }}</span>
-            <span *ngIf="!a.hasDeadline" class="text-muted-color italic">No due date</span>
+            {{ a.dueDate | date:'d MMM yyyy' }}
           </td>
           <td>
             <p-tag

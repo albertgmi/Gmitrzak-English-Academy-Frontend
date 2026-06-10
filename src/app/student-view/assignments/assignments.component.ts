@@ -54,23 +54,36 @@ export class AssignmentsComponent implements OnInit {
         this.router.navigate(['/courses']);
     }
 
+    dueLabel(a: AssignmentStudentDto): string {
+        if (a.isCompleted) return 'Done';
+        if (a.isOverdue) return 'Overdue';
+
+        const days = this.daysUntil(a.dueDate);
+        if (days < 0) return 'Overdue';
+        if (days === 0) return 'Today';
+        if (days === 1) return 'Tomorrow';
+        return `In ${days} days`;
+    }
+    
     dueSeverity(a: AssignmentStudentDto): SeverityType {
         if (a.isCompleted)  return 'success';
         if (a.isOverdue)    return 'danger';
-        if (!a.hasDeadline) return 'secondary';
+
         const days = this.daysUntil(a.dueDate);
+        if (days < 0)       return 'danger';
         if (days <= 1)      return 'warn';
         return 'info';
     }
 
-    dueLabel(a: AssignmentStudentDto): string {
-        if (a.isCompleted)  return 'Done';
-        if (a.isOverdue)    return 'Overdue';
-        if (!a.hasDeadline) return 'No deadline';
-        const days = this.daysUntil(a.dueDate);
-        if (days === 0)     return 'Today';
-        if (days === 1)     return 'Tomorrow';
-        return `In ${days} days`;
+    private daysUntil(dateStr: string): number {
+        const polishTimeStr = new Date().toLocaleString('en-US', { timeZone: 'Europe/Warsaw' });
+        const today = new Date(polishTimeStr); 
+        today.setHours(0, 0, 0, 0);
+
+        const due = new Date(dateStr); 
+        due.setHours(0, 0, 0, 0);
+
+        return Math.round((due.getTime() - today.getTime()) / 86400000);
     }
 
     historyStatusSeverity(a: AssignmentStudentDto): SeverityType {
@@ -79,11 +92,5 @@ export class AssignmentsComponent implements OnInit {
 
     historyStatusLabel(a: AssignmentStudentDto): string {
         return a.isCompleted ? 'Completed' : 'Overdue';
-    }
-
-    private daysUntil(dateStr: string): number {
-        const today = new Date(); today.setHours(0, 0, 0, 0);
-        const due   = new Date(dateStr); due.setHours(0, 0, 0, 0);
-        return Math.round((due.getTime() - today.getTime()) / 86400000);
     }
 }
