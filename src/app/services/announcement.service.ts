@@ -1,5 +1,6 @@
 import { inject, Injectable, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface AnnouncementDto {
     id: number;
@@ -50,7 +51,7 @@ export interface AnnouncementDetailsDto {
 
 @Injectable({ providedIn: 'root' })
 export class AnnouncementService {
-    private apiUrl = '/api/announcement';
+    private apiUrl = `${environment.apiUrl}/api/announcement`;
     http = inject(HttpClient);
 
     unreadCount = signal(0);

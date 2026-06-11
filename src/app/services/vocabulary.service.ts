@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface VocabularyDto {
     id: number;
@@ -46,8 +47,8 @@ export interface SearchVocabularyResult {
 
 @Injectable({ providedIn: 'root' })
 export class VocabularyService {
-    private apiUrl = '/api/vocabulary';
-    private userApiUrl = '/api/user';
+    private apiUrl = `${environment.apiUrl}/api/vocabulary`;
+    private userApiUrl = `${environment.apiUrl}/api/user`;
     http = inject(HttpClient);
 
     getAllVocabulary() {

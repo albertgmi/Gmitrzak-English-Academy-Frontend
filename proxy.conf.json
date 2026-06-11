@@ -1,7 +1,7 @@
 {
   "/api": {
-    "target": "https://localhost:7100",
-    "secure": false,
+    "target": "https://gmitrzak-english-academy-production.up.railway.app",
+    "secure": true,
     "changeOrigin": true,
     "logLevel": "debug"
   }

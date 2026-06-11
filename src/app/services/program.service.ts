@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface Course {
     id: number;
@@ -32,7 +33,7 @@ export interface CreateProgramRequest {
     providedIn: 'root'
 })
 export class ProgramService {
-    private apiUrl = '/api/program';
+    private apiUrl = `${environment.apiUrl}/api/program`;
 
     http = inject(HttpClient);
 

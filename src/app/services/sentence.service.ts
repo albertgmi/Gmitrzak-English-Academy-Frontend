@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface SentenceStockDto {
     id: number;
@@ -72,7 +73,11 @@ export interface CompletedSentenceModuleDto {
 
 @Injectable({ providedIn: 'root' })
 export class SentenceService {
-    private apiUrl = '/api/sentence';
+    // 1. Trzy zmienne bazowe połączone z environment
+    private apiUrl = `${environment.apiUrl}/api/sentence`;
+    private answersApiUrl = `${environment.apiUrl}/api/answers`;
+    private studentLearningApiUrl = `${environment.apiUrl}/api/student-learning`;
+
     http = inject(HttpClient);
 
     stock = resource<SentenceStockDto[], unknown>({
@@ -126,26 +131,28 @@ export class SentenceService {
     }
 
     getModuleSentences(moduleId: number) {
-        return this.http.get<ModuleSentenceSessionDto>(`/api/student-learning/module/${moduleId}/sentences`);
+        return this.http.get<ModuleSentenceSessionDto>(
+            `${this.studentLearningApiUrl}/module/${moduleId}/sentences`
+        );
     }
 
     submitAnswer(moduleId: number, sentenceStockId: number, userAnswer: string) {
-        return this.http.post<AnswerResultDto>('/api/answers',
+        return this.http.post<AnswerResultDto>(this.answersApiUrl,
             { moduleId, sentenceStockId, userAnswer });
     }
 
     getAnswersForModule(moduleId: number) {
-        return this.http.get<AnswerResultDto[]>(`/api/answers/module/${moduleId}`);
+        return this.http.get<AnswerResultDto[]>(`${this.answersApiUrl}/module/${moduleId}`);
     }
 
     getAnswersForStudent(moduleId: number, studentId: number) {
         return this.http.get<AnswerResultDto[]>(
-            `/api/answers/module/${moduleId}/student/${studentId}`
+            `${this.answersApiUrl}/module/${moduleId}/student/${studentId}`
         );
     }
 
     overrideAnswer(answerId: number, override: string | null, teacherExplanation?: string) {
-        return this.http.patch(`/api/answers/${answerId}/override`,
+        return this.http.patch(`${this.answersApiUrl}/${answerId}/override`,
             { override, teacherExplanation });
     }
 
@@ -155,26 +162,26 @@ export class SentenceService {
 
     getCompletedModules(studentId: number, dateFrom: string, dateTo: string) {
         return this.http.get<CompletedSentenceModuleDto[]>(
-            `/api/answers/modules/completed?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`
+            `${this.answersApiUrl}/modules/completed?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`
         );
     }
 
     downloadRangeReportPdf(studentId: number, dateFrom: string, dateTo: string) {
         return this.http.get(
-            `/api/answers/report/range?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            `${this.answersApiUrl}/report/range?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
             { responseType: 'blob' }
         );
     }
 
     downloadRangeReportDocx(studentId: number, dateFrom: string, dateTo: string) {
         return this.http.get(
-            `/api/answers/report/range/docx?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
+            `${this.answersApiUrl}/report/range/docx?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`,
             { responseType: 'blob' }
         );
     }
 
     downloadAllActiveReportsZip(dateFrom: string, dateTo: string) {
-        return this.http.get('/api/answers/report/all', {
+        return this.http.get(`${this.answersApiUrl}/report/all`, {
             params: { dateFrom, dateTo },
             responseType: 'blob'
         });

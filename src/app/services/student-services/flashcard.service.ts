@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface FlashcardDto {
   id: number;
@@ -30,7 +31,7 @@ export interface ReviewCardRequest {
 
 @Injectable({ providedIn: 'root' })
 export class FlashcardService {
-  private apiUrl = '/api/student-learning/flashcards';
+  private apiUrl = `${environment.apiUrl}/api/student-learning/flashcards`;
   private http = inject(HttpClient);
 
   flashcards = resource<FlashcardDto[], unknown>({

@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ModuleSimple {
     id: number;
@@ -41,7 +42,7 @@ export interface UpdateMatrixRequest {
 
 @Injectable({ providedIn: 'root' })
 export class MatrixService {
-    private apiUrl = '/api/matrix';
+    private apiUrl = `${environment.apiUrl}/api/matrix`;
     http = inject(HttpClient);
 
     matrices = resource<Matrix[], unknown>({
@@ -73,6 +74,6 @@ export class MatrixService {
     }
 
     getAllMatrices() {
-        return this.http.get<Matrix[]>('/api/matrix');
+        return this.http.get<Matrix[]>(this.apiUrl);
     }
 }

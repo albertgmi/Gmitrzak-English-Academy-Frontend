@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface CreditHistoryItemDto {
     id: number;
@@ -44,7 +45,7 @@ export interface ShopPurchaseResultDto {
 @Injectable({ providedIn: 'root' })
 export class CreditService {
     private http = inject(HttpClient);
-    private api  = '/api/credits';
+    private api  = `${environment.apiUrl}/api/credits`;
 
     getSummary() {
         return this.http.get<CreditSummaryDto>(`${this.api}/summary`);

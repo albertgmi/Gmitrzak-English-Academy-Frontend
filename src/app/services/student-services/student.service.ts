@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../../environments/environment';
 
 export interface StudentModuleDto {
     id: number;
@@ -100,7 +101,7 @@ export interface PointEntry {
 
 @Injectable({ providedIn: 'root' })
 export class StudentService {
-    private apiUrl = '/api/student';
+    private apiUrl = `${environment.apiUrl}/api/student`;
     http = inject(HttpClient);
 
     courses = resource<StudentAssignmentDto[], unknown>({

@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface ExaminationFlashcardDto {
     id: number;
@@ -35,8 +36,8 @@ export interface ExaminationDto {
 @Injectable({ providedIn: 'root' })
 export class ExaminationService {
     private http = inject(HttpClient);
-
+    private apiUrl = `${environment.apiUrl}/api/examination`;
     getExamination(studentId: number) {
-        return this.http.get<ExaminationDto>(`/api/examination/${studentId}`);
+        return this.http.get<ExaminationDto>(`${this.apiUrl}/${studentId}`);
     }
 }
