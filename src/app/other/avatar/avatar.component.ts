@@ -46,7 +46,7 @@ export class AvatarComponent {
       console.log('Wynik: URL jest pusty, zwracam pusty string');
       return '';
     }
-  
+    // test dla vercela niech ruszy
     if (url.includes('cloudinary.com')) {
       console.log('Wynik: Wykryto Cloudinary, zwracam pełny URL:', url);
       return url;
