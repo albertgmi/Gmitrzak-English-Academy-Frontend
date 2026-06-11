@@ -9,7 +9,7 @@ import { environment } from '../../../environments/environment';
   template: `
     <ng-container *ngIf="avatarUrl && !imgError(); else letterFallback">
       <img 
-        [src]="fullAvatarUrl()" 
+        [src]="fullAvatarUrl"
         [alt]="username" 
         [class]="customClass + ' rounded-full object-cover'"
         (error)="onImgError()" 
@@ -33,19 +33,21 @@ export class AvatarComponent {
 
   private readonly baseUrl = environment.apiUrl;
 
-  fullAvatarUrl = computed(() => {
+  get fullAvatarUrl(): string {
     const url = this.avatarUrl;
-    
     if (!url) return '';
 
-    let cleanUrl = url.replace('https://gmitrzak-english-academy-production.up.railway.app', '');
-    
+    let cleanUrl = url.replace(
+      'https://gmitrzak-english-academy-production.up.railway.app',
+      ''
+    );
+
     if (cleanUrl.startsWith('http')) {
-       return cleanUrl;
+      return cleanUrl;
     }
-  
+
     return `${this.baseUrl}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
-  });
+  }
 
   onImgError() {
     this.imgError.set(true);
