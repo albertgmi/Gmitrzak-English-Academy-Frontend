@@ -133,6 +133,9 @@ export class UserCourseComponent implements OnInit {
                 else if (!module.isCompleted && module.canComplete)
                     this.toggleComplete(module);
                 return;
+            case 'Essay':
+                this.router.navigate(['/modules', module.moduleId, 'essay']);
+                return;
         }
         this.toggleComplete(module);
     }
@@ -182,6 +185,9 @@ export class UserCourseComponent implements OnInit {
                     this.triggerTeamsCelebration();
                     this.toggleSingleModule(module);
                 }
+                return;
+            case 'Essay':
+                this.router.navigate(['/modules', module.moduleId, 'essay']);
                 return;
         }
         this.toggleSingleModule(module);

@@ -27,6 +27,7 @@ export interface CreateModuleRequest {
     theaterItemId?: number | null;
     presentationUrl?: string | null;
     presentationText?: string | null;
+    essayPrompt?: string | null;
 }
 
 export interface UpdateModuleRequest {

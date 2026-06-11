@@ -34,30 +34,32 @@ export class ModuleAddingComponent implements OnInit {
     selectedSentenceSetId: number | null = null;
 
     newModule: CreateModuleRequest = {
-        name:            '',
-        description:     '',
-        isHidden:        false,
-        category:        'General',
-        theaterItemId:   null,
+        name: '',
+        description: '',
+        isHidden: false,
+        category: 'General',
+        theaterItemId: null,
         presentationUrl: null,
-        presentationText: null
+        presentationText: null,
+        essayPrompt: null
     };
 
     categories = [
-        { label: 'General',       value: 'General'      },
-        { label: 'Sentences',     value: 'Sentences'    },
-        { label: 'Sentence Flashcards',  value: 'SentenceFlashcards'  },
-        { label: 'Flashcards',    value: 'Flashcards'   },
-        { label: 'Memories',      value: 'Memories'     },
+        { label: 'General', value: 'General'},
+        { label: 'Sentences', value: 'Sentences'},
+        { label: 'Sentence Flashcards', value: 'SentenceFlashcards'},
+        { label: 'Flashcards', value: 'Flashcards'},
+        { label: 'Memories', value: 'Memories'},
         { label: 'Pronunciation', value: 'Pronunciation'},
-        { label: 'Listening',     value: 'Listening'    },
-        { label: 'Grammar',       value: 'Grammar'      },
-        { label: 'Vocabulary',    value: 'Vocabulary'   },
-        { label: 'Speaking',      value: 'Speaking'     },
-        { label: 'Watching',      value: 'Watching'     },
-        { label: 'Presentation',  value: 'Presentation' },
-        { label: 'Comment',       value: 'Comment'      },
-        { label: 'Other',         value: 'Other'        }
+        { label: 'Listening', value: 'Listening'},
+        { label: 'Grammar', value: 'Grammar'},
+        { label: 'Vocabulary', value: 'Vocabulary'},
+        { label: 'Speaking', value: 'Speaking'},
+        { label: 'Watching', value: 'Watching'},
+        { label: 'Presentation', value: 'Presentation'},
+        { label: 'Essay', value: 'Essay'},
+        { label: 'Comment', value: 'Comment'},
+        { label: 'Other', value: 'Other'}
     ];
 
     theaterItemsOptions = computed(() =>
@@ -84,10 +86,10 @@ export class ModuleAddingComponent implements OnInit {
     }
 
     onCategoryChange() {
-        // reset category-specific fields
         this.newModule.theaterItemId    = null;
         this.newModule.presentationUrl  = null;
         this.newModule.presentationText = null;
+        this.newModule.essayPrompt      = null;
         this.selectedSentenceSetId      = null;
     }
 
@@ -102,6 +104,11 @@ export class ModuleAddingComponent implements OnInit {
 
         if (this.newModule.category === 'Sentences' && !this.selectedSentenceSetId) {
             this.showError('Please select a sentence set for the Sentences category.');
+            return;
+        }
+
+        if (this.newModule.category === 'Essay' && !this.newModule.essayPrompt?.trim()) {
+            this.showError('Please enter an essay prompt.');
             return;
         }
 

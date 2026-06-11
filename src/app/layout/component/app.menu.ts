@@ -104,7 +104,6 @@ export class AppMenu implements OnInit {
               { label: 'Modules', icon: 'pi pi-box', routerLink: ['/curriculum/modules'] },
               { label: 'Create Module', icon: 'pi pi-plus-circle', routerLink: ['/curriculum/modules/create'] },
               { label: 'Plan Module', icon: 'pi pi-calendar-clock', routerLink: ['/curriculum/modules/plan'] },
-              { label: 'Curricula', icon: 'pi pi-list', routerLink: ['/system/curricula'] },
             ]
           },
           {
@@ -118,7 +117,8 @@ export class AppMenu implements OnInit {
               //{ label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
               //{ label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },
               { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
-              { label: 'Active Students Reports', icon: 'pi pi-chart-bar', routerLink: ['/system/active-students-reports'] }
+              { label: 'Active Students Reports', icon: 'pi pi-chart-bar', routerLink: ['/system/active-students-reports'] },
+              { label: 'Check Essays',    icon: 'pi pi-file-edit',    routerLink: ['/lesson/check-essays'] }
               //{ label: 'Composed Sentences', icon: 'pi pi-file-edit', routerLink: ['/system/sentences/composed'] },
             ]
           },
@@ -147,6 +147,7 @@ export class AppMenu implements OnInit {
             icon: 'pi pi-cog',
             items: [
               { label: 'Announcements', icon: 'pi pi-bell', routerLink: ['/system/announcements'] },
+              { label: 'Student Credits', icon: 'pi pi-star',         routerLink: ['/lesson/credits'] }
             ]
           }
         ]
