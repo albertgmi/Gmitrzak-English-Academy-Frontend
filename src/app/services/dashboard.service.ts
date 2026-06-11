@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface AdminDashboardDto {
     totalStudents: number;
@@ -53,7 +54,7 @@ export interface UpcomingModuleDto {
 
 @Injectable({ providedIn: 'root' })
 export class DashboardService {
-    private apiUrl = '/api/dashboard';
+    private apiUrl = `${environment.apiUrl}/api/dashboard`;
     http = inject(HttpClient);
 
     getAdminDashboard() {

@@ -1,7 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
-
+import { environment } from '../../../environments/environment';
 export interface FlashcardDto {
     id: number;
     front: string;
@@ -72,7 +72,7 @@ export interface CorrectPronunciationDto {
 
 @Injectable({ providedIn: 'root' })
 export class ContentService {
-    private apiUrl = '/api/student-learning';
+    private apiUrl = `${environment.apiUrl}/api/student-learning`;
     http = inject(HttpClient);
 
     flashcards = resource<FlashcardDto[], unknown>({
@@ -124,6 +124,7 @@ export class ContentService {
 
     getCorrectPronunciation() {
         return this.http.get<CorrectPronunciationDto[]>(
-            '/api/student-learning/pronunciation/correct');
+            `${this.apiUrl}/pronunciation/correct`
+        );
     }
 }

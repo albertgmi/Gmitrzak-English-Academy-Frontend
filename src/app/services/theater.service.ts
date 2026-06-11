@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface TheaterItemDto {
     id: number;
@@ -29,7 +30,7 @@ export interface RepertoireItemDto {
 
 @Injectable({ providedIn: 'root' })
 export class TheaterService {
-    private apiUrl = '/api/theater';
+    private apiUrl = `${environment.apiUrl}/api/theater`;
     http = inject(HttpClient);
 
     items = resource<TheaterItemDto[], unknown>({

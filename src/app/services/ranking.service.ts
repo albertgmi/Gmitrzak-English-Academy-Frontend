@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface RankingEntryDto {
     userId: number;
@@ -25,7 +26,7 @@ export interface RankingDto {
 
 @Injectable({ providedIn: 'root' })
 export class RankingService {
-    private apiUrl = '/api/ranking';
+    private apiUrl = `${environment.apiUrl}/api/ranking`;
     http = inject(HttpClient);
 
     getRanking(period: 'weekly' | 'monthly' | 'alltime') {

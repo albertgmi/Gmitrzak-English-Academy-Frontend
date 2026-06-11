@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface StudentSimple {
     id: number;
@@ -81,8 +82,10 @@ export interface LessonPronunciationTestItemDto {
 
 @Injectable({ providedIn: 'root' })
 export class LessonService {
-    private apiUrl = '/api/lesson';
-    private userApiUrl = '/api/user';
+    private apiUrl = `${environment.apiUrl}/api/lesson`;
+    private userApiUrl = `${environment.apiUrl}/api/user`;
+    private sentenceApiUrl = `${environment.apiUrl}/api/sentence`;
+
     http = inject(HttpClient);
 
     getStudents() {
@@ -95,7 +98,7 @@ export class LessonService {
 
     addMemory(studentId: number, optionA: string, optionB?: string,
               category?: string | null, notes?: string) {
-        return this.http.post('/api/lesson/memory', {
+        return this.http.post(`${this.apiUrl}/memory`, {
             studentUserId: studentId,
             optionA,
             optionB:   optionB   ?? null,
@@ -128,7 +131,8 @@ export class LessonService {
 
     getCorrectPronunciationEntries(studentId: number) {
         return this.http.get<LessonPronunciationTestItemDto[]>(
-            `/api/lesson/pronunciation/correct/${studentId}`);
+            `${this.apiUrl}/pronunciation/correct/${studentId}`
+        );
     }
 
     checkWord(id: number) {
@@ -173,11 +177,11 @@ export class LessonService {
     }
 
     getAllStock(): Observable<SentenceStockDto[]> {
-        return this.http.get<SentenceStockDto[]>('/api/sentence/stock');
+        return this.http.get<SentenceStockDto[]>(`${this.sentenceApiUrl}/stock`);
     }
 
     assignToUser(request: { userId: number; sentenceStockId: number; dueDate: string; sentenceSetId?: number | null }): Observable<void> {
-        return this.http.post<void>('/api/sentence/assign', request);
+        return this.http.post<void>(`${this.sentenceApiUrl}/assign`, request);
     }
 
     getMemories(studentUserId: number): Observable<MemoryItemDto[]> {
@@ -185,12 +189,13 @@ export class LessonService {
     }
 
     markPronunciationResult(entryId: number, result: 'correct' | 'incorrect') {
-        return this.http.post('/api/lesson/pronunciation/mark', {
+        return this.http.post(`${this.apiUrl}/pronunciation/mark`, {
             entryId, result
         });
     }
+
     searchSentence(query: string, studentId: number): Observable<SearchSentenceResult> {
-        return this.http.get<SearchSentenceResult>('/api/sentence/search', {
+        return this.http.get<SearchSentenceResult>(`${this.sentenceApiUrl}/search`, {
             params: { query, studentId: studentId.toString() }
         });
     }

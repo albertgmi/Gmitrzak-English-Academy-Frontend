@@ -4,6 +4,7 @@ import { Router } from '@angular/router';
 import { Observable, throwError } from 'rxjs';
 import { catchError, tap } from 'rxjs/operators';
 import { jwtDecode } from 'jwt-decode';
+import { environment } from '../../environments/environment';
 
 interface JwtPayload {
     'http://schemas.microsoft.com/ws/2008/06/identity/claims/role': string;
@@ -14,7 +15,7 @@ interface JwtPayload {
   providedIn: 'root'
 })
 export class AuthService {
-  private apiUrl = '/api/auth'; // Adjust to your backend URL
+  private apiUrl = `${environment.apiUrl}/api/auth`;
   private tokenKey = 'auth_token';
 
   constructor(private http: HttpClient, private router: Router) {}

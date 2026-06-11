@@ -12,6 +12,7 @@ import { MessageModule } from 'primeng/message';
 import { MessageService } from 'primeng/api';
 import { ProfileDto, ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
+import { environment } from '../../../environments/environment.prod';
 
 @Component({
   selector: 'app-profile-detail',
@@ -37,7 +38,7 @@ export class ProfileDetailComponent implements OnInit {
   private messageService = inject(MessageService);
   private authService = inject(AuthService);
 
-  readonly apiUrl = 'https://localhost:7100'; 
+  readonly apiUrl = environment.apiUrl;
 
   profile: ProfileDto | null = null;
   editMode = false;
