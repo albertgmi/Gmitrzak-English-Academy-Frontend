@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface AgendaDto {
     id: number;
@@ -112,7 +113,7 @@ export interface LessonStatsDto {
 
 @Injectable({ providedIn: 'root' })
 export class LessonPanelService {
-    private apiUrl = '/api/lesson-panel';
+    private apiUrl = `${environment.apiUrl}/api/lesson-panel`;
     http = inject(HttpClient);
 
     getAgenda(studentUserId: number) {

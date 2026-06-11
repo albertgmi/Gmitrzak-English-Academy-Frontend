@@ -1,5 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
+import { environment } from '../../environments/environment';
 
 export interface UserOptionsDto {
     userId: number;
@@ -15,7 +16,7 @@ export interface UserOptionsDto {
 
 @Injectable({ providedIn: 'root' })
 export class OptionsService {
-    private apiUrl = '/api/options';
+    private apiUrl = `${environment.apiUrl}/api/options`;
     http = inject(HttpClient);
 
     getAll() {

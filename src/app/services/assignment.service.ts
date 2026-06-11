@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ModuleUnlockDto {
     moduleId: number;
@@ -52,7 +53,7 @@ export type CreateAssignmentRequest = CreateMatrixAssignmentRequest;
 
 @Injectable({ providedIn: 'root' })
 export class AssignmentService {
-    private apiUrl = '/api/assignment';
+    private apiUrl = `${environment.apiUrl}/api/assignment`;
     http = inject(HttpClient);
 
     assignments = resource<MatrixAssignmentDto[], unknown>({

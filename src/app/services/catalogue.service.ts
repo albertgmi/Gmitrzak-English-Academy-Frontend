@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient, HttpParams } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface CatalogueDto {
     id: number;
@@ -28,7 +29,7 @@ export interface CatalogueFilters {
 
 @Injectable({ providedIn: 'root' })
 export class CatalogueService {
-    private apiUrl = '/api/catalogue';
+    private apiUrl = `${environment.apiUrl}/api/catalogue`;
     http = inject(HttpClient);
 
     catalogues = resource<CatalogueDto[], unknown>({

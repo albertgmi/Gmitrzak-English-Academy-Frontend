@@ -2,6 +2,7 @@ import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { StudentModuleDto } from './student-services/student.service';
+import { environment } from '../../environments/environment';
 
 export interface ModuleItem {
     id: number;
@@ -47,7 +48,9 @@ export interface AssignModuleToMatrixRequest {
 
 @Injectable({ providedIn: 'root' })
 export class ModuleItemService {
-    private apiUrl = '/api/module';
+    private apiUrl = `${environment.apiUrl}/api/module`;
+    private sentenceApiUrl = `${environment.apiUrl}/api/sentence`;
+    
     http = inject(HttpClient);
 
     modules = resource<(ModuleItem & { matrixName: string })[], unknown>({
@@ -91,11 +94,11 @@ export class ModuleItemService {
     }
 
     getAllSentenceSetsGrouped() {
-        return this.http.get<any[]>('/api/sentence/sets');
+        return this.http.get<any[]>(`${this.sentenceApiUrl}/sets`);
     }
 
     assignSentenceSetToModule(moduleId: number, sentenceSetId: number) {
-        return this.http.post('/api/sentence/assign-to-module',
+        return this.http.post(`${this.sentenceApiUrl}/assign-to-module`,
             { moduleId, sentenceSetId });
     }
 

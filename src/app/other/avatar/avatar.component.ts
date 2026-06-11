@@ -1,5 +1,6 @@
 import { Component, Input, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { environment } from '../../../environments/environment';
 
 @Component({
   selector: 'app-avatar',
@@ -30,7 +31,7 @@ export class AvatarComponent {
 
   imgError = signal(false);
 
-  private readonly baseUrl = 'https://localhost:7100'; // TODO: przenieść do configu środowiska
+  private readonly baseUrl = environment.apiUrl;
 
   fullAvatarUrl = computed(() => {
     if (!this.avatarUrl) return '';

@@ -1,6 +1,7 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
+import { environment } from '../../environments/environment';
 
 export interface ProfileDto {
   username: string;
@@ -34,7 +35,7 @@ export interface ProfileDto {
 
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
-  private apiUrl = '/api/profile';
+  private apiUrl = `${environment.apiUrl}/api/profile`;
   http = inject(HttpClient);
 
   getProfile(userId: number): Observable<ProfileDto> {
