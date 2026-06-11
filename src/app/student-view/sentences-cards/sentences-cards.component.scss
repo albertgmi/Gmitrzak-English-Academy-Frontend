@@ -1,0 +1,52 @@
+.sentence-card-wrapper {
+    perspective: 1200px;
+    width: 100%;
+    max-width: 580px;
+    height: 380px;
+    cursor: pointer;
+}
+
+.sentence-card-inner {
+    position: relative;
+    width: 100%;
+    height: 100%;
+    transition: transform 0.5s ease;
+    transform-style: preserve-3d;
+}
+
+.sentence-card-wrapper.flipped .sentence-card-inner {
+    transform: rotateY(180deg);
+}
+
+.sentence-card-face {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    border-radius: 1.5rem;
+    backface-visibility: hidden;
+    border: 1px solid var(--surface-border);
+    background: var(--surface-card);
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.08);
+    transition: border-color 0.2s ease;
+}
+
+.sentence-card-front:hover {
+    border-color: var(--primary-color);
+}
+
+.sentence-card-back {
+    transform: rotateY(180deg);
+}
+
+.animate-fadein {
+    animation: fadeIn 0.25s ease;
+}
+
+@keyframes fadeIn {
+    from { opacity: 0; transform: translateY(6px); }
+    to   { opacity: 1; transform: translateY(0); }
+}

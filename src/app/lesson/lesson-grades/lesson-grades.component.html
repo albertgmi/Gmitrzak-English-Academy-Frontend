@@ -1,0 +1,53 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Grades</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <p-table [value]="grades()" [loading]="loading()"
+    [rows]="15" [paginator]="grades().length > 15"
+    [rowHover]="true" [tableStyle]="{'min-width': '35rem'}">
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="gradeDate">Date <p-sortIcon field="gradeDate" /></th>
+        <th pSortableColumn="category">Category <p-sortIcon field="category" /></th>
+        <th pSortableColumn="percentage">Score <p-sortIcon field="percentage" /></th>
+        <th>Notes</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-g>
+      <tr>
+        <td>{{ g.gradeDate | date:'d MMM yyyy' }}</td>
+        <td><p-tag [value]="g.category" severity="info" /></td>
+        <td><p-tag [value]="g.percentage + '%'" [severity]="gradeSeverity(g.percentage)" /></td>
+        <td class="text-muted-color">{{ g.notes || '—' }}</td>
+      </tr>
+    </ng-template>
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="4" class="text-center text-muted-color py-8">
+          <i class="pi pi-star text-3xl block mb-2"></i>
+          No grades yet.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>

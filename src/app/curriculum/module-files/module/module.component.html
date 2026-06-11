@@ -1,0 +1,151 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="selectedModule() as module; else listView" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <p-button icon="pi pi-arrow-left" severity="secondary" outlined
+      (onClick)="backToList()" pTooltip="Back to list" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ module.name }}</h2>
+      <p class="text-muted-color mt-1 m-0">Module details</p>
+    </div>
+    <p-tag [severity]="module.isHidden ? 'warn' : 'success'"
+      [value]="module.isHidden ? 'Hidden' : 'Visible'" />
+    <p-button icon="pi pi-pencil" label="Edit"
+      [routerLink]="[module.id, 'edit']" class="mr-2" />
+    <p-button icon="pi pi-trash" label="Delete" severity="danger" outlined
+      (onClick)="confirmDelete(module)" />
+  </div>
+
+  <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">ID</span>
+      <span class="text-2xl font-bold text-surface-900 dark:text-surface-0 font-mono">{{ module.id }}</span>
+    </div>
+    <div class="bg-primary/10 rounded-xl p-4 flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">Status</span>
+      <span class="text-2xl font-bold text-primary">{{ module.isHidden ? 'Hidden' : 'Active' }}</span>
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">Matrices</span>
+      <span class="text-2xl font-bold text-surface-900 dark:text-surface-0">{{ module.matrices?.length || 0 }}</span>
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">Last Update</span>
+      <span class="text-2xl font-bold text-surface-900 dark:text-surface-0">—</span>
+    </div>
+  </div>
+
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 mb-6">
+    <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Description</span>
+    <span class="text-surface-900 dark:text-surface-0 leading-relaxed">{{ module.description || '—' }}</span>
+  </div>
+
+  <div class="grid grid-cols-1 gap-6">
+    <div>
+      <div class="flex items-center justify-between mb-3">
+        <h3 class="text-lg font-semibold m-0 text-surface-900 dark:text-surface-0">
+          Assigned to Matrices
+          <span class="ml-2 text-sm font-normal text-muted-color">({{ module.matrices?.length || 0 }})</span>
+        </h3>
+      </div>
+
+      <div class="flex flex-wrap gap-2" *ngIf="module.matrices?.length; else noMatrices">
+        <p-chip *ngFor="let m of module.matrices" [label]="m.name" icon="pi pi-th-large" />
+      </div>
+
+      <ng-template #noMatrices>
+        <div class="text-center text-muted-color py-8 bg-surface-50 dark:bg-surface-800 rounded-xl border border-dashed border-surface-200 dark:border-surface-700">
+          <i class="pi pi-th-large text-3xl block mb-2 opacity-50"></i>
+          Not assigned to any matrix.
+        </div>
+      </ng-template>
+    </div>
+  </div>
+</div>
+
+<ng-template #listView>
+  <div class="card">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <span class="text-xl font-semibold">Modules</span>
+      </ng-template>
+      <ng-template #end>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search modules..." />
+        </p-iconfield>
+        <p-button icon="pi pi-refresh" severity="secondary" outlined class="ml-2"
+          (onClick)="reload()" pTooltip="Refresh data" />
+      </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="modules.value() || []" dataKey="id"
+      [loading]="modules.isLoading()" [rows]="10" [paginator]="true"
+      [globalFilterFields]="['name', 'description']" 
+      [tableStyle]="{ 'min-width': '60rem' }" [rowHover]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} modules"
+      [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
+
+      <ng-template #header>
+        <tr>
+          <th style="width: 4rem">ID</th>
+          <th pSortableColumn="name">Name <p-sortIcon field="name" /></th>
+          <th>Description</th>
+          <th style="width: 14rem">Matrices</th>
+          <th style="width: 8rem">Status</th>
+          <th style="width: 8rem">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-module>
+        <tr>
+          <td class="text-muted-color font-mono text-sm">{{ module.id }}</td>
+          <td>
+            <span class="font-bold text-primary cursor-pointer hover:underline" (click)="selectModule(module)">
+              {{ module.name }}
+            </span>
+          </td>
+          <td class="text-muted-color">
+            <span *ngIf="module.description; else noDesc">
+              {{ module.description.length > 55 ? (module.description | slice:0:55) + '…' : module.description }}
+            </span>
+            <ng-template #noDesc><span>—</span></ng-template>
+          </td>
+          <td>
+            <div *ngIf="module.matrices && module.matrices.length > 0; else noMatrix" class="flex flex-wrap gap-1">
+              <p-chip *ngFor="let m of module.matrices" 
+                      [label]="m.name" 
+                      icon="pi pi-th-large" 
+                      styleClass="text-[10px] bg-primary/10 text-primary border-none font-medium py-0 h-6" />
+            </div>
+            <ng-template #noMatrix>
+              <span class="text-muted-color italic ml-2 text-sm">unassigned</span>
+            </ng-template>
+          </td>
+          <td>
+            <p-tag [severity]="module.isHidden ? 'warn' : 'success'"
+              [value]="module.isHidden ? 'Hidden' : 'Visible'" />
+          </td>
+          <td>
+            <div class="flex gap-2">
+              <p-button icon="pi pi-pencil" [rounded]="true" outlined
+                [routerLink]="[module.id, 'edit']" pTooltip="Edit module" />
+              <p-button icon="pi pi-trash" severity="danger" [rounded]="true" outlined
+                (onClick)="confirmDelete(module)" pTooltip="Delete module" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-muted-color py-12">
+            <i class="pi pi-inbox text-5xl block mb-3 opacity-20"></i>
+            <span class="text-xl">No modules found</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>

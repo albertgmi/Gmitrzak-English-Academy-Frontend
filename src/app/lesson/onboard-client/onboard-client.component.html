@@ -1,0 +1,317 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar [username]="student.username" [avatarUrl]="student.avatarUrl"
+      customClass="w-12 h-12 text-lg" fallbackBgClass="bg-primary text-white" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+        Onboard Client
+      </h2>
+      <p class="text-muted-color mt-0.5 m-0">
+        {{ student.username }} — assign starting vocabulary, matrices and modules
+      </p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary"
+      outlined size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div class="flex gap-1 mb-6 bg-surface-50 dark:bg-surface-800 rounded-xl p-1">
+    <button *ngFor="let step of steps"
+      class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg
+        text-sm font-medium transition-all cursor-pointer border-0"
+      [ngClass]="activeStep() === step.id
+        ? 'bg-white dark:bg-surface-900 text-primary shadow-sm'
+        : 'text-muted-color hover:text-surface-900 dark:hover:text-surface-0 bg-transparent'"
+      (click)="goToStep(step.id)">
+      <i [class]="step.icon + ' text-sm'"></i>
+      <span>{{ step.label }}</span>
+      <span *ngIf="step.id === 'vocabulary' && selectedVocabCount() > 0"
+        class="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        {{ selectedVocabCount() }}
+      </span>
+      <span *ngIf="step.id === 'matrices' && selectedMatrixCount() > 0"
+        class="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        {{ selectedMatrixCount() }}
+      </span>
+      <span *ngIf="step.id === 'modules' && selectedModuleCount() > 0"
+        class="bg-primary text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
+        {{ selectedModuleCount() }}
+      </span>
+    </button>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-16 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl block mb-4"></i>
+    <p>Loading data...</p>
+  </div>
+
+  <div *ngIf="!loading()">
+
+    <div *ngIf="activeStep() === 'vocabulary'">
+
+      <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <input pInputText type="text" placeholder="Search vocabulary..."
+          [ngModel]="vocabSearch()" (ngModelChange)="vocabSearch.set($event)"
+          class="flex-1" />
+        <p-select [options]="vocabCategories()" optionLabel="label" optionValue="value"
+          [ngModel]="vocabCategoryFilter()" (ngModelChange)="vocabCategoryFilter.set($event)"
+          styleClass="w-52" />
+        <p-button [label]="isAllVocabularySelected ? 'Deselect all' : 'Select all'"
+          severity="secondary" outlined size="small"
+          (onClick)="selectAllVocab()" />
+      </div>
+
+      <div class="text-xs text-muted-color mb-3">
+        {{ filteredVocabulary().length }} shown · {{ selectedVocabCount() }} selected
+      </div>
+
+      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[500px] overflow-y-auto pr-1">
+        <div *ngFor="let v of filteredVocabulary()"
+          class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
+          [ngClass]="v.selected
+            ? 'bg-primary/10 border-primary/40'
+            : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/30'"
+          (click)="toggleVocab(v)">
+          <div class="flex-shrink-0">
+            <div class="w-5 h-5 rounded border-2 flex items-center justify-center transition-all"
+              [ngClass]="v.selected
+                ? 'bg-primary border-primary'
+                : 'border-surface-300 dark:border-surface-600'">
+              <i *ngIf="v.selected" class="pi pi-check text-white" style="font-size:0.6rem"></i>
+            </div>
+          </div>
+          <div class="flex-1 min-w-0">
+            <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
+              {{ v.front }}
+            </div>
+            <div class="text-xs text-muted-color truncate">{{ v.back }}</div>
+          </div>
+          <p-tag *ngIf="v.category" [value]="v.category" severity="secondary" />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeStep() === 'matrices'">
+
+      <div class="flex gap-3 mb-4">
+        <input pInputText type="text" placeholder="Search matrices..."
+          [ngModel]="matrixSearch()" (ngModelChange)="matrixSearch.set($event)"
+          class="flex-1" />
+      </div>
+
+      <div class="text-xs text-muted-color mb-3">
+        {{ filteredMatrices().length }} available · {{ selectedMatrixCount() }} selected
+      </div>
+
+      <div class="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1">
+        <div *ngFor="let m of filteredMatrices()"
+          class="p-4 rounded-xl border transition-all"
+          [ngClass]="m.selected
+            ? 'bg-primary/10 border-primary/40'
+            : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700'">
+
+          <div class="flex items-start gap-3">
+            <div class="flex-shrink-0 mt-0.5">
+              <div class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all"
+                [ngClass]="m.selected
+                  ? 'bg-primary border-primary'
+                  : 'border-surface-300 dark:border-surface-600'"
+                (click)="toggleMatrix(m)">
+                <i *ngIf="m.selected" class="pi pi-check text-white" style="font-size:0.6rem"></i>
+              </div>
+            </div>
+
+            <div class="flex-1 cursor-pointer" (click)="toggleMatrix(m)">
+              <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
+              <div class="text-xs text-muted-color mt-0.5">
+                Refresh every {{ m.refreshIntervalDays }} days
+              </div>
+            </div>
+
+            <div *ngIf="m.selected" class="flex-shrink-0" (click)="$event.stopPropagation()">
+              <label class="block text-xs text-muted-color mb-1">Start date</label>
+              <input type="date" [ngModel]="m.startDate"
+                (ngModelChange)="updateMatrixDate(m, $event)"
+                class="border border-surface-200 dark:border-surface-700 rounded-lg px-2 py-1
+                  text-sm bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-0" />
+            </div>
+          </div>
+
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeStep() === 'modules'">
+
+      <div class="flex flex-col sm:flex-row gap-3 mb-4">
+        <input pInputText type="text" placeholder="Search modules..."
+          [ngModel]="moduleSearch()" (ngModelChange)="moduleSearch.set($event)"
+          class="flex-1" />
+        <p-select [options]="moduleCategories()" optionLabel="label" optionValue="value"
+          [ngModel]="moduleCategoryFilter()" (ngModelChange)="moduleCategoryFilter.set($event)"
+          styleClass="w-52" />
+        <p-button [label]="isAllModulesSelected() ? 'Deselect all' : 'Select all'"
+          severity="secondary" outlined size="small"
+          (onClick)="selectAllModules()" />
+      </div>
+
+      <div class="text-xs text-muted-color mb-3">
+        {{ filteredModules().length }} shown · {{ selectedModuleCount() }} selected
+      </div>
+
+      <div class="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1">
+        <div *ngFor="let m of filteredModules()"
+          class="p-4 rounded-xl border transition-all"
+          [ngClass]="m.selected
+            ? 'bg-primary/10 border-primary/40'
+            : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700'">
+
+          <div class="flex items-center gap-3">
+            <div class="flex-shrink-0">
+              <div class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all"
+                [ngClass]="m.selected
+                  ? 'bg-primary border-primary'
+                  : 'border-surface-300 dark:border-surface-600'"
+                (click)="toggleModule(m)">
+                <i *ngIf="m.selected" class="pi pi-check text-white" style="font-size:0.6rem"></i>
+              </div>
+            </div>
+
+            <div class="flex-1 cursor-pointer" (click)="toggleModule(m)">
+              <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
+              <div class="text-xs text-muted-color mt-0.5">
+                {{ m.description || '—' }}
+              </div>
+            </div>
+
+            <p-tag *ngIf="m.category" [value]="m.category" severity="info" />
+
+            <div *ngIf="m.selected" class="flex-shrink-0" (click)="$event.stopPropagation()">
+              <label class="block text-xs text-muted-color mb-1">Due date</label>
+              <input type="date" [ngModel]="m.dueDate"
+                (ngModelChange)="updateModuleDate(m, $event)"
+                class="border border-surface-200 dark:border-surface-700 rounded-lg px-2 py-1
+                  text-sm bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-0" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeStep() === 'summary'">
+
+      <div *ngIf="totalSelected() === 0"
+        class="text-center py-12 text-muted-color">
+        <i class="pi pi-inbox text-5xl block mb-4"></i>
+        <p class="text-lg">Nothing selected yet.</p>
+        <p class="text-sm">Go back and select vocabulary, matrices or modules to assign.</p>
+      </div>
+
+      <div *ngIf="totalSelected() > 0" class="flex flex-col gap-6">
+
+        <div class="grid grid-cols-3 gap-4">
+          <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-primary">{{ selectedVocabCount() }}</div>
+            <div class="text-xs text-muted-color mt-1">Vocabulary words</div>
+          </div>
+          <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-primary">{{ selectedMatrixCount() }}</div>
+            <div class="text-xs text-muted-color mt-1">Matrices</div>
+          </div>
+          <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+            <div class="text-2xl font-bold text-primary">{{ selectedModuleCount() }}</div>
+            <div class="text-xs text-muted-color mt-1">Modules</div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedVocabulary().length">
+          <h3 class="font-semibold mb-2 flex items-center gap-2">
+            <i class="pi pi-clone text-primary"></i> Vocabulary
+          </h3>
+          <div class="flex flex-wrap gap-2">
+            <div *ngFor="let v of selectedVocabulary()"
+              class="flex items-center gap-1.5 px-3 py-1.5 bg-primary/10
+                border border-primary/20 rounded-lg text-sm">
+              <span class="font-medium text-surface-900 dark:text-surface-0">{{ v.front }}</span>
+              <span class="text-muted-color">→</span>
+              <span class="text-muted-color">{{ v.back }}</span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedMatrices().length">
+          <h3 class="font-semibold mb-2 flex items-center gap-2">
+            <i class="pi pi-sitemap text-primary"></i> Matrices
+          </h3>
+          <div class="flex flex-col gap-2">
+            <div *ngFor="let m of selectedMatrices()"
+              class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800
+                rounded-xl border border-surface-200 dark:border-surface-700">
+              <span class="font-medium">{{ m.name }}</span>
+              <span class="text-xs text-muted-color">
+                Starts: {{ m.startDate | date:'d MMM yyyy' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="selectedModules().length">
+          <h3 class="font-semibold mb-2 flex items-center gap-2">
+            <i class="pi pi-book text-primary"></i> Modules
+          </h3>
+          <div class="flex flex-col gap-2">
+            <div *ngFor="let m of selectedModules()"
+              class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800
+                rounded-xl border border-surface-200 dark:border-surface-700">
+              <div>
+                <span class="font-medium">{{ m.name }}</span>
+                <p-tag *ngIf="m.category" [value]="m.category" severity="info"
+                  styleClass="ml-2 text-xs" />
+              </div>
+              <span class="text-xs text-muted-color">
+                Due: {{ m.dueDate | date:'d MMM yyyy' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="saving()" class="mt-2">
+          <p class="text-sm text-muted-color mb-2">Assigning... {{ saveProgress() }}%</p>
+          <p-progressBar [value]="saveProgress()" [showValue]="false"
+            [style]="{ height: '8px' }" />
+        </div>
+
+        <div class="flex gap-3 pt-2 border-t border-surface-100 dark:border-surface-700">
+          <p-button label="Back" icon="pi pi-arrow-left"
+            severity="secondary" outlined (onClick)="prevStep()" />
+          <p-button
+            [label]="'Onboard ' + student.username"
+            icon="pi pi-check"
+            [loading]="saving()"
+            [disabled]="totalSelected() === 0"
+            (onClick)="saveOnboarding()" />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="activeStep() !== 'summary'"
+      class="flex justify-between mt-6 pt-4
+        border-t border-surface-100 dark:border-surface-700">
+      <p-button *ngIf="activeStep() !== 'vocabulary'"
+        label="Back" icon="pi pi-arrow-left"
+        severity="secondary" outlined (onClick)="prevStep()" />
+      <div *ngIf="activeStep() === 'vocabulary'"></div>
+      <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
+        (onClick)="nextStep()" />
+    </div>
+
+  </div>
+</div>

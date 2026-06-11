@@ -1,0 +1,510 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p class="text-muted-color mb-6">Select a student before starting lesson mode.</p>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Lesson Mode</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — {{ student.email }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <p-button *ngFor="let tab of tabs"
+      [label]="tab.label" [icon]="tab.icon"
+      [outlined]="activeTab() !== tab.id"
+      size="small"
+      (onClick)="activeTab.set(tab.id)" />
+  </div>
+
+  <div *ngIf="activeTab() === 'flashcard'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-2">
+          Add flashcard manually
+        </h3>
+        <div class="flex flex-col gap-4">
+          <div>
+            <label class="block font-bold mb-2">Front (English) *</label>
+            <input pInputText type="text"
+              [ngModel]="newFront()" (ngModelChange)="newFront.set($event)"
+              placeholder="e.g. car" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid />
+          </div>
+          <div>
+            <label class="block font-bold mb-2">Back (Polish) *</label>
+            <input pInputText type="text"
+              [ngModel]="newBack()" (ngModelChange)="newBack.set($event)"
+              placeholder="e.g. samochód" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid />
+          </div>
+          <div>
+            <label class="block font-bold mb-2">Category</label>
+            <p-select [options]="categories" optionLabel="label" optionValue="value"
+              [ngModel]="newCategory()" (ngModelChange)="newCategory.set($event)"
+              placeholder="Select category" class="!text-base" styleClass="!py-1" fluid />
+          </div>
+          <div *ngIf="isFlashcardDuplicate()" class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+            <i class="pi pi-exclamation-triangle text-red-500"></i>
+            <span class="text-sm text-red-600 dark:text-red-400">
+              This word already exists in the database. Use search to assign it.
+            </span>
+          </div>
+
+          <div class="flex gap-3 pt-2">
+            <p-button label="Add to global & assign" icon="pi pi-check"
+              [loading]="saving() || checkingDuplicateFlashcard()"
+              [disabled]="!newFront().trim() || !newBack().trim() || isFlashcardDuplicate()"
+              (onClick)="addManualAndAssign()" />
+
+            <p-button label="Clear" severity="secondary" outlined
+              (onClick)="resetFlashcardForm()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- PRAWA STRONA: Wyszukiwarka globalna fiszek -->
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-2">
+          Search global database
+        </h3>
+
+        <div class="flex gap-3 position-relative">
+          <input pInputText type="text"
+            [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
+            placeholder="Type a word..."
+            class="flex-1 !text-base !py-2.5 !px-3.5 !leading-normal" />
+          <p-button icon="pi pi-spinner pi-spin" *ngIf="searching()" severity="secondary" [disabled]="true" />
+          <p-button icon="pi pi-search" *ngIf="!searching()" severity="secondary" [disabled]="true" />
+        </div>
+
+        <div class="flex flex-col gap-3">
+          <div *ngIf="!searchResult() && !searching()"
+            class="text-center py-8 text-muted-color text-sm">
+            <i class="pi pi-search text-2xl block mb-2"></i>
+            Search for a word to see results
+          </div>
+
+          <div *ngIf="searchResult() as r">
+            <div *ngIf="r.existsInGlobal && !r.alreadyAssignedToStudent"
+              class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+              <div class="flex items-start justify-between gap-3">
+                <div>
+                  <div class="font-bold text-surface-900 dark:text-surface-0 text-lg">{{ r.front }}</div>
+                  <div class="text-muted-color mb-2">{{ r.back }}</div>
+                  <p-tag [value]="r.category" severity="info" />
+                </div>
+                <p-button label="Assign" icon="pi pi-plus" severity="success"
+                  size="small" [loading]="saving()" (onClick)="assignExisting()" />
+              </div>
+            </div>
+
+            <div *ngIf="r.existsInGlobal && r.alreadyAssignedToStudent"
+              class="p-4 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-xl">
+              <div class="flex items-center gap-3">
+                <i class="pi pi-check-circle text-green-500 text-xl flex-shrink-0"></i>
+                <div>
+                  <div class="font-semibold text-surface-900 dark:text-surface-0">{{ r.front }} — {{ r.back }}</div>
+                  <div class="text-sm text-muted-color">Already in student's flashcards</div>
+                </div>
+              </div>
+            </div>
+
+            <div *ngIf="!r.existsInGlobal"
+              class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+              <div class="flex items-center gap-2 mb-2">
+                <i class="pi pi-info-circle text-yellow-500"></i>
+                <span class="font-semibold text-yellow-700 dark:text-yellow-300">Word not found in database</span>
+              </div>
+              <p class="text-sm text-muted-color m-0">
+                Fill in the form on the left to add it with a translation.
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <div *ngIf="activeTab() === 'sentence'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-2">
+          Add sentence manually
+        </h3>
+        <div>
+          <label class="block font-bold mb-2">Sentence *</label>
+          <textarea pTextarea [ngModel]="sentenceContent()"
+            (ngModelChange)="sentenceContent.set($event)"
+            placeholder="Enter sentence..." rows="3" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid></textarea>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Translation</label>
+          <textarea pTextarea [ngModel]="sentenceTranslation()"
+            (ngModelChange)="sentenceTranslation.set($event)"
+            placeholder="Enter translation..." rows="2" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid></textarea>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Notes</label>
+          <input pInputText type="text"
+            [ngModel]="sentenceNotes()" (ngModelChange)="sentenceNotes.set($event)"
+            placeholder="Optional notes..." class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid />
+        </div>
+
+        <div *ngIf="isSentenceDuplicate()" class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-lg">
+          <i class="pi pi-exclamation-triangle text-red-500"></i>
+          <span class="text-sm text-red-600 dark:text-red-400">
+            This sentence already exists in the database. Use search to assign it.
+          </span>
+        </div>
+
+        <div class="flex gap-3 pt-2">
+          <p-button label="Add sentence and assign" icon="pi pi-check"
+            [loading]="savingSentence() || checkingDuplicateSentence()"
+            [disabled]="!sentenceContent().trim() || isSentenceDuplicate()"
+            (onClick)="saveSentence()" />
+
+          <p-button label="Clear" severity="secondary" outlined
+            (onClick)="resetSentenceForm()" />
+        </div>
+      </div>
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-2">
+          Search global sentence database
+        </h3>
+        <div class="flex gap-3 position-relative">
+          <input pInputText type="text"
+            [ngModel]="sentenceSearchQuery()" (ngModelChange)="sentenceSearchQuery.set($event)"
+            placeholder="Search sentence by keywords..."
+            class="flex-1 !text-base !py-2.5 !px-3.5 !leading-normal" />
+          <p-button icon="pi pi-spinner pi-spin" *ngIf="searchingSentence()" severity="secondary" [disabled]="true" />
+          <p-button icon="pi pi-search" *ngIf="!searchingSentence()" severity="secondary" [disabled]="true" />
+        </div>
+
+        <div class="flex flex-col gap-3 max-h-[450px] overflow-y-auto pr-1">
+          <div *ngIf="(!sentenceSearchResult() || sentenceSearchResult()?.length === 0) && !searchingSentence()"
+            class="text-center py-8 text-muted-color text-sm">
+            <i class="pi pi-search text-2xl block mb-2"></i>
+            Search for a sentence to see results
+          </div>
+
+          <div *ngIf="sentenceSearchResult() as results">
+            <div class="flex flex-col gap-3">
+              <div *ngFor="let r of results">
+
+                <div *ngIf="r.existsInGlobal && !r.alreadyAssignedToStudent"
+                  class="p-4 bg-green-50 dark:bg-green-900/20 border border-green-200 dark:border-green-800 rounded-xl">
+                  <div class="flex items-start justify-between gap-3">
+                    <div class="flex-1">
+                      <div class="font-bold text-surface-900 dark:text-surface-0 text-base mb-1">{{ r.englishTranslation }}</div>
+                      <div class="text-muted-color text-sm mb-2">{{ r.polish }}</div>
+                      <p-tag [value]="r.category" severity="info" />
+                    </div>
+                    <p-button label="Assign" icon="pi pi-plus" severity="success"
+                      size="small" [loading]="savingSentence()" (onClick)="assignExistingSentence(r)" />
+                  </div>
+                </div>
+
+                <div *ngIf="r.existsInGlobal && r.alreadyAssignedToStudent"
+                  class="p-4 bg-surface-100 dark:bg-surface-700 border border-surface-200 dark:border-surface-600 rounded-xl">
+                  <div class="flex items-center gap-3">
+                    <i class="pi pi-check-circle text-green-500 text-xl flex-shrink-0"></i>
+                    <div>
+                      <div class="font-semibold text-surface-900 dark:text-surface-0 text-sm">{{ r.englishTranslation }}</div>
+                      <div class="text-xs text-muted-color mb-1">{{ r.polish }}</div>
+                      <div class="text-xs text-green-600 dark:text-green-400 font-medium">Already in student's sentences</div>
+                    </div>
+                  </div>
+                </div>
+
+                <div *ngIf="!r.existsInGlobal"
+                  class="p-4 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200 dark:border-yellow-800 rounded-xl">
+                  <div class="flex items-center gap-2 mb-2">
+                    <i class="pi pi-info-circle text-yellow-500"></i>
+                    <span class="font-semibold text-yellow-700 dark:text-yellow-300">Sentence not found in database</span>
+                  </div>
+                  <p class="text-sm text-muted-color m-0">
+                    Fill in the form on the left to add it with a translation.
+                  </p>
+                </div>
+
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="activeTab() === 'memory'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+      <!-- LEWA: Formularz -->
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+            Generate memory prompts
+          </h3>
+          <p class="text-xs text-muted-color m-0">
+            Enter one or two words — the system generates linguistic prompts automatically.
+          </p>
+        </div>
+      
+        <div>
+          <label class="block font-bold mb-2">
+            Option A <span class="text-red-500">*</span>
+            <span class="text-xs font-normal text-muted-color ml-1">(e.g. "although", "stop")</span>
+          </label>
+          <input pInputText type="text"
+            [ngModel]="memoryOptionA()" (ngModelChange)="memoryOptionA.set($event)"
+            placeholder="First word or structure..."
+            class="!text-base !py-2.5 !px-3.5" fluid />
+        </div>
+      
+        <div>
+          <label class="block font-bold mb-2">
+            Option B
+            <span class="text-xs font-normal text-muted-color ml-1">(optional — e.g. "despite")</span>
+          </label>
+          <input pInputText type="text"
+            [ngModel]="memoryOptionB()" (ngModelChange)="memoryOptionB.set($event)"
+            placeholder="Second word for comparison..."
+            class="!text-base !py-2.5 !px-3.5" fluid />
+          <small class="text-muted-color text-xs mt-1 block">
+            Fill Option B to unlock comparison prompts (difference, etc.)
+          </small>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Prompt category</label>
+          <p-select
+            [options]="memoryCategoryOptions"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="memoryCategory()"
+            (ngModelChange)="memoryCategory.set($event)"
+            placeholder="All prompts"
+            fluid />
+          <small class="text-muted-color text-xs mt-1 block">
+            Leave empty to generate all prompts, or pick one specific type.
+          </small>
+        </div>
+        <div>
+          <label class="block font-bold mb-2">Notes</label>
+          <input pInputText type="text"
+            [ngModel]="memoryNotes()" (ngModelChange)="memoryNotes.set($event)"
+            placeholder="Optional lesson note..." fluid />
+        </div>
+      
+        <div *ngIf="isMemoryDuplicate()"
+          class="flex items-center gap-2 p-3 bg-red-50 dark:bg-red-900/20
+            border border-red-200 dark:border-red-800 rounded-lg">
+          <i class="pi pi-exclamation-triangle text-red-500"></i>
+          <span class="text-sm text-red-600 dark:text-red-400">
+            These prompts have already been generated for this student.
+          </span>
+        </div>
+      
+        <p-button label="Generate & save prompts" icon="pi pi-bolt"
+          [loading]="savingMemory()"
+          [disabled]="!memoryOptionA().trim() || isMemoryDuplicate()"
+          (onClick)="saveMemory()" />
+      </div>
+    
+      <!-- PRAWA: Podgląd promptów -->
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-3">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+          Preview
+          <span class="text-xs font-normal text-muted-color ml-2">
+            {{ memoryCategory() ? '1 prompt selected' : generatedPrompts().length + ' prompts will be generated' }}
+          </span>
+        </h3>
+      
+        <div *ngIf="!memoryOptionA().trim()"
+          class="text-center py-10 text-muted-color text-sm">
+          <i class="pi pi-lightbulb text-3xl block mb-2"></i>
+          Fill in Option A to see the prompt preview
+        </div>
+      
+        <div *ngIf="memoryOptionA().trim()"
+          class="flex flex-col gap-2 overflow-y-auto max-h-[420px] pr-1">
+          <div *ngFor="let prompt of generatedPrompts(); let i = index"
+            class="flex items-start gap-3 p-3 bg-white dark:bg-surface-900
+              border border-surface-200 dark:border-surface-700 rounded-lg">
+            <span class="flex-shrink-0 w-6 h-6 rounded-full bg-primary/10 text-primary
+              text-xs font-bold flex items-center justify-center">
+              {{ i + 1 }}
+            </span>
+            <span class="text-sm text-surface-900 dark:text-surface-0">{{ prompt }}</span>
+          </div>
+        </div>
+      </div>
+    
+    </div>
+  </div>
+
+  <div *ngIf="activeTab() === 'pronunciation'">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+    
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+          Add word to practice
+        </h3>
+        <div class="flex flex-col gap-2">
+          <div class="flex gap-3">
+            <input pInputText type="text"
+              [ngModel]="pronunciationWord()" (ngModelChange)="pronunciationWord.set($event)"
+              placeholder="Enter word..."
+              class="flex-1 !text-base !py-2.5 !px-3.5"
+              (keyup.enter)="!isPronunciationDuplicate() && savePronunciation()" />
+            <p-button label="Add" icon="pi pi-plus"
+              [loading]="savingPronunciation()"
+              [disabled]="!pronunciationWord().trim() || isPronunciationDuplicate()"
+              (onClick)="savePronunciation()" />
+          </div>
+          <small *ngIf="isPronunciationDuplicate()" class="text-red-500 flex items-center gap-1">
+            <i class="pi pi-exclamation-triangle"></i>
+            This word is already in the student's list.
+          </small>
+          <small class="text-muted-color text-xs">
+            Words enter the session automatically (max {{ SESSION_SIZE }} at a time).
+          </small>
+        </div>
+      </div>
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+              Test session
+            </h3>
+            <p class="text-xs text-muted-color m-0 mt-0.5">
+              ✅ Correct - removed from session ❌ Incorrect - goes back to the front
+            </p>
+          </div>
+          <p-button label="Load" icon="pi pi-refresh" size="small" outlined
+            [loading]="loadingPronunciationTest()"
+            (onClick)="loadPronunciationTest()" />
+        </div>
+
+        <div *ngIf="pronunciationTestList().length === 0 && !loadingPronunciationTest()"
+          class="text-center py-8 text-muted-color text-sm">
+          <i class="pi pi-list text-2xl block mb-2"></i>
+          Click "Load" to see the current session.
+        </div>
+
+        <div *ngIf="loadingPronunciationTest()" class="text-center py-6 text-muted-color">
+          <i class="pi pi-spin pi-spinner text-2xl"></i>
+        </div>
+
+        <div class="flex flex-col gap-2 overflow-y-auto max-h-[400px] pr-1">
+          <div *ngFor="let e of pronunciationTestList()"
+            class="flex items-center justify-between p-3 rounded-xl border"
+            [ngClass]="{
+              'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800':
+                e.status === 'Incorrect',
+              'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700':
+                e.status === 'Pending'
+            }">
+            <div class="flex items-center gap-2">
+              <i *ngIf="e.status === 'Incorrect'"
+                class="pi pi-times-circle text-red-400 text-sm"></i>
+              <span class="font-semibold text-surface-900 dark:text-surface-0">
+                {{ e.word }}
+              </span>
+              <p-tag *ngIf="e.status === 'Incorrect'" severity="danger" value="Retry" />
+            </div>
+            <div class="flex gap-2">
+              <p-button icon="pi pi-check" severity="success" size="small" outlined
+                [loading]="markingId() === e.id"
+                pTooltip="Correct — removes from session"
+                (onClick)="markPronunciation(e.id, 'correct')" />
+              <p-button icon="pi pi-times" severity="danger" size="small" outlined
+                [loading]="markingId() === e.id"
+                pTooltip="Incorrect — stays in session"
+                (onClick)="markPronunciation(e.id, 'incorrect')" />
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="pronunciationTestList().length > 0"
+          class="text-xs text-muted-color text-center pt-2
+            border-t border-surface-100 dark:border-surface-700">
+          {{ pronunciationTestList().length }} in session ·
+          <span class="text-red-500">{{ incorrectInSession() }} incorrect</span>
+        </div>
+      </div>
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+              Mastered
+            </h3>
+            <p class="text-xs text-muted-color m-0 mt-0.5">
+              Correct words — refresh after 30 days
+            </p>
+          </div>
+          <p-button label="Load" icon="pi pi-refresh" size="small" outlined
+            [loading]="loadingCorrectPronunciation()"
+            (onClick)="loadCorrectPronunciation()" />
+        </div>
+
+        <div *ngIf="correctPronunciationList().length === 0 && !loadingCorrectPronunciation()"
+          class="text-center py-8 text-muted-color text-sm">
+          <i class="pi pi-check-circle text-2xl block mb-2"></i>
+          No mastered words yet.
+        </div>
+
+        <div class="flex flex-col gap-2 overflow-y-auto max-h-[400px] pr-1">
+          <div *ngFor="let e of correctPronunciationList()"
+            class="flex items-start justify-between p-3 rounded-xl border
+              bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800">
+            <div>
+              <div class="font-semibold text-surface-900 dark:text-surface-0">
+                {{ e.word }}
+              </div>
+              <div class="text-xs text-muted-color mt-0.5">
+                Mastered: {{ e.markedCorrectAt | date:'d MMM yyyy' }}
+              </div>
+              <div *ngIf="e.daysUntilRefresh !== undefined" 
+                   class="text-xs mt-1"
+                   [ngClass]="e.daysUntilRefresh <= 5
+                     ? 'text-orange-500'
+                     : 'text-green-600 dark:text-green-400'">
+                <i class="pi pi-clock mr-1"></i>
+                {{ e.daysUntilRefresh === 0
+                    ? 'Refreshing soon...'
+                    : e.daysUntilRefresh + ' days until refresh' }}
+              </div>
+            </div>
+            <p-tag severity="success" value="✓" />
+          </div>
+        </div>
+
+        <div *ngIf="correctPronunciationList().length > 0"
+          class="text-xs text-muted-color text-center pt-2
+            border-t border-surface-100 dark:border-surface-700">
+          {{ correctPronunciationList().length }} mastered words total
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

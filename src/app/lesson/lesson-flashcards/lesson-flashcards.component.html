@@ -1,0 +1,175 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && data() as d">
+    
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalCards }}</div>
+        <div class="text-xs text-muted-color mt-1">Total Cards</div>
+      </div>
+      <div class="bg-primary/10 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-primary">{{ d.dueCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Due Today</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-green-600">{{ d.studiedTodayCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Studied Today</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-red-500">{{ d.leechCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Leeches</div>
+      </div>
+    </div>
+
+    <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6">
+      <div class="text-sm font-semibold text-red-500 mb-2 uppercase tracking-wider flex items-center gap-1">
+        <i class="pi pi-exclamation-triangle"></i> Attention Required (Leeches)
+      </div>
+      <div class="flex flex-wrap gap-2">
+        <span *ngFor="let c of d.leeches" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800/50">
+          <span class="font-bold">{{ c.front }}</span> 
+          <span class="opacity-70">&mdash; {{ c.back }}</span>
+          <span class="text-xs bg-red-100 dark:bg-red-800/50 px-1.5 py-0.5 rounded ml-1">{{ c.interval }}d</span>
+        </span>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div>
+        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">All Assigned Flashcards</h3>
+        
+        <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">
+          <i class="pi pi-spin pi-spinner text-2xl"></i>
+        </div>
+
+        <div *ngIf="!loadingAll()">
+          <div class="flex flex-col sm:flex-row justify-end mb-3">
+            <p-iconfield iconPosition="left">
+              <p-inputicon styleClass="pi pi-search" />
+              <input 
+                pInputText 
+                type="text" 
+                (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+                placeholder="Search flashcards..." 
+                class="w-full sm:w-auto" />
+            </p-iconfield>
+          </div>
+
+          <p-table #dt [value]="allFlashcards()" [paginator]="true" [rows]="12" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['front', 'back']">
+            <ng-template #header>
+              <tr>
+                <th>Front</th>
+                <th>Back</th>
+                <th style="width: 5rem">Int.</th>
+                <th style="width: 7rem">Next Due</th>
+                <th style="width: 4rem"></th> </tr>
+            </ng-template>
+            <ng-template #body let-card>
+              <tr>
+                <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.front }}</td>
+                <td class="text-muted-color text-sm">{{ card.back }}</td>
+                <td>
+                  <p-tag [value]="card.interval + 'd'" [severity]="card.interval < 5 ? 'warn' : 'success'"></p-tag>
+                </td>
+                <td class="text-xs text-muted-color">
+                  {{ card.nextReviewDate | date:'d MMM yyyy' }}
+                </td>
+                <td>
+                  <p-button icon="pi pi-pencil" [text]="true" [rounded]="true" severity="secondary" (onClick)="openEditDialog(card)" />
+                </td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="5" class="text-center text-muted-color py-6 text-sm">
+                  No flashcards assigned to this student yet (or none match the search).
+                </td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+      </div>
+
+      <div>
+        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Recent Study Sessions</h3>
+        <p-table [value]="d.recentLogs" [tableStyle]="{'min-width': '100%'}">
+          <ng-template #header>
+            <tr>
+              <th>Date</th>
+              <th style="width: 4rem">Easy</th>
+              <th style="width: 4rem">Hard</th>
+              <th style="width: 4rem">❌</th>
+              <th style="width: 6rem">Time</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-log>
+            <tr>
+              <td class="text-sm font-medium">{{ log.studyDate | date:'d MMM' }}</td>
+              <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
+              <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
+              <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
+              <td class="text-xs text-muted-color">{{ formatTime(log.timeSpentSeconds) }}</td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="5" class="text-center text-muted-color py-6 text-sm">No study sessions recorded yet.</td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+      <p-dialog header="Edit Flashcard Interval" [modal]="true" [(visible)]="editDialogVisible" [style]="{ width: '25rem' }">
+        <div class="mb-4 text-muted-color text-sm">
+          Adjusting the interval will automatically calculate a new Next Review Date from today.
+        </div>
+        
+        <div class="flex items-center gap-4 mb-6" *ngIf="selectedCard() as card">
+          <label for="interval" class="font-semibold w-24">Interval (days)</label>
+          <p-inputNumber 
+            inputId="interval" 
+            [(ngModel)]="newInterval" 
+            [min]="0" 
+            [showButtons]="true"
+            buttonLayout="horizontal" 
+            spinnerMode="horizontal" 
+            decrementButtonClass="p-button-secondary"
+            incrementButtonClass="p-button-secondary"
+            incrementButtonIcon="pi pi-plus" 
+            decrementButtonIcon="pi pi-minus"
+            class="flex-1" />
+        </div>
+        
+        <div class="flex justify-end gap-2">
+          <p-button label="Cancel" severity="secondary" (onClick)="editDialogVisible.set(false)" />
+          <p-button label="Save" (onClick)="saveInterval()" [loading]="saving()" />
+        </div>
+      </p-dialog>
+    </div>
+  </div>
+</div>

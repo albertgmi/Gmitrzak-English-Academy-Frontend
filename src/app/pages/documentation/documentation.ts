@@ -20,7 +20,7 @@ import { Component } from '@angular/core';
 npm install
 ng serve</code></pre>
 
-            <p class="text-lg mb-4">The application should run at <i class="bg-highlight px-2 py-1 rounded-border not-italic text-base">http://localhost:4200/</i> to view the application in your local environment.</p>
+            <p class="text-lg mb-4">The application should run at <i class="bg-highlight px-2 py-1 rounded-border not-italic text-base">http://localhost:5049/</i> to view the application in your local environment.</p>
 
             <div class="font-semibold text-xl mb-4">Structure</div>
             <p class="text-lg mb-4">Templates consists of a couple folders, demos and layout have been separated so that you can easily identify what is necessary for your application.</p>

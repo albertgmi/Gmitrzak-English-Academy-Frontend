@@ -1,4 +1,5 @@
-import {Component, computed, inject, OnInit, signal, ViewChild} from '@angular/core';
+import { Component, computed, inject, OnInit, ViewChild } from '@angular/core';
+import { Router, ActivatedRoute } from '@angular/router';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -18,8 +19,8 @@ import { TagModule } from 'primeng/tag';
 import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { CheckboxModule } from 'primeng/checkbox';
 import { User, UserService } from '../../services/user.service';
-import { HttpClient } from '@angular/common/http';
 
 interface Column {
   field: string;
@@ -55,62 +56,58 @@ interface ExportColumn {
     TagModule,
     InputIconModule,
     IconFieldModule,
-    ConfirmDialogModule
+    ConfirmDialogModule,
+    CheckboxModule
   ],
   providers: [MessageService, UserService, ConfirmationService]
 })
 export class UserCrudComponent implements OnInit {
-
-
   userService = inject(UserService);
+  public router = inject(Router);
+  route = inject(ActivatedRoute);
 
   userDialog: boolean = false;
-
-  users = this.userService.users;
-
   user!: User;
-
   selectedUsers!: User[] | null;
-
   submitted: boolean = false;
-
   roles!: any[];
+  exportColumns!: ExportColumn[];
+  cols!: Column[];
 
   @ViewChild('dt') dt!: Table;
 
-  exportColumns!: ExportColumn[];
-
-  cols!: Column[];
+  displayUsers = computed(() => {
+    return this.router.url.includes('inactive')
+      ? this.userService.inactiveUsers.value() || []
+      : this.userService.users.value() || [];
+  });
 
   constructor(
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
 
-  exportCSV() {
-    this.dt.exportCSV();
-  }
-
   ngOnInit() {
     this.loadData();
   }
 
   loadData() {
-
     this.roles = [
       { label: 'admin', value: 'admin' },
-      { label: 'student', value: 'student' },
-      { label: 'teacher', value: 'teacher' }
+      { label: 'user', value: 'user' }
     ];
 
     this.cols = [
-      { field: 'email', header: 'email' },
-      { field: 'first_name', header: 'first_name' },
-      { field: 'last_name', header: 'last_name' },
-      { field: 'role', header: 'role' }
+      { field: 'email', header: 'Email' },
+      { field: 'username', header: 'Username' },
+      { field: 'role', header: 'Role' }
     ];
 
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
+  }
+
+  exportCSV() {
+    this.dt.exportCSV();
   }
 
   onGlobalFilter(table: Table, event: Event) {
@@ -118,23 +115,48 @@ export class UserCrudComponent implements OnInit {
   }
 
   openNew() {
-    this.user = {id: 0};
+    this.user = { id: 0, isActive: true };
     this.submitted = false;
     this.userDialog = true;
   }
 
-  editUser(product: User) {
-    this.user = { ...product };
+  editUser(user: User) {
+    this.user = { ...user };
     this.userDialog = true;
   }
 
   deleteSelectedUsers() {
+    if (!this.selectedUsers || this.selectedUsers.length === 0) return;
+
+    const ids = this.selectedUsers.map((user) => user.id);
+
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete the selected users?',
       header: 'Confirm',
       icon: 'pi pi-exclamation-triangle',
       accept: () => {
+        this.userService.deleteManyUsers(ids).subscribe({
+          next: () => {
+            this.userService.users.reload();
+            this.userService.inactiveUsers.reload();
+            this.selectedUsers = null;
+            this.messageService.add({ severity: 'success', summary: 'Successful', detail: 'Users Deleted', life: 3000 });
+          },
+          error: () => {
+            this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to delete users', life: 3000 });
+          }
+        });
+      }
+    });
+  }
 
+  deleteUser(user: User) {
+    this.confirmationService.confirm({
+      message: 'Are you sure you want to delete ' + user.username + '?',
+      header: 'Confirm',
+      icon: 'pi pi-exclamation-triangle',
+      accept: () => {
+        this.userService.deleteUser(user.id);
       }
     });
   }
@@ -144,18 +166,19 @@ export class UserCrudComponent implements OnInit {
     this.submitted = false;
   }
 
-  deleteUser(user: User) {
-    this.confirmationService.confirm({
-      message: 'Are you sure you want to delete ' + user.first_name + '?',
-      header: 'Confirm',
-      icon: 'pi pi-exclamation-triangle',
-      accept: () => {
-        this.userService.deleteUser(user.id);
-      }
-    });
-  }
-
   saveUser() {
+    this.submitted = true;
+    if (!this.user.email || !this.user.username) return;
 
+    this.userService.updateUser(this.user.id, {
+      username: this.user.username,
+      email: this.user.email,
+      role: this.user.role,
+      password: this.user.password || undefined,
+      isActive: this.user.isActive
+    });
+
+    this.userDialog = false;
+    this.submitted = false;
   }
 }

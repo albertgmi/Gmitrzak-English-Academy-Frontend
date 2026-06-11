@@ -1,0 +1,89 @@
+<p-toast />
+
+<div class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <div class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-2xl">
+      <i class="pi pi-file-export"></i>
+    </div>
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+        Global Student Reports
+      </h2>
+      <p class="text-muted-color mt-0.5 m-0">Generate DOCX reports ZIP for all active students</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
+    <label class="block font-bold mb-3">Select date range & Download</label>
+    <div class="flex flex-wrap gap-4 items-end">
+      <div>
+        <label class="block text-xs text-muted-color mb-1">From</label>
+        <p-datepicker
+          [ngModel]="dateFrom()"
+          (ngModelChange)="dateFrom.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          placeholder="Start date" />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-color mb-1">To</label>
+        <p-datepicker
+          [ngModel]="dateTo()"
+          (ngModelChange)="dateTo.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          placeholder="End date" />
+      </div>
+
+      <p-button 
+        label="Download Active Students ZIP" 
+        icon="pi pi-download"
+        severity="primary"
+        [disabled]="!dateFrom() || !dateTo() || activeStudents().length === 0"
+        [loading]="downloadingZip()"
+        (click)="downloadZip()" />
+    </div>
+  </div>
+
+  <div>
+    <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-4 flex items-center gap-2">
+      <span>Students Included in Bulk Export</span>
+      <span class="bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 text-xs px-2 py-0.5 rounded-full">
+        {{ activeStudents().length }} active
+      </span>
+    </h3>
+
+    <div *ngIf="loadingUsers()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl block mb-2"></i>
+      <p>Loading active users list...</p>
+    </div>
+
+    <div *ngIf="!loadingUsers() && activeStudents().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+      <div *ngFor="let student of activeStudents()" 
+           class="p-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 flex items-center gap-3">
+        
+        <app-avatar 
+          [username]="student.username ?? '' "
+          [avatarUrl]="$any(student).avatarUrl"
+          customClass="w-9 h-9 text-sm" 
+          fallbackBgClass="bg-primary/20 text-primary" />
+        
+        <div class="overflow-hidden">
+          <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
+            {{ student.username }}
+          </div>
+          <div class="text-xs text-muted-color flex items-center gap-1.5 mt-0.5">
+            <span class="w-2 h-2 rounded-full bg-green-500"></span>
+            <span>Active Student</span>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <div *ngIf="!loadingUsers() && activeStudents().length === 0" class="text-center py-12 border rounded-xl border-dashed text-muted-color">
+      <i class="pi pi-users text-4xl block mb-2"></i>
+      <p>No active students found in the database.</p>
+    </div>
+  </div>
+</div>

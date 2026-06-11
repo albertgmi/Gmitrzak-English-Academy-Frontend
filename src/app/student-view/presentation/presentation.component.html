@@ -1,0 +1,153 @@
+<p-toast />
+
+<div class="card overflow-hidden flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+
+    <div *ngIf="loading()"
+        class="flex flex-col items-center justify-center py-16">
+
+        <p-progressSpinner
+            strokeWidth="4"
+            styleClass="w-16 h-16">
+        </p-progressSpinner>
+
+        <p class="mt-4 text-muted-color">
+            Loading presentation...
+        </p>
+    </div>
+
+    <ng-container *ngIf="!loading() && module() as module">
+
+        <div
+            class="w-full max-w-4xl bg-white dark:bg-surface-900
+                border border-surface-200 dark:border-surface-700
+                rounded-3xl shadow-sm overflow-hidden">
+
+            <div
+                class="flex items-center justify-between p-6 border-b
+                    border-surface-200 dark:border-surface-700">
+
+                <div class="flex items-center gap-4">
+
+                    <button
+                        pButton
+                        icon="pi pi-arrow-left"
+                        severity="secondary"
+                        outlined
+                        rounded
+                        [routerLink]="['/courses']">
+                    </button>
+
+                    <div>
+                        <div class="text-sm text-muted-color mb-1">
+                            Presentation Module
+                        </div>
+
+                        <h1
+                            class="text-3xl font-bold text-surface-900
+                                dark:text-surface-0 m-0">
+                            {{ module.name }}
+                        </h1>
+                    </div>
+
+                </div>
+
+                <p-tag
+                    *ngIf="completed()"
+                    severity="success"
+                    value="Completed">
+                </p-tag>
+
+            </div>
+
+            <div class="p-8">
+
+                <div
+                    *ngIf="module.description"
+                    class="mb-8">
+
+                    <div
+                        class="text-surface-700 dark:text-surface-300
+                            leading-relaxed whitespace-pre-line text-lg">
+
+                        {{ module.description }}
+
+                    </div>
+
+                </div>
+
+                <div *ngIf="module.presentationUrl">
+
+                    <p-divider align="left">
+                        <span class="font-semibold">
+                            External material
+                        </span>
+                    </p-divider>
+
+                    <a
+                        [href]="module.presentationUrl"
+                        target="_blank"
+                        class="flex items-center gap-3 p-4 rounded-2xl
+                            border border-primary/20 bg-primary/5
+                            hover:bg-primary/10 transition-all no-underline">
+
+                        <i
+                            class="pi pi-external-link text-primary text-xl">
+                        </i>
+
+                        <div class="flex flex-col">
+
+                            <span
+                                class="font-semibold text-primary">
+                                Open presentation material
+                            </span>
+
+                            <small class="text-muted-color">
+                                Opens in new tab
+                            </small>
+
+                        </div>
+
+                    </a>
+
+                </div>
+
+                <div
+                    *ngIf="!module.description && !module.presentationUrl"
+                    class="text-center py-16">
+
+                    <i
+                        class="pi pi-file text-6xl text-surface-400 mb-4">
+                    </i>
+
+                    <h3
+                        class="text-xl font-semibold mb-2">
+                        No presentation content
+                    </h3>
+
+                    <p class="text-muted-color">
+                        The teacher has not added any material yet.
+                    </p>
+
+                </div>
+
+            </div>
+
+            <div class="flex justify-end gap-3 p-6 border-t border-surface-200 dark:border-surface-700">
+              <button *ngIf="!completed()" pButton
+                label="Mark as done" icon="pi pi-check"
+                [loading]="markingDone()"
+                (click)="markAsDone()">
+              </button>
+          
+              <div *ngIf="completed()"
+                class="flex items-center gap-2 text-green-600 font-semibold">
+                <i class="pi pi-check-circle text-xl"></i>
+                <span>Completed</span>
+              </div>
+            </div>
+
+        </div>
+
+    </ng-container>
+
+</div>

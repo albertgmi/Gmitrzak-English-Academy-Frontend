@@ -1,0 +1,163 @@
+<p-toast />
+
+<div class="card">
+
+  <div *ngIf="selected() as d">
+    <div class="flex items-center gap-3 mb-6">
+      <button class="w-10 h-10 rounded-full border border-surface-200 flex items-center
+        justify-center hover:bg-surface-100 transition-colors cursor-pointer bg-transparent"
+        (click)="selected.set(null)">
+        <i class="pi pi-arrow-left"></i>
+      </button>
+      
+      <app-avatar [username]="d.username" [avatarUrl]="d.avatarUrl" customClass="w-10 h-10" />
+
+      <div class="flex-1">
+        <h2 class="text-2xl font-bold m-0">{{ d.username }}</h2>
+        <p class="text-muted-color m-0 mt-0.5">Credit history & purchases</p>
+      </div>
+      <div class="text-right">
+        <div class="text-3xl font-bold text-primary">{{ d.totalCredits }}</div>
+        <div class="text-xs text-muted-color">available</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-3 gap-4 mb-6">
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
+        <div class="text-xl font-bold text-green-600">{{ d.creditsEarned }}</div>
+        <div class="text-xs text-muted-color">Earned</div>
+      </div>
+      <div class="bg-primary/10 rounded-xl p-3 text-center">
+        <div class="text-xl font-bold text-primary">{{ d.totalCredits }}</div>
+        <div class="text-xs text-muted-color">Available</div>
+      </div>
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-3 text-center">
+        <div class="text-xl font-bold text-muted-color">{{ d.creditsSpent }}</div>
+        <div class="text-xs text-muted-color">Spent</div>
+      </div>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">
+      Purchases ({{ d.purchases.length }})
+    </h3>
+
+    <div *ngIf="!d.purchases.length"
+      class="text-center py-8 text-muted-color text-sm mb-6">
+      No purchases yet.
+    </div>
+
+    <div class="flex flex-col gap-2 mb-6">
+      <div *ngFor="let p of d.purchases"
+        class="flex items-center gap-3 p-3 rounded-xl border
+          bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700">
+        <span class="text-2xl">{{ p.iconEmoji }}</span>
+        <div class="flex-1">
+          <div class="font-medium text-surface-900 dark:text-surface-0">{{ p.itemName }}</div>
+          <div class="text-xs text-muted-color">
+            {{ p.purchaseDate | date:'d MMM yyyy' }} · {{ p.creditCost }} credits
+          </div>
+        </div>
+        <p-tag [severity]="statusSeverity(p.status)" [value]="p.status" />
+        <div class="flex gap-1">
+          <button *ngIf="p.status === 'Pending'"
+            class="text-xs px-2 py-1 rounded bg-green-100 text-green-700
+              hover:bg-green-200 transition-colors cursor-pointer border-0"
+            [disabled]="updatingStatus() === p.id"
+            (click)="updatePurchaseStatus(p.id, 'Fulfilled')">
+            ✓ Fulfill
+          </button>
+          <button *ngIf="p.status === 'Pending'"
+            class="text-xs px-2 py-1 rounded bg-red-100 text-red-600
+              hover:bg-red-200 transition-colors cursor-pointer border-0"
+            [disabled]="updatingStatus() === p.id"
+            (click)="updatePurchaseStatus(p.id, 'Cancelled')">
+            ✗ Cancel
+          </button>
+        </div>
+      </div>
+    </div>
+
+    <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">
+      Credit history
+    </h3>
+    <div class="flex flex-col gap-1.5 max-h-80 overflow-y-auto pr-1">
+      <div *ngFor="let h of d.history"
+        class="flex items-center gap-3 px-3 py-2 rounded-lg text-sm"
+        [ngClass]="h.type === 'earned'
+          ? 'bg-green-50 dark:bg-green-900/10'
+          : 'bg-red-50 dark:bg-red-900/10'">
+        <span [ngClass]="h.type === 'earned' ? 'text-green-600' : 'text-red-500'"
+          class="font-bold w-8 text-right flex-shrink-0">
+          {{ h.type === 'earned' ? '+' : '' }}{{ h.amount }}
+        </span>
+        <span class="flex-1 text-surface-700 dark:text-surface-300">{{ h.reason }}</span>
+        <span class="text-muted-color text-xs flex-shrink-0">
+          {{ h.date | date:'d MMM' }}
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div *ngIf="!selected()">
+    <div class="flex items-center justify-between mb-6">
+      <div>
+        <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+          Student Credits
+        </h2>
+        <p class="text-muted-color mt-1 m-0">
+          Overview of all student credits and purchases
+        </p>
+      </div>
+    </div>
+
+    <div *ngIf="loading()" class="text-center py-12 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+
+    <div *ngIf="!loading()"
+      class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
+      <div *ngFor="let s of students()"
+        class="p-4 rounded-xl border cursor-pointer transition-all
+          bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700
+          hover:border-primary/50 hover:shadow-sm"
+        (click)="openStudent(s)">
+
+        <div class="flex items-center gap-3 mb-3">
+          
+          <app-avatar 
+            [username]="s.username" 
+            [avatarUrl]="s.avatarUrl" 
+            customClass="w-10 h-10" 
+            fallbackBgClass="bg-primary/10 text-primary text-sm" />
+
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">
+              {{ s.username }}
+            </div>
+          </div>
+          <div class="text-right">
+            <div class="text-xl font-bold text-primary">{{ s.totalCredits }}</div>
+            <div class="text-xs text-muted-color">credits</div>
+          </div>
+        </div>
+
+        <div class="flex items-center justify-between text-xs text-muted-color
+          pt-2 border-t border-surface-100 dark:border-surface-700">
+          <span>
+            <i class="pi pi-plus-circle text-green-500 mr-1"></i>
+            {{ s.creditsEarned }} earned
+          </span>
+          <span>
+            <i class="pi pi-shopping-cart text-orange-400 mr-1"></i>
+            {{ s.purchaseCount }} purchases
+          </span>
+          <span>
+            <i class="pi pi-minus-circle text-red-400 mr-1"></i>
+            {{ s.creditsSpent }} spent
+          </span>
+        </div>
+      </div>
+    </div>
+  </div>
+
+</div>

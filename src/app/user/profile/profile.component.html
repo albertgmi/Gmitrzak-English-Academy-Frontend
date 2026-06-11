@@ -1,12 +1,58 @@
-<div class="p-d-flex p-jc-center p-ai-center" style="height: 100vh;">
-  <div class="p-shadow-3 p-p-4" style="width: 400px;">
-    <h2 class="p-text-center">Profile</h2>
-    <div *ngIf="user">
-      <p><strong>Email:</strong> {{ user.email }}</p>
-      <p><strong>First Name:</strong> {{ user.first_name }}</p>
-      <p><strong>Last Name:</strong> {{ user.last_name }}</p>
-      <p><strong>Role:</strong> {{ user.role }}</p>
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-semibold m-0">Profiles</h2>
+      <p class="text-muted-color mt-1">Select a user to view their profile</p>
     </div>
-    <p-toast></p-toast>
   </div>
+
+  <p-table
+    #dt
+    [value]="users.value() || []"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['email', 'username', 'role']"
+    [tableStyle]="{ 'min-width': '50rem' }"
+    [rowHover]="true"
+    dataKey="id"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} profiles"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]"
+  >
+    <ng-template #caption>
+      <div class="flex items-center justify-between">
+        <h5 class="m-0">All Users</h5>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="username">Username <p-sortIcon field="username" /></th>
+        <th pSortableColumn="email">Email <p-sortIcon field="email" /></th>
+        <th pSortableColumn="role">Role <p-sortIcon field="role" /></th>
+        <th>Active</th>
+        <th></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-user>
+      <tr>
+        <td>{{ user.username }}</td>
+        <td>{{ user.email }}</td>
+        <td>{{ user.role }}</td>
+        <td>
+          <i class="pi" [ngClass]="user.isActive ? 'pi-check-circle text-green-500' : 'pi-times-circle text-red-500'"></i>
+        </td>
+        <td>
+          <p-button icon="pi pi-user" label="View Profile" [outlined]="true" [rounded]="true" (click)="viewProfile(user.id)" />
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
 </div>
+
+<p-toast />

@@ -1,0 +1,199 @@
+<p-toast />
+
+<div class="card">
+  <div class="flex justify-between items-center mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
+      <p class="text-muted-color mt-1 m-0">{{ allFlashcards.value()?.length || 0 }} total cards</p>
+    </div>
+    <p-button
+      label="Study now"
+      icon="pi pi-play"
+      [routerLink]="['/flashcards/study']"
+      [disabled]="!allFlashcards.value()?.length" />
+  </div>
+
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <p-button
+      *ngFor="let tab of [
+        {id: 'all',     label: 'All cards',     icon: 'pi pi-clone'},
+        {id: 'today',   label: 'Studied today', icon: 'pi pi-calendar'},
+        {id: 'leeches', label: 'Leeches',       icon: 'pi pi-exclamation-triangle'},
+        {id: 'search',  label: 'Search',        icon: 'pi pi-search'},
+        {id: 'logs',    label: 'Study logs',    icon: 'pi pi-history'}
+      ]"
+      [label]="tab.label"
+      [icon]="tab.icon"
+      [outlined]="activeTab() !== tab.id"
+      size="small"
+      (onClick)="setTab(tab.id)" />
+  </div>
+
+  <!-- ALL -->
+  <div *ngIf="activeTab() === 'all'">
+    <p-table #dt [value]="allFlashcards.value() || []"
+      [loading]="allFlashcards.isLoading()"
+      [rows]="15" [paginator]="true" [rowHover]="true"
+      [globalFilterFields]="['front', 'back', 'category']"
+      [tableStyle]="{'min-width': '40rem'}"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} cards">
+      <ng-template #caption>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Filter..." />
+        </p-iconfield>
+      </ng-template>
+      <ng-template #header>
+        <tr>
+          <th pSortableColumn="front">Front <p-sortIcon field="front" /></th>
+          <th pSortableColumn="back">Back <p-sortIcon field="back" /></th>
+          <th style="width: 10rem">Category</th>
+          <th style="width: 8rem">Interval</th>
+          <th style="width: 8rem">Next Review</th>
+          <th style="width: 5rem"></th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-card>
+        <tr>
+          <td class="font-semibold">{{ card.front }}</td>
+          <td class="text-muted-color">{{ card.back }}</td>
+          <td><p-tag [value]="card.category" severity="info" /></td>
+          <td class="text-sm">{{ card.interval === 0 ? 'New' : card.interval + 'd' }}</td>
+          <td class="text-sm">{{ card.nextReviewDate | date:'d MMM' }}</td>
+          <td>
+            <i *ngIf="card.isLeech" class="pi pi-exclamation-triangle text-red-500"
+              pTooltip="Leech — needs extra attention"></i>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-muted-color py-8">
+            <i class="pi pi-clone text-4xl block mb-2"></i>
+            No flashcards yet.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- STUDIED TODAY -->
+  <div *ngIf="activeTab() === 'today'">
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+    <div *ngIf="!loadingTab()">
+      <p class="text-sm text-muted-color mb-4">{{ studiedToday().length }} cards reviewed today</p>
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let card of studiedToday()"
+          class="flex items-center gap-4 p-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+          <div class="flex-1">
+            <div class="font-semibold">{{ card.front }}</div>
+            <div class="text-sm text-muted-color">{{ card.back }}</div>
+          </div>
+          <p-tag [value]="card.category" severity="info" />
+          <span class="text-xs text-muted-color">
+            {{ card.interval === 0 ? 'New' : card.interval + 'd' }}
+          </span>
+        </div>
+        <div *ngIf="!studiedToday().length" class="text-center py-10 text-muted-color">
+          <i class="pi pi-calendar text-3xl block mb-2"></i>
+          No cards studied today yet.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- LEECHES -->
+  <div *ngIf="activeTab() === 'leeches'">
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+    <div *ngIf="!loadingTab()">
+      <p class="text-sm text-muted-color mb-4">
+        {{ leeches().length }} difficult cards — these need extra attention
+      </p>
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let card of leeches()"
+          class="flex items-center gap-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <i class="pi pi-exclamation-triangle text-red-500 flex-shrink-0"></i>
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ card.front }}</div>
+            <div class="text-sm text-muted-color">{{ card.back }}</div>
+          </div>
+          <span class="text-xs text-muted-color">{{ card.interval }}d interval</span>
+        </div>
+        <div *ngIf="!leeches().length" class="text-center py-10 text-muted-color">
+          <i class="pi pi-check-circle text-green-500 text-3xl block mb-2"></i>
+          No leeches — great job!
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- SEARCH -->
+  <div *ngIf="activeTab() === 'search'">
+    <div class="flex gap-3 mb-6">
+      <input pInputText type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search front or back..."
+        class="flex-1"
+        (keyup.enter)="search()" />
+      <p-button label="Search" icon="pi pi-search" (onClick)="search()" />
+    </div>
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+    <div *ngIf="!loadingTab() && searchResults().length" class="flex flex-col gap-2">
+      <div *ngFor="let card of searchResults()"
+        class="flex items-center gap-4 p-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+        <div class="flex-1">
+          <div class="font-semibold">{{ card.front }}</div>
+          <div class="text-sm text-muted-color">{{ card.back }}</div>
+        </div>
+        <p-tag [value]="card.category" severity="info" />
+        <i *ngIf="card.isLeech" class="pi pi-exclamation-triangle text-red-500"
+          pTooltip="Leech"></i>
+      </div>
+    </div>
+    <div *ngIf="!loadingTab() && !searchResults().length && searchQuery()"
+      class="text-center py-10 text-muted-color">
+      No results for "{{ searchQuery() }}".
+    </div>
+  </div>
+
+  <!-- STUDY LOGS -->
+  <div *ngIf="activeTab() === 'logs'">
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+    <p-table *ngIf="!loadingTab()" [value]="studyLogs()"
+      [rows]="15" [paginator]="studyLogs().length > 15"
+      [tableStyle]="{'min-width': '45rem'}" [rowHover]="true"> <ng-template #header>
+        <tr>
+          <th pSortableColumn="studyDate">Date <p-sortIcon field="studyDate" /></th>
+          <th pSortableColumn="flashcardFront">Flashcard <p-sortIcon field="flashcardFront" /></th> <th style="width: 7rem">Easy</th>
+          <th style="width: 7rem">Hard</th>
+          <th style="width: 7rem">Incorrect</th>
+          <th style="width: 9rem">Time</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-log>
+        <tr>
+          <td>{{ log.studyDate | date:'d MMM yyyy' }}</td>
+          <td class="font-semibold text-surface-900 dark:text-surface-0">{{ log.flashcardFront }}</td> <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
+          <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
+          <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
+          <td class="text-sm text-muted-color">{{ formatTime(log.timeSpentSeconds) }}</td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="6" class="text-center text-muted-color py-8">No study logs yet.</td> </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+</div>

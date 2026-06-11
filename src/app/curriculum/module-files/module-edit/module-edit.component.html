@@ -1,0 +1,168 @@
+<p-toast />
+
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Edit Module</h2>
+      <p class="text-muted-color mt-1 m-0">Update module details and manage matrix assignments</p>
+    </div>
+    <p-button label="Back to List" icon="pi pi-arrow-left" severity="secondary"
+      [text]="true" (onClick)="goBack()" />
+  </div>
+
+  <div *ngIf="editedModule() as mod; else loadingTemplate">
+    <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+      <!-- Left: General info -->
+      <div class="lg:col-span-2">
+        <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
+          <h3 class="text-lg font-semibold mb-4">General Information</h3>
+
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+            <div>
+              <label class="block font-bold mb-2">Name <span class="text-red-500">*</span></label>
+              <input type="text" pInputText [(ngModel)]="mod.name"
+                placeholder="e.g. Grammar Basics" fluid />
+              <small class="text-red-500" *ngIf="submitted && !mod.name?.trim()">
+                Name is required.
+              </small>
+            </div>
+
+            <div>
+              <label class="block font-bold mb-2">Category</label>
+              <p-select
+                [options]="categories"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="mod.category"
+                placeholder="Select category"
+                fluid />
+              <small class="text-muted-color text-xs mt-1 block">
+                Set to <strong>Sentences</strong> to enable translation tasks.
+              </small>
+            </div>
+
+            <div class="md:col-span-2" *ngIf="mod.category === 'Watching'">
+              <label class="block font-bold mb-2">Linked Video Material <span class="text-red-500">*</span></label>
+              <p-select
+                [options]="theaterItemsOptions()"
+                optionLabel="label"
+                optionValue="value"
+                [(ngModel)]="mod.theaterItemId"
+                placeholder="Change video material..."
+                [filter]="true"
+                fluid />
+            </div>
+            
+            <div *ngIf="mod.category === 'Watching'"
+              class="mt-4 p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl flex items-start gap-2">
+              <i class="pi pi-video text-blue-500 mt-0.5 flex-shrink-0"></i>
+              <p class="text-sm text-blue-700 dark:text-blue-300 m-0">
+                This module is set to <strong>Watching</strong>. It requires the student to play and complete the video assigned above.
+              </p>
+            </div>
+
+            <div class="md:col-span-2">
+              <label class="block font-bold mb-2">Description</label>
+              <textarea pTextarea [(ngModel)]="mod.description"
+                rows="5" placeholder="Describe the content..." fluid></textarea>
+            </div>
+
+            <div class="flex items-center gap-2">
+              <p-checkbox [(ngModel)]="mod.isHidden" [binary]="true" inputId="is-hidden" />
+              <label for="is-hidden" class="font-bold">Hidden from students</label>
+            </div>
+
+          </div>
+
+          <!-- Category info banner for Sentences -->
+          <div *ngIf="mod.category === 'Sentences'"
+            class="mt-4 p-3 bg-yellow-50 dark:bg-yellow-900/20 border border-yellow-200
+              dark:border-yellow-800 rounded-xl flex items-start gap-2">
+            <i class="pi pi-info-circle text-yellow-500 mt-0.5 flex-shrink-0"></i>
+            <p class="text-sm text-yellow-700 dark:text-yellow-300 m-0">
+              This module is of type <strong>Sentences</strong>. Students will be redirected to a
+              translation task when they open it. Assign a sentence set via
+              <strong>System → Sets & Composer → Assign to Module</strong>.
+            </p>
+          </div>
+
+          <div class="flex gap-3 mt-6">
+            <p-button label="Save Changes" icon="pi pi-check" [loading]="loading"
+              (onClick)="save()" />
+            <p-button label="Cancel" severity="secondary" outlined (onClick)="goBack()" />
+          </div>
+        </div>
+      </div>
+
+      <!-- Right: Matrix schedule -->
+      <div class="lg:col-span-1">
+        <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700 h-full">
+          <h3 class="text-lg font-semibold mb-4">Matrix Schedule</h3>
+
+          <div class="flex flex-col gap-4 p-4 mb-6 bg-surface-100 dark:bg-surface-900 rounded-lg">
+            <span class="text-sm font-medium">Add to new Matrix:</span>
+
+            <p-select
+              [options]="availableMatrices()"
+              [ngModel]="selectedMatrixToAdd()"
+              (ngModelChange)="onMatrixChange($event)"
+              optionLabel="name"
+              placeholder="Select Matrix"
+              [filter]="true"
+              fluid />
+
+            <div class="grid grid-cols-2 gap-3">
+              <div>
+                <label class="text-xs font-bold uppercase text-muted-color">Week</label>
+                <input type="number" pInputText [ngModel]="weekNumber()"
+                  (ngModelChange)="weekNumber.set($event)" min="1" fluid />
+              </div>
+              <div>
+                <label class="text-xs font-bold uppercase text-muted-color">Day</label>
+                <p-select
+                  [options]="availableDays()"
+                  [ngModel]="dayOfWeek()"
+                  (ngModelChange)="dayOfWeek.set($event)"
+                  optionLabel="label"
+                  optionValue="value"
+                  placeholder="Select Day"
+                  fluid />
+              </div>
+            </div>
+
+            <p-button label="Assign to Matrix" icon="pi pi-link" severity="info"
+              [disabled]="!selectedMatrixToAdd()" (onClick)="assignMatrix()" fluid />
+          </div>
+
+          <h4 class="text-sm font-bold mb-3 uppercase text-muted-color">Currently assigned to:</h4>
+
+          <div class="flex flex-col gap-2">
+            <div *ngFor="let m of mod.matrices"
+              class="flex items-center justify-between p-3 bg-surface-0 dark:bg-surface-700
+                rounded border border-surface-200 dark:border-surface-600">
+              <span class="font-medium text-primary">{{ m.name }}</span>
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" [rounded]="true"
+                (onClick)="removeMatrix(m)" pTooltip="Remove from this matrix" />
+            </div>
+
+            <div *ngIf="!mod.matrices || mod.matrices.length === 0"
+              class="text-center py-6 border-2 border-dashed border-surface-200 dark:border-surface-700 rounded-lg">
+              <i class="pi pi-link-slash text-muted-color text-xl"></i>
+              <p class="text-xs text-muted-color mt-2">Not assigned to any matrix</p>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <ng-template #loadingTemplate>
+    <div class="flex flex-col items-center justify-center py-20">
+      <i class="pi pi-spin pi-spinner text-4xl text-primary mb-4"></i>
+      <p class="text-muted-color">Loading module data...</p>
+    </div>
+  </ng-template>
+</div>

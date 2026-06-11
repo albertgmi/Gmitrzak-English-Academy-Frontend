@@ -1,0 +1,58 @@
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-semibold m-0">Register User</h2>
+      <p class="text-muted-color mt-1">Create a new user account</p>
+    </div>
+  </div>
+
+  <div class="bg-white dark:bg-surface-800 rounded-lg">
+    <div class="flex flex-col gap-6 max-w-2xl">
+
+      <div>
+        <label for="username" class="block font-bold mb-3">Username</label>
+        <input type="text" pInputText id="username" [(ngModel)]="user.username" placeholder="Enter username" fluid />
+        <small class="text-red-500" *ngIf="submitted && !user.username">Username is required.</small>
+      </div>
+
+      <div>
+        <label for="email" class="block font-bold mb-3">Email</label>
+        <input type="text" pInputText id="email" [(ngModel)]="user.email" placeholder="Enter email" fluid />
+        <small class="text-red-500" *ngIf="submitted && !user.email">Email is required.</small>
+      </div>
+
+      <div>
+        <label for="password" class="block font-bold mb-3">Password</label>
+        <input type="password" pInputText id="password" [(ngModel)]="user.password" placeholder="Enter password" fluid />
+        <small class="text-red-500" *ngIf="submitted && !user.password">Password is required.</small>
+      </div>
+
+      <div>
+        <label for="role" class="block font-bold mb-3">Role</label>
+        <p-select
+          [(ngModel)]="user.role"
+          inputId="role"
+          [options]="roles"
+          optionLabel="label"
+          optionValue="value"
+          placeholder="Select a role"
+          fluid
+        />
+        <small class="text-red-500" *ngIf="submitted && !user.role">Role is required.</small>
+      </div>
+
+      <div class="flex items-center gap-3">
+        <p-checkbox [(ngModel)]="user.isActive" [binary]="true" inputId="isActive" />
+        <label for="isActive" class="font-bold">Active</label>
+      </div>
+
+      <div class="flex gap-3 pt-2">
+        <p-button label="Register" icon="pi pi-user-plus" (click)="register()" />
+        <p-button label="Clear" icon="pi pi-times" severity="secondary" outlined (click)="clear()" />
+      </div>
+
+    </div>
+  </div>
+</div>
+
+<p-toast />

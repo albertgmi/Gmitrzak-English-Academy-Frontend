@@ -1,0 +1,130 @@
+<p-toast />
+
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">New Module</h2>
+      <p class="text-muted-color mt-1 m-0">Define the details of the new task module</p>
+    </div>
+  </div>
+
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <!-- Name -->
+      <div>
+        <label class="block font-bold mb-2">Name <span class="text-red-500">*</span></label>
+        <input type="text" pInputText [(ngModel)]="newModule.name"
+          placeholder="e.g. Translate sentences 1–10" fluid />
+        <small class="text-red-500" *ngIf="submitted && !newModule.name?.trim()">
+          Name is required.
+        </small>
+      </div>
+
+      <!-- Category -->
+      <div>
+        <label class="block font-bold mb-2">Category</label>
+        <p-select [options]="categories" optionLabel="label" optionValue="value"
+          [(ngModel)]="newModule.category" placeholder="Select category"
+          (onChange)="onCategoryChange()" fluid />
+      </div>
+
+      <!-- Watching — video selector -->
+      <div class="md:col-span-2" *ngIf="newModule.category === 'Watching'">
+        <label class="block font-bold mb-2">
+          Video Material <span class="text-red-500">*</span>
+        </label>
+        <p-select [options]="theaterItemsOptions()" optionLabel="label" optionValue="value"
+          [(ngModel)]="newModule.theaterItemId" placeholder="Choose video..."
+          [filter]="true" fluid />
+        <small class="text-red-500" *ngIf="submitted && !newModule.theaterItemId">
+          Required for Watching category.
+        </small>
+      </div>
+
+      <!-- Sentences — sentence set selector -->
+      <div class="md:col-span-2" *ngIf="newModule.category === 'Sentences'">
+        <label class="block font-bold mb-2">
+          Sentence Set <span class="text-red-500">*</span>
+        </label>
+        <p-select [options]="sentenceSetsOptions()" optionLabel="label" optionValue="value"
+          [(ngModel)]="selectedSentenceSetId" placeholder="Choose sentence set..."
+          [filter]="true" fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedSentenceSetId">
+          Required for Sentences category.
+        </small>
+      </div>
+
+      <!-- Presentation — url + text -->
+      <div *ngIf="newModule.category === 'Presentation'" class="md:col-span-2">
+        <label class="block font-bold mb-2">Presentation URL (optional)</label>
+        <input type="url" pInputText [(ngModel)]="newModule.presentationUrl"
+          placeholder="https://..." fluid />
+      </div>
+
+      <div class="md:col-span-2" *ngIf="newModule.category === 'Essay'">
+        <label class="block font-bold mb-2">
+          Essay Prompt <span class="text-red-500">*</span>
+        </label>
+        <textarea pTextarea [(ngModel)]="newModule.essayPrompt"
+          placeholder="e.g. Write about a time when you had to overcome a challenge..."
+          rows="4" fluid></textarea>
+        <small class="text-red-500" *ngIf="submitted && !newModule.essayPrompt?.trim()">
+          Essay prompt is required.
+        </small>
+        <small class="text-muted-color text-xs block mt-1">
+          This prompt will be shown to the student as the essay topic.
+        </small>
+      </div>
+      
+      <div class="md:col-span-2" *ngIf="newModule.category === 'Essay'">
+        <div class="flex items-start gap-2 p-3 bg-purple-50 dark:bg-purple-900/20
+          border border-purple-200 dark:border-purple-800 rounded-xl">
+          <i class="pi pi-file-edit text-purple-500 mt-0.5 flex-shrink-0"></i>
+          <p class="text-sm text-purple-700 dark:text-purple-300 m-0">
+            Student writes a free-form essay using a rich text editor.
+            The essay is submitted once and sent to you for review.
+          </p>
+        </div>
+      </div>
+
+      <!-- Description -->
+      <div class="md:col-span-2">
+        <label class="block font-bold mb-2">Description</label>
+        <textarea pTextarea [(ngModel)]="newModule.description"
+          [placeholder]="newModule.category === 'Presentation'
+            ? 'Text content for the student to read...'
+            : 'What does this module require?'"
+          rows="4" fluid></textarea>
+        <small *ngIf="newModule.category === 'Presentation'" class="text-muted-color text-xs">
+          This text will be shown to the student as reading material.
+        </small>
+      </div>
+
+      <!-- Info banners per category -->
+      <div class="md:col-span-2"
+        *ngIf="['Flashcards','Memories','Pronunciation'].includes(newModule.category)">
+        <div class="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20
+          border border-blue-200 dark:border-blue-800 rounded-xl">
+          <i class="pi pi-info-circle text-blue-500 mt-0.5 flex-shrink-0"></i>
+          <p class="text-sm text-blue-700 dark:text-blue-300 m-0">
+            <strong>{{ newModule.category }}</strong> modules require
+            <strong>3 unique days of activity</strong> before the student can mark them as done.
+          </p>
+        </div>
+      </div>
+
+      <!-- Hidden -->
+      <div class="flex items-center gap-2">
+        <p-checkbox [(ngModel)]="newModule.isHidden" [binary]="true" inputId="add-hidden" />
+        <label for="add-hidden" class="font-bold">Hidden from students</label>
+      </div>
+
+    </div>
+
+    <div class="flex gap-3 mt-6">
+      <p-button label="Create Module" icon="pi pi-check" (onClick)="save()" />
+      <p-button label="Cancel" severity="secondary" outlined (onClick)="cancel()" />
+    </div>
+  </div>
+</div>

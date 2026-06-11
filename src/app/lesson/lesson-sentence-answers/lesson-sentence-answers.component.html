@@ -1,0 +1,267 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (click)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar [username]="student.username" [avatarUrl]="$any(student).avatarUrl"
+      customClass="w-10 h-10 text-base" fallbackBgClass="bg-primary text-white" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+        Sentence Answers
+      </h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — review by date range</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (click)="goToSwitchClient()" />
+  </div>
+
+  <!-- Date range picker -->
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
+    <label class="block font-bold mb-3">Select date range</label>
+    <div class="flex flex-wrap gap-3 items-end">
+      <div>
+        <label class="block text-xs text-muted-color mb-1">From</label>
+        <p-datepicker
+          [ngModel]="dateFrom()"
+          (ngModelChange)="dateFrom.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          placeholder="Start date" />
+      </div>
+      <div>
+        <label class="block text-xs text-muted-color mb-1">To</label>
+        <p-datepicker
+          [ngModel]="dateTo()"
+          (ngModelChange)="dateTo.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          placeholder="End date" />
+      </div>
+      <p-button label="Load modules" icon="pi pi-search"
+        [disabled]="!dateFrom() || !dateTo()"
+        [loading]="loadingModules()"
+        (click)="loadModules()" />
+      <div class="flex gap-2 ml-auto" *ngIf="completedModules().length">
+        <p-button label="PDF Report" icon="pi pi-file-pdf"
+          severity="secondary" outlined
+          [loading]="downloadingPdf()"
+          (click)="downloadRangePdf()" />
+        <p-button label="DOCX Report" icon="pi pi-file-word"
+          severity="info" outlined
+          [loading]="downloadingDocx()"
+          (click)="downloadRangeDocx()" />
+      </div>
+    </div>
+  </div>
+
+  <!-- Modules list + answers side by side -->
+  <div *ngIf="completedModules().length || loadingModules()"
+    class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+
+    <!-- LEFT: Completed modules list -->
+    <div class="lg:col-span-1">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
+        Completed modules ({{ completedModules().length }})
+      </h3>
+
+      <div *ngIf="loadingModules()" class="text-center py-10 text-muted-color">
+        <i class="pi pi-spin pi-spinner text-2xl"></i>
+      </div>
+
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let m of completedModules()"
+          class="p-4 rounded-xl border cursor-pointer transition-all"
+          [ngClass]="selectedModule()?.moduleId === m.moduleId
+            ? 'bg-primary/10 border-primary/40'
+            : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/30'"
+          (click)="selectModule(m)">
+
+          <div class="font-semibold text-surface-900 dark:text-surface-0 mb-1">
+            {{ m.moduleName }}
+          </div>
+
+          <div class="text-xs text-muted-color flex items-center gap-1 mb-1">
+            <span *ngIf="m.isFromMatrix"
+              class="inline-flex items-center gap-1 px-1.5 py-0.5 rounded
+                bg-primary/10 text-primary font-medium">
+              <i class="pi pi-sitemap" style="font-size:0.6rem"></i>
+              {{ m.matrixName }}
+            </span>
+            <span *ngIf="!m.isFromMatrix" class="text-muted-color">Single module</span>
+          </div>
+
+          <div class="flex items-center justify-between text-xs">
+            <span class="text-muted-color">
+              {{ m.completedDate | date:'d MMM yyyy' }}
+            </span>
+            <span class="font-medium"
+              [ngClass]="m.answeredCount === m.totalSentences
+                ? 'text-green-600' : 'text-yellow-600'">
+              {{ m.answeredCount }}/{{ m.totalSentences }}
+            </span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- RIGHT: Answers for selected module -->
+    <div class="lg:col-span-2">
+
+      <div *ngIf="!selectedModule()"
+        class="text-center py-16 text-muted-color">
+        <i class="pi pi-arrow-left text-3xl block mb-3"></i>
+        <p>Select a module to see answers.</p>
+      </div>
+
+      <div *ngIf="selectedModule() as m">
+        <div class="flex items-center justify-between mb-4">
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+            {{ m.moduleName }}
+          </h3>
+        </div>
+
+        <div *ngIf="loadingAnswers()" class="text-center py-10 text-muted-color">
+          <i class="pi pi-spin pi-spinner text-2xl"></i>
+        </div>
+
+        <div *ngIf="!loadingAnswers() && answers().length">
+
+          <!-- Summary -->
+          <div class="grid grid-cols-3 gap-3 mb-4">
+            <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-green-600">{{ correctCount() }}</div>
+              <div class="text-xs text-muted-color">Correct</div>
+            </div>
+            <div class="bg-yellow-50 dark:bg-yellow-900/20 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-yellow-600">{{ partialCount() }}</div>
+              <div class="text-xs text-muted-color">Partial</div>
+            </div>
+            <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-3 text-center">
+              <div class="text-xl font-bold text-red-500">{{ incorrectCount() }}</div>
+              <div class="text-xs text-muted-color">Incorrect</div>
+            </div>
+          </div>
+
+          <div class="flex flex-col gap-4 pr-1">
+            <div *ngFor="let a of answers(); let i = index"
+              class="border rounded-xl overflow-hidden"
+              [ngClass]="{
+                'border-green-200 dark:border-green-800':  (a.teacherOverride || a.aiResult) === 'Correct',
+                'border-yellow-200 dark:border-yellow-800': (a.teacherOverride || a.aiResult) === 'Partial',
+                'border-red-200 dark:border-red-800':      (a.teacherOverride || a.aiResult) === 'Incorrect'
+              }">
+            
+              <div class="flex items-center gap-3 px-4 py-3"
+                [ngClass]="{
+                  'bg-green-50 dark:bg-green-900/20':  (a.teacherOverride || a.aiResult) === 'Correct',
+                  'bg-yellow-50 dark:bg-yellow-900/20': (a.teacherOverride || a.aiResult) === 'Partial',
+                  'bg-red-50 dark:bg-red-900/20':      (a.teacherOverride || a.aiResult) === 'Incorrect'
+                }">
+                <span class="font-bold text-muted-color text-sm">{{ i + 1 }}</span>
+                <p-tag [severity]="resultSeverity(a.teacherOverride || a.aiResult)"
+                  [value]="a.teacherOverride || a.aiResult" />
+                <i *ngIf="a.teacherReviewed"
+                  class="pi pi-check-circle text-primary text-sm ml-auto"
+                  pTooltip="Teacher reviewed"></i>
+              </div>
+            
+              <div class="bg-white dark:bg-surface-900 px-4 py-5 flex flex-col gap-4">
+                <div class="grid grid-cols-2 gap-3 text-sm">
+                  <div>
+                    <div class="text-xs font-bold uppercase text-muted-color mb-1">Polish</div>
+                    <div class="font-semibold">{{ a.polish }}</div>
+                  </div>
+                  <div>
+                    <div class="text-xs font-bold uppercase text-muted-color mb-1">Expected</div>
+                    <div class="text-muted-color">{{ a.expectedTranslation }}</div>
+                  </div>
+                </div>
+              
+                <div>
+                  <div class="text-xs font-bold uppercase text-muted-color mb-1">
+                    Student's answer
+                  </div>
+                  <div class="font-semibold text-surface-900 dark:text-surface-0">
+                    {{ a.userAnswer }}
+                  </div>
+                </div>
+              
+                <div class="bg-surface-50 dark:bg-surface-800 rounded px-3 py-2.5 text-xs italic text-muted-color">
+                  {{ a.aiExplanation }}
+                </div>
+              
+                <div *ngIf="a.teacherExplanation"
+                  class="bg-blue-50 dark:bg-blue-900/10 border border-blue-100 rounded px-3 py-2.5 text-xs italic">
+                  <span class="font-bold text-blue-500 not-italic">Teacher: </span>
+                  {{ a.teacherExplanation }}
+                </div>
+              
+                <div class="pt-3 border-t border-surface-100 dark:border-surface-700">
+                  <p-button label="Review & Override" icon="pi pi-pencil"
+                    severity="info" size="small" outlined
+                    [loading]="overriding() === a.id"
+                    (click)="openOverride(a)" />
+                </div>
+              </div>
+            
+            </div>
+          </div>
+        </div>
+
+        <div *ngIf="!loadingAnswers() && !answers().length"
+          class="text-center py-10 text-muted-color">
+          <i class="pi pi-inbox text-3xl block mb-2"></i>
+          No answers for this module.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Empty state -->
+  <div *ngIf="!completedModules().length && !loadingModules() && dateFrom() && dateTo()"
+    class="text-center py-16 text-muted-color">
+    <i class="pi pi-calendar-times text-5xl block mb-4"></i>
+    <p class="text-lg">No completed Sentences modules in this period.</p>
+  </div>
+
+</div>
+
+<!-- Override dialog -->
+<p-dialog [visible]="!!overrideForm()"
+  (visibleChange)="!$event ? overrideForm.set(null) : null"
+  header="Override AI Result" [modal]="true" [style]="{width: '480px'}">
+  <ng-template pTemplate="content">
+    <div *ngIf="overrideForm() as f" class="flex flex-col gap-4">
+      <div>
+        <label class="block font-bold mb-2">Result</label>
+        <div class="flex gap-2">
+          <p-button label="Correct" severity="success"
+            [outlined]="f.result !== 'Correct'" (click)="updateFormResult('Correct')" />
+          <p-button label="Partial" severity="warn"
+            [outlined]="f.result !== 'Partial'" (click)="updateFormResult('Partial')" />
+          <p-button label="Incorrect" severity="danger"
+            [outlined]="f.result !== 'Incorrect'" (click)="updateFormResult('Incorrect')" />
+        </div>
+      </div>
+      <div>
+        <label class="block font-bold mb-2">Explanation (visible to student)</label>
+        <textarea pTextarea [ngModel]="f.explanation"
+          (ngModelChange)="updateFormExplanation($event)"
+          placeholder="Explain your decision..." rows="4" fluid></textarea>
+      </div>
+    </div>
+  </ng-template>
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" outlined (click)="overrideForm.set(null)" />
+    <p-button label="Save" icon="pi pi-check"
+      [loading]="overriding() !== null" (click)="saveOverride()" />
+  </ng-template>
+</p-dialog>

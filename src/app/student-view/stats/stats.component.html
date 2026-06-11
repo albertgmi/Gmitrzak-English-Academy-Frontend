@@ -1,0 +1,130 @@
+<p-toast />
+
+<div class="card">
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Stats</h2>
+      <p class="text-muted-color mt-1 m-0">Your learning progress over the last 30 days</p>
+    </div>
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-16 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl block mb-3"></i>
+    Loading your stats...
+  </div>
+
+  <div *ngIf="!loading() && data()">
+
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-8">
+      <div class="bg-primary/10 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-primary">{{ totalPoints() }}</div>
+        <div class="text-xs text-muted-color mt-1">Total Points (30d)</div>
+      </div>
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ totalCards() }}</div>
+        <div class="text-xs text-muted-color mt-1">Cards Studied (30d)</div>
+      </div>
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">
+          {{ data()?.gradeHistory?.length ?? 0 }}
+        </div>
+        <div class="text-xs text-muted-color mt-1">Total Grades</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-green-600">{{ avgGrade() }}%</div>
+        <div class="text-xs text-muted-color mt-1">Avg Grade</div>
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
+
+      <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 mb-4 m-0">
+          Activity Points - last 30 days
+        </h3>
+        <div style="height: 220px" *ngIf="activityChartData()">
+          <p-chart type="line" [data]="activityChartData()" [options]="chartOptions" height="220" />
+        </div>
+        <div *ngIf="!activityChartData()"
+          class="h-56 flex items-center justify-center text-muted-color text-sm">
+          No activity data yet.
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 mb-4 m-0">
+          Flashcards studied - last 30 days
+        </h3>
+        <div style="height: 220px" *ngIf="flashcardsChartData()">
+          <p-chart type="bar" [data]="flashcardsChartData()" [options]="chartOptions" height="220" />
+        </div>
+        <div *ngIf="!flashcardsChartData()"
+          class="h-56 flex items-center justify-center text-muted-color text-sm">
+          No flashcard data yet.
+        </div>
+      </div>
+
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+
+      <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 mb-4 m-0">
+          Grade history
+        </h3>
+        <div style="height: 220px" *ngIf="gradesChartData()">
+          <p-chart type="line" [data]="gradesChartData()" [options]="chartOptions" height="220" />
+        </div>
+        <div *ngIf="!gradesChartData()"
+          class="h-56 flex items-center justify-center text-muted-color text-sm">
+          No grades yet.
+        </div>
+      </div>
+
+      <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
+        <h3 class="font-semibold text-surface-900 dark:text-surface-0 mb-4 m-0">
+          Average by category
+        </h3>
+        <div style="height: 220px" *ngIf="categoryChartData()">
+          <p-chart type="doughnut" [data]="categoryChartData()" [options]="doughnutOptions" height="220" />
+        </div>
+        <div *ngIf="!categoryChartData()"
+          class="h-56 flex items-center justify-center text-muted-color text-sm">
+          No grade data yet.
+        </div>
+
+        <div *ngIf="data()?.gradeHistory?.length" class="grid grid-cols-2 gap-3 mt-4">
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-indigo-500 flex-shrink-0"></div>
+            <span class="text-xs text-muted-color">Vocabulary</span>
+            <span class="text-xs font-bold ml-auto">
+              {{ data()?.categoryBreakdown?.avgVocabulary?.toFixed(1) }}%
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-emerald-500 flex-shrink-0"></div>
+            <span class="text-xs text-muted-color">Sentences</span>
+            <span class="text-xs font-bold ml-auto">
+              {{ data()?.categoryBreakdown?.avgSentences?.toFixed(1) }}%
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-amber-500 flex-shrink-0"></div>
+            <span class="text-xs text-muted-color">Memories</span>
+            <span class="text-xs font-bold ml-auto">
+              {{ data()?.categoryBreakdown?.avgMemories?.toFixed(1) }}%
+            </span>
+          </div>
+          <div class="flex items-center gap-2">
+            <div class="w-3 h-3 rounded-full bg-red-500 flex-shrink-0"></div>
+            <span class="text-xs text-muted-color">Pronunciation</span>
+            <span class="text-xs font-bold ml-auto">
+              {{ data()?.categoryBreakdown?.avgPronunciation?.toFixed(1) }}%
+            </span>
+          </div>
+        </div>
+      </div>
+
+    </div>
+  </div>
+</div>

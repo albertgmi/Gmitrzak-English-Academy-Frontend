@@ -1,0 +1,52 @@
+<p-toast />
+
+<div class="card" *ngIf="editedCourse() as course">
+    <div class="flex items-center gap-3 mb-6">
+        <p-button icon="pi pi-arrow-left" severity="secondary" outlined [routerLink]="['/curriculum/courses']" />
+        <h2 class="text-2xl font-bold m-0">Edit Course: {{ course.name }}</h2>
+    </div>
+
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div class="flex flex-col gap-5">
+            <div class="field">
+                <label for="name" class="block font-bold mb-2">Name</label>
+                <input type="text" pInputText id="name" [(ngModel)]="course.name" class="w-full" />
+                <small class="p-error" *ngIf="submitted && !course.name">Name is required.</small>
+            </div>
+
+            <div class="field">
+                <label for="description" class="block font-bold mb-2">Description</label>
+                <textarea pTextarea id="description" [(ngModel)]="course.description" rows="5" class="w-full"></textarea>
+            </div>
+
+            <div class="flex items-center gap-3">
+                <p-checkbox [(ngModel)]="course.isHidden" [binary]="true" inputId="isHidden" />
+                <label for="isHidden" class="font-bold">Hidden from students</label>
+            </div>
+        </div>
+
+        <div class="bg-surface-50 dark:bg-surface-800 p-5 rounded-xl">
+            <h3 class="text-lg font-bold mb-4">Assigned Programs</h3>
+            
+            <div class="flex flex-col gap-2 mb-4">
+                <div *ngFor="let p of course.programs" class="flex items-center justify-between bg-white dark:bg-surface-900 p-3 rounded shadow-sm">
+                    <span class="flex items-center gap-2"><i class="pi pi-sitemap text-primary"></i> {{ p.name }}</span>
+                    <p-button icon="pi pi-times" severity="danger" [text]="true" (onClick)="removeProgram(p)" />
+                </div>
+                <div *ngIf="!course.programs.length" class="text-muted-color italic">No programs assigned.</div>
+            </div>
+
+            <div class="flex gap-2">
+                <p-select [options]="availablePrograms()" [ngModel]="selectedProgramToAdd()" 
+                          (ngModelChange)="selectedProgramToAdd.set($event)" optionLabel="name" 
+                          placeholder="Select program" class="flex-1" />
+                <p-button icon="pi pi-plus" [disabled]="!selectedProgramToAdd()" (onClick)="assignProgram()" />
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end gap-3 mt-8 pt-4 border-t border-surface-200">
+        <p-button label="Cancel" severity="secondary" outlined [routerLink]="['/curriculum/courses']" />
+        <p-button label="Save Changes" icon="pi pi-check" (onClick)="saveCourse()" />
+    </div>
+</div>

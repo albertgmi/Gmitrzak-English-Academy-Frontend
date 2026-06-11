@@ -21,14 +21,14 @@
               />
             </g>
           </svg>
-          <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Welcome to PrimeLand!</div>
+          <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Gmitrzak English Academy</div>
           <span class="text-muted-color font-medium">Sign in to continue</span>
         </div>
 
         <div>
           <form [formGroup]="loginForm" (ngSubmit)="onSubmit()">
-            <label for="email" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Email</label>
-            <input pInputText id="email" formControlName="email"  type="text" placeholder="Email address" class="w-full md:w-[30rem] mb-8"/>
+            <label for="username" class="block text-surface-900 dark:text-surface-0 text-xl font-medium mb-2">Username</label>
+            <input pInputText id="username" formControlName="username"  type="text" placeholder="Username" class="w-full md:w-[30rem] mb-8"/>
 
             <label for="password" class="block text-surface-900 dark:text-surface-0 font-medium text-xl mb-2">Password</label>
             <p-password id="password" formControlName="password"  placeholder="Password" [toggleMask]="true" styleClass="mb-4" [fluid]="true" [feedback]="false"></p-password>
@@ -38,7 +38,6 @@
                 <p-checkbox id="rememberme" binary class="mr-2"></p-checkbox>
                 <label for="rememberme">Remember me</label>
               </div>
-              <span class="font-medium no-underline ml-2 text-right cursor-pointer text-primary">Forgot password?</span>
             </div>
             <p-button label="Sign In" styleClass="w-full" type="submit" [disabled]="loginForm.invalid"></p-button>
           </form>

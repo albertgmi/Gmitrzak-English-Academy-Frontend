@@ -1,0 +1,169 @@
+<p-toast />
+<p-confirmDialog />
+
+<!-- DETAIL VIEW -->
+<div *ngIf="selectedCourse() as course; else listView" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <p-button icon="pi pi-arrow-left" severity="secondary" outlined
+      (onClick)="backToList()" pTooltip="Back to list" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ course.name }}</h2>
+      <p class="text-muted-color mt-1 m-0">Course details</p>
+    </div>
+    <p-tag [severity]="course.isHidden ? 'warn' : 'success'"
+      [value]="course.isHidden ? 'Hidden' : 'Visible'" />
+    <p-button icon="pi pi-pencil" label="Edit" class="mr-2" 
+          [routerLink]="['/curriculum/course', course.id, 'edit']" />
+    <p-button icon="pi pi-trash" label="Delete" severity="danger" outlined
+      (onClick)="confirmDelete(course)" />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">ID</span>
+      <span class="text-surface-900 dark:text-surface-0 font-medium">{{ course.id }}</span>
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Visibility</span>
+      <p-tag [severity]="course.isHidden ? 'warn' : 'success'"
+        [value]="course.isHidden ? 'Hidden' : 'Visible'" />
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4 md:col-span-2">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Description</span>
+      <span class="text-surface-900 dark:text-surface-0">{{ course.description || '-' }}</span>
+    </div>
+  </div>
+
+  <div class="mb-6">
+    <h3 class="text-lg font-semibold mb-3 text-surface-900 dark:text-surface-0">
+      Programs
+      <span class="ml-2 text-sm font-normal text-muted-color">({{ course.programs?.length || 0 }})</span>
+    </h3>
+    <div class="flex flex-wrap gap-2" *ngIf="course.programs?.length; else noPrograms">
+      <p-chip *ngFor="let p of course.programs" [label]="p.name" icon="pi pi-sitemap" />
+    </div>
+    <ng-template #noPrograms>
+      <span class="text-muted-color text-sm">Not assigned to any program.</span>
+    </ng-template>
+  </div>
+
+  <div>
+    <h3 class="text-lg font-semibold mb-3 text-surface-900 dark:text-surface-0">
+      Matrices
+      <span class="ml-2 text-sm font-normal text-muted-color">({{ course.matrixDtos?.length || 0 }})</span>
+    </h3>
+    <p-table [value]="course.matrixDtos || []" dataKey="id" [rows]="10"
+      [paginator]="(course.matrixDtos?.length ?? 0) > 10" [rowHover]="true"
+      [tableStyle]="{ 'min-width': '40rem' }">
+      <ng-template #header>
+        <tr>
+          <th style="width: 5rem">ID</th>
+          <th>Name</th>
+          <th style="width: 12rem">Refresh Interval</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-matrix>
+        <tr>
+          <td class="text-muted-color">{{ matrix.id }}</td>
+          <td class="font-semibold text-surface-900 dark:text-surface-0">{{ matrix.name }}</td>
+          <td>
+            <span class="inline-flex items-center gap-1 text-sm">
+              <i class="pi pi-clock text-muted-color"></i>
+              every {{ matrix.refreshIntervalDays }} day{{ matrix.refreshIntervalDays === 1 ? '' : 's' }}
+            </span>
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="3" class="text-center text-muted-color py-6">
+            <i class="pi pi-inbox text-3xl block mb-2"></i>
+            No matrices assigned.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</div>
+
+<!-- LIST VIEW -->
+<ng-template #listView>
+  <div class="card">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <span class="text-xl font-semibold">Courses</span>
+      </ng-template>
+      <ng-template #end>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+        </p-iconfield>
+        <p-button icon="pi pi-refresh" severity="secondary" outlined class="ml-2"
+          (onClick)="reload()" pTooltip="Refresh" />
+      </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="courses.value() || []" dataKey="id" [loading]="courses.isLoading()"
+      [rows]="10" [paginator]="true" [globalFilterFields]="['name', 'description']"
+      [tableStyle]="{ 'min-width': '55rem' }" [rowHover]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} courses"
+      [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
+      <ng-template #header>
+        <tr>
+          <th style="width: 4rem">ID</th>
+          <th pSortableColumn="name">Name <p-sortIcon field="name" /></th>
+          <th>Description</th>
+          <th style="width: 8rem">Matrices</th>
+          <th style="width: 10rem">Programs</th>
+          <th style="width: 8rem">Status</th>
+          <th style="width: 8rem">Actions</th>
+        </tr>
+      </ng-template>
+      <ng-template #body let-course>
+        <tr>
+          <td class="text-muted-color">{{ course.id }}</td>
+          <td>
+            <span class="font-bold text-primary cursor-pointer hover:underline"
+              (click)="selectCourse(course)">{{ course.name }}</span>
+          </td>
+          <td class="text-muted-color">
+            <span *ngIf="course.description; else noDesc">
+              {{ course.description.length > 60 ? (course.description | slice:0:60) + '…' : course.description }}
+            </span>
+            <ng-template #noDesc><span class="text-muted-color">-</span></ng-template>
+          </td>
+          <td>
+            <span class="inline-flex items-center gap-1 text-sm">
+              <i class="pi pi-table text-muted-color"></i>
+              {{ course.matrixDtos?.length || 0 }}
+            </span>
+          </td>
+          <td>
+            <div class="flex flex-wrap gap-1">
+              <p-chip *ngFor="let p of course.programs" [label]="p.name" styleClass="text-xs" />
+              <span *ngIf="!course.programs?.length" class="text-muted-color text-sm">—</span>
+            </div>
+          </td>
+          <td>
+            <p-tag [severity]="course.isHidden ? 'warn' : 'success'"
+              [value]="course.isHidden ? 'Hidden' : 'Visible'" />
+          </td>
+          <td>
+            <p-button icon="pi pi-pencil" [rounded]="true" outlined class="mr-2"
+              [routerLink]="['/curriculum/course', course.id, 'edit']" />
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" outlined
+              (onClick)="confirmDelete(course)" pTooltip="Delete" />
+          </td>
+        </tr>
+      </ng-template>
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="text-center text-muted-color py-8">
+            <i class="pi pi-inbox text-4xl block mb-2"></i>
+            No courses found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>

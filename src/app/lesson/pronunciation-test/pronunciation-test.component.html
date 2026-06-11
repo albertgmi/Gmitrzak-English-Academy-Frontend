@@ -1,0 +1,88 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Test Pronunciation</h2>
+      <p class="text-muted-color mt-0.5 m-0">
+        {{ student.username }} · {{ unchecked().length }} remaining
+      </p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading()">
+
+    <div *ngIf="unchecked().length" class="flex flex-col gap-3 mb-8">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-1">
+        To practice ({{ unchecked().length }})
+      </h3>
+      <div *ngFor="let e of unchecked(); let i = index"
+        class="flex items-center gap-4 p-4 rounded-xl border transition-colors"
+        [ngClass]="i === 0
+          ? 'bg-primary/5 border-primary/30'
+          : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700'">
+
+        <div class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-sm flex-shrink-0"
+          [ngClass]="i === 0 ? 'bg-primary text-white' : 'bg-surface-100 dark:bg-surface-700 text-muted-color'">
+          {{ i + 1 }}
+        </div>
+
+        <span class="flex-1 font-semibold text-surface-900 dark:text-surface-0 text-lg">
+          {{ e.word }}
+        </span>
+
+        <div class="flex gap-2">
+          <p-button icon="pi pi-check" label="Correct" severity="success"
+            size="small" (onClick)="markCorrect(e)" />
+          <p-button icon="pi pi-times" label="Incorrect" severity="danger" outlined
+            size="small" (onClick)="markIncorrect(e)" />
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="checked().length">
+      <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">
+        Done this session
+      </h3>
+      <div class="flex flex-wrap gap-2">
+        <div *ngFor="let e of checked()"
+          class="flex items-center gap-2 px-3 py-2 bg-green-50 dark:bg-green-900/20
+            border border-green-200 dark:border-green-800 rounded-lg">
+          <i class="pi pi-check-circle text-green-500 text-sm"></i>
+          <span class="text-sm font-medium text-green-700 dark:text-green-300">{{ e.word }}</span>
+        </div>
+      </div>
+    </div>
+
+    <div *ngIf="!unchecked().length && !checked().length" class="text-center py-16 text-muted-color">
+      <i class="pi pi-microphone text-5xl block mb-4"></i>
+      <p class="text-lg">No pronunciation entries for this student.</p>
+    </div>
+
+    <div *ngIf="!unchecked().length && checked().length" class="text-center py-8">
+      <i class="pi pi-check-circle text-green-500 text-4xl block mb-3"></i>
+      <p class="text-lg font-semibold text-surface-900 dark:text-surface-0">All words tested!</p>
+      <p class="text-muted-color">{{ checked().length }} words done this session.</p>
+    </div>
+
+  </div>
+</div>

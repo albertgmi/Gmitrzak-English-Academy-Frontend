@@ -1,0 +1,139 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="selectedVocabulary() as item; else listView" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <p-button icon="pi pi-arrow-left" severity="secondary" outlined
+      (onClick)="backToList()" pTooltip="Back to list" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ item.front }}</h2>
+      <p class="text-muted-color mt-1 m-0">Vocabulary — Details</p>
+    </div>
+    <p-tag severity="info" [value]="item.category" />
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">Database ID</span>
+      <span class="text-2xl font-bold text-surface-900 dark:text-surface-0 font-mono">{{ item.id || '—' }}</span>
+    </div>
+    <div class="bg-primary/10 rounded-xl p-4 flex flex-col gap-1">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">Category</span>
+      <span class="text-2xl font-bold text-primary">{{ item.category }}</span>
+    </div>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-6">
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 border border-surface-200 dark:border-surface-700">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-2">Front</span>
+      <span class="text-xl font-medium text-surface-900 dark:text-surface-0">{{ item.front }}</span>
+    </div>
+    <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 border border-surface-200 dark:border-surface-700">
+      <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-2">Back (Translation)</span>
+      <span class="text-xl font-medium text-surface-900 dark:text-surface-0">{{ item.back }}</span>
+    </div>
+  </div>
+</div>
+
+<ng-template #listView>
+  <div class="card">
+    <p-toolbar styleClass="mb-6">
+      <ng-template #start>
+        <span class="text-xl font-semibold">Global Vocabulary</span>
+      </ng-template>
+      <ng-template #end>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search vocabulary..." />
+        </p-iconfield>
+        <p-button label="Add Vocabulary" icon="pi pi-plus" class="ml-3" (onClick)="openNew()" />
+        <p-button icon="pi pi-refresh" severity="secondary" outlined class="ml-2"
+          (onClick)="reload()" pTooltip="Refresh data" />
+      </ng-template>
+    </p-toolbar>
+
+    <p-table #dt [value]="vocabularyItems()" dataKey="id"
+      [loading]="isLoading()" [rows]="10" [paginator]="true"
+      [globalFilterFields]="['front', 'back', 'category']" 
+      [tableStyle]="{ 'min-width': '50rem' }" [rowHover]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} items"
+      [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
+
+      <ng-template #header>
+        <tr>
+          <th style="width: 5rem">ID</th>
+          <th pSortableColumn="front">Front <p-sortIcon field="front" /></th>
+          <th pSortableColumn="back">Back <p-sortIcon field="back" /></th>
+          <th pSortableColumn="category" style="width: 15rem">Category <p-sortIcon field="category" /></th>
+          <th style="width: 10rem" class="text-center">Actions</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-item>
+        <tr>
+          <td class="text-muted-color font-mono text-sm">{{ item.id }}</td>
+          <td>
+            <span class="font-bold text-primary cursor-pointer hover:underline" (click)="selectVocabulary(item)">
+              {{ item.front }}
+            </span>
+          </td>
+          <td class="text-surface-900 dark:text-surface-0">
+            {{ item.back }}
+          </td>
+          <td>
+            <p-chip [label]="item.category" icon="pi pi-tag"
+              styleClass="text-[11px] bg-primary/10 text-primary border-none font-medium py-0 h-6" />
+          </td>
+          <td class="text-center">
+            <div class="flex justify-center gap-2">
+              <p-button icon="pi pi-eye" [rounded]="true" outlined
+                (onClick)="selectVocabulary(item)" pTooltip="Preview" />
+              <p-button icon="pi pi-pencil" [rounded]="true" outlined severity="success"
+                (onClick)="openEdit(item)" pTooltip="Edit" />
+            </div>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="5" class="text-center text-muted-color py-12">
+            <i class="pi pi-inbox text-5xl block mb-3 opacity-20"></i>
+            <span class="text-xl">No vocabulary items found</span>
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+</ng-template>
+
+<p-dialog [(visible)]="showDialog" [style]="{width: '500px', height: '420px'}"
+  [header]="editingVocabularyId() ? 'Edit Vocabulary' : 'Add Vocabulary'" [modal]="true">
+  <ng-template #content>
+    <div class="flex flex-col gap-4" *ngIf="form() as f">
+
+      <div>
+        <label class="block font-bold mb-2">Front (Expression/Word) <span class="text-red-500">*</span></label>
+        <input pInputText type="text" [(ngModel)]="f.front" placeholder="e.g. vulnerable" fluid />
+        <small class="text-red-500" *ngIf="submitted && !f.front?.trim()">Required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Back (Translation) <span class="text-red-500">*</span></label>
+        <input pInputText type="text" [(ngModel)]="f.back" placeholder="e.g. wrażliwy, podatny" fluid />
+        <small class="text-red-500" *ngIf="submitted && !f.back?.trim()">Required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Category <span class="text-red-500">*</span></label>
+        <input pInputText type="text" [(ngModel)]="f.category" placeholder="e.g. Vocabulary" fluid />
+        <small class="text-red-500" *ngIf="submitted && !f.category?.trim()">Required.</small>
+      </div>
+
+    </div>
+  </ng-template>
+  <ng-template #footer>
+    <p-button label="Cancel" severity="secondary" outlined (onClick)="showDialog.set(false)" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (onClick)="save()" />
+  </ng-template>
+</p-dialog>

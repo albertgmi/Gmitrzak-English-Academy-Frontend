@@ -1,0 +1,199 @@
+<p-toast />
+<p-confirmDialog />
+
+<div class="card">
+
+  <!-- Header -->
+  <div class="flex items-center justify-between mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Plan Matrix</h2>
+      <p class="text-muted-color mt-1 m-0">Assign matrices to students and track their progress</p>
+    </div>
+    <p-button
+      *ngIf="!showAddForm()"
+      label="Assign Matrix"
+      icon="pi pi-plus"
+      (onClick)="openAddForm()" />
+  </div>
+
+  <!-- Add form -->
+  <div *ngIf="showAddForm()"
+    class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 mb-6 border border-surface-200 dark:border-surface-700">
+
+    <div class="flex items-center justify-between mb-5">
+      <h3 class="text-lg font-semibold m-0">New Assignment</h3>
+      <p-button icon="pi pi-times" severity="secondary" [text]="true" (onClick)="closeAddForm()" />
+    </div>
+
+    <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
+
+      <div>
+        <label class="block font-bold mb-2">Student <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="users()"
+          [ngModel]="selectedUserId()"
+          (ngModelChange)="selectedUserId.set($event)"
+          optionLabel="label"
+          optionValue="id"
+          placeholder="Select student"
+          [filter]="true"
+          filterPlaceholder="Search..."
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedUserId()">Student is required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Matrix <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="matrices()"
+          [ngModel]="selectedMatrixId()"
+          (ngModelChange)="selectedMatrixId.set($event)"
+          optionLabel="label"
+          optionValue="id"
+          placeholder="Select matrix"
+          [filter]="true"
+          filterPlaceholder="Search..."
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedMatrixId()">Matrix is required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Start Date <span class="text-red-500">*</span></label>
+        <p-datepicker
+          [ngModel]="selectedStartDate()"
+          (ngModelChange)="selectedStartDate.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          placeholder="Pick start date"
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedStartDate()">Start date is required.</small>
+      </div>
+
+    </div>
+
+    <div class="flex gap-3 mt-5">
+      <p-button label="Assign" icon="pi pi-check" [loading]="loadingSubmit" (onClick)="submitAssignment()" />
+      <p-button label="Cancel" severity="secondary" outlined (onClick)="closeAddForm()" />
+    </div>
+  </div>
+
+  <!-- Toolbar z filtrem -->
+  <p-toolbar styleClass="mb-4">
+    <ng-template #start>
+      <p-select
+        [options]="allUsers()"
+        [ngModel]="filterUserId()"
+        (ngModelChange)="filterUserId.set($event)"
+        optionLabel="label"
+        optionValue="id"
+        placeholder="Filter by student"
+        [showClear]="true"
+        styleClass="w-56" />
+    </ng-template>
+    <ng-template #end>
+      <p-iconfield>
+        <p-inputicon styleClass="pi pi-search" />
+        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+      </p-iconfield>
+      <p-button icon="pi pi-refresh" severity="secondary" outlined class="ml-2"
+        (onClick)="reload()" pTooltip="Refresh" />
+    </ng-template>
+  </p-toolbar>
+
+  <!-- Tabela -->
+  <p-table
+    #dt
+    [value]="filteredAssignments()"
+    dataKey="id"
+    [loading]="assignments.isLoading()"
+    [rows]="10"
+    [paginator]="true"
+    [globalFilterFields]="['username', 'matrixName']"
+    [tableStyle]="{ 'min-width': '60rem' }"
+    [rowHover]="true"
+    currentPageReportTemplate="Showing {first} to {last} of {totalRecords} assignments"
+    [showCurrentPageReport]="true"
+    [rowsPerPageOptions]="[10, 20, 30]">
+
+    <ng-template #header>
+      <tr>
+        <th pSortableColumn="username">Student <p-sortIcon field="username" /></th>
+        <th pSortableColumn="matrixName">Matrix <p-sortIcon field="matrixName" /></th>
+        <th style="width: 9rem">Interval</th>
+        <th pSortableColumn="startDate" style="width: 9rem">Start Date <p-sortIcon field="startDate" /></th>
+        <th style="width: 20rem">Progress</th>
+        <th style="width: 5rem"></th>
+      </tr>
+    </ng-template>
+
+    <ng-template #body let-a>
+      <tr>
+        <td>
+          <div class="flex items-center gap-2">
+            <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
+              {{ a.username[0]?.toUpperCase() }}
+            </div>
+            <span class="font-semibold text-surface-900 dark:text-surface-0">{{ a.username }}</span>
+          </div>
+        </td>
+        <td>
+          <span class="font-semibold text-surface-900 dark:text-surface-0">{{ a.matrixName }}</span>
+        </td>
+        <td>
+          <span class="inline-flex items-center gap-1 text-sm">
+            <i class="pi pi-clock text-primary"></i>
+            every {{ a.refreshIntervalDays }}d
+          </span>
+        </td>
+        <td>
+          <span class="text-sm">{{ a.startDate }}</span>
+        </td>
+        <td>
+          <div *ngIf="a.modules && a.modules.length > 0; else noModulesCell">
+            <div class="flex items-center justify-between mb-1">
+              <span class="text-xs font-semibold">{{ modulesLabel(a) }}</span>
+              <span class="text-xs text-muted-color">{{ progressPercentage(a) }}%</span>
+            </div>
+            <p-progressBar [value]="progressPercentage(a)" [showValue]="false" [style]="{ height: '6px' }" />
+
+            <div class="flex gap-1 mt-2 flex-wrap">
+              <span
+                *ngFor="let m of a.modules; let idx = index"
+                class="w-6 h-6 rounded text-xs flex items-center justify-center font-bold cursor-default transition-colors"
+                [ngClass]="{
+                  'bg-primary text-white shadow-sm': m.isUnlocked,
+                  'bg-surface-200 dark:bg-surface-700 text-muted-color opacity-60': !m.isUnlocked
+                }"
+                [pTooltip]="m.moduleName + (m.isUnlocked ? ' (Unlocked)' : ' (Locks on ' + m.unlockDate + ')')">
+                {{ idx + 1 }}
+              </span>
+            </div>
+          </div>
+          <ng-template #noModulesCell>
+            <span class="text-muted-color text-sm italic">No modules in matrix</span>
+          </ng-template>
+        </td>
+        <td>
+          <p-button
+            icon="pi pi-trash"
+            severity="danger"
+            [rounded]="true"
+            outlined
+            (onClick)="confirmDelete(a)"
+            pTooltip="Remove assignment" />
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #emptymessage>
+      <tr>
+        <td colspan="6" class="text-center text-muted-color py-10">
+          <i class="pi pi-calendar-times text-4xl block mb-3"></i>
+          <span class="text-lg block">No assignments found.</span>
+          <span class="text-sm">Click "Assign Matrix" to get started.</span>
+        </td>
+      </tr>
+    </ng-template>
+
+  </p-table>
+</div>

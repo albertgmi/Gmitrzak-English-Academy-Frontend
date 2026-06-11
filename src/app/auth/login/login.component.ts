@@ -11,6 +11,7 @@ import {CheckboxModule} from 'primeng/checkbox';
 import {InputTextModule} from 'primeng/inputtext';
 import {RippleModule} from 'primeng/ripple';
 import {AppFloatingConfigurator} from '../../layout/component/app.floatingconfigurator';
+import {AnnouncementService} from '../../services/announcement.service';
 
 @Component({
   standalone: true,
@@ -18,7 +19,6 @@ import {AppFloatingConfigurator} from '../../layout/component/app.floatingconfig
   templateUrl: './login.component.html',
   styleUrls: ['./login.component.css'],
   providers: [MessageService],
-  // imports: [FormsModule, ReactiveFormsModule, PasswordModule, DropdownModule, ToastModule, Button]
   imports: [FormsModule, ReactiveFormsModule, ButtonModule, CheckboxModule, InputTextModule, PasswordModule, FormsModule, RouterModule, RippleModule, AppFloatingConfigurator],
 })
 export class LoginComponent {
@@ -28,10 +28,11 @@ export class LoginComponent {
     private fb: FormBuilder,
     private authService: AuthService,
     private router: Router,
-    private messageService: MessageService
+    private messageService: MessageService,
+    private announcementService: AnnouncementService
   ) {
     this.loginForm = this.fb.group({
-      email: ['', [Validators.required, Validators.email]],
+      username: ['', Validators.required],
       password: ['', Validators.required],
       // rememberme: [false],
     });
@@ -40,10 +41,12 @@ export class LoginComponent {
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe(
-        () => this.router.navigate(['/']),
+        () => {
+          this.announcementService.refreshUnreadCount();
+          this.router.navigate(['/']);
+        },
         (error) => {
           this.messageService.add({ severity: 'error', summary: 'Error', detail: error.error.message });
-          this.router.navigate(['/auth/access'])
         }
       );
     }

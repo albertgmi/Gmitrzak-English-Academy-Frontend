@@ -41,12 +41,12 @@ import {AppComponent} from "./app.component";
 import {LoginComponent} from './auth/login/login.component';
 import {RegisterComponent} from './auth/register/register.component';
 import {VerifyEmailComponent} from './auth/verify-email/verify-email.component';
-import {ForgotPasswordComponent} from './auth/forgot-password/forgot-password.component';
 import {ResetPasswordComponent} from './auth/reset-password/reset-password.component';
 import {ProfileComponent} from './user/profile/profile.component';
 import {PasswordModule} from 'primeng/password';
 import {DropdownModule} from 'primeng/dropdown';
 import {authInterceptor} from './shared/interceptors/auth.interceptor';
+import { errorInterceptor } from './shared/interceptors/error.interceptor';
 
 
 @NgModule({
@@ -80,7 +80,7 @@ import {authInterceptor} from './shared/interceptors/auth.interceptor';
     ],
     providers: [
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
-        provideHttpClient(withInterceptors([authInterceptor])),
+        provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
         provideAnimationsAsync(),
         providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
         MessageService,

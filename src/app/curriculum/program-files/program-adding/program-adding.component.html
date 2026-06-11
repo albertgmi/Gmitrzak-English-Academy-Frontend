@@ -1,0 +1,73 @@
+<div class="card">
+  <h2 class="text-2xl font-bold mb-4 text-surface-900 dark:text-surface-0">Create New Program</h2>
+  
+  <div class="flex flex-col gap-4">
+    <div>
+      <label for="new-prog-name" class="block font-bold mb-2 text-surface-900 dark:text-surface-0">
+        Name <span class="text-red-500">*</span>
+      </label>
+      <input
+        type="text"
+        pInputText
+        id="new-prog-name"
+        [(ngModel)]="newProgram.name"
+        placeholder="Enter program name"
+        [class.ng-invalid]="submitted && !newProgram.name.trim()"
+        [class.ng-dirty]="submitted"
+        fluid
+      />
+      <small class="text-red-500 block mt-1" *ngIf="submitted && !newProgram.name.trim()">
+        Program name is required.
+      </small>
+    </div>
+
+    <div>
+      <label for="new-prog-desc" class="block font-bold mb-2 text-surface-900 dark:text-surface-0">
+        Description <span class="text-red-500">*</span>
+      </label>
+      <textarea
+        pTextarea
+        id="new-prog-desc"
+        [(ngModel)]="newProgram.description"
+        placeholder="Enter program description"
+        rows="4"
+        [class.ng-invalid]="submitted && !newProgram.description.trim()"
+        [class.ng-dirty]="submitted"
+        fluid
+      ></textarea>
+      <small class="text-red-500 block mt-1" *ngIf="submitted && !newProgram.description.trim()">
+        Description is required.
+      </small>
+    </div>
+
+    <div class="flex items-center gap-3 py-2">
+      <p-checkbox
+        [(ngModel)]="newProgram.isHidden"
+        [binary]="true"
+        inputId="new-prog-hidden"
+      />
+      <label for="new-prog-hidden" class="font-bold cursor-pointer text-surface-900 dark:text-surface-0">
+        Set as Hidden
+      </label>
+    </div>
+
+    <hr class="border-surface-200 dark:border-surface-700 my-2" />
+
+    <div class="flex justify-end gap-2">
+      <p-button
+        label="Clear"
+        icon="pi pi-trash"
+        severity="secondary"
+        outlined
+        (onClick)="resetForm()"
+        [disabled]="loading"
+      />
+      <p-button
+        label="Save Program"
+        icon="pi pi-check"
+        (onClick)="saveProgram()"
+        [loading]="loading"
+      />
+    </div>
+  </div>
+</div>
