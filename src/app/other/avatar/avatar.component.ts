@@ -35,14 +35,26 @@ export class AvatarComponent {
 
   fullAvatarUrl = computed(() => {
     const url = this.avatarUrl;
-    
-    if (!url) return '';
+    const baseUrl = this.baseUrl;
 
-    if (url.startsWith('http://') || url.startsWith('https://')) {
-      return url;
+    console.log('--- DEBUG AVATAR ---');
+    console.log('Otrzymany avatarUrl:', url);
+    console.log('Wartość baseUrl:', baseUrl);
+    console.log('Czy zawiera cloudinary.com:', url?.includes('cloudinary.com'));
+
+    if (!url) {
+      console.log('Wynik: URL jest pusty, zwracam pusty string');
+      return '';
     }
   
-    return `${this.baseUrl}${url}`;
+    if (url.includes('cloudinary.com')) {
+      console.log('Wynik: Wykryto Cloudinary, zwracam pełny URL:', url);
+      return url;
+    }
+
+    const result = `${baseUrl || ''}${url.startsWith('/') ? '' : '/'}${url}`;
+    console.log('Wynik: Wykryto ścieżkę lokalną, zwracam:', result);
+    return result;
   });
 
   onImgError() {
