@@ -2,6 +2,7 @@ import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { map } from 'rxjs/operators';
 
 export interface ProfileDto {
   username: string;
@@ -49,8 +50,11 @@ export class ProfileService {
   uploadAvatar(userId: number, file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
+    
     return this.http.post(`${this.apiUrl}/${userId}/avatar`, formData, {
       responseType: 'text'
-    });
+    }).pipe(
+      map(url => url.replace(/"/g, '').trim())
+    );
   }
 }
