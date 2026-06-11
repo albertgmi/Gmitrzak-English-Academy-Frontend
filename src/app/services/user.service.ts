@@ -20,7 +20,7 @@ export interface Users {
   providedIn: 'root'
 })
 export class UserService {
-  private apiUrl = '/api/user';
+  private apiUrl = `${environment.apiUrl}/api/user`;
 
   http = inject(HttpClient);
 
