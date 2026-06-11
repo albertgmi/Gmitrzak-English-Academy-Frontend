@@ -34,10 +34,15 @@ export class AvatarComponent {
   private readonly baseUrl = environment.apiUrl;
 
   fullAvatarUrl = computed(() => {
-    if (!this.avatarUrl) return '';
-    return this.avatarUrl.startsWith('http') 
-      ? this.avatarUrl 
-      : `${this.baseUrl}${this.avatarUrl}`;
+    const url = this.avatarUrl;
+    
+    if (!url) return '';
+
+    if (url.startsWith('http://') || url.startsWith('https://')) {
+      return url;
+    }
+  
+    return `${this.baseUrl}${url}`;
   });
 
   onImgError() {
