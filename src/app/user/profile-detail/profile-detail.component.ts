@@ -67,14 +67,17 @@ export class ProfileDetailComponent implements OnInit {
 
   loadProfile() {
     this.profileService.getProfile(this.userId).subscribe({
-      next: (data) => this.profile = data,
+      next: (data) => {
+        this.profile = data;
+        console.log('PROFILE:', this.profile);
+        console.log('AVATAR:', this.profile?.avatarUrl);
+      },
       error: () => this.messageService.add({
         severity: 'error',
         summary: 'Error',
         detail: 'Could not load profile'
       })
     });
-    console.log(this.profile?.avatarUrl);
   }
 
   get isAdmin(): boolean {
