@@ -74,6 +74,7 @@ export class ProfileDetailComponent implements OnInit {
         detail: 'Could not load profile'
       })
     });
+    console.log(this.profile?.avatarUrl);
   }
 
   get isAdmin(): boolean {
@@ -145,6 +146,7 @@ export class ProfileDetailComponent implements OnInit {
         detail: 'Could not upload avatar'
       })
     });
+    console.log(this.profile?.avatarUrl);
   }
 
   save() {
@@ -152,7 +154,10 @@ export class ProfileDetailComponent implements OnInit {
     if (this.selectedFile) {
       this.profileService.uploadAvatar(this.userId, this.selectedFile).subscribe({
         next: (url) => {
-          this.profile!.avatarUrl = url;
+          this.profile = {
+            ...this.profile!,
+            avatarUrl: url
+          };
           this.clearSelectedFile();
           this.saveProfileData();
         },

@@ -10,7 +10,7 @@
 
     <div class="relative">
       <img
-        *ngIf="profile.avatarUrl && !avatarPreview"
+        *ngIf="profile?.avatarUrl"
         [src]="profile.avatarUrl"
         class="w-16 h-16 rounded-full object-cover border-2 border-surface-200"
         (error)="onAvatarError($event)"
