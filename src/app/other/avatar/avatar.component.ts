@@ -34,10 +34,17 @@ export class AvatarComponent {
   private readonly baseUrl = environment.apiUrl;
 
   fullAvatarUrl = computed(() => {
-    if (!this.avatarUrl) return '';
-    return this.avatarUrl.startsWith('https') 
-      ? this.avatarUrl 
-      : `${this.baseUrl}${this.avatarUrl}`;
+    const url = this.avatarUrl;
+    
+    if (!url) return '';
+
+    let cleanUrl = url.replace('https://gmitrzak-english-academy-production.up.railway.app', '');
+    
+    if (cleanUrl.startsWith('http')) {
+       return cleanUrl;
+    }
+  
+    return `${this.baseUrl}${cleanUrl.startsWith('/') ? '' : '/'}${cleanUrl}`;
   });
 
   onImgError() {
