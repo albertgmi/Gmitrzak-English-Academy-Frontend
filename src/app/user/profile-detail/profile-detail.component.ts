@@ -67,11 +67,7 @@ export class ProfileDetailComponent implements OnInit {
 
   loadProfile() {
     this.profileService.getProfile(this.userId).subscribe({
-      next: (data) => {
-        this.profile = data;
-        console.log('PROFILE:', this.profile);
-        console.log('AVATAR:', this.profile?.avatarUrl);
-      },
+      next: (data) => this.profile = data,
       error: () => this.messageService.add({
         severity: 'error',
         summary: 'Error',
@@ -149,7 +145,6 @@ export class ProfileDetailComponent implements OnInit {
         detail: 'Could not upload avatar'
       })
     });
-    console.log(this.profile?.avatarUrl);
   }
 
   save() {
