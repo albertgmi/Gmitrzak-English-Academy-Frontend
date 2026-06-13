@@ -52,8 +52,8 @@
 
           <div class="sentence-card-face sentence-card-back">
             <button type="button"
-              (click)="speak(card.translation); $event.stopPropagation()"
-              style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; cursor:pointer; opacity:0.6;">
+              class="speak-btn"
+              (click)="speak(card.translation); $event.stopPropagation()">
               <i class="pi pi-volume-up" style="font-size:1.5rem;"></i>
             </button>
 
