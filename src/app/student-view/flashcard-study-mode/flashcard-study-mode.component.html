@@ -42,18 +42,19 @@
 
         <div class="flashcard-inner">
           <div class="flashcard-face flashcard-front">
+            <button type="button"
+              (click)="speak(currentCard()!.front); $event.stopPropagation()"
+              style="position:absolute; top:1rem; right:1rem; background:transparent; border:none; cursor:pointer; opacity:0.6;">
+              <i class="pi pi-volume-up" style="font-size:1.5rem;"></i>
+            </button>
+
             <div class="mb-5">
               <p-tag severity="info" [value]="currentCard()?.category || 'Vocabulary'"></p-tag>
             </div>
-            <div class="flex items-center justify-center gap-3 px-4">
+            <div class="text-center px-4">
               <h1 class="text-4xl md:text-5xl font-bold text-surface-900 dark:text-surface-0 m-0 break-words line-clamp-3">
                 {{ currentCard()?.front }}
               </h1>
-              <button type="button"
-                class="text-muted-color hover:text-primary transition-colors shrink-0"
-                (click)="speak(currentCard()!.front); $event.stopPropagation()">
-                <i class="pi pi-volume-up text-2xl"></i>
-              </button>
             </div>
             <div class="mt-8 text-sm text-muted-color opacity-70">
               Click to reveal translation
