@@ -98,10 +98,14 @@ export class Dashboard implements OnInit {
     }
 
     daysUntil(date: string | Date): number {
-        const d = new Date(date);
-        const today = new Date();
-        const diff = d.getTime() - today.getTime();
-        return Math.floor(diff / (1000 * 60 * 60 * 24));
+        const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(new Date());
+        const today = new Date(`${todayStr}T00:00:00`);
+
+        const targetStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(new Date(date));
+        const targetDate = new Date(`${targetStr}T00:00:00`);
+        
+        const diff = targetDate.getTime() - today.getTime();
+        return Math.round(diff / (1000 * 60 * 60 * 24));
     }
 
     dueSeverity(a: { isCompleted?: boolean, dueDate: string | Date }): SeverityType {
