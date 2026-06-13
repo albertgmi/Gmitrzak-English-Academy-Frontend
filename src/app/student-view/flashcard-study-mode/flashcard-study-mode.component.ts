@@ -153,4 +153,13 @@ export class FlashcardStudyModeComponent implements OnInit {
     toggleCard() {
         this.showBack.set(!this.showBack());
     }
+
+    speak(text: string) {
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        u.pitch = 1;
+        speechSynthesis.speak(u);
+    }
 }
