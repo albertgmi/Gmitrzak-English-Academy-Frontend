@@ -8,7 +8,6 @@ import { SkeletonModule } from 'primeng/skeleton';
 import { AuthService } from '../../services/auth.service';
 import { DashboardService, AdminDashboardDto, StudentDashboardDto } from '../../services/dashboard.service';
 import { AvatarComponent } from '../avatar/avatar.component';
-import { AssignmentStudentDto } from '../../services/student-services/content.service';
 
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
@@ -38,8 +37,8 @@ export class Dashboard implements OnInit {
             this.dashboardService.getStudentDashboard().subscribe({
                 next: (data) => {
                     if (data && data.upcomingModules) {
-                        const polishTimeStr = new Date().toLocaleString('en-US', { timeZone: 'Europe/Warsaw' });
-                        const today = new Date(polishTimeStr); 
+                        const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(new Date());
+                        const today = new Date(`${todayStr}T00:00:00`); 
                     
                         const dayOfWeek = today.getDay(); 
                         const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
@@ -70,8 +69,8 @@ export class Dashboard implements OnInit {
     private isThisWeek(dateStr: string | Date): boolean {
         const targetDate = new Date(dateStr);
 
-        const polishTimeStr = new Date().toLocaleString('en-US', { timeZone: 'Europe/Warsaw' });
-        const today = new Date(polishTimeStr);
+        const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(new Date());
+        const today = new Date(`${todayStr}T00:00:00`);
 
         const dayOfWeek = today.getDay(); 
         const daysToMonday = dayOfWeek === 0 ? -6 : 1 - dayOfWeek;
