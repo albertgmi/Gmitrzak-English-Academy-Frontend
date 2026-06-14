@@ -186,7 +186,7 @@ export class LessonModeComponent {
                     if (!q.trim()) {
                         this.searchResult.set(null);
                         this.searching.set(false);
-                    }
+                }
                 }),
                 switchMap((q) => {
                     const studentId = this.studentId;
@@ -196,13 +196,18 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result) => {
+                next: (result: SearchVocabularyResult | null) => {
                     this.searching.set(false);
-                    if (result) {
+            
+                    if (result !== null) {
                         this.searchResult.set(result);
+                
                         if (!result.existsInGlobal) {
                             this.newFront.set(result.front);
+                            this.newBack.set(result.back || '');
                         }
+                    } else {
+                        this.searchResult.set(null);
                     }
                 },
                 error: () => this.searching.set(false)
