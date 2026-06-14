@@ -357,7 +357,7 @@
 
             <div class="text-right flex-shrink-0">
               <div class="text-sm font-medium text-muted-color">
-                {{ m.unlockDate | date:'d MMM' }}
+                Due: {{ m.deadline | date:'d MMM' }}
               </div>
               <div class="mt-1">
                 <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
