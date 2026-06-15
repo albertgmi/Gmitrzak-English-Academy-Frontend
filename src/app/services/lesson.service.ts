@@ -80,6 +80,12 @@ export interface LessonPronunciationTestItemDto {
     daysUntilRefresh?: number;
 }
 
+export interface SpellCheckResult {
+    hasError: boolean;
+    corrected: string | null;
+    reason: string | null;
+}
+
 @Injectable({ providedIn: 'root' })
 export class LessonService {
     private apiUrl = `${environment.apiUrl}/api/lesson`;
@@ -198,5 +204,9 @@ export class LessonService {
         return this.http.get<SearchSentenceResult>(`${this.sentenceApiUrl}/search`, {
             params: { query, studentId: studentId.toString() }
         });
+    }
+
+    checkSpelling(text: string, language: string = 'English'): Observable<SpellCheckResult> {
+        return this.http.post<SpellCheckResult>(`${this.apiUrl}/spellcheck`, { text, language });
     }
 }

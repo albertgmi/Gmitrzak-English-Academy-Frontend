@@ -15,7 +15,7 @@ import { VocabularyService, SearchVocabularyResult } from '../../services/vocabu
 import { LessonContextService } from '../../services/lesson-context.service';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-import { SearchSentenceResult } from '../../services/lesson.service';
+import {SpellCheckResult} from "../../services/lesson.service";
 
 type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation';
 
@@ -63,7 +63,19 @@ export class LessonModeComponent {
     searchingSentence = signal(false);
     checkingDuplicateSentence = signal(false);
     isSentenceDuplicate = signal(false);
-    
+
+    spellCheckFront = signal<SpellCheckResult | null>(null);
+    checkingSpellFront = signal(false);
+
+    spellCheckBack = signal<SpellCheckResult | null>(null);
+    checkingSpellBack = signal(false);
+
+    spellCheckSentence = signal<SpellCheckResult | null>(null);
+    checkingSpellSentence = signal(false);
+
+    spellCheckTranslation = signal<SpellCheckResult | null>(null);
+    checkingSpellTranslation = signal(false);
+
     allSentenceStock = signal<SentenceStockDto[]>([]);
     loadingSentenceStock = signal(false);
 
@@ -301,17 +313,20 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result: SearchSentenceResult | null) => {
+                next: (result: any) => {
                     this.checkingDuplicateSentence.set(false);
+                
+                    const item = Array.isArray(result) ? result[0] : result;
+                
+                    if (item) {
+                        const typedSentence = this.sentenceContent().toLowerCase().trim();
+                        const foundSentence = item.englishTranslation.toLowerCase().trim();
                     
-                    if (result !== null) {
-                        if (result.polish && !result.existsInGlobal) {
-                            this.sentenceTranslation.set(result.polish);
+                        if (item.polish && !item.existsInGlobal) {
+                            this.sentenceTranslation.set(item.polish);
                         }
                     
-                        const foundSentence = result.englishTranslation.toLowerCase().trim();
-                        const typedSentence = this.sentenceContent().toLowerCase().trim();
-                        const isDuplicate = result.existsInGlobal && (foundSentence === typedSentence);
+                        const isDuplicate = item.existsInGlobal && (foundSentence === typedSentence);
                         this.isSentenceDuplicate.set(isDuplicate);
                     } else {
                         this.isSentenceDuplicate.set(false);
@@ -320,6 +335,130 @@ export class LessonModeComponent {
                 error: () => {
                     this.checkingDuplicateSentence.set(false);
                     this.isSentenceDuplicate.set(false);
+                }
+            });
+
+        toObservable(this.newFront)
+            .pipe(
+                debounceTime(600),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim() || q.trim().length < 2) {
+                        this.spellCheckFront.set(null);
+                        this.checkingSpellFront.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    if (!q.trim() || q.trim().length < 2) return of(null);
+                    this.checkingSpellFront.set(true);
+                    return this.lessonService.checkSpelling(q.trim(), 'English');
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.checkingSpellFront.set(false);
+                    if (result && result.hasError) {
+                        this.spellCheckFront.set(result);
+                    } else {
+                        this.spellCheckFront.set(null);
+                    }
+                },
+                error: () => {
+                    this.checkingSpellFront.set(false);
+                    this.spellCheckFront.set(null);
+                }
+            });
+
+        toObservable(this.newBack)
+            .pipe(
+                debounceTime(600),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim() || q.trim().length < 2) {
+                        this.spellCheckBack.set(null);
+                        this.checkingSpellBack.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    if (!q.trim() || q.trim().length < 2) return of(null);
+                    this.checkingSpellBack.set(true);
+                    return this.lessonService.checkSpelling(q.trim(), 'Polish');
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.checkingSpellBack.set(false);
+                    if (result && result.hasError) {
+                        this.spellCheckBack.set(result);
+                    } else {
+                        this.spellCheckBack.set(null);
+                    }
+                },
+                error: () => {
+                    this.checkingSpellBack.set(false);
+                    this.spellCheckBack.set(null);
+                }
+            });
+
+        toObservable(this.sentenceContent)
+            .pipe(
+                debounceTime(600),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim() || q.trim().length < 2) {
+                        this.spellCheckSentence.set(null);
+                        this.checkingSpellSentence.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    if (!q.trim() || q.trim().length < 2) return of(null);
+                    this.checkingSpellSentence.set(true);
+                    return this.lessonService.checkSpelling(q.trim(), 'English');
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.checkingSpellSentence.set(false);
+                    if (result && result.hasError) {
+                        this.spellCheckSentence.set(result);
+                    } else {
+                        this.spellCheckSentence.set(null);
+                    }
+                },
+                error: () => {
+                    this.checkingSpellSentence.set(false);
+                    this.spellCheckSentence.set(null);
+                }
+            });
+
+        toObservable(this.sentenceTranslation)
+            .pipe(
+                debounceTime(600),
+                distinctUntilChanged(),
+                tap((q) => {
+                    if (!q.trim() || q.trim().length < 2) {
+                        this.spellCheckTranslation.set(null);
+                        this.checkingSpellTranslation.set(false);
+                    }
+                }),
+                switchMap((q) => {
+                    if (!q.trim() || q.trim().length < 2) return of(null);
+                    this.checkingSpellTranslation.set(true);
+                    return this.lessonService.checkSpelling(q.trim(), 'Polish');
+                })
+            )
+            .subscribe({
+                next: (result) => {
+                    this.checkingSpellTranslation.set(false);
+                    if (result && result.hasError) {
+                        this.spellCheckTranslation.set(result);
+                    } else {
+                        this.spellCheckTranslation.set(null);
+                    }
+                },
+                error: () => {
+                    this.checkingSpellTranslation.set(false);
+                    this.spellCheckTranslation.set(null);
                 }
             });
     }
@@ -399,6 +538,8 @@ export class LessonModeComponent {
         this.newBack.set('');
         this.newCategory.set('Vocabulary');
         this.isFlashcardDuplicate.set(false);
+        this.spellCheckFront.set(null);
+        this.spellCheckBack.set(null);
     }
 
     saveSentence() {
@@ -454,6 +595,8 @@ export class LessonModeComponent {
         this.sentenceTranslation.set('');
         this.sentenceNotes.set('');
         this.isSentenceDuplicate.set(false);
+        this.spellCheckSentence.set(null);
+        this.spellCheckTranslation.set(null);
     }
 
     saveMemory() {
@@ -570,5 +713,39 @@ export class LessonModeComponent {
             },
             error: () => this.loadingCorrectPronunciation.set(false)
         });
+    }
+
+    acceptSpellCorrection(field: 'front' | 'back' | 'sentence' | 'translation') {
+        switch (field) {
+            case 'front':
+                const correctedFront = this.spellCheckFront()?.corrected;
+                if (correctedFront) this.newFront.set(correctedFront);
+                this.spellCheckFront.set(null);
+                break;
+            case 'back':
+                const correctedBack = this.spellCheckBack()?.corrected;
+                if (correctedBack) this.newBack.set(correctedBack);
+                this.spellCheckBack.set(null);
+                break;
+            case 'sentence':
+                const correctedSentence = this.spellCheckSentence()?.corrected;
+                if (correctedSentence) this.sentenceContent.set(correctedSentence);
+                this.spellCheckSentence.set(null);
+                break;
+            case 'translation':
+                const correctedTranslation = this.spellCheckTranslation()?.corrected;
+                if (correctedTranslation) this.sentenceTranslation.set(correctedTranslation);
+                this.spellCheckTranslation.set(null);
+                break;
+        }
+    }
+
+    rejectSpellCorrection(field: 'front' | 'back' | 'sentence' | 'translation') {
+        switch (field) {
+            case 'front': this.spellCheckFront.set(null); break;
+            case 'back': this.spellCheckBack.set(null); break;
+            case 'sentence': this.spellCheckSentence.set(null); break;
+            case 'translation': this.spellCheckTranslation.set(null); break;
+        }
     }
 }

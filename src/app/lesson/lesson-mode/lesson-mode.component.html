@@ -46,11 +46,47 @@
               [ngModel]="newFront()" (ngModelChange)="newFront.set($event)"
               placeholder="e.g. car" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid />
           </div>
+          <div *ngIf="spellCheckFront() as check"
+            class="flex items-center justify-between gap-3 p-2.5 mt-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex items-center gap-2 text-sm">
+              <i class="pi pi-sparkles text-blue-500"></i>
+              <span class="text-blue-700 dark:text-blue-300">
+                Did you mean: <strong>{{ check.corrected }}</strong>?
+                <span class="text-xs text-muted-color ml-1" *ngIf="check.reason">({{ check.reason }})</span>
+              </span>
+            </div>
+            <div class="flex gap-1 flex-shrink-0">
+              <p-button icon="pi pi-check" severity="success" size="small" outlined
+                pTooltip="Accept correction"
+                (onClick)="acceptSpellCorrection('front')" />
+              <p-button icon="pi pi-times" severity="secondary" size="small" outlined
+                pTooltip="Dismiss"
+                (onClick)="rejectSpellCorrection('front')" />
+            </div>
+          </div>
           <div>
             <label class="block font-bold mb-2">Back (Polish) *</label>
             <input pInputText type="text"
               [ngModel]="newBack()" (ngModelChange)="newBack.set($event)"
               placeholder="e.g. samochód" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid />
+          </div>
+          <div *ngIf="spellCheckBack() as check"
+            class="flex items-center justify-between gap-3 p-2.5 mt-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+            <div class="flex items-center gap-2 text-sm">
+              <i class="pi pi-sparkles text-blue-500"></i>
+              <span class="text-blue-700 dark:text-blue-300">
+                Did you mean: <strong>{{ check.corrected }}</strong>?
+                <span class="text-xs text-muted-color ml-1" *ngIf="check.reason">({{ check.reason }})</span>
+              </span>
+            </div>
+            <div class="flex gap-1 flex-shrink-0">
+              <p-button icon="pi pi-check" severity="success" size="small" outlined
+                pTooltip="Accept correction"
+                (onClick)="acceptSpellCorrection('back')" />
+              <p-button icon="pi pi-times" severity="secondary" size="small" outlined
+                pTooltip="Dismiss"
+                (onClick)="rejectSpellCorrection('back')" />
+            </div>
           </div>
           <div>
             <label class="block font-bold mb-2">Category</label>
@@ -154,11 +190,47 @@
             (ngModelChange)="sentenceContent.set($event)"
             placeholder="Enter sentence..." rows="3" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid></textarea>
         </div>
+        <div *ngIf="spellCheckSentence() as check"
+          class="flex items-center justify-between gap-3 p-2.5 mt-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div class="flex items-center gap-2 text-sm">
+            <i class="pi pi-sparkles text-blue-500"></i>
+            <span class="text-blue-700 dark:text-blue-300">
+              Did you mean: <strong>{{ check.corrected }}</strong>?
+              <span class="text-xs text-muted-color ml-1" *ngIf="check.reason">({{ check.reason }})</span>
+            </span>
+          </div>
+          <div class="flex gap-1 flex-shrink-0">
+            <p-button icon="pi pi-check" severity="success" size="small" outlined
+              pTooltip="Accept correction"
+              (onClick)="acceptSpellCorrection('sentence')" />
+            <p-button icon="pi pi-times" severity="secondary" size="small" outlined
+              pTooltip="Dismiss"
+              (onClick)="rejectSpellCorrection('sentence')" />
+          </div>
+        </div>
         <div>
           <label class="block font-bold mb-2">Translation</label>
           <textarea pTextarea [ngModel]="sentenceTranslation()"
             (ngModelChange)="sentenceTranslation.set($event)"
             placeholder="Enter translation..." rows="2" class="!text-base !py-2.5 !px-3.5 !leading-normal" fluid></textarea>
+        </div>
+        <div *ngIf="spellCheckTranslation() as check"
+          class="flex items-center justify-between gap-3 p-2.5 mt-1 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg">
+          <div class="flex items-center gap-2 text-sm">
+            <i class="pi pi-sparkles text-blue-500"></i>
+            <span class="text-blue-700 dark:text-blue-300">
+              Did you mean: <strong>{{ check.corrected }}</strong>?
+              <span class="text-xs text-muted-color ml-1" *ngIf="check.reason">({{ check.reason }})</span>
+            </span>
+          </div>
+          <div class="flex gap-1 flex-shrink-0">
+            <p-button icon="pi pi-check" severity="success" size="small" outlined
+              pTooltip="Accept correction"
+              (onClick)="acceptSpellCorrection('translation')" />
+            <p-button icon="pi pi-times" severity="secondary" size="small" outlined
+              pTooltip="Dismiss"
+              (onClick)="rejectSpellCorrection('translation')" />
+          </div>
         </div>
         <div>
           <label class="block font-bold mb-2">Notes</label>
