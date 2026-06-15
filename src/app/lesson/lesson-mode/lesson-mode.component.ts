@@ -305,13 +305,12 @@ export class LessonModeComponent {
                     this.checkingDuplicateSentence.set(false);
                     
                     if (result !== null) {
-                        const typedSentence = this.sentenceContent().toLowerCase().trim();
-                        const foundSentence = result.englishTranslation.toLowerCase().trim();
-
-                        if (typedSentence === foundSentence && result.polish) {
+                        if (result.polish && !result.existsInGlobal) {
                             this.sentenceTranslation.set(result.polish);
                         }
-
+                    
+                        const foundSentence = result.englishTranslation.toLowerCase().trim();
+                        const typedSentence = this.sentenceContent().toLowerCase().trim();
                         const isDuplicate = result.existsInGlobal && (foundSentence === typedSentence);
                         this.isSentenceDuplicate.set(isDuplicate);
                     } else {
