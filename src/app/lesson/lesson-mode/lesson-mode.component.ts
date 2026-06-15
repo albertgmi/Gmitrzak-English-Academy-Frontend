@@ -15,6 +15,7 @@ import { VocabularyService, SearchVocabularyResult } from '../../services/vocabu
 import { LessonContextService } from '../../services/lesson-context.service';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
+import { SearchSentenceResult } from '../../services/lesson.service';
 
 type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation';
 
@@ -299,14 +300,19 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result: any) => {
+                next: (result: SearchSentenceResult | null) => {
                     this.checkingDuplicateSentence.set(false);
-                    if (result && result.length > 0) {
-                        const hasExactMatch = result.some((r: any) => 
-                            r.existsInGlobal && 
-                            r.englishTranslation.toLowerCase().trim() === this.sentenceContent().toLowerCase().trim()
-                        );
-                        this.isSentenceDuplicate.set(hasExactMatch);
+                    
+                    if (result !== null) {
+                        const typedSentence = this.sentenceContent().toLowerCase().trim();
+                        const foundSentence = result.englishTranslation.toLowerCase().trim();
+
+                        if (typedSentence === foundSentence && result.polish) {
+                            this.sentenceTranslation.set(result.polish);
+                        }
+
+                        const isDuplicate = result.existsInGlobal && (foundSentence === typedSentence);
+                        this.isSentenceDuplicate.set(isDuplicate);
                     } else {
                         this.isSentenceDuplicate.set(false);
                     }
