@@ -232,12 +232,14 @@ export class LessonModeComponent {
                 next: (result: SearchVocabularyResult | null) => {
                     this.checkingDuplicateFlashcard.set(false);
                     
-                    if (result !== null && result.existsInGlobal) {
+                    console.log('Wynik wyszukiwania z ręki dla "' + this.newFront() + '":', result);
+
+                    if (result !== null) {
                         const exactEnglishMatch = result.front.toLowerCase().trim() === this.newFront().toLowerCase().trim();
-                        this.isFlashcardDuplicate.set(exactEnglishMatch);
+                        this.isFlashcardDuplicate.set(result.existsInGlobal && exactEnglishMatch);
                         
-                        if (exactEnglishMatch && !this.newBack().trim()) {
-                            this.newBack.set(result.back || '');
+                        if (exactEnglishMatch && result.back) {
+                            this.newBack.set(result.back);
                         }
                     } else {
                         this.isFlashcardDuplicate.set(false);
