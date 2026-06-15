@@ -276,6 +276,7 @@ export class LessonModeComponent {
                         this.sentenceSearchResult.set(result);
                         if (result.length === 1 && !result[0].existsInGlobal) {
                             this.sentenceContent.set(result[0].englishTranslation);
+                            this.sentenceTranslation.set(result[0].polish || '');
                         }
                     }
                 },
