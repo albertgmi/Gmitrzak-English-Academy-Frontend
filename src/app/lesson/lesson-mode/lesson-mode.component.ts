@@ -186,7 +186,7 @@ export class LessonModeComponent {
                     if (!q.trim()) {
                         this.searchResult.set(null);
                         this.searching.set(false);
-                }
+                    }
                 }),
                 switchMap((q) => {
                     const studentId = this.studentId;
@@ -198,10 +198,8 @@ export class LessonModeComponent {
             .subscribe({
                 next: (result: SearchVocabularyResult | null) => {
                     this.searching.set(false);
-            
                     if (result !== null) {
                         this.searchResult.set(result);
-                
                         if (!result.existsInGlobal) {
                             this.newFront.set(result.front);
                             this.newBack.set(result.back || '');
@@ -231,11 +229,16 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result) => {
+                next: (result: SearchVocabularyResult | null) => {
                     this.checkingDuplicateFlashcard.set(false);
-                    if (result && result.existsInGlobal) {
+                    
+                    if (result !== null && result.existsInGlobal) {
                         const exactEnglishMatch = result.front.toLowerCase().trim() === this.newFront().toLowerCase().trim();
                         this.isFlashcardDuplicate.set(exactEnglishMatch);
+                        
+                        if (exactEnglishMatch && !this.newBack().trim()) {
+                            this.newBack.set(result.back || '');
+                        }
                     } else {
                         this.isFlashcardDuplicate.set(false);
                     }
@@ -268,7 +271,6 @@ export class LessonModeComponent {
                     this.searchingSentence.set(false);
                     if (result) {
                         this.sentenceSearchResult.set(result);
-
                         if (result.length === 1 && !result[0].existsInGlobal) {
                             this.sentenceContent.set(result[0].englishTranslation);
                         }
