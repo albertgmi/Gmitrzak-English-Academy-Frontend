@@ -232,15 +232,15 @@ export class LessonModeComponent {
                 next: (result: SearchVocabularyResult | null) => {
                     this.checkingDuplicateFlashcard.set(false);
                     
-                    console.log('Wynik wyszukiwania z ręki dla "' + this.newFront() + '":', result);
-
                     if (result !== null) {
-                        const exactEnglishMatch = result.front.toLowerCase().trim() === this.newFront().toLowerCase().trim();
-                        this.isFlashcardDuplicate.set(result.existsInGlobal && exactEnglishMatch);
+                        const enteredWord = this.newFront().toLowerCase().trim();
+                        const foundWord = result.front.toLowerCase().trim();
                         
-                        if (exactEnglishMatch && result.back) {
+                        if (enteredWord === foundWord && result.back) {
                             this.newBack.set(result.back);
                         }
+
+                        this.isFlashcardDuplicate.set(result.existsInGlobal);
                     } else {
                         this.isFlashcardDuplicate.set(false);
                     }
