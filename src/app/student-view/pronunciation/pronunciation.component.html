@@ -36,21 +36,38 @@
           Needs more practice ({{ incorrectEntries().length }})
         </h3>
         <div class="flex flex-col gap-2">
-          <div *ngFor="let e of incorrectEntries()"
-            class="flex items-center justify-between bg-red-50 dark:bg-red-900/20
-              border border-red-200 dark:border-red-800 rounded-xl px-4 py-3">
-            <div class="flex items-center gap-3">
-              <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">
-                {{ e.word }}
-              </span>
-              <button type="button"
-                class="text-muted-color hover:text-primary transition-colors"
-                (click)="speak(e.word)">
-                <i class="pi pi-volume-up"></i>
-              </button>
+          <ng-container *ngFor="let e of incorrectEntries()">
+            <div class="rounded-xl border border-red-200 dark:border-red-800 overflow-hidden">
+
+              <!-- Row -->
+              <div class="flex items-center justify-between bg-red-50 dark:bg-red-900/20 px-4 py-3
+                          cursor-pointer hover:bg-red-100 dark:hover:bg-red-900/30 transition-colors"
+                (click)="toggleEntry(e.id)">
+                <div class="flex items-center gap-3">
+                  <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">
+                    {{ e.word }}
+                  </span>
+                  <button type="button"
+                    class="text-muted-color hover:text-primary transition-colors"
+                    (click)="$event.stopPropagation(); speak(e.word)">
+                    <i class="pi pi-volume-up"></i>
+                  </button>
+                </div>
+                <div class="flex items-center gap-3">
+                  <p-tag severity="danger" value="Retry" />
+                  <i class="pi text-muted-color text-sm transition-transform"
+                    [class.pi-chevron-down]="expandedEntryId() !== e.id"
+                    [class.pi-chevron-up]="expandedEntryId() === e.id"></i>
+                </div>
+              </div>
+
+              <!-- Expanded panel -->
+              <ng-container *ngIf="expandedEntryId() === e.id">
+                <ng-container *ngTemplateOutlet="practicePanel; context: { $implicit: e }"></ng-container>
+              </ng-container>
+
             </div>
-            <p-tag severity="danger" value="Retry" />
-          </div>
+          </ng-container>
         </div>
       </div>
 
@@ -60,22 +77,39 @@
           To practice ({{ pendingEntries().length }})
         </h3>
         <div class="flex flex-col gap-2">
-          <div *ngFor="let e of pendingEntries()"
-            class="flex items-center justify-between bg-white dark:bg-surface-900
-              border border-surface-200 dark:border-surface-700 rounded-xl px-4 py-3
-              hover:border-primary/30 transition-colors">
-            <div class="flex items-center gap-3">
-              <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">
-                {{ e.word }}
-              </span>
-              <button type="button"
-                class="text-muted-color hover:text-primary transition-colors"
-                (click)="speak(e.word)">
-                <i class="pi pi-volume-up"></i>
-              </button>
+          <ng-container *ngFor="let e of pendingEntries()">
+            <div class="rounded-xl border border-surface-200 dark:border-surface-700 overflow-hidden">
+
+              <!-- Row -->
+              <div class="flex items-center justify-between bg-white dark:bg-surface-900 px-4 py-3
+                          cursor-pointer hover:border-primary/30 hover:bg-surface-50
+                          dark:hover:bg-surface-800 transition-colors"
+                (click)="toggleEntry(e.id)">
+                <div class="flex items-center gap-3">
+                  <span class="font-semibold text-surface-900 dark:text-surface-0 text-lg">
+                    {{ e.word }}
+                  </span>
+                  <button type="button"
+                    class="text-muted-color hover:text-primary transition-colors"
+                    (click)="$event.stopPropagation(); speak(e.word)">
+                    <i class="pi pi-volume-up"></i>
+                  </button>
+                </div>
+                <div class="flex items-center gap-3">
+                  <p-tag severity="info" value="Practice" />
+                  <i class="pi text-muted-color text-sm"
+                    [class.pi-chevron-down]="expandedEntryId() !== e.id"
+                    [class.pi-chevron-up]="expandedEntryId() === e.id"></i>
+                </div>
+              </div>
+
+              <!-- Expanded panel -->
+              <ng-container *ngIf="expandedEntryId() === e.id">
+                <ng-container *ngTemplateOutlet="practicePanel; context: { $implicit: e }"></ng-container>
+              </ng-container>
+
             </div>
-            <p-tag severity="info" value="Practice" />
-          </div>
+          </ng-container>
         </div>
       </div>
 
@@ -144,7 +178,6 @@
             </span>
           </div>
 
-          <!-- Progress bar dni -->
           <div class="mt-2 w-full bg-green-200 dark:bg-green-800 rounded-full h-1.5">
             <div class="bg-green-500 h-1.5 rounded-full transition-all"
               [style.width]="((30 - e.daysUntilRefresh) / 30 * 100) + '%'">
@@ -157,3 +190,104 @@
 
   </div>
 </div>
+
+<!-- ── SHARED: Practice panel (mic + history) ────────────────────────── -->
+<ng-template #practicePanel let-e>
+  <div class="border-t border-surface-200 dark:border-surface-700
+              bg-surface-50 dark:bg-surface-800/50 px-4 py-4">
+
+    <!-- Mic section -->
+    <div class="flex flex-col items-center gap-3 py-2">
+      <p class="text-sm text-muted-color text-center">
+        Press and hold the button while saying
+        <strong class="text-surface-900 dark:text-surface-0">"{{ e.word }}"</strong>
+      </p>
+
+      <!-- Recording button -->
+      <button type="button"
+        class="relative flex items-center justify-center w-16 h-16 rounded-full
+               shadow-md transition-all duration-150 select-none
+               focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-primary"
+        [ngClass]="isRecording() && recordingEntryId() === e.id
+          ? 'bg-red-500 hover:bg-red-600 scale-110 ring-4 ring-red-300 dark:ring-red-800'
+          : 'bg-primary hover:bg-primary/90'"
+        (mousedown)="startRecording(e.id)"
+        (mouseup)="stopRecording()"
+        (mouseleave)="stopRecording()"
+        (touchstart)="startRecording(e.id)"
+        (touchend)="stopRecording()">
+
+        <!-- Pulse animation when recording -->
+        <span *ngIf="isRecording() && recordingEntryId() === e.id"
+          class="absolute inset-0 rounded-full bg-red-400 opacity-50 animate-ping"></span>
+
+        <i class="pi text-white text-2xl relative z-10"
+          [class.pi-microphone]="!(isRecording() && recordingEntryId() === e.id)"
+          [class.pi-stop-circle]="isRecording() && recordingEntryId() === e.id"></i>
+      </button>
+
+      <p class="text-xs text-muted-color">
+        {{ isRecording() && recordingEntryId() === e.id
+          ? 'Recording… release to submit'
+          : 'Hold to record' }}
+      </p>
+    </div>
+
+    <!-- History section -->
+    <div class="mt-4">
+      <h4 class="text-xs font-semibold uppercase tracking-wider text-muted-color mb-2">
+        My AI practice history
+      </h4>
+
+      <!-- Loading history -->
+      <div *ngIf="isHistoryLoading(e.id)" class="py-4 text-center text-muted-color">
+        <i class="pi pi-spin pi-spinner"></i>
+      </div>
+
+      <!-- Empty history -->
+      <div *ngIf="!isHistoryLoading(e.id) && !getHistory(e.id).length"
+        class="py-3 text-center text-xs text-muted-color italic">
+        No attempts yet — try recording above!
+      </div>
+
+      <!-- Attempts list -->
+      <div *ngIf="!isHistoryLoading(e.id) && getHistory(e.id).length"
+        class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+
+        <div *ngFor="let attempt of getHistory(e.id)"
+          class="flex items-center justify-between rounded-lg px-3 py-2 text-sm
+                 border transition-colors"
+          [ngClass]="attempt.result === 'Great'
+            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+            : 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'">
+
+          <div class="flex items-center gap-2 min-w-0">
+            <i class="pi shrink-0 text-sm"
+              [class.pi-check-circle]="attempt.result === 'Great'"
+              [class.text-green-500]="attempt.result === 'Great'"
+              [class.pi-refresh]="attempt.result !== 'Great'"
+              [class.text-orange-400]="attempt.result !== 'Great'"></i>
+            <span class="text-muted-color text-xs truncate italic"
+              [pTooltip]="attempt.transcribedText"
+              tooltipPosition="top">
+              "{{ attempt.transcribedText }}"
+            </span>
+          </div>
+
+          <div class="flex items-center gap-2 shrink-0 ml-2">
+            <span class="text-xs font-semibold"
+              [class.text-green-600]="attempt.result === 'Great'"
+              [class.dark:text-green-400]="attempt.result === 'Great'"
+              [class.text-orange-500]="attempt.result !== 'Great'">
+              {{ attempt.result === 'Great' ? 'Great' : 'Not yet' }}
+            </span>
+            <span class="text-xs text-muted-color">
+              {{ attempt.createdAt | date:'d MMM, HH:mm' }}
+            </span>
+          </div>
+
+        </div>
+      </div>
+    </div>
+  </div>
+</ng-template>

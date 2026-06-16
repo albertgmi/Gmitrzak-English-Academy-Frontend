@@ -70,6 +70,18 @@ export interface CorrectPronunciationDto {
     daysUntilRefresh: number;
 }
 
+export interface PronunciationAttemptDto {
+    id: number;
+    transcribedText: string;
+    result: string;
+    createdAt: string;
+}
+
+export interface PronunciationResult {
+    result: string;
+    transcribedText: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ContentService {
     private apiUrl = `${environment.apiUrl}/api/student-learning`;
@@ -125,6 +137,19 @@ export class ContentService {
     getCorrectPronunciation() {
         return this.http.get<CorrectPronunciationDto[]>(
             `${this.apiUrl}/pronunciation/correct`
+        );
+    }
+
+    getAttempts(entryId: number) {
+        return this.http.get<PronunciationAttemptDto[]>(
+            `${this.apiUrl}/pronunciation/${entryId}/attempts`
+        );
+    }
+    
+    submitAttempt(entryId: number, formData: FormData) {
+        return this.http.post<PronunciationResult>(
+            `${this.apiUrl}/pronunciation/${entryId}/attempt`,
+            formData
         );
     }
 }
