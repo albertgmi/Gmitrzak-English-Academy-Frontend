@@ -74,12 +74,14 @@ export interface PronunciationAttemptDto {
     id: number;
     transcribedText: string;
     result: string;
+    score: number;
     createdAt: string;
 }
 
 export interface PronunciationResult {
     result: string;
     transcribedText: string;
+    score: number;
 }
 
 @Injectable({ providedIn: 'root' })

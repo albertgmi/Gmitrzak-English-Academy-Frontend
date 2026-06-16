@@ -275,12 +275,17 @@
           </div>
 
           <div class="flex items-center gap-2 shrink-0 ml-2">
-            <span class="text-xs font-semibold"
-              [class.text-green-600]="attempt.result === 'Great'"
-              [class.dark:text-green-400]="attempt.result === 'Great'"
-              [class.text-orange-500]="attempt.result !== 'Great'">
-              {{ attempt.result === 'Great' ? 'Great' : 'Not yet' }}
-            </span>
+            <div class="flex flex-col items-end">
+              <span class="text-xs font-semibold"
+                [class.text-green-600]="attempt.result === 'Great'"
+                [class.dark:text-green-400]="attempt.result === 'Great'"
+                [class.text-orange-500]="attempt.result !== 'Great'">
+                {{ attempt.result === 'Great' ? 'Great' : 'Not yet' }}
+              </span>
+              <span class="text-xs text-muted-color">
+                {{ attempt.score }}%
+              </span>
+            </div>
             <span class="text-xs text-muted-color">
               {{ attempt.createdAt | date:'d MMM, HH:mm' }}
             </span>
