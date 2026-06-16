@@ -189,7 +189,7 @@ export class PronunciationComponent implements OnInit {
                     
                         detail: isGreat
                             ? `Score: ${result.score}% · AI heard: "${result.transcribedText}"`
-                            : `Score: ${result.score}% · AI heard: "${result.transcribedText}" — try again!`
+                            : `Score: ${result.score}% · AI heard: "${result.transcribedText}" — try again!`,
                     
                         life: 5000
                     });
