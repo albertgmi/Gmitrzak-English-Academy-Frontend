@@ -263,14 +263,15 @@
 
           <div class="flex items-center gap-2 min-w-0">
             <i class="pi shrink-0 text-sm"
-              [class.pi-check-circle]="attempt.result === 'Great'"
-              [class.text-green-500]="attempt.result === 'Great'"
-              [class.pi-refresh]="attempt.result !== 'Great'"
-              [class.text-orange-400]="attempt.result !== 'Great'"></i>
+               [class.pi-check-circle]="attempt.result === 'Great'"
+               [class.text-green-500]="attempt.result === 'Great'"
+               [class.pi-refresh]="attempt.result !== 'Great'"
+               [class.text-orange-400]="attempt.result !== 'Great'"></i>
+               
             <span class="text-muted-color text-xs truncate italic"
-              [pTooltip]="attempt.transcribedText"
-              tooltipPosition="top">
-              "{{ attempt.transcribedText }}"
+                  [pTooltip]="attempt.feedback"
+                  tooltipPosition="top">
+                  "{{ attempt.feedback }}"
             </span>
           </div>
 

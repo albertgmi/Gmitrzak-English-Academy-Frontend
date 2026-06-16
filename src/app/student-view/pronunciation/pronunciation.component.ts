@@ -183,20 +183,14 @@ export class PronunciationComponent implements OnInit {
                 
                     this.messageService.add({
                         severity: isGreat ? 'success' : 'warn',
-                        summary: isGreat 
-                            ? 'Great job!' 
-                            : 'Not quite yet',
-                    
-                        detail: isGreat
-                            ? `Score: ${result.score}% · AI heard: "${result.transcribedText}"`
-                            : `Score: ${result.score}% · AI heard: "${result.transcribedText}" — try again!`,
-                    
+                        summary: isGreat ? 'Great job!' : 'Not quite yet',
+                        detail: `Score: ${result.score}% · ${result.feedback}`,
                         life: 5000
                     });
 
                     const newAttempt: PronunciationAttemptDto = {
                         id: Date.now(),
-                        transcribedText: result.transcribedText,
+                        feedback: result.feedback,
                         result: result.result,
                         score: result.score,
                         createdAt: new Date().toISOString()

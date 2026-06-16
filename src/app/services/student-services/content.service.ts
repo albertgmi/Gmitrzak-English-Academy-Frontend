@@ -72,7 +72,7 @@ export interface CorrectPronunciationDto {
 
 export interface PronunciationAttemptDto {
     id: number;
-    transcribedText: string;
+    feedback: string;
     result: string;
     score: number;
     createdAt: string;
@@ -80,7 +80,7 @@ export interface PronunciationAttemptDto {
 
 export interface PronunciationResult {
     result: string;
-    transcribedText: string;
+    feedback: string;
     score: number;
 }
 
