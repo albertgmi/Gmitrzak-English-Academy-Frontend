@@ -131,7 +131,7 @@
 
           <div class="flex-1">
             <div class="text-sm font-medium text-surface-900 dark:text-surface-0">{{ h.reason }}</div>
-            <div class="text-xs text-muted-color">{{ h.date | date:'d MMM yyyy' }}</div>
+            <div class="text-xs text-muted-color">{{ h.date | date:'dd.MM.yyyy' }}</div>
           </div>
 
           <div class="font-bold text-lg" [ngClass]="h.type === 'earned' ? 'text-green-600' : 'text-red-500'">
@@ -154,7 +154,7 @@
           <div class="flex-1">
             <div class="font-semibold text-surface-900 dark:text-surface-0">{{ p.itemName }}</div>
             <div class="text-xs text-muted-color mt-0.5">
-              {{ p.purchaseDate | date:'d MMM yyyy' }} · {{ p.creditCost }} credits
+              {{ p.purchaseDate | date:'dd.MM.yyyy' }} · {{ p.creditCost }} credits
             </div>
           </div>
           <p-tag [severity]="statusSeverity(p.status)" [value]="p.status" />
@@ -287,11 +287,10 @@
                 [readonlyInput]="true"
                 dateFormat="dd.mm.yy"
                 placeholder="Select a new date"
-                appendTo="body"
                 styleClass="w-full"
                 panelStyleClass="z-50" />
             <p class="text-xs text-muted-color m-0">
-                Current deadline: {{ selectedExtendCurrentDeadline() | date:'shortDate' }}
+                Current deadline: {{ selectedExtendCurrentDeadline() | date:'dd.MM.yyyy' }}
             </p>
         </div>
     </div>

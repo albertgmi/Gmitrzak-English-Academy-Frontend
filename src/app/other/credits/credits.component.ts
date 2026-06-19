@@ -67,7 +67,7 @@ export class CreditsComponent implements OnInit {
     maxExtendDate = computed(() => {
         const min = this.minExtendDate();
         const max = new Date(min);
-        max.setDate(min.getDate() + 7);
+        max.setDate(min.getDate() + 6);
         return max;
     });
 
@@ -80,9 +80,9 @@ export class CreditsComponent implements OnInit {
     );
 
     dailyChallengeToday = computed(() => {
-        const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
+        const todayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(new Date());
         return this.summary()?.history
-            .some(h => h.date === today
+            .some(h => h.date === todayStr
                     && h.reason === 'Daily challenge: 75 flashcards') ?? false;
     });
 
@@ -91,7 +91,8 @@ export class CreditsComponent implements OnInit {
         const dow = (today.getDay() + 6) % 7;
         const monday = new Date(today);
         monday.setDate(today.getDate() - dow);
-        const mondayStr = new Intl.DateTimeFormat('sv-SE').format(monday);
+        const mondayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(monday);
+        
         return this.summary()?.history
             .some(h => h.date >= mondayStr
                     && h.reason === 'Weekly challenge: 300 flashcards') ?? false;
@@ -165,7 +166,7 @@ export class CreditsComponent implements OnInit {
 
         if (!item || !assignmentId || !newDate) return;
 
-        const formatted = new Intl.DateTimeFormat('sv-SE').format(newDate); // yyyy-MM-dd
+        const formatted = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(newDate);
 
         this.buying.set(item.id);
 
@@ -184,7 +185,10 @@ export class CreditsComponent implements OnInit {
 
     onSelectExtendAssignment(assignmentId: number) {
         this.selectedExtendAssignmentId.set(assignmentId);
-        const opt = this.extendableAssignments().find(a => a.value == assignmentId);
+
+        const opt = this.extendableAssignments()
+            .find(a => a.value == assignmentId);
+
         this.selectedExtendCurrentDeadline.set(opt?.deadline ?? null);
         this.selectedNewDueDate.set(null);
     }
