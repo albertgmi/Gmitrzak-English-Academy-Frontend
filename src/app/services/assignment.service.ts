@@ -4,6 +4,7 @@ import { lastValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export interface ModuleUnlockDto {
+    matrixModuleId: number;
     moduleId: number;
     moduleName: string;
     moduleDescription: string;
@@ -11,6 +12,7 @@ export interface ModuleUnlockDto {
     dayOfWeek: number;
     unlockDate: string;
     isUnlocked: boolean;
+    isCompleted: boolean;
 }
 
 export interface MatrixAssignmentDto {

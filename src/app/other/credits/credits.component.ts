@@ -44,7 +44,7 @@ export class CreditsComponent implements OnInit {
 
     skipDialogVisible = signal(false);
     selectedSkipItem = signal<ShopItemDto | null>(null);
-    selectedModuleId = signal<number | null>(null);
+    selectedAssignmentId = signal<number | null>(null);
     pendingAssignments = signal<PendingAssignmentOption[]>([]);
     loadingAssignments = signal(false);
 
@@ -111,17 +111,17 @@ export class CreditsComponent implements OnInit {
 
     confirmHomeworkSkip() {
         const item = this.selectedSkipItem();
-        const moduleId = this.selectedModuleId();
-        
-        if (!item || !moduleId) return;
+        const assignmentId = this.selectedAssignmentId();
+
+        if (!item || !assignmentId) return;
 
         this.buying.set(item.id);
-        
-        (this.creditService as any).purchaseHomeworkSkip(item.id, moduleId).subscribe({
+
+        this.creditService.purchaseHomeworkSkip(item.id, assignmentId).subscribe({
             next: (result: any) => {
                 this.handlePurchaseSuccess(result);
                 this.skipDialogVisible.set(false);
-                this.selectedModuleId.set(null);
+                this.selectedAssignmentId.set(null);
                 this.loadPendingAssignments();
             },
             error: () => this.handlePurchaseError()
@@ -136,29 +136,29 @@ export class CreditsComponent implements OnInit {
         }
 
         this.loadingAssignments.set(true);
-        
+
         this.creditService.getPendingAssignments(userId)
         .subscribe({
             next: ({ modules, matrices }) => {
                 const pendingModules = modules
-                    .filter((a: any) => !a.isCompleted)
-                    .map((a: any) => ({
-                        label: a.dueDate 
-                            ? `[Module][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}` 
+                    .filter(a => !a.isCompleted)
+                    .map(a => ({
+                        label: a.dueDate
+                            ? `[Module][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}`
                             : `[Module] ${a.moduleName}`,
-                        value: a.moduleId
+                        value: a.id
                     }));
 
-                const pendingMatrices = matrices
-                    .filter((a: any) => !a.isCompleted)
-                    .map((a: any) => ({
-                        label: a.dueDate 
-                            ? `[Matrix][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}` 
-                            : `[Matrix] ${a.moduleName}`,
-                        value: a.moduleId
-                    }));
+                const pendingMatrixModules = matrices.flatMap(matrixAssignment =>
+                    matrixAssignment.modules
+                        .filter(m => m.isUnlocked && !m.isCompleted)
+                        .map(m => ({
+                            label: `[Matrix: ${matrixAssignment.matrixName}][Unlock date: ${new Date(m.unlockDate).toLocaleDateString()}] ${m.moduleName}`,
+                            value: -m.matrixModuleId
+                        }))
+                );
 
-                this.pendingAssignments.set([...pendingModules, ...pendingMatrices]);
+                this.pendingAssignments.set([...pendingModules, ...pendingMatrixModules]);
                 this.loadingAssignments.set(false);
             },
             error: () => {

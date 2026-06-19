@@ -190,8 +190,8 @@
             
             <p-dropdown 
                 [options]="pendingAssignments()" 
-                [ngModel]="selectedModuleId()"
-                (ngModelChange)="selectedModuleId.set($event)"
+                [ngModel]="selectedAssignmentId()"
+                (ngModelChange)="selectedAssignmentId.set($event)"
                 optionLabel="label" 
                 optionValue="value"
                 placeholder="Choose an assignment" 
@@ -223,7 +223,7 @@
             label="Use Item" 
             icon="pi pi-check" 
             severity="success"
-            [disabled]="!selectedModuleId() || buying() === selectedSkipItem()?.id || loadingAssignments()"
+            [disabled]="!selectedAssignmentId() || buying() === selectedSkipItem()?.id || loadingAssignments()"
             [loading]="buying() === selectedSkipItem()?.id"
             (onClick)="confirmHomeworkSkip()" />
     </ng-template>

@@ -65,10 +65,10 @@ export class CreditService {
         return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/purchase/${itemId}`, {});
     }
 
-    purchaseHomeworkSkip(itemId: number, moduleId: number) {
-        return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/action/skip-homework`, { 
-            shopItemId: itemId, 
-            moduleId: moduleId 
+    purchaseHomeworkSkip(itemId: number, assignmentId: number) {
+        return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/action/skip-homework`, {
+            shopItemId: itemId,
+            assignmentId: assignmentId
         });
     }
 
