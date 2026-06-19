@@ -57,28 +57,18 @@ export class CreditsComponent implements OnInit {
 
     minExtendDate = computed(() => {
         const deadline = this.selectedExtendCurrentDeadline();
-        if (!deadline) return null;
-
+        if (!deadline) return new Date();
         const d = new Date(deadline);
-        if (isNaN(d.getTime())) return null; 
-
-        const today = new Date();
-        today.setHours(0, 0, 0, 0);
-
-        d.setDate(d.getDate() + 1);
-
-        return d > today ? d : today;
+        const nextDay = new Date(d);
+        nextDay.setDate(d.getDate() + 1);
+        return nextDay;
     });
 
     maxExtendDate = computed(() => {
-        const deadline = this.selectedExtendCurrentDeadline();
-        if (!deadline) return null;
-        
-        const d = new Date(deadline);
-        if (isNaN(d.getTime())) return null;
-        
-        d.setDate(d.getDate() + 7);
-        return d;
+        const min = this.minExtendDate();
+        const max = new Date(min);
+        max.setDate(min.getDate() + 7);
+        return max;
     });
 
     earnedHistory = computed(() =>

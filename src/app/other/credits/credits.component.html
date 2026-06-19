@@ -284,10 +284,15 @@
                 (ngModelChange)="selectedNewDueDate.set($event)"
                 [minDate]="minExtendDate()"
                 [maxDate]="maxExtendDate()"
+                [readonlyInput]="true"
                 dateFormat="dd.mm.yy"
+                placeholder="Select a new date"
                 appendTo="body"
-                styleClass="w-full" />
-            <p class="text-xs text-muted-color m-0">You can extend the deadline by up to 7 days.</p>
+                styleClass="w-full"
+                panelStyleClass="z-50" />
+            <p class="text-xs text-muted-color m-0">
+                Current deadline: {{ selectedExtendCurrentDeadline() | date:'shortDate' }}
+            </p>
         </div>
     </div>
 
