@@ -164,7 +164,7 @@
                   'bg-primary text-white shadow-sm': m.isUnlocked,
                   'bg-surface-200 dark:bg-surface-700 text-muted-color opacity-60': !m.isUnlocked
                 }"
-                [pTooltip]="m.moduleName + (m.isUnlocked ? ' (Unlocked)' : ' (Locks on ' + m.unlockDate + ')')">
+                [pTooltip]="m.moduleName + (m.isUnlocked ? ' (Unlocked)' : ' (Due date: ' + m.unlockDate + ')')">
                 {{ idx + 1 }}
               </span>
             </div>
