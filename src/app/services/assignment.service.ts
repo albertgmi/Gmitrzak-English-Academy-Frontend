@@ -13,6 +13,7 @@ export interface ModuleUnlockDto {
     unlockDate: string;
     isUnlocked: boolean;
     isCompleted: boolean;
+    deadline: string;
 }
 
 export interface MatrixAssignmentDto {

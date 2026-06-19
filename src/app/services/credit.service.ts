@@ -43,9 +43,11 @@ export interface ShopPurchaseResultDto {
     message: string;
     creditsRemaining: number;
 }
+
 export interface PendingAssignmentOption {
     label: string;
     value: number;
+    deadline?: string;
 }
 
 @Injectable({ providedIn: 'root' })
@@ -72,14 +74,22 @@ export class CreditService {
         });
     }
 
+    purchaseHomeworkExtension(itemId: number, assignmentId: number, newDueDate: string) {
+        return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/action/extend-homework`, {
+            shopItemId: itemId,
+            assignmentId: assignmentId,
+            newDueDate: newDueDate
+        });
+    }
+
     getPendingAssignments(userId: number) {
-    return forkJoin({
-        modules: this.http.get<ModuleAssignmentDto[]>(
-            `${environment.apiUrl}/api/assignment/module/user/${userId}`
-        ),
-        matrices: this.http.get<MatrixAssignmentDto[]>(
-            `${environment.apiUrl}/api/assignment/matrix/user/${userId}`
-        )
-    });
-}
+        return forkJoin({
+            modules: this.http.get<ModuleAssignmentDto[]>(
+                `${environment.apiUrl}/api/assignment/module/user/${userId}`
+            ),
+            matrices: this.http.get<MatrixAssignmentDto[]>(
+                `${environment.apiUrl}/api/assignment/matrix/user/${userId}`
+            )
+        });
+    }
 }

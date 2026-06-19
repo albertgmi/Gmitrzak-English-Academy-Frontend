@@ -1,18 +1,17 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { HttpClient } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { DropdownModule } from 'primeng/dropdown';
+import { CalendarModule } from 'primeng/calendar';
 import { MessageService } from 'primeng/api';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { CreditService, CreditSummaryDto, ShopItemDto, PendingAssignmentOption} from '../../services/credit.service';
+import { CreditService, CreditSummaryDto, ShopItemDto, PendingAssignmentOption } from '../../services/credit.service';
 import { AuthService } from '../../services/auth.service';
-import { forkJoin } from 'rxjs';
 
 type SeverityType = 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined;
 type Tab = 'shop' | 'history' | 'purchases';
@@ -21,7 +20,7 @@ type Tab = 'shop' | 'history' | 'purchases';
     selector: 'app-credits',
     standalone: true,
     imports: [CommonModule, ButtonModule, TagModule, ToastModule,
-              TooltipModule, ProgressBarModule, DialogModule, DropdownModule, FormsModule],
+              TooltipModule, ProgressBarModule, DialogModule, DropdownModule, CalendarModule, FormsModule],
     providers: [MessageService],
     templateUrl: './credits.component.html'
 })
@@ -47,6 +46,36 @@ export class CreditsComponent implements OnInit {
     selectedAssignmentId = signal<number | null>(null);
     pendingAssignments = signal<PendingAssignmentOption[]>([]);
     loadingAssignments = signal(false);
+
+    extendDialogVisible = signal(false);
+    selectedExtendItem = signal<ShopItemDto | null>(null);
+    selectedExtendAssignmentId = signal<number | null>(null);
+    selectedExtendCurrentDeadline = signal<string | null>(null);
+    selectedNewDueDate = signal<Date | null>(null);
+    extendableAssignments = signal<PendingAssignmentOption[]>([]);
+    loadingExtendable = signal(false);
+
+    minExtendDate = computed(() => {
+        const deadline = this.selectedExtendCurrentDeadline();
+        if (!deadline) return null;
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const d = new Date(deadline);
+        d.setDate(d.getDate() + 1);
+
+        return d > today ? d : today;
+    });
+
+    maxExtendDate = computed(() => {
+        const deadline = this.selectedExtendCurrentDeadline();
+        if (!deadline) return null;
+
+        const d = new Date(deadline);
+        d.setDate(d.getDate() + 7);
+        return d;
+    });
 
     earnedHistory = computed(() =>
         (this.summary()?.history ?? []).filter(h => h.type === 'earned')
@@ -102,6 +131,13 @@ export class CreditsComponent implements OnInit {
             return;
         }
 
+        if (item.name === 'Homework Extension') {
+            this.selectedExtendItem.set(item);
+            this.loadExtendableAssignments();
+            this.extendDialogVisible.set(true);
+            return;
+        }
+
         this.buying.set(item.id);
         this.creditService.purchase(item.id).subscribe({
             next: result => this.handlePurchaseSuccess(result),
@@ -128,6 +164,37 @@ export class CreditsComponent implements OnInit {
         });
     }
 
+    confirmHomeworkExtension() {
+        const item = this.selectedExtendItem();
+        const assignmentId = this.selectedExtendAssignmentId();
+        const newDate = this.selectedNewDueDate();
+
+        if (!item || !assignmentId || !newDate) return;
+
+        const formatted = new Intl.DateTimeFormat('sv-SE').format(newDate); // yyyy-MM-dd
+
+        this.buying.set(item.id);
+
+        this.creditService.purchaseHomeworkExtension(item.id, assignmentId, formatted).subscribe({
+            next: (result: any) => {
+                this.handlePurchaseSuccess(result);
+                this.extendDialogVisible.set(false);
+                this.selectedExtendAssignmentId.set(null);
+                this.selectedExtendCurrentDeadline.set(null);
+                this.selectedNewDueDate.set(null);
+                this.loadExtendableAssignments();
+            },
+            error: () => this.handlePurchaseError()
+        });
+    }
+
+    onSelectExtendAssignment(assignmentId: number) {
+        this.selectedExtendAssignmentId.set(assignmentId);
+        const opt = this.extendableAssignments().find(a => a.value === assignmentId);
+        this.selectedExtendCurrentDeadline.set(opt?.deadline ?? null);
+        this.selectedNewDueDate.set(null);
+    }
+
     private loadPendingAssignments() {
         const userId = this.authService.getUserId();
         if (!userId) {
@@ -146,15 +213,17 @@ export class CreditsComponent implements OnInit {
                         label: a.dueDate
                             ? `[Module][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}`
                             : `[Module] ${a.moduleName}`,
-                        value: a.id
+                        value: a.id,
+                        deadline: a.dueDate
                     }));
 
                 const pendingMatrixModules = matrices.flatMap(matrixAssignment =>
                     matrixAssignment.modules
                         .filter(m => m.isUnlocked && !m.isCompleted)
                         .map(m => ({
-                            label: `[Matrix: ${matrixAssignment.matrixName}][Unlock date: ${new Date(m.unlockDate).toLocaleDateString()}] ${m.moduleName}`,
-                            value: -m.matrixModuleId
+                            label: `[Matrix: ${matrixAssignment.matrixName}][Due date: ${new Date(m.deadline).toLocaleDateString()}] ${m.moduleName}`,
+                            value: -m.matrixModuleId,
+                            deadline: m.deadline
                         }))
                 );
 
@@ -164,6 +233,48 @@ export class CreditsComponent implements OnInit {
             error: () => {
                 this.pendingAssignments.set([]);
                 this.loadingAssignments.set(false);
+            }
+        });
+    }
+
+    private loadExtendableAssignments() {
+        const userId = this.authService.getUserId();
+        if (!userId) {
+            this.extendableAssignments.set([]);
+            return;
+        }
+
+        this.loadingExtendable.set(true);
+
+        this.creditService.getPendingAssignments(userId)
+        .subscribe({
+            next: ({ modules, matrices }) => {
+                const extendableModules = modules
+                    .filter(a => !a.isCompleted)
+                    .map(a => ({
+                        label: a.dueDate
+                            ? `[Module][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}`
+                            : `[Module] ${a.moduleName}`,
+                        value: a.id,
+                        deadline: a.dueDate
+                    }));
+
+                const extendableMatrixModules = matrices.flatMap(matrixAssignment =>
+                    matrixAssignment.modules
+                        .filter(m => m.isUnlocked && !m.isCompleted)
+                        .map(m => ({
+                            label: `[Matrix: ${matrixAssignment.matrixName}][Due date: ${new Date(m.deadline).toLocaleDateString()}] ${m.moduleName}`,
+                            value: -m.matrixModuleId,
+                            deadline: m.deadline
+                        }))
+                );
+
+                this.extendableAssignments.set([...extendableModules, ...extendableMatrixModules]);
+                this.loadingExtendable.set(false);
+            },
+            error: () => {
+                this.extendableAssignments.set([]);
+                this.loadingExtendable.set(false);
             }
         });
     }
