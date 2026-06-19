@@ -35,7 +35,6 @@
     </div>
 
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
-
       <div class="p-4 rounded-xl border"
         [ngClass]="dailyChallengeToday()
           ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
@@ -43,9 +42,7 @@
         <div class="flex items-center gap-3">
           <span class="text-3xl">{{ dailyChallengeToday() ? '✅' : '🎯' }}</span>
           <div class="flex-1">
-            <div class="font-semibold text-surface-900 dark:text-surface-0">
-              Daily Challenge
-            </div>
+            <div class="font-semibold text-surface-900 dark:text-surface-0">Daily Challenge</div>
             <div class="text-xs text-muted-color">Do 75 flashcards today</div>
           </div>
           <div class="text-right">
@@ -63,9 +60,7 @@
         <div class="flex items-center gap-3">
           <span class="text-3xl">{{ weeklyChallengeThisWeek() ? '🏆' : '📅' }}</span>
           <div class="flex-1">
-            <div class="font-semibold text-surface-900 dark:text-surface-0">
-              Weekly Challenge
-            </div>
+            <div class="font-semibold text-surface-900 dark:text-surface-0">Weekly Challenge</div>
             <div class="text-xs text-muted-color">Do 300 flashcards this week</div>
           </div>
           <div class="text-right">
@@ -131,19 +126,15 @@
 
           <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
             [ngClass]="h.type === 'earned' ? 'bg-green-500' : 'bg-red-400'">
-            <i class="pi text-white text-xs"
-              [ngClass]="h.type === 'earned' ? 'pi-plus' : 'pi-minus'"></i>
+            <i class="pi text-white text-xs" [ngClass]="h.type === 'earned' ? 'pi-plus' : 'pi-minus'"></i>
           </div>
 
           <div class="flex-1">
-            <div class="text-sm font-medium text-surface-900 dark:text-surface-0">
-              {{ h.reason }}
-            </div>
+            <div class="text-sm font-medium text-surface-900 dark:text-surface-0">{{ h.reason }}</div>
             <div class="text-xs text-muted-color">{{ h.date | date:'d MMM yyyy' }}</div>
           </div>
 
-          <div class="font-bold text-lg"
-            [ngClass]="h.type === 'earned' ? 'text-green-600' : 'text-red-500'">
+          <div class="font-bold text-lg" [ngClass]="h.type === 'earned' ? 'text-green-600' : 'text-red-500'">
             {{ h.type === 'earned' ? '+' : '' }}{{ h.amount }}
           </div>
         </div>
@@ -154,23 +145,18 @@
       <div *ngIf="!s.purchases.length" class="text-center py-12 text-muted-color">
         <i class="pi pi-shopping-bag text-4xl block mb-3"></i>
         <p>No purchases yet.</p>
-        <p class="text-sm">Buy something from the shop!</p>
       </div>
 
       <div class="flex flex-col gap-3">
         <div *ngFor="let p of s.purchases"
-          class="flex items-center gap-4 p-4 rounded-xl border
-            bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700">
-
+          class="flex items-center gap-4 p-4 rounded-xl border bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700">
           <span class="text-3xl flex-shrink-0">{{ p.iconEmoji }}</span>
-
           <div class="flex-1">
             <div class="font-semibold text-surface-900 dark:text-surface-0">{{ p.itemName }}</div>
             <div class="text-xs text-muted-color mt-0.5">
               {{ p.purchaseDate | date:'d MMM yyyy' }} · {{ p.creditCost }} credits
             </div>
           </div>
-
           <p-tag [severity]="statusSeverity(p.status)" [value]="p.status" />
         </div>
       </div>
@@ -178,3 +164,67 @@
 
   </div>
 </div>
+
+<p-dialog 
+    header="Skip Homework" 
+    [(visible)]="skipDialogVisible" 
+    [modal]="true" 
+    [draggable]="false"
+    [style]="{ width: '400px', maxWidth: '90vw' }">
+    
+    <div *ngIf="selectedSkipItem() as item" class="flex flex-col gap-4 pt-2">
+        <div class="text-center p-4 bg-surface-50 dark:bg-surface-800 rounded-xl mb-2">
+            <div class="text-4xl mb-2">{{ item.iconEmoji }}</div>
+            <div class="font-bold text-lg text-surface-900 dark:text-surface-0">{{ item.name }}</div>
+            <div class="text-primary font-bold mt-1">- {{ item.creditCost }} credits</div>
+        </div>
+
+        <p class="m-0 text-sm text-muted-color">
+            Select the active homework assignment you want to skip.
+        </p>
+
+        <div class="flex flex-col gap-2">
+            <label class="font-semibold text-sm text-surface-900 dark:text-surface-0">
+                Select assignment
+            </label>
+            
+            <p-dropdown 
+                [options]="pendingAssignments()" 
+                [ngModel]="selectedModuleId()"
+                (ngModelChange)="selectedModuleId.set($event)"
+                optionLabel="label" 
+                optionValue="value"
+                placeholder="Choose an assignment" 
+                styleClass="w-full"
+                appendTo="body"
+                popupPosition="bottom"
+                [panelStyle]="{'margin-top': '4px'}"
+                [loading]="loadingAssignments()"
+                scrollHeight="200px">
+                
+                <ng-template pTemplate="empty">
+                    <div class="p-2 text-muted-color text-sm">
+                        {{ loadingAssignments() ? 'Loading assignments...' : 'You have no pending assignments! 🎉' }}
+                    </div>
+                </ng-template>
+            </p-dropdown>
+        </div>
+    </div>
+
+    <ng-template pTemplate="footer">
+        <p-button 
+            label="Cancel" 
+            icon="pi pi-times" 
+            severity="secondary" 
+            [text]="true" 
+            (onClick)="skipDialogVisible.set(false)" />
+            
+        <p-button 
+            label="Use Item" 
+            icon="pi pi-check" 
+            severity="success"
+            [disabled]="!selectedModuleId() || buying() === selectedSkipItem()?.id || loadingAssignments()"
+            [loading]="buying() === selectedSkipItem()?.id"
+            (onClick)="confirmHomeworkSkip()" />
+    </ng-template>
+</p-dialog>

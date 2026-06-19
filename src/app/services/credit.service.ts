@@ -1,6 +1,8 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { forkJoin } from 'rxjs';
+import { MatrixAssignmentDto, ModuleAssignmentDto } from './assignment.service';
 
 export interface CreditHistoryItemDto {
     id: number;
@@ -41,6 +43,10 @@ export interface ShopPurchaseResultDto {
     message: string;
     creditsRemaining: number;
 }
+export interface PendingAssignmentOption {
+    label: string;
+    value: number;
+}
 
 @Injectable({ providedIn: 'root' })
 export class CreditService {
@@ -58,4 +64,22 @@ export class CreditService {
     purchase(itemId: number) {
         return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/purchase/${itemId}`, {});
     }
+
+    purchaseHomeworkSkip(itemId: number, moduleId: number) {
+        return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/action/skip-homework`, { 
+            shopItemId: itemId, 
+            moduleId: moduleId 
+        });
+    }
+
+    getPendingAssignments(userId: number) {
+    return forkJoin({
+        modules: this.http.get<ModuleAssignmentDto[]>(
+            `${environment.apiUrl}/api/assignment/module/user/${userId}`
+        ),
+        matrices: this.http.get<MatrixAssignmentDto[]>(
+            `${environment.apiUrl}/api/assignment/matrix/user/${userId}`
+        )
+    });
+}
 }

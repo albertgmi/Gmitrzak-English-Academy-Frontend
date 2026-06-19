@@ -1,12 +1,18 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
+import { HttpClient } from '@angular/common/http';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { DropdownModule } from 'primeng/dropdown';
 import { MessageService } from 'primeng/api';
 import { ProgressBarModule } from 'primeng/progressbar';
-import { CreditService, CreditSummaryDto, ShopItemDto } from '../../services/credit.service';
+import { CreditService, CreditSummaryDto, ShopItemDto, PendingAssignmentOption} from '../../services/credit.service';
+import { AuthService } from '../../services/auth.service';
+import { forkJoin } from 'rxjs';
 
 type SeverityType = 'success' | 'secondary' | 'info' | 'warn' | 'danger' | 'contrast' | undefined;
 type Tab = 'shop' | 'history' | 'purchases';
@@ -15,12 +21,13 @@ type Tab = 'shop' | 'history' | 'purchases';
     selector: 'app-credits',
     standalone: true,
     imports: [CommonModule, ButtonModule, TagModule, ToastModule,
-              TooltipModule, ProgressBarModule],
+              TooltipModule, ProgressBarModule, DialogModule, DropdownModule, FormsModule],
     providers: [MessageService],
     templateUrl: './credits.component.html'
 })
 export class CreditsComponent implements OnInit {
     private creditService = inject(CreditService);
+    private authService = inject(AuthService);
     private messageService = inject(MessageService);
 
     tabs: { id: Tab; label: string }[] = [
@@ -34,6 +41,12 @@ export class CreditsComponent implements OnInit {
     loading = signal(true);
     buying = signal<number | null>(null);
     activeTab = signal<Tab>('shop');
+
+    skipDialogVisible = signal(false);
+    selectedSkipItem = signal<ShopItemDto | null>(null);
+    selectedModuleId = signal<number | null>(null);
+    pendingAssignments = signal<PendingAssignmentOption[]>([]);
+    loadingAssignments = signal(false);
 
     earnedHistory = computed(() =>
         (this.summary()?.history ?? []).filter(h => h.type === 'earned')
@@ -81,28 +94,99 @@ export class CreditsComponent implements OnInit {
 
     buy(item: ShopItemDto) {
         if (!item.canAfford) return;
+
+        if (item.name === 'Homework Skip') {
+            this.selectedSkipItem.set(item);
+            this.loadPendingAssignments();
+            this.skipDialogVisible.set(true);
+            return;
+        }
+
         this.buying.set(item.id);
         this.creditService.purchase(item.id).subscribe({
-            next: result => {
-                this.messageService.add({
-                    severity: 'success',
-                    summary:  'Purchased!',
-                    detail:   result.message,
-                    life:     4000
-                });
-                this.loadData();
-                this.buying.set(null);
+            next: result => this.handlePurchaseSuccess(result),
+            error: () => this.handlePurchaseError()
+        });
+    }
+
+    confirmHomeworkSkip() {
+        const item = this.selectedSkipItem();
+        const moduleId = this.selectedModuleId();
+        
+        if (!item || !moduleId) return;
+
+        this.buying.set(item.id);
+        
+        (this.creditService as any).purchaseHomeworkSkip(item.id, moduleId).subscribe({
+            next: (result: any) => {
+                this.handlePurchaseSuccess(result);
+                this.skipDialogVisible.set(false);
+                this.selectedModuleId.set(null);
+                this.loadPendingAssignments();
+            },
+            error: () => this.handlePurchaseError()
+        });
+    }
+
+    private loadPendingAssignments() {
+        const userId = this.authService.getUserId();
+        if (!userId) {
+            this.pendingAssignments.set([]);
+            return;
+        }
+
+        this.loadingAssignments.set(true);
+        
+        this.creditService.getPendingAssignments(userId)
+        .subscribe({
+            next: ({ modules, matrices }) => {
+                const pendingModules = modules
+                    .filter((a: any) => !a.isCompleted)
+                    .map((a: any) => ({
+                        label: a.dueDate 
+                            ? `[Module][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}` 
+                            : `[Module] ${a.moduleName}`,
+                        value: a.moduleId
+                    }));
+
+                const pendingMatrices = matrices
+                    .filter((a: any) => !a.isCompleted)
+                    .map((a: any) => ({
+                        label: a.dueDate 
+                            ? `[Matrix][Due date: ${new Date(a.dueDate).toLocaleDateString()}] ${a.moduleName}` 
+                            : `[Matrix] ${a.moduleName}`,
+                        value: a.moduleId
+                    }));
+
+                this.pendingAssignments.set([...pendingModules, ...pendingMatrices]);
+                this.loadingAssignments.set(false);
             },
             error: () => {
-                this.messageService.add({
-                    severity: 'error',
-                    summary:  'Error',
-                    detail:   'Purchase failed.',
-                    life:     3000
-                });
-                this.buying.set(null);
+                this.pendingAssignments.set([]);
+                this.loadingAssignments.set(false);
             }
         });
+    }
+
+    private handlePurchaseSuccess(result: any) {
+        this.messageService.add({
+            severity: result.success ? 'success' : 'error',
+            summary:  result.success ? 'Success!' : 'Action failed',
+            detail:   result.message,
+            life:     4000
+        });
+        if (result.success) this.loadData();
+        this.buying.set(null);
+    }
+
+    private handlePurchaseError() {
+        this.messageService.add({
+            severity: 'error',
+            summary:  'Error',
+            detail:   'An error occurred while processing the purchase.',
+            life:     3000
+        });
+        this.buying.set(null);
     }
 
     statusSeverity(status: string): SeverityType {
