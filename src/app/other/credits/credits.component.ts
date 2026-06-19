@@ -59,10 +59,12 @@ export class CreditsComponent implements OnInit {
         const deadline = this.selectedExtendCurrentDeadline();
         if (!deadline) return null;
 
+        const d = new Date(deadline);
+        if (isNaN(d.getTime())) return null; 
+
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 
-        const d = new Date(deadline);
         d.setDate(d.getDate() + 1);
 
         return d > today ? d : today;
@@ -71,8 +73,10 @@ export class CreditsComponent implements OnInit {
     maxExtendDate = computed(() => {
         const deadline = this.selectedExtendCurrentDeadline();
         if (!deadline) return null;
-
+        
         const d = new Date(deadline);
+        if (isNaN(d.getTime())) return null;
+        
         d.setDate(d.getDate() + 7);
         return d;
     });
@@ -190,7 +194,7 @@ export class CreditsComponent implements OnInit {
 
     onSelectExtendAssignment(assignmentId: number) {
         this.selectedExtendAssignmentId.set(assignmentId);
-        const opt = this.extendableAssignments().find(a => a.value === assignmentId);
+        const opt = this.extendableAssignments().find(a => a.value == assignmentId);
         this.selectedExtendCurrentDeadline.set(opt?.deadline ?? null);
         this.selectedNewDueDate.set(null);
     }
