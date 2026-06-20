@@ -139,9 +139,14 @@ export class CreditsComponent implements OnInit {
 
         this.buying.set(item.id);
 
-        const purchase$ = item.name === '2× Points Boost'
-            ? this.creditService.purchasePointsBoost()
-            : this.creditService.purchase(item.id);
+        let purchase$;
+        if (item.name === '2× Points Boost') {
+            purchase$ = this.creditService.purchasePointsBoost();
+        } else if (item.name === 'Streak Shield') {
+            purchase$ = this.creditService.purchaseStreakShield();
+        } else {
+            purchase$ = this.creditService.purchase(item.id);
+        }
 
         purchase$.subscribe({
             next: result => this.handlePurchaseSuccess(result),
