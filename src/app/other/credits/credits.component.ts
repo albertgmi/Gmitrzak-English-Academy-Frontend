@@ -139,7 +139,7 @@ export class CreditsComponent implements OnInit {
 
         this.buying.set(item.id);
 
-        const purchase$ = item.name === 'Points Boost'
+        const purchase$ = item.name === '2× Points Boost'
             ? this.creditService.purchasePointsBoost()
             : this.creditService.purchase(item.id);
 
