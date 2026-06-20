@@ -1,0 +1,21 @@
+.coin-rain {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 9999;
+    overflow: hidden;
+}
+
+.coin {
+    position: absolute;
+    top: -40px;
+    font-size: 2rem;
+    animation-name: coin-fall;
+    animation-timing-function: ease-in;
+    animation-fill-mode: forwards;
+}
+
+@keyframes coin-fall {
+    0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+    100% { transform: translateY(110vh) rotate(360deg); opacity: 0.85; }
+}

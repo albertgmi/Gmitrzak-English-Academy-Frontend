@@ -22,7 +22,8 @@ type Tab = 'shop' | 'history' | 'purchases';
     imports: [CommonModule, ButtonModule, TagModule, ToastModule,
               TooltipModule, ProgressBarModule, DialogModule, DropdownModule, CalendarModule, FormsModule],
     providers: [MessageService],
-    templateUrl: './credits.component.html'
+    templateUrl: './credits.component.html',
+    styleUrl: './credits.component.scss'
 })
 export class CreditsComponent implements OnInit {
     private creditService = inject(CreditService);
@@ -54,6 +55,9 @@ export class CreditsComponent implements OnInit {
     selectedNewDueDate = signal<Date | null>(null);
     extendableAssignments = signal<PendingAssignmentOption[]>([]);
     loadingExtendable = signal(false);
+
+    showCoinRain = signal(false);
+    coinRainItems = signal<{ left: number; delay: number; duration: number; emoji: string }[]>([]);
 
     minExtendDate = computed(() => {
         const deadline = this.selectedExtendCurrentDeadline();
@@ -92,7 +96,7 @@ export class CreditsComponent implements OnInit {
         const monday = new Date(today);
         monday.setDate(today.getDate() - dow);
         const mondayStr = new Intl.DateTimeFormat('sv-SE', { timeZone: 'Europe/Warsaw' }).format(monday);
-        
+
         return this.summary()?.history
             .some(h => h.date >= mondayStr
                     && h.reason === 'Weekly challenge: 300 flashcards') ?? false;
@@ -134,7 +138,12 @@ export class CreditsComponent implements OnInit {
         }
 
         this.buying.set(item.id);
-        this.creditService.purchase(item.id).subscribe({
+
+        const purchase$ = item.name === 'Points Boost'
+            ? this.creditService.purchasePointsBoost()
+            : this.creditService.purchase(item.id);
+
+        purchase$.subscribe({
             next: result => this.handlePurchaseSuccess(result),
             error: () => this.handlePurchaseError()
         });
@@ -277,14 +286,30 @@ export class CreditsComponent implements OnInit {
         });
     }
 
+    private triggerCoinRain() {
+        const emojis = ['💰', '🪙', '✨'];
+        const items = Array.from({ length: 24 }, () => ({
+            left: Math.random() * 100,
+            delay: Math.random() * 0.6,
+            duration: 1.8 + Math.random() * 1.2,
+            emoji: emojis[Math.floor(Math.random() * emojis.length)]
+        }));
+        this.coinRainItems.set(items);
+        this.showCoinRain.set(true);
+        setTimeout(() => this.showCoinRain.set(false), 3000);
+    }
+
     private handlePurchaseSuccess(result: any) {
         this.messageService.add({
             severity: result.success ? 'success' : 'error',
-            summary:  result.success ? 'Success!' : 'Action failed',
+            summary:  result.success ? '🎉 Success!' : 'Action failed',
             detail:   result.message,
             life:     4000
         });
-        if (result.success) this.loadData();
+        if (result.success) {
+            this.loadData();
+            this.triggerCoinRain();
+        }
         this.buying.set(null);
     }
 

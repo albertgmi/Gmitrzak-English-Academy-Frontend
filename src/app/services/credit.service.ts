@@ -82,6 +82,10 @@ export class CreditService {
         });
     }
 
+    purchasePointsBoost() {
+        return this.http.post<ShopPurchaseResultDto>(`${this.api}/shop/action/points-boost`, {});
+    }
+
     getPendingAssignments(userId: number) {
         return forkJoin({
             modules: this.http.get<ModuleAssignmentDto[]>(

@@ -1,5 +1,14 @@
 <p-toast />
 
+<div class="coin-rain" *ngIf="showCoinRain()">
+  <span *ngFor="let c of coinRainItems()" class="coin"
+        [style.left.%]="c.left"
+        [style.animationDelay.s]="c.delay"
+        [style.animationDuration.s]="c.duration">
+    {{ c.emoji }}
+  </span>
+</div>
+
 <div class="card">
 
   <div *ngIf="loading()" class="text-center py-16 text-muted-color">
@@ -230,6 +239,7 @@
     </ng-template>
 </p-dialog>
 
+<!-- Homework Extension -->
 <p-dialog 
     header="Extend Homework Deadline" 
     [(visible)]="extendDialogVisible" 
