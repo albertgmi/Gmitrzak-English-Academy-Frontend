@@ -186,4 +186,12 @@ export class SentenceService {
             responseType: 'blob'
         });
     }
+
+    assignSentenceSetToStudent(userId: number, sentenceSetId: number, dueDate: string) {
+        return this.http.post<void>(`${this.apiUrl}/assign-set`, {
+            userId,
+            sentenceSetId,
+            dueDate
+        });
+    }
 }

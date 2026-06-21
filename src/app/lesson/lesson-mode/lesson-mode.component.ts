@@ -15,9 +15,11 @@ import { VocabularyService, SearchVocabularyResult } from '../../services/vocabu
 import { LessonContextService } from '../../services/lesson-context.service';
 import { debounceTime, distinctUntilChanged, switchMap, tap, of } from 'rxjs';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-import {SpellCheckResult} from "../../services/lesson.service";
+import { SpellCheckResult } from "../../services/lesson.service";
+import { CatalogueService, CatalogueDto } from '../../services/catalogue.service';
+import { SentenceService as SentenceSetsService } from '../../services/sentence.service';
 
-type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation';
+type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation' | 'catalogues';
 
 export interface SentenceStockDto {
     id: number;
@@ -40,6 +42,8 @@ export class LessonModeComponent {
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
     private messageService = inject(MessageService);
+    private catalogueService = inject(CatalogueService);
+    private sentenceSetsService = inject(SentenceSetsService);
 
     activeStudent = this.lessonContext.activeStudent;
     activeTab = signal<LessonTab>('flashcard');
@@ -127,7 +131,8 @@ export class LessonModeComponent {
         { id: 'flashcard', label: 'Flashcard', icon: 'pi pi-clone' },
         { id: 'sentence', label: 'Sentence', icon: 'pi pi-align-left' },
         { id: 'memory', label: 'Memory', icon: 'pi pi-lightbulb' },
-        { id: 'pronunciation', label: 'Pronunciation', icon: 'pi pi-microphone' }
+        { id: 'pronunciation', label: 'Pronunciation', icon: 'pi pi-microphone' },
+        { id: 'catalogues', label: 'Catalogues', icon: 'pi pi-folder' }
     ];
 
     incorrectInSession = computed(() =>
@@ -176,6 +181,25 @@ export class LessonModeComponent {
             return dbCategory === currentCategory;
         });
     });
+
+    selectedCatalogueId = signal<number | null>(null);
+    assigningCatalogue = signal(false);
+
+    selectedSentenceSetId = signal<number | null>(null);
+    assigningSentenceSet = signal(false);
+
+    catalogueOptions = computed(() =>
+        (this.catalogueService.catalogues.value() ?? [])
+            .map(c => ({ label: `${c.name} (${c.entryCount} entries)`, value: c.id }))
+    );
+
+    sentenceSetOptions = computed(() =>
+        (this.sentenceSetsService.sets.value() ?? [])
+            .flatMap(g => g.sets.map(s => ({
+                label: `${g.groupName} / ${s.name} (${s.itemCount} sentences)`,
+                value: s.id
+            })))
+    );
 
     constructor() {
         effect(() => {
@@ -594,12 +618,64 @@ export class LessonModeComponent {
         this.spellCheckTranslation.set(null);
     }
 
+    assignCatalogue() {
+        const catalogueId = this.selectedCatalogueId();
+        const studentId = this.studentId;
+        if (!catalogueId || !studentId) return;
+        
+        this.assigningCatalogue.set(true);
+        this.vocabularyService.assignCatalogueToStudent(catalogueId, studentId).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success', summary: 'Assigned',
+                    detail: 'Catalogue assigned to student', life: 3000
+                });
+                this.selectedCatalogueId.set(null);
+                this.assigningCatalogue.set(false);
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error', summary: 'Error',
+                    detail: err?.error?.message ?? 'Failed to assign catalogue', life: 4000
+                });
+                this.assigningCatalogue.set(false);
+            }
+        });
+    }
+    
+    assignSentenceSet() {
+        const sentenceSetId = this.selectedSentenceSetId();
+        const studentId = this.studentId;
+        if (!sentenceSetId || !studentId) return;
+    
+        this.assigningSentenceSet.set(true);
+        const dueDate = new Intl.DateTimeFormat('sv-SE').format(new Date());
+    
+        this.sentenceSetsService.assignSentenceSetToStudent(studentId, sentenceSetId, dueDate).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success', summary: 'Assigned',
+                    detail: 'Sentence set assigned to student', life: 3000
+                });
+                this.selectedSentenceSetId.set(null);
+                this.assigningSentenceSet.set(false);
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error', summary: 'Error',
+                    detail: err?.error?.message ?? 'Failed to assign sentence set', life: 4000
+                });
+                this.assigningSentenceSet.set(false);
+            }
+        });
+    }
+
     saveMemory() {
         const studentId = this.studentId;
         const a = this.memoryOptionA().trim();
         const category = this.memoryCategory();
         if (!a || !category || studentId === null || this.isMemoryDuplicate()) return;
-        
+
         this.savingMemory.set(true);
         this.lessonService.addMemory(
             studentId,

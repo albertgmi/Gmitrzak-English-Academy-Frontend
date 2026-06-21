@@ -93,4 +93,11 @@ export class VocabularyService {
             studentUserId 
         });
     }
+
+    assignCatalogueToStudent(catalogueId: number, studentUserId: number) {
+        return this.http.post<void>(`${this.apiUrl}/assign-catalogue`, {
+            catalogueId,
+            studentUserId
+        });
+    }
 }

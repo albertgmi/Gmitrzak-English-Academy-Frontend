@@ -582,4 +582,66 @@
     </div>
   </div>
 
+  <div *ngIf="activeTab() === 'catalogues'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+            Assign whole vocabulary catalogue
+          </h3>
+          <p class="text-xs text-muted-color m-0">
+            Assigns every word from the selected catalogue as a flashcard to the student.
+          </p>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-2">Catalogue</label>
+          <p-select
+            [options]="catalogueOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedCatalogueId()"
+            (ngModelChange)="selectedCatalogueId.set($event)"
+            placeholder="Choose a catalogue"
+            fluid />
+        </div>
+
+        <p-button label="Assign all flashcards" icon="pi pi-check"
+          [loading]="assigningCatalogue()"
+          [disabled]="!selectedCatalogueId()"
+          (onClick)="assignCatalogue()" />
+      </div>
+
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+            Assign whole sentence set
+          </h3>
+          <p class="text-xs text-muted-color m-0">
+            Assigns every sentence from the selected set to the student, due today.
+          </p>
+        </div>
+
+        <div>
+          <label class="block font-bold mb-2">Sentence set</label>
+          <p-select
+            [options]="sentenceSetOptions()"
+            optionLabel="label"
+            optionValue="value"
+            [ngModel]="selectedSentenceSetId()"
+            (ngModelChange)="selectedSentenceSetId.set($event)"
+            placeholder="Choose a sentence set"
+            fluid />
+        </div>
+
+        <p-button label="Assign all sentences" icon="pi pi-check"
+          [loading]="assigningSentenceSet()"
+          [disabled]="!selectedSentenceSetId()"
+          (onClick)="assignSentenceSet()" />
+      </div>
+
+    </div>
+  </div>
+
 </div>
