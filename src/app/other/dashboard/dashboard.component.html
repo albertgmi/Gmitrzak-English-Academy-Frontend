@@ -193,7 +193,7 @@
           <div class="flex items-center gap-6">
             <div class="text-center">
               <div class="text-3xl font-bold text-primary">{{ d.currentStreak }}</div>
-              <div class="text-xs text-muted-color">day streak 🔥</div>
+              <div class="text-xs text-muted-color">login day streak 🔥</div>
             </div>
             <div class="text-center">
               <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">
@@ -203,7 +203,7 @@
             </div>
             <p-tag
               [severity]="d.lastWeekCriteriaMet ? 'success' : 'warn'"
-              [value]="d.lastWeekCriteriaMet ? '✓ Last week done' : '⚠ Last week missed'" />
+              [value]="d.lastWeekCriteriaMet ? '✓ Last week agenda completed' : '⚠ Last weeks agenda not completed'" />
           </div>
         </div>
       </div>
