@@ -110,10 +110,7 @@ export class LessonModeComponent {
         { key: 'grammar',      label: 'Grammar rules', template: "Explain the grammar rules for using {A}. What are the most common mistakes?", needsB: false },
     ];
 
-    memoryCategoryOptions = [
-        { label: 'All prompts', value: null },
-        ...this.TEMPLATES.map(t => ({ label: t.label, value: t.key }))
-    ];
+    memoryCategoryOptions = this.TEMPLATES.map(t => ({ label: t.label, value: t.key }));
 
     pronunciationWord = signal('');
     savingPronunciation = signal(false);
@@ -150,11 +147,9 @@ export class LessonModeComponent {
         const a        = this.memoryOptionA().trim();
         const b        = this.memoryOptionB().trim();
         const category = this.memoryCategory();
-        if (!a) return [];
+        if (!a || !category) return [];
 
-        const templates = category
-            ? this.TEMPLATES.filter(t => t.key === category)
-            : this.TEMPLATES;
+        const templates = this.TEMPLATES.filter(t => t.key === category);
 
         return templates
             .filter(t => !t.needsB || !!b)
@@ -602,14 +597,15 @@ export class LessonModeComponent {
     saveMemory() {
         const studentId = this.studentId;
         const a = this.memoryOptionA().trim();
-        if (!a || studentId === null || this.isMemoryDuplicate()) return;
-
+        const category = this.memoryCategory();
+        if (!a || !category || studentId === null || this.isMemoryDuplicate()) return;
+        
         this.savingMemory.set(true);
         this.lessonService.addMemory(
             studentId,
             a,
             this.memoryOptionB().trim() || undefined,
-            this.memoryCategory() ?? undefined,
+            category,
             this.memoryNotes().trim() || undefined
         ).subscribe({
             next: () => {
@@ -619,10 +615,10 @@ export class LessonModeComponent {
                 });
                 this.existingMemories.update(list => [
                     ...list,
-                    { 
-                        optionA: a, 
+                    {
+                        optionA: a,
                         optionB: this.memoryOptionB().trim(),
-                        category: this.memoryCategory()
+                        category
                     }
                 ]);
                 this.memoryOptionA.set('');

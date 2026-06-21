@@ -364,17 +364,19 @@
           </small>
         </div>
         <div>
-          <label class="block font-bold mb-2">Prompt category</label>
+          <label class="block font-bold mb-2">
+            Prompt category <span class="text-red-500">*</span>
+          </label>
           <p-select
             [options]="memoryCategoryOptions"
             optionLabel="label"
             optionValue="value"
             [ngModel]="memoryCategory()"
             (ngModelChange)="memoryCategory.set($event)"
-            placeholder="All prompts"
+            placeholder="Choose a category to generate a prompt"
             fluid />
           <small class="text-muted-color text-xs mt-1 block">
-            Leave empty to generate all prompts, or pick one specific type.
+            Select exactly one prompt type.
           </small>
         </div>
         <div>
@@ -395,7 +397,7 @@
       
         <p-button label="Generate & save prompts" icon="pi pi-bolt"
           [loading]="savingMemory()"
-          [disabled]="!memoryOptionA().trim() || isMemoryDuplicate()"
+          [disabled]="!memoryOptionA().trim() || !memoryCategory() || isMemoryDuplicate()"
           (onClick)="saveMemory()" />
       </div>
     
@@ -403,18 +405,19 @@
       <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-3">
         <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
           Preview
-          <span class="text-xs font-normal text-muted-color ml-2">
-            {{ memoryCategory() ? '1 prompt selected' : generatedPrompts().length + ' prompts will be generated' }}
+          <span class="text-xs font-normal text-muted-color ml-2" *ngIf="memoryCategory()">
+            {{ generatedPrompts().length }} prompt{{ generatedPrompts().length === 1 ? '' : 's' }} will be generated
           </span>
         </h3>
-      
-        <div *ngIf="!memoryOptionA().trim()"
+        
+        <div *ngIf="!memoryOptionA().trim() || !memoryCategory()"
           class="text-center py-10 text-muted-color text-sm">
           <i class="pi pi-lightbulb text-3xl block mb-2"></i>
-          Fill in Option A to see the prompt preview
+          <ng-container *ngIf="!memoryOptionA().trim()">Fill in Option A to see the prompt preview</ng-container>
+          <ng-container *ngIf="memoryOptionA().trim() && !memoryCategory()">Select a prompt category to see the preview</ng-container>
         </div>
-      
-        <div *ngIf="memoryOptionA().trim()"
+        
+        <div *ngIf="memoryOptionA().trim() && memoryCategory()"
           class="flex flex-col gap-2 overflow-y-auto max-h-[420px] pr-1">
           <div *ngFor="let prompt of generatedPrompts(); let i = index"
             class="flex items-start gap-3 p-3 bg-white dark:bg-surface-900
