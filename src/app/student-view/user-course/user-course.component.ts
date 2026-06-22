@@ -100,7 +100,7 @@ export class UserCourseComponent implements OnInit {
 
         switch (module.category) {
             case 'Watching':
-                this.router.navigate(['/modules', module.moduleId, 'player'],
+                this.router.navigate(['/modules', module.id, 'player'],
                     { queryParams: { isSingle: false } });
                 return;
             case 'Sentences':
@@ -145,7 +145,7 @@ export class UserCourseComponent implements OnInit {
 
         switch (module.category) {
             case 'Watching':
-                this.router.navigate(['/modules', module.moduleId, 'player'],
+                this.router.navigate(['/modules', module.id, 'player'],
                     { queryParams: { isSingle: true } });
                 return;
             case 'Sentences':

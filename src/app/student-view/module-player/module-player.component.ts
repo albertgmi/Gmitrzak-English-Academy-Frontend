@@ -74,23 +74,18 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
         let foundModule: any = null;
 
         if (this.isSingleModule()) {
-            foundModule = singles.find(m => m?.id === this.moduleId || m?.moduleId === this.moduleId);
+            foundModule = singles.find(m => m?.id === this.moduleId);
         } else {
             foundModule = this.searchCourses(courses);
         }
 
         if (!foundModule) {
-            console.warn('Nie znaleziono modułu ścieżką z URL. Uruchamiam wyszukiwanie ratunkowe...');
             if (!this.isSingleModule()) {
-                foundModule = singles.find(m => m?.id === this.moduleId || m?.moduleId === this.moduleId);
-                if (foundModule) {
-                    this.isSingleModule.set(true);
-                }
+                foundModule = singles.find(m => m?.id === this.moduleId);
+                if (foundModule) this.isSingleModule.set(true);
             } else {
                 foundModule = this.searchCourses(courses);
-                if (foundModule) {
-                    this.isSingleModule.set(false);
-                }
+                if (foundModule) this.isSingleModule.set(false);
             }
         }
 
@@ -99,7 +94,7 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
 
     private searchCourses(courses: any[]): any {
         for (const course of courses) {
-            const m = course.modules?.find((mod: any) => mod?.id === this.moduleId || mod?.moduleId === this.moduleId);
+            const m = course.modules?.find((mod: any) => mod?.id === this.moduleId);
             if (m) return m;
         }
         return null;
