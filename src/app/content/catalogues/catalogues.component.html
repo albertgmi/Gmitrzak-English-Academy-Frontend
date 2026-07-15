@@ -138,7 +138,7 @@
     <div *ngIf="!uploading()">
       <i class="pi pi-upload text-4xl text-muted-color block mb-3"></i>
       <p class="text-surface-900 dark:text-surface-0 font-semibold mb-1">Drop Excel file here or click to browse</p>
-      <p class="text-muted-color text-sm m-0">Supported: .xlsx, .xls · Columns: Date, User, Entry, Computed Key, Catalogue Name</p>
+      <p class="text-muted-color text-sm m-0">Supported: .xlsx, .xls · Columns: Date, User, Entry, Translation, Computed Key, Catalogue Name</p>
     </div>
     <div *ngIf="uploading()" class="flex flex-col items-center gap-3">
       <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
@@ -156,8 +156,13 @@
           <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">A: Date</span>
           <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">B: User</span>
           <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">C: Entry</span>
-          <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">D: Computed Key</span>
-          <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">E: Catalogue Name</span>
+          <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">D: Translation</span>
+          <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">E: Computed Key</span>
+          <span class="font-mono bg-blue-100 dark:bg-blue-900 px-1 rounded mx-1">F: Catalogue Name</span>
+        </div>
+        <div class="text-xs text-blue-500 dark:text-blue-400 mt-2">
+          Leave "Translation" empty to let AI translate it automatically. If a translation is provided,
+          AI will verify it and only overwrite it if it's incorrect.
         </div>
       </div>
     </div>
