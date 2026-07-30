@@ -62,8 +62,29 @@
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
 
       <div>
-        <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">All Assigned Flashcards</h3>
-        
+        <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">All Assigned Flashcards</h3>
+
+          <div class="flex items-center gap-2">
+            <p-button
+              label="Excel"
+              icon="pi pi-file-excel"
+              severity="success"
+              [outlined]="true"
+              size="small"
+              [loading]="exportingExcel()"
+              (onClick)="exportExcel()" />
+            <p-button
+              label="PDF"
+              icon="pi pi-file-pdf"
+              severity="danger"
+              [outlined]="true"
+              size="small"
+              [loading]="exportingPdf()"
+              (onClick)="exportPdf()" />
+          </div>
+        </div>
+
         <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">
           <i class="pi pi-spin pi-spinner text-2xl"></i>
         </div>

@@ -45,6 +45,9 @@ export class LessonFlashcardsComponent implements OnInit {
   newInterval = signal<number>(0);
   saving = signal(false);
 
+  exportingPdf = signal(false);
+  exportingExcel = signal(false);
+
   ngOnInit() {
     const id = this.lessonContext.studentId;
     if (!id) return;
@@ -101,5 +104,50 @@ export class LessonFlashcardsComponent implements OnInit {
         this.saving.set(false);
       }
     });
+  }
+
+  exportPdf() {
+    const studentId = this.lessonContext.studentId;
+    if (!studentId) return;
+
+    this.exportingPdf.set(true);
+    this.service.exportFlashcardsPdf(studentId).subscribe({
+      next: (blob) => {
+        this.downloadFile(blob, `flashcards_${studentId}.pdf`);
+        this.exportingPdf.set(false);
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'PDF export failed' });
+        this.exportingPdf.set(false);
+      }
+    });
+  }
+
+  exportExcel() {
+    const studentId = this.lessonContext.studentId;
+    if (!studentId) return;
+
+    this.exportingExcel.set(true);
+    this.service.exportFlashcardsExcel(studentId).subscribe({
+      next: (blob) => {
+        this.downloadFile(blob, `flashcards_${studentId}.xlsx`);
+        this.exportingExcel.set(false);
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Excel export failed' });
+        this.exportingExcel.set(false);
+      }
+    });
+  }
+
+  private downloadFile(blob: Blob, fileName: string) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = fileName;
+    document.body.appendChild(a);
+    a.click();
+    document.body.removeChild(a);
+    window.URL.revokeObjectURL(url);
   }
 }
