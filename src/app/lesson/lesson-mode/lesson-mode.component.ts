@@ -48,6 +48,14 @@ export class LessonModeComponent {
     activeStudent = this.lessonContext.activeStudent;
     activeTab = signal<LessonTab>('flashcard');
 
+    setActiveTab(tab: LessonTab) {
+        this.activeTab.set(tab);
+        if (tab === 'catalogues') {
+            this.catalogueService.reloadCatalogues();
+            this.sentenceSetsService.reloadSets();
+        }
+    }
+
     searchQuery = signal('');
     searchResult = signal<SearchVocabularyResult | null>(null);
     searching = signal(false);
@@ -207,6 +215,8 @@ export class LessonModeComponent {
             if (studentId) {
                 this.loadStudentDataProtection(studentId);
                 this.loadGlobalSentenceStock();
+                this.catalogueService.reloadCatalogues();
+                this.sentenceSetsService.reloadSets();
             }
         });
 

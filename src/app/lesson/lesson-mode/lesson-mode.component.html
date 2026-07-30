@@ -29,7 +29,7 @@
       [label]="tab.label" [icon]="tab.icon"
       [outlined]="activeTab() !== tab.id"
       size="small"
-      (onClick)="activeTab.set(tab.id)" />
+      (onClick)="setActiveTab(tab.id)" />
   </div>
 
   <div *ngIf="activeTab() === 'flashcard'">
