@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { RouterModule } from '@angular/router';
 import { FormsModule } from '@angular/forms';
@@ -10,6 +10,8 @@ import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
+import { DialogModule } from 'primeng/dialog';
+import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
 import { FlashcardService, FlashcardDto, FlashcardStudyLogDto } from '../../services/student-services/flashcard.service';
 
@@ -20,7 +22,7 @@ type Tab = 'all' | 'today' | 'leeches' | 'search' | 'logs';
     standalone: true,
     imports: [CommonModule, FormsModule, TableModule, ButtonModule,
         InputTextModule, IconFieldModule, InputIconModule,
-        TagModule, ToastModule, TooltipModule, RouterModule],
+        TagModule, ToastModule, TooltipModule, DialogModule, CheckboxModule, RouterModule],
     providers: [MessageService],
     templateUrl: './flashcard-panel.component.html'
 })
@@ -45,6 +47,31 @@ export class FlashcardPanelComponent implements OnInit {
         { id: 'search',  label: 'Search',        icon: 'pi pi-search' },
         { id: 'logs',    label: 'Study logs',    icon: 'pi pi-history' },
     ];
+
+    // ---- Podcast Mode ----
+    podcastDialogVisible = signal(false);
+    selectedCategories = signal<string[]>([]);
+    podcastQueue = signal<FlashcardDto[]>([]);
+    podcastIndex = signal(0);
+    podcastPlaying = signal(false);
+    podcastPaused = signal(false);
+
+    private podcastGeneration = 0;
+
+    availableCategories = computed(() => {
+        const cards = this.allFlashcards.value() ?? [];
+        return [...new Set(cards.map(c => c.category))].sort();
+    });
+
+    podcastCurrentCard = computed<FlashcardDto | null>(() => {
+        const q = this.podcastQueue();
+        return q[this.podcastIndex()] ?? null;
+    });
+
+    podcastProgressLabel = computed(() => {
+        const total = this.podcastQueue().length;
+        return total ? `${this.podcastIndex() + 1} / ${total}` : '';
+    });
 
     ngOnInit() {
         this.flashcardService.flashcards.reload();
@@ -95,5 +122,123 @@ export class FlashcardPanelComponent implements OnInit {
 
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+    }
+
+    speak(text: string, event?: Event) {
+        event?.stopPropagation();
+        speechSynthesis.cancel();
+        const u = new SpeechSynthesisUtterance(text);
+        u.lang = 'en-US';
+        u.rate = 0.9;
+        u.pitch = 1;
+        speechSynthesis.speak(u);
+    }
+
+    private speakAsync(text: string): Promise<void> {
+        return new Promise((resolve) => {
+            const u = new SpeechSynthesisUtterance(text);
+            u.lang = 'en-US';
+            u.rate = 0.9;
+            u.pitch = 1;
+            u.onend = () => resolve();
+            u.onerror = () => resolve();
+            speechSynthesis.speak(u);
+        });
+    }
+
+    private delay(ms: number): Promise<void> {
+        return new Promise(resolve => setTimeout(resolve, ms));
+    }
+
+    openPodcastDialog() {
+        this.selectedCategories.set([...this.availableCategories()]);
+        this.podcastDialogVisible.set(true);
+    }
+
+    toggleCategory(cat: string, checked: boolean) {
+        this.selectedCategories.update(list =>
+            checked ? [...list, cat] : list.filter(c => c !== cat)
+        );
+    }
+
+    selectAllCategories() {
+        this.selectedCategories.set([...this.availableCategories()]);
+    }
+
+    clearCategories() {
+        this.selectedCategories.set([]);
+    }
+
+    startPodcast() {
+        const cards = (this.allFlashcards.value() ?? [])
+            .filter(c => this.selectedCategories().includes(c.category));
+
+        if (!cards.length) {
+            this.messageService.add({ severity: 'warn', summary: 'No flashcards', detail: 'Select at least one category with flashcards.' });
+            return;
+        }
+
+        this.podcastQueue.set(cards);
+        this.podcastIndex.set(0);
+        this.podcastDialogVisible.set(false);
+        this.podcastPlaying.set(true);
+        this.podcastPaused.set(false);
+        this.runPodcastLoop();
+    }
+
+    private async runPodcastLoop() {
+        const gen = ++this.podcastGeneration;
+
+        while (this.podcastPlaying() && gen === this.podcastGeneration && this.podcastIndex() < this.podcastQueue().length) {
+            const card = this.podcastCurrentCard();
+            if (!card) break;
+
+            await this.speakAsync(card.front);
+            if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
+            await this.delay(500);
+
+            if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
+            await this.speakAsync(card.back);
+            if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
+            await this.delay(1200);
+
+            if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
+            if (this.podcastIndex() < this.podcastQueue().length - 1) {
+                this.podcastIndex.update(i => i + 1);
+            } else {
+                break;
+            }
+        }
+
+        if (gen === this.podcastGeneration) this.podcastPlaying.set(false);
+    }
+
+    togglePausePodcast() {
+        if (this.podcastPaused()) {
+            speechSynthesis.resume();
+            this.podcastPaused.set(false);
+        } else {
+            speechSynthesis.pause();
+            this.podcastPaused.set(true);
+        }
+    }
+
+    skipPodcast(direction: 1 | -1) {
+        speechSynthesis.cancel();
+        const newIndex = this.podcastIndex() + direction;
+        if (newIndex < 0 || newIndex >= this.podcastQueue().length) return;
+        this.podcastIndex.set(newIndex);
+        this.podcastPlaying.set(true);
+        this.podcastPaused.set(false);
+        this.runPodcastLoop();
+    }
+
+    stopPodcast() {
+        this.podcastGeneration++;
+        speechSynthesis.cancel();
+        this.podcastPlaying.set(false);
+        this.podcastPaused.set(false);
+        this.podcastQueue.set([]);
+        this.podcastIndex.set(0);
     }
 }

@@ -1,16 +1,25 @@
 <p-toast />
 
 <div class="card">
-  <div class="flex justify-between items-center mb-6">
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
       <p class="text-muted-color mt-1 m-0">{{ allFlashcards.value()?.length || 0 }} total cards</p>
     </div>
-    <p-button
-      label="Study now"
-      icon="pi pi-play"
-      [routerLink]="['/flashcards/study']"
-      [disabled]="!allFlashcards.value()?.length" />
+    <div class="flex gap-2">
+      <p-button
+        label="Podcast mode"
+        icon="pi pi-headphones"
+        severity="secondary"
+        [outlined]="true"
+        (onClick)="openPodcastDialog()"
+        [disabled]="!allFlashcards.value()?.length" />
+      <p-button
+        label="Study now"
+        icon="pi pi-play"
+        [routerLink]="['/flashcards/study']"
+        [disabled]="!allFlashcards.value()?.length" />
+    </div>
   </div>
 
   <div class="flex gap-2 mb-6 flex-wrap">
@@ -51,7 +60,8 @@
           <th style="width: 10rem">Category</th>
           <th style="width: 8rem">Interval</th>
           <th style="width: 8rem">Next Review</th>
-          <th style="width: 5rem"></th>
+          <th style="width: 3rem"></th>
+          <th style="width: 3rem"></th>
         </tr>
       </ng-template>
       <ng-template #body let-card>
@@ -62,6 +72,12 @@
           <td class="text-sm">{{ card.interval === 0 ? 'New' : card.interval + 'd' }}</td>
           <td class="text-sm">{{ card.nextReviewDate | date:'d MMM' }}</td>
           <td>
+            <button pButton type="button" icon="pi pi-volume-up"
+              class="p-button-rounded p-button-text p-button-sm"
+              (click)="speak(card.front, $event)"
+              pTooltip="Listen to pronunciation"></button>
+          </td>
+          <td>
             <i *ngIf="card.isLeech" class="pi pi-exclamation-triangle text-red-500"
               pTooltip="Leech — needs extra attention"></i>
           </td>
@@ -69,7 +85,7 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" class="text-center text-muted-color py-8">
+          <td colspan="7" class="text-center text-muted-color py-8">
             <i class="pi pi-clone text-4xl block mb-2"></i>
             No flashcards yet.
           </td>
@@ -96,6 +112,10 @@
           <span class="text-xs text-muted-color">
             {{ card.interval === 0 ? 'New' : card.interval + 'd' }}
           </span>
+          <button pButton type="button" icon="pi pi-volume-up"
+            class="p-button-rounded p-button-text p-button-sm"
+            (click)="speak(card.front, $event)"
+            pTooltip="Listen to pronunciation"></button>
         </div>
         <div *ngIf="!studiedToday().length" class="text-center py-10 text-muted-color">
           <i class="pi pi-calendar text-3xl block mb-2"></i>
@@ -123,6 +143,10 @@
             <div class="text-sm text-muted-color">{{ card.back }}</div>
           </div>
           <span class="text-xs text-muted-color">{{ card.interval }}d interval</span>
+          <button pButton type="button" icon="pi pi-volume-up"
+            class="p-button-rounded p-button-text p-button-sm"
+            (click)="speak(card.front, $event)"
+            pTooltip="Listen to pronunciation"></button>
         </div>
         <div *ngIf="!leeches().length" class="text-center py-10 text-muted-color">
           <i class="pi pi-check-circle text-green-500 text-3xl block mb-2"></i>
@@ -154,6 +178,10 @@
           <div class="text-sm text-muted-color">{{ card.back }}</div>
         </div>
         <p-tag [value]="card.category" severity="info" />
+        <button pButton type="button" icon="pi pi-volume-up"
+          class="p-button-rounded p-button-text p-button-sm"
+          (click)="speak(card.front, $event)"
+          pTooltip="Odsłuchaj wymowę"></button>
         <i *ngIf="card.isLeech" class="pi pi-exclamation-triangle text-red-500"
           pTooltip="Leech"></i>
       </div>
@@ -164,17 +192,18 @@
     </div>
   </div>
 
-  <!-- STUDY LOGS -->
   <div *ngIf="activeTab() === 'logs'">
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
     <p-table *ngIf="!loadingTab()" [value]="studyLogs()"
       [rows]="15" [paginator]="studyLogs().length > 15"
-      [tableStyle]="{'min-width': '45rem'}" [rowHover]="true"> <ng-template #header>
+      [tableStyle]="{'min-width': '45rem'}" [rowHover]="true">
+      <ng-template #header>
         <tr>
           <th pSortableColumn="studyDate">Date <p-sortIcon field="studyDate" /></th>
-          <th pSortableColumn="flashcardFront">Flashcard <p-sortIcon field="flashcardFront" /></th> <th style="width: 7rem">Easy</th>
+          <th pSortableColumn="flashcardFront">Flashcard <p-sortIcon field="flashcardFront" /></th>
+          <th style="width: 7rem">Easy</th>
           <th style="width: 7rem">Hard</th>
           <th style="width: 7rem">Incorrect</th>
           <th style="width: 9rem">Time</th>
@@ -183,7 +212,8 @@
       <ng-template #body let-log>
         <tr>
           <td>{{ log.studyDate | date:'d MMM yyyy' }}</td>
-          <td class="font-semibold text-surface-900 dark:text-surface-0">{{ log.flashcardFront }}</td> <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
+          <td class="font-semibold text-surface-900 dark:text-surface-0">{{ log.flashcardFront }}</td>
+          <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
           <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
           <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
           <td class="text-sm text-muted-color">{{ formatTime(log.timeSpentSeconds) }}</td>
@@ -191,9 +221,86 @@
       </ng-template>
       <ng-template #emptymessage>
         <tr>
-          <td colspan="6" class="text-center text-muted-color py-8">No study logs yet.</td> </tr>
+          <td colspan="6" class="text-center text-muted-color py-8">No study logs yet.</td>
+        </tr>
       </ng-template>
     </p-table>
   </div>
 
+</div>
+
+<p-dialog
+  header="Podcast Mode — wybierz słówka"
+  [visible]="podcastDialogVisible()"
+  (visibleChange)="podcastDialogVisible.set($event)"
+  [modal]="true"
+  [style]="{width: '28rem'}">
+
+  <p class="text-sm text-muted-color mb-4">
+    Choose categories of flashcards to include in the podcast. The app will read them aloud one by one, allowing you to listen and review without looking at the screen.
+  </p>
+
+  <div class="flex justify-between mb-3">
+    <button type="button" class="text-sm text-primary bg-transparent border-none cursor-pointer p-0"
+      (click)="selectAllCategories()">Select All</button>
+    <button type="button" class="text-sm text-muted-color bg-transparent border-none cursor-pointer p-0"
+      (click)="clearCategories()">Deselect All</button>
+  </div>
+
+  <div class="flex flex-col gap-2 max-h-72 overflow-y-auto">
+    <div *ngFor="let cat of availableCategories()" class="flex items-center gap-2">
+      <p-checkbox
+        [inputId]="'cat-' + cat"
+        [binary]="true"
+        [ngModel]="selectedCategories().includes(cat)"
+        (ngModelChange)="toggleCategory(cat, $event)" />
+      <label [for]="'cat-' + cat" class="cursor-pointer">{{ cat }}</label>
+    </div>
+    <div *ngIf="!availableCategories().length" class="text-muted-color text-sm py-4 text-center">
+      No available categories.
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="podcastDialogVisible.set(false)" />
+    <p-button label="Start" icon="pi pi-play" (onClick)="startPodcast()" [disabled]="!selectedCategories().length" />
+  </ng-template>
+</p-dialog>
+
+<div *ngIf="podcastQueue().length"
+  class="fixed bottom-4 left-1/2 -translate-x-1/2 w-[95%] max-w-xl z-50
+         bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700
+         rounded-2xl shadow-lg p-4 flex items-center gap-4">
+
+  <div class="flex-1 min-w-0">
+    <div class="text-xs text-muted-color mb-1">{{ podcastProgressLabel() }}</div>
+    <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
+      {{ podcastCurrentCard()?.front }}
+    </div>
+    <div class="text-sm text-muted-color truncate">
+      {{ podcastCurrentCard()?.back }}
+    </div>
+  </div>
+
+  <div class="flex items-center gap-1 shrink-0">
+    <button pButton type="button" icon="pi pi-step-backward"
+      class="p-button-rounded p-button-text"
+      (click)="skipPodcast(-1)"
+      [disabled]="podcastIndex() === 0"></button>
+
+    <button pButton type="button"
+      [icon]="podcastPaused() ? 'pi pi-play' : 'pi pi-pause'"
+      class="p-button-rounded"
+      (click)="togglePausePodcast()"></button>
+
+    <button pButton type="button" icon="pi pi-step-forward"
+      class="p-button-rounded p-button-text"
+      (click)="skipPodcast(1)"
+      [disabled]="podcastIndex() >= podcastQueue().length - 1"></button>
+
+    <button pButton type="button" icon="pi pi-times"
+      class="p-button-rounded p-button-text p-button-danger"
+      (click)="stopPodcast()"
+      pTooltip="Stop"></button>
+  </div>
 </div>
