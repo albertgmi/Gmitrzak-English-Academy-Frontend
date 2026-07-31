@@ -134,10 +134,10 @@ export class FlashcardPanelComponent implements OnInit {
         speechSynthesis.speak(u);
     }
 
-    private speakAsync(text: string): Promise<void> {
+    private speakAsync(text: string, lang: string = 'en-US'): Promise<void> {
         return new Promise((resolve) => {
             const u = new SpeechSynthesisUtterance(text);
-            u.lang = 'en-US';
+            u.lang = lang;
             u.rate = 0.9;
             u.pitch = 1;
             u.onend = () => resolve();
@@ -193,12 +193,12 @@ export class FlashcardPanelComponent implements OnInit {
             const card = this.podcastCurrentCard();
             if (!card) break;
 
-            await this.speakAsync(card.front);
+            await this.speakAsync(card.front, 'en-US');
             if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
             await this.delay(500);
 
             if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
-            await this.speakAsync(card.back);
+            await this.speakAsync(card.back, 'pl-PL');
             if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
             await this.delay(1200);
 
