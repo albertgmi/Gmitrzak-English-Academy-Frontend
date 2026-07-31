@@ -147,7 +147,8 @@ export class AppMenu implements OnInit {
             icon: 'pi pi-cog',
             items: [
               { label: 'Announcements', icon: 'pi pi-bell', routerLink: ['/system/announcements'] },
-              { label: 'Student Credits', icon: 'pi pi-star',         routerLink: ['/lesson/credits'] }
+              { label: 'Student Credits', icon: 'pi pi-star', routerLink: ['/lesson/credits'] },
+              { label: 'Student Activity', icon: 'pi pi-history', routerLink: ['/system/student-activity'] }
             ]
           }
         ]

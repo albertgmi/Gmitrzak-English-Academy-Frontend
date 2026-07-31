@@ -72,6 +72,7 @@ import { CreditsComponent } from './other/credits/credits.component';
 import { AdminCreditsComponent } from './other/admin-credits/admin-credits.component';
 import { CheckEssaysComponent } from './content/check-essays/check-essays.component';
 import { EssayModuleComponent } from './student-view/essay-module/essay-module.component';
+import { StudentActivityComponent } from './other/student-activity/student-activity.component';
 
 
 
@@ -151,7 +152,8 @@ export const appRoutes: Routes = [
       { path: 'credits', component: CreditsComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/essay', component: EssayModuleComponent, canActivate: [AuthGuard] },
       { path: 'lesson/check-essays', component: CheckEssaysComponent, canActivate: [AuthGuard] },
-      { path: 'lesson/credits', component: AdminCreditsComponent, canActivate: [AuthGuard] }
+      { path: 'lesson/credits', component: AdminCreditsComponent, canActivate: [AuthGuard] },
+      { path: 'system/student-activity', component: StudentActivityComponent, canActivate: [AuthGuard] }
 
     ]
   },
