@@ -25,14 +25,72 @@
     <ng-template #header>
       <tr>
         <th>Content</th>
-        <th style="width: 14rem">Notes</th>
+        <th style="width: 18rem">Notes</th>
       </tr>
     </ng-template>
 
     <ng-template #body let-m>
       <tr>
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ m.content }}</td>
-        <td class="text-muted-color text-sm">{{ m.notes || '—' }}</td>
+
+        <td style="width: 18rem">
+
+          <div class="flex items-center gap-1" *ngIf="editingId() !== m.id">
+
+            <ng-container *ngIf="m.notes; else emptyNote">
+              <span
+                class="flex-1 text-sm truncate transition-all"
+                [class.blur-sm]="!isRevealed(m.id)"
+                [class.select-none]="!isRevealed(m.id)"
+                [class.text-muted-color]="!isRevealed(m.id)">
+                {{ m.notes }}
+              </span>
+              <button pButton type="button"
+                [icon]="isRevealed(m.id) ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                class="p-button-rounded p-button-text p-button-sm"
+                (click)="toggleReveal(m.id, $event)"
+                [pTooltip]="isRevealed(m.id) ? 'Hide' : 'Show'"></button>
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-sm"
+                (click)="startEdit(m, $event)"
+                pTooltip="Edit"></button>
+            </ng-container>
+
+            <ng-template #emptyNote>
+              <span
+                class="flex-1 text-sm text-muted-color italic cursor-pointer hover:underline"
+                (click)="startEdit(m)">
+                Add note
+              </span>
+              <button pButton type="button" icon="pi pi-pencil"
+                class="p-button-rounded p-button-text p-button-sm"
+                (click)="startEdit(m, $event)"
+                pTooltip="Add note"></button>
+            </ng-template>
+
+          </div>
+
+          <div class="flex items-center gap-1" *ngIf="editingId() === m.id">
+            <input pInputText type="text"
+              [id]="'note-input-' + m.id"
+              class="flex-1 text-sm"
+              [ngModel]="editValue()"
+              (ngModelChange)="editValue.set($event)"
+              (keyup.enter)="saveNote(m.id)"
+              (keyup.escape)="cancelEdit()"
+              placeholder="Add note" />
+            <button pButton type="button" icon="pi pi-check"
+              class="p-button-rounded p-button-text p-button-sm p-button-success"
+              [loading]="savingId() === m.id"
+              (click)="saveNote(m.id)"
+              pTooltip="Save"></button>
+            <button pButton type="button" icon="pi pi-times"
+              class="p-button-rounded p-button-text p-button-sm p-button-danger"
+              (click)="cancelEdit()"
+              pTooltip="Cancel"></button>
+          </div>
+
+        </td>
       </tr>
     </ng-template>
 

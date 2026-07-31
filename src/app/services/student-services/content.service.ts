@@ -84,6 +84,10 @@ export interface PronunciationResult {
     score: number;
 }
 
+export interface AddNotesRequest {
+    notes: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ContentService {
     private apiUrl = `${environment.apiUrl}/api/student-learning`;
@@ -152,6 +156,13 @@ export class ContentService {
         return this.http.post<PronunciationResult>(
             `${this.apiUrl}/pronunciation/${entryId}/attempt`,
             formData
+        );
+    }
+
+    addNotes(memoryId: number, notes: string) {
+        return this.http.put(
+            `${this.apiUrl}/memories/${memoryId}/add`,
+            { notes } as AddNotesRequest
         );
     }
 }
