@@ -77,7 +77,7 @@
               [ngModel]="editValue()"
               (ngModelChange)="editValue.set($event)"
               (keyup.enter)="saveNote(m.id)"
-              (keyup.escape)="cancelEdit()"
+              (keyup.escape)="cancelEdit(m.id)"
               placeholder="Add note" />
             <button pButton type="button" icon="pi pi-check"
               class="p-button-rounded p-button-text p-button-sm p-button-success"
@@ -86,7 +86,7 @@
               pTooltip="Save"></button>
             <button pButton type="button" icon="pi pi-times"
               class="p-button-rounded p-button-text p-button-sm p-button-danger"
-              (click)="cancelEdit()"
+              (click)="cancelEdit(m.id, $event)"
               pTooltip="Cancel"></button>
           </div>
 

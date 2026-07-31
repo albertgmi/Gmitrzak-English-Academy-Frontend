@@ -68,12 +68,6 @@ export class MemoriesComponent implements OnInit {
         });
     }
 
-    cancelEdit(event?: Event) {
-        event?.stopPropagation();
-        this.editingId.set(null);
-        this.editValue.set('');
-    }
-
     saveNote(id: number) {
         const value = this.editValue().trim();
         this.savingId.set(id);
@@ -85,15 +79,31 @@ export class MemoriesComponent implements OnInit {
                 );
                 this.savingId.set(null);
                 this.editingId.set(null);
+                this.hideAgain(id);
             },
             error: () => {
                 this.savingId.set(null);
                 this.messageService.add({
                     severity: 'error',
                     summary: 'Error',
-                    detail: 'Failed to save note. Please try again.'
+                    detail: 'Nie udało się zapisać notatki.'
                 });
             }
+        });
+    }
+
+    cancelEdit(id: number, event?: Event) {
+        event?.stopPropagation();
+        this.editingId.set(null);
+        this.editValue.set('');
+        this.hideAgain(id);
+    }
+
+    private hideAgain(id: number) {
+        this.revealedIds.update(set => {
+            const next = new Set(set);
+            next.delete(id);
+            return next;
         });
     }
 }
