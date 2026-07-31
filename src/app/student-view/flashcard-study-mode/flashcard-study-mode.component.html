@@ -45,9 +45,10 @@
             <div class="mb-5">
               <p-tag severity="info" [value]="currentCard()?.category || 'Vocabulary'"></p-tag>
             </div>
-            <div class="text-center px-4">
-              <h1 class="text-4xl md:text-5xl font-bold text-surface-900 dark:text-surface-0 m-0 break-words line-clamp-3 leading-tight pb-2">
-                {{ currentCard()?.back }} </h1>
+            <div class="text-center px-4 w-full">
+              <h1 [class]="'font-bold text-surface-900 dark:text-surface-0 m-0 break-words leading-tight pb-2 ' + getFontSizeClass(currentCard()?.back)">
+                {{ currentCard()?.back }}
+              </h1>
             </div>
             <div class="mt-8 text-sm text-muted-color opacity-70">
               Click to reveal translation
@@ -64,9 +65,10 @@
             <div class="mb-5">
               <p-tag severity="success" value="Translation"></p-tag>
             </div>
-            <div class="text-center px-4">
-              <h2 class="text-3xl md:text-4xl font-bold text-primary m-0 break-words line-clamp-3">
-                {{ currentCard()?.front }} </h2>
+            <div class="text-center px-4 w-full">
+              <h2 [class]="'font-bold text-primary m-0 break-words ' + getFontSizeClass(currentCard()?.front)">
+                {{ currentCard()?.front }}
+              </h2>
             </div>
           </div>
         

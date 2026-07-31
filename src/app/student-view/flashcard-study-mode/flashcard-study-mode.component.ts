@@ -162,4 +162,15 @@ export class FlashcardStudyModeComponent implements OnInit {
         u.pitch = 1;
         speechSynthesis.speak(u);
     }
+
+    getFontSizeClass(text: string | undefined | null): string {
+        const len = text?.length ?? 0;
+        
+        if (len <= 15) return 'text-4xl md:text-5xl';
+        if (len <= 30) return 'text-3xl md:text-4xl';
+        if (len <= 50) return 'text-2xl md:text-3xl';
+        if (len <= 80) return 'text-xl md:text-2xl';
+        if (len <= 120) return 'text-lg md:text-xl';
+        return 'text-base md:text-lg';
+    }
 }

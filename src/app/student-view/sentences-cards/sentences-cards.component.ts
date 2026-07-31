@@ -212,4 +212,15 @@ export class SentencesCardsComponent implements OnInit {
         u.pitch = 1;
         speechSynthesis.speak(u);
     }
+
+    getFontSizeClass(text: string | undefined | null): string {
+        const len = text?.length ?? 0;
+        
+        if (len <= 20) return 'text-3xl md:text-4xl';
+        if (len <= 40) return 'text-2xl md:text-3xl';
+        if (len <= 60) return 'text-xl md:text-2xl';
+        if (len <= 90) return 'text-lg md:text-xl';
+        if (len <= 130) return 'text-base md:text-lg';
+        return 'text-sm md:text-base';
+    }
 }
