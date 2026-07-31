@@ -206,7 +206,12 @@ export class SentencesCardsComponent implements OnInit {
 
     speak(text: string) {
         speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
+
+        const processedWord = text
+            .replace(/\bsb\b/gi, 'somebody')
+            .replace(/\bsth\b/gi, 'something');
+
+        const u = new SpeechSynthesisUtterance(processedWord);
         u.lang = 'en-US';
         u.rate = 0.9;
         u.pitch = 1;

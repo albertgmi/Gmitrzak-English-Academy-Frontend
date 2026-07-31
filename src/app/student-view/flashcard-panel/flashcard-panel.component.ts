@@ -124,19 +124,28 @@ export class FlashcardPanelComponent implements OnInit {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
 
+    private expandAbbreviations(text: string): string {
+        return text
+            .replace(/\bsb\b/gi, 'somebody')
+            .replace(/\bsth\b/gi, 'something');
+    }
+    
     speak(text: string, event?: Event) {
         event?.stopPropagation();
         speechSynthesis.cancel();
-        const u = new SpeechSynthesisUtterance(text);
+    
+        const u = new SpeechSynthesisUtterance(this.expandAbbreviations(text));
         u.lang = 'en-US';
         u.rate = 0.9;
         u.pitch = 1;
         speechSynthesis.speak(u);
     }
-
+    
     private speakAsync(text: string, lang: string = 'en-US'): Promise<void> {
         return new Promise((resolve) => {
-            const u = new SpeechSynthesisUtterance(text);
+            const processedText = lang === 'en-US' ? this.expandAbbreviations(text) : text;
+        
+            const u = new SpeechSynthesisUtterance(processedText);
             u.lang = lang;
             u.rate = 0.9;
             u.pitch = 1;
