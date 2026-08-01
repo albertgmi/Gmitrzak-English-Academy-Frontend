@@ -44,13 +44,14 @@ export interface UpdateModuleRequest {
 export interface AssignModuleToMatrixRequest {
     weekNumber: number;
     dayOfWeek: number;
+    repeatWeeks?: number | null;
 }
 
 @Injectable({ providedIn: 'root' })
 export class ModuleItemService {
     private apiUrl = `${environment.apiUrl}/api/module`;
     private sentenceApiUrl = `${environment.apiUrl}/api/sentence`;
-    
+
     http = inject(HttpClient);
 
     modules = resource<(ModuleItem & { matrixName: string })[], unknown>({
@@ -79,9 +80,9 @@ export class ModuleItemService {
         return this.http.delete(`${this.apiUrl}/${moduleId}`);
     }
 
-    assignMatrix(moduleId: number, matrixId: number, week: number, day: number) {
+    assignMatrix(moduleId: number, matrixId: number, week: number, day: number, repeatWeeks?: number | null) {
         return this.http.post(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`,
-            { weekNumber: week, dayOfWeek: day });
+            { weekNumber: week, dayOfWeek: day, repeatWeeks: repeatWeeks ?? null });
     }
 
     removeMatrix(moduleId: number, matrixId: number) {

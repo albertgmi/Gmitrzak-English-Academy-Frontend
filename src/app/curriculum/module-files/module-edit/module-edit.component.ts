@@ -51,6 +51,8 @@ export class ModuleEditComponent implements OnInit {
     selectedMatrixToAdd = signal<MatrixSimple | null>(null);
     weekNumber = signal<number>(1);
     dayOfWeek  = signal<number>(1);
+    repeatWeekly = signal<boolean>(false);
+    repeatWeeksCount = signal<number>(4);
 
     categories = [
         { label: 'General',       value: 'General'      },
@@ -106,8 +108,10 @@ export class ModuleEditComponent implements OnInit {
         const current = this.editedModule();
         if (!matrix || !current) return;
 
+        const repeatWeeks = this.repeatWeekly() ? this.repeatWeeksCount() : null;
+
         this.moduleService.assignMatrix(
-            this.moduleId, matrix.id, this.weekNumber(), this.dayOfWeek()
+            this.moduleId, matrix.id, this.weekNumber(), this.dayOfWeek(), repeatWeeks
         ).subscribe({
             next: () => {
                 this.editedModule.set({
@@ -115,9 +119,13 @@ export class ModuleEditComponent implements OnInit {
                     matrices: [...current.matrices, matrix]
                 });
                 this.selectedMatrixToAdd.set(null);
+                this.repeatWeekly.set(false);
+                this.repeatWeeksCount.set(4);
                 this.messageService.add({
                     severity: 'success', summary: 'Assigned',
-                    detail: 'Added to matrix schedule.'
+                    detail: repeatWeeks
+                        ? `Added to matrix schedule for ${repeatWeeks} weeks.`
+                        : 'Added to matrix schedule.'
                 });
                 this.moduleService.reloadModules();
             },

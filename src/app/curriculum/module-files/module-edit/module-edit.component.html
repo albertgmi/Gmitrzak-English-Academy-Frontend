@@ -54,7 +54,7 @@
                 [filter]="true"
                 fluid />
             </div>
-            
+
             <div *ngIf="mod.category === 'Watching'"
               class="mt-4 p-3 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-xl flex items-start gap-2">
               <i class="pi pi-video text-blue-500 mt-0.5 flex-shrink-0"></i>
@@ -130,6 +130,18 @@
                   placeholder="Select Day"
                   fluid />
               </div>
+            </div>
+
+            <div class="flex items-center gap-2 mt-1">
+              <p-checkbox [ngModel]="repeatWeekly()" (ngModelChange)="repeatWeekly.set($event)"
+                [binary]="true" inputId="repeat-weekly" />
+              <label for="repeat-weekly" class="text-sm font-medium">Repeat every week</label>
+            </div>
+
+            <div *ngIf="repeatWeekly()">
+              <label class="text-xs font-bold uppercase text-muted-color">Number of weeks</label>
+              <input type="number" pInputText [ngModel]="repeatWeeksCount()"
+                (ngModelChange)="repeatWeeksCount.set($event)" min="2" fluid />
             </div>
 
             <p-button label="Assign to Matrix" icon="pi pi-link" severity="info"
