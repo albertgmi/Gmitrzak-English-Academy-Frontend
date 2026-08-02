@@ -132,11 +132,22 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-2 mt-1">
-              <p-checkbox [ngModel]="repeatWeekly()" (ngModelChange)="repeatWeekly.set($event)"
-                [binary]="true" inputId="repeat-weekly" />
-              <label for="repeat-weekly" class="text-sm font-medium">Repeat every week</label>
-            </div>
+            <ng-container *ngIf="selectedMatrixToAdd() as matrix">
+              <div *ngIf="editedModule()?.category !== 'Sentences' && editedModule()?.category !== 'Essay'"
+                class="flex items-center gap-2 mt-1">
+                <p-checkbox [ngModel]="repeatWeekly()" (ngModelChange)="repeatWeekly.set($event)"
+                  [binary]="true" inputId="repeat-weekly" />
+                <label for="repeat-weekly" class="text-sm font-medium">Repeat every week</label>
+              </div>
+            
+              <div *ngIf="editedModule()?.category === 'Sentences' || editedModule()?.category === 'Essay'"
+                class="mt-1 p-2 bg-blue-50 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg text-xs text-blue-700 dark:text-blue-300">
+                <i class="pi pi-info-circle mr-1"></i>
+                Repeat isn't available for {{ editedModule()?.category }} modules — completing one occurrence
+                marks all of them as done, since the content is the same. Create separate modules instead
+                if you need different content per week.
+              </div>
+            </ng-container>
 
             <div *ngIf="repeatWeekly()">
               <label class="text-xs font-bold uppercase text-muted-color">Number of weeks</label>
