@@ -166,4 +166,12 @@ export class StudentService {
     completeStudentModule(moduleId: number) {
         return this.http.post(`${this.apiUrl}/module/${moduleId}/complete`, {});
     }
+
+    getStudentMatrixModule(matrixModuleId: number) {
+        return this.http.get<StudentModuleDto>(`${this.apiUrl}/matrix-module/${matrixModuleId}`);
+    }
+    
+    getSingleModuleById(id: number) {
+        return this.http.get<StudentModuleDto>(`${this.apiUrl}/single-modules/${id}`);
+    }
 }

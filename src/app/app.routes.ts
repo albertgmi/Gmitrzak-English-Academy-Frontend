@@ -146,6 +146,8 @@ export const appRoutes: Routes = [
       { path: 'lesson/sentence-answers', component: LessonSentenceAnswersComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/player', component: ModulePlayerComponent, canActivate: [AuthGuard] },
       { path: 'ranking', component: RankingComponent, canActivate: [AuthGuard] },
+      { path: 'modules/matrix/:matrixModuleId/presentation', component: PresentationComponent, canActivate: [AuthGuard] },
+      { path: 'modules/single/:id/presentation', component: PresentationComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/presentation', component: PresentationComponent, canActivate: [AuthGuard] },
       { path: 'system/active-students-reports', component: ActiveStudentsReportsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/examination', component: ExaminationModeComponent, canActivate: [AuthGuard] },

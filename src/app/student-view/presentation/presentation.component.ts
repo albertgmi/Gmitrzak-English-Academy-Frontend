@@ -29,24 +29,54 @@ export class PresentationComponent implements OnInit {
     markingDone = signal(false);
     completed   = signal(false);
 
+    private isMatrix = true;
+    private entityId = 0;
+
     ngOnInit() {
-      const moduleId = Number(this.route.snapshot.paramMap.get('moduleId'));
+        const matrixModuleId = this.route.snapshot.paramMap.get('matrixModuleId');
+        const singleId = this.route.snapshot.paramMap.get('id');
+        const legacyModuleId = this.route.snapshot.paramMap.get('moduleId');
 
-      if (!moduleId || isNaN(moduleId)) {
-          this.loading.set(false);
-          this.messageService.add({
-              severity: 'error', summary: 'Error',
-              detail: 'Invalid module ID.', life: 3000
-          });
-          return;
-      }
+        if (matrixModuleId && !isNaN(Number(matrixModuleId))) {
+            this.isMatrix = true;
+            this.entityId = Number(matrixModuleId);
+            this.load();
+        } else if (singleId && !isNaN(Number(singleId))) {
+            this.isMatrix = false;
+            this.entityId = Number(singleId);
+            this.load();
+        } else if (legacyModuleId && !isNaN(Number(legacyModuleId))) {
+            this.loading.set(true);
+            this.studentService.getStudentModule(Number(legacyModuleId)).subscribe({
+                next: (m) => {
+                    this.module.set(m);
+                    this.completed.set(m.isCompleted);
+                    this.loading.set(false);
+                },
+                error: () => {
+                    this.loading.set(false);
+                    this.messageService.add({
+                        severity: 'error', summary: 'Error',
+                        detail: 'Could not load presentation.', life: 3000
+                    });
+                }
+            });
+        } else {
+            this.loading.set(false);
+            this.messageService.add({
+                severity: 'error', summary: 'Error',
+                detail: 'Invalid module ID.', life: 3000
+            });
+        }
+    }
 
-      this.load(moduleId);
-  }
-
-    private load(moduleId: number) {
+    private load() {
         this.loading.set(true);
-        this.studentService.getStudentModule(moduleId).subscribe({
+        const request$ = this.isMatrix
+            ? this.studentService.getStudentMatrixModule(this.entityId)
+            : this.studentService.getSingleModuleById(this.entityId);
+
+        request$.subscribe({
             next: (m) => {
                 this.module.set(m);
                 this.completed.set(m.isCompleted);
@@ -63,12 +93,15 @@ export class PresentationComponent implements OnInit {
     }
 
     markAsDone() {
-        const m = this.module();
-        if (!m || this.markingDone() || this.completed()) return;
-        
+        if (this.markingDone() || this.completed()) return;
+
         this.markingDone.set(true);
-        
-        this.studentService.completeStudentModule(m.moduleId).subscribe({
+
+        const request$ = this.isMatrix
+            ? this.studentService.completeModule(this.entityId)
+            : this.studentService.completeSingleModule(this.entityId);
+
+        request$.subscribe({
             next: () => {
                 this.completed.set(true);
                 this.markingDone.set(false);

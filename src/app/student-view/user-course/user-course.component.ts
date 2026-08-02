@@ -113,7 +113,7 @@ export class UserCourseComponent implements OnInit {
                     this.toggleComplete(module);
                 return;
             case 'Presentation':
-                this.router.navigate(['/modules', module.moduleId, 'presentation']);
+                this.router.navigate(['/modules', 'matrix', module.id, 'presentation']);
                 return;
             case 'Flashcards':
                 if (!module.isCompleted && !module.canComplete)
@@ -160,7 +160,7 @@ export class UserCourseComponent implements OnInit {
                 }
                 return;
             case 'Presentation':
-                this.router.navigate(['/modules', module.moduleId, 'presentation']);
+                this.router.navigate(['/modules', 'single', module.id, 'presentation']);
                 return;
             case 'Flashcards':
                 if (!module.isCompleted && !module.canComplete)
