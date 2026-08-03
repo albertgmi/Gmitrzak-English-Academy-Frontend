@@ -110,7 +110,7 @@
 
 @media (max-width: 991px) {
     .layout-topbar {
-        padding: 0 1rem;
+        padding: 0 0.5rem;
 
         .layout-topbar-logo-container {
             width: auto;
@@ -119,17 +119,25 @@
         }
 
         .layout-topbar-logo {
-            font-size: 1.15rem;
-            gap: 0.4rem;
+            font-size: clamp(0.85rem, 3.5vw, 1.1rem);
+            gap: 0.35rem;
+
+            .logo-text-full {
+                display: none;
+            }
+
+            .logo-text-short {
+                display: inline;
+            }
 
             svg {
-                width: 2.25rem;
+                width: 1.75rem;
             }
         }
 
         .layout-menu-button {
             margin-left: 0;
-            margin-right: 0.5rem;
+            margin-right: 0.4rem;
         }
 
         .layout-topbar-menu-button {
@@ -146,9 +154,9 @@
                 0px 1px 4px rgba(0, 0, 0, 0.08);
             border-radius: var(--content-border-radius);
             padding: 1rem;
-            right: 2rem;
+            right: 1rem;
             top: 4rem;
-            min-width: 15rem;
+            min-width: 12rem;
             border: 1px solid var(--surface-border);
 
             .layout-topbar-menu-content {
@@ -156,11 +164,15 @@
             }
 
             .layout-topbar-action {
-                width: 2.25rem;
-                height: 2.25rem;
+                width: auto;
+                height: auto;
+                padding: 0.5rem 0.75rem;
+                border-radius: var(--content-border-radius);
+                justify-content: flex-start;
+                gap: 0.75rem;
 
-                i {
-                    font-size: 1.1rem;
+                span {
+                    display: inline !important;
                 }
             }
         }
@@ -175,27 +187,6 @@
 
         .layout-topbar-actions {
             gap: 0.5rem;
-        }
-
-        .layout-menu-button {
-            margin-left: 0;
-            margin-right: 0.4rem;
-        }
-
-        .layout-topbar-menu-button {
-            display: inline-flex;
-        }
-    }
-}
-
-@media (max-width: 420px) {
-    .layout-topbar-logo {
-        .logo-text-full {
-            display: none;
-        }
-
-        .logo-text-short {
-            display: inline;
         }
     }
 }
