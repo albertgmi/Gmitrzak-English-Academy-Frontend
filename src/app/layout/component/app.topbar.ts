@@ -125,7 +125,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                     <i class="pi pi-ellipsis-v"></i>
                 </button>
 
-                <div class="layout-topbar-menu">
+                <div class="layout-topbar-menu hidden lg:block">
 
                     <div class="layout-topbar-menu-content">
 
