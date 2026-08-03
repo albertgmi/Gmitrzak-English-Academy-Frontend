@@ -157,7 +157,7 @@ export const appRoutes: Routes = [
       { path: 'lesson/check-essays', component: CheckEssaysComponent, canActivate: [AuthGuard] },
       { path: 'lesson/credits', component: AdminCreditsComponent, canActivate: [AuthGuard] },
       { path: 'system/student-activity', component: StudentActivityComponent, canActivate: [AuthGuard] },
-      { path: '/curriculum/courses/plan', component: AssignCourseComponent, canActivate: [AuthGuard] }
+      { path: 'curriculum/courses/plan', component: AssignCourseComponent, canActivate: [AuthGuard] }
 
     ]
   },
