@@ -24,8 +24,8 @@ import { AnnouncementService } from '../../services/announcement.service';
 
         .message-action .message-badge {
             position: absolute;
-            top: 0.2rem;
-            right: 0.2rem;
+            top: -0.2rem;
+            right: -0.2rem;
 
             width: 1.1rem;
             height: 1.1rem;
@@ -60,6 +60,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                 <button
                     class="layout-menu-button layout-topbar-action"
                     (click)="layoutService.onMenuToggle()"
+                    aria-label="Menu"
                 >
                     <i class="pi pi-bars"></i>
                 </button>
@@ -86,6 +87,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                                 'pi-sun': !layoutService.isDarkTheme()
                             }"
                         ></i>
+                        <span>Theme</span>
                     </button>
 
                     <div class="relative">
@@ -100,6 +102,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                             aria-label="Configurator"
                         >
                             <i class="pi pi-palette"></i>
+                            <span>Wygląd</span>
                         </button>
 
                         <app-configurator />
@@ -115,6 +118,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                         aria-label="Messages"
                     >
                         <i class="pi pi-inbox"></i>
+                        <span>Messages</span>
 
                         <span
                             *ngIf="announcementService.unreadCount() > 0"
@@ -136,6 +140,7 @@ import { AnnouncementService } from '../../services/announcement.service';
                         aria-label="Profile"
                     >
                         <i class="pi pi-user"></i>
+                        <span>Profile</span>
                     </button>
                 </div>
 
