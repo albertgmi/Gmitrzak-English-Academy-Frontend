@@ -29,13 +29,13 @@
         font-weight: 500;
         gap: 0.5rem;
         min-width: 0;
-        overflow: hidden;
 
         span {
             white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            min-width: 0;
+        }
+
+        .logo-text-short {
+            display: none;
         }
 
         svg {
@@ -118,6 +118,15 @@
             min-width: 0;
         }
 
+        .layout-topbar-logo {
+            font-size: 1.15rem;
+            gap: 0.4rem;
+
+            svg {
+                width: 2.25rem;
+            }
+        }
+
         .layout-menu-button {
             margin-left: 0;
             margin-right: 0.5rem;
@@ -147,27 +156,46 @@
             }
 
             .layout-topbar-action {
-                display: flex;
-                width: 100%;
-                height: auto;
-                justify-content: flex-start;
-                border-radius: var(--content-border-radius);
-                padding: 0.5rem 1rem;
+                width: 2.25rem;
+                height: 2.25rem;
 
                 i {
-                    font-size: 1rem;
-                    margin-right: 0.5rem;
-                }
-
-                span {
-                    font-weight: medium;
-                    display: block;
+                    font-size: 1.1rem;
                 }
             }
         }
 
         .layout-topbar-menu-content {
             flex-direction: column;
+        }
+
+        .layout-config-menu {
+            gap: 0.5rem;
+        }
+
+        .layout-topbar-actions {
+            gap: 0.5rem;
+        }
+
+        .layout-menu-button {
+            margin-left: 0;
+            margin-right: 0.4rem;
+        }
+
+        .layout-topbar-menu-button {
+            display: inline-flex;
+        }
+    }
+}
+
+@media (max-width: 420px) {
+    .layout-topbar-logo {
+        .logo-text-full {
+            display: none;
+        }
+
+        .logo-text-short {
+            display: inline;
         }
     }
 }

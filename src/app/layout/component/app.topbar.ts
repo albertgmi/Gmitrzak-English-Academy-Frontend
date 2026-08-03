@@ -69,7 +69,8 @@ import { AnnouncementService } from '../../services/announcement.service';
                 </button>
 
                 <a class="layout-topbar-logo" routerLink="/">
-                    <span>Gmitrzak English Academy</span>
+                    <span class="logo-text-full">Gmitrzak English Academy</span>
+                    <span class="logo-text-short">Gmitrzak</span>
                 </a>
 
             </div>

@@ -1,14 +1,46 @@
 <div class="card" *ngIf="profile">
 
   <div class="flex items-center gap-4 mb-6 flex-wrap">
-    <p-button [icon]="isAdmin ? 'pi pi-arrow-left' : 'pi pi-home'" ... />
-    <div class="relative"> ... avatar ... </div>
+    <p-button
+      [icon]="isAdmin ? 'pi pi-arrow-left' : 'pi pi-home'"
+      [outlined]="true"
+      [rounded]="true"
+      (click)="goBack()"
+    />
+  
+    <div class="relative">
+      <img
+        *ngIf="profile?.avatarUrl"
+        [src]="profile.avatarUrl"
+        class="w-16 h-16 rounded-full object-cover border-2 border-surface-200"
+        (error)="onAvatarError($event)"
+      />
+      <div
+        *ngIf="!profile.avatarUrl && !avatarPreview"
+        class="w-16 h-16 rounded-full bg-primary flex items-center justify-center text-white text-xl font-bold"
+      >
+        {{ initials }}
+      </div>
+      <img
+        *ngIf="avatarPreview"
+        [src]="avatarPreview"
+        class="w-16 h-16 rounded-full object-cover border-2 border-primary"
+      />
+    </div>
+  
     <div class="min-w-0">
       <h2 class="text-2xl font-semibold m-0 truncate">{{ profile.username }}</h2>
       <p class="text-muted-color mt-1 truncate">{{ profile.email }}</p>
     </div>
+  
     <div class="ml-auto" *ngIf="isAdmin">
-      <p-button label="Edit Profile" ... />
+      <p-button
+        [label]="editMode ? 'Cancel' : 'Edit Profile'"
+        [icon]="editMode ? 'pi pi-times' : 'pi pi-pencil'"
+        (click)="toggleEdit()"
+        [outlined]="!editMode"
+        [severity]="editMode ? 'secondary' : 'primary'"
+      />
     </div>
   </div>
 

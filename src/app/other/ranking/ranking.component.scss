@@ -429,6 +429,13 @@
   color: var(--primary-color);
 }
 
+.td-react {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .4rem;
+}
+
 .empty-table {
   text-align: center;
   padding: 2rem;
