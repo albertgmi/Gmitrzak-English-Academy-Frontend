@@ -11,14 +11,12 @@ import { AnnouncementService } from '../../services/announcement.service';
 @Component({
     selector: 'app-topbar',
     standalone: true,
-
     imports: [
         RouterModule,
         CommonModule,
         StyleClassModule,
         AppConfigurator
     ],
-
     styles: [`
         .message-action {
             position: relative;
@@ -26,8 +24,8 @@ import { AnnouncementService } from '../../services/announcement.service';
 
         .message-action .message-badge {
             position: absolute;
-            top: 0.35rem;
-            right: 0.35rem;
+            top: 0.2rem;
+            right: 0.2rem;
 
             width: 1.1rem;
             height: 1.1rem;
@@ -55,12 +53,10 @@ import { AnnouncementService } from '../../services/announcement.service';
             overflow: visible !important;
         }
     `],
-
     template: `
         <div class="layout-topbar">
 
             <div class="layout-topbar-logo-container">
-
                 <button
                     class="layout-menu-button layout-topbar-action"
                     (click)="layoutService.onMenuToggle()"
@@ -72,17 +68,16 @@ import { AnnouncementService } from '../../services/announcement.service';
                     <span class="logo-text-full">Gmitrzak English Academy</span>
                     <span class="logo-text-short">Gmitrzak</span>
                 </a>
-
             </div>
 
             <div class="layout-topbar-actions">
 
                 <div class="layout-config-menu">
-
                     <button
                         type="button"
                         class="layout-topbar-action"
                         (click)="toggleDarkMode()"
+                        aria-label="Toggle Dark Mode"
                     >
                         <i
                             [ngClass]="{
@@ -94,7 +89,6 @@ import { AnnouncementService } from '../../services/announcement.service';
                     </button>
 
                     <div class="relative">
-
                         <button
                             class="layout-topbar-action layout-topbar-action-highlight"
                             pStyleClass="@next"
@@ -103,66 +97,46 @@ import { AnnouncementService } from '../../services/announcement.service';
                             leaveToClass="hidden"
                             leaveActiveClass="animate-fadeout"
                             [hideOnOutsideClick]="true"
+                            aria-label="Configurator"
                         >
                             <i class="pi pi-palette"></i>
                         </button>
 
                         <app-configurator />
-
                     </div>
-
                 </div>
 
-                <button
-                    class="layout-topbar-menu-button layout-topbar-action"
-                    pStyleClass="@next"
-                    enterFromClass="hidden"
-                    enterActiveClass="animate-scalein"
-                    leaveToClass="hidden"
-                    leaveActiveClass="animate-fadeout"
-                    [hideOnOutsideClick]="true"
-                >
-                    <i class="pi pi-ellipsis-v"></i>
-                </button>
+                <div class="layout-topbar-menu-content">
+                    <button
+                        type="button"
+                        class="layout-topbar-action message-action"
+                        (click)="goToMessages()"
+                        title="Messages"
+                        aria-label="Messages"
+                    >
+                        <i class="pi pi-inbox"></i>
 
-                <div class="layout-topbar-menu hidden lg:block">
-
-                    <div class="layout-topbar-menu-content">
-
-                        <button
-                            type="button"
-                            class="layout-topbar-action message-action"
-                            (click)="goToMessages()"
+                        <span
+                            *ngIf="announcementService.unreadCount() > 0"
+                            class="message-badge"
                         >
+                            {{
+                                announcementService.unreadCount() > 9
+                                    ? '9+'
+                                    : announcementService.unreadCount()
+                            }}
+                        </span>
+                    </button>
 
-                            <i class="pi pi-inbox"></i>
-
-                            <span
-                                *ngIf="announcementService.unreadCount() > 0"
-                                class="message-badge"
-                            >
-                                {{
-                                    announcementService.unreadCount() > 9
-                                        ? '9+'
-                                        : announcementService.unreadCount()
-                                }}
-                            </span>
-
-                            <span>Messages</span>
-
-                        </button>
-
-                        <button
-                            type="button"
-                            class="layout-topbar-action"
-                            (click)="goToProfile()"
-                        >
-                            <i class="pi pi-user"></i>
-                            <span>Profile</span>
-                        </button>
-
-                    </div>
-
+                    <button
+                        type="button"
+                        class="layout-topbar-action"
+                        (click)="goToProfile()"
+                        title="Profile"
+                        aria-label="Profile"
+                    >
+                        <i class="pi pi-user"></i>
+                    </button>
                 </div>
 
             </div>
@@ -171,7 +145,6 @@ import { AnnouncementService } from '../../services/announcement.service';
     `
 })
 export class AppTopbar implements OnInit {
-
     items!: MenuItem[];
 
     private authService = inject(AuthService);
