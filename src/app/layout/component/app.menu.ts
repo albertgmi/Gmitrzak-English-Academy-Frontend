@@ -98,6 +98,7 @@ export class AppMenu implements OnInit {
               { label: 'Add Program', icon: 'pi pi-plus-circle', routerLink: ['/curriculum/programs/add'] },
               { label: 'Courses', icon: 'pi pi-book', routerLink: ['/curriculum/courses'] },
               { label: 'Add Course', icon: 'pi pi-plus-circle', routerLink: ['/curriculum/courses/add'] },
+              { label: 'Plan Course', icon: 'pi pi-user-plus', routerLink: ['/curriculum/courses/plan'] },
               { label: 'Matrices', icon: 'pi pi-table', routerLink: ['/curriculum/matrices'] },
               { label: 'Add Matrix', icon: 'pi pi-plus-circle', routerLink: ['/curriculum/matrices/add'] },
               { label: 'Plan Matrix', icon: 'pi pi-calendar-plus', routerLink: ['/curriculum/matrices/plan'] },
@@ -114,26 +115,11 @@ export class AppMenu implements OnInit {
               { label: 'Global Vocabulary', icon: 'pi pi-book', routerLink: ['/system/global-vocabulary'] },
               { label: 'Assign Global Vocabulary', icon: 'pi pi-user-plus', routerLink: ['/system/global-vocabulary/assign'] },
               { label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
-              //{ label: 'Add to Sentence Stock', icon: 'pi pi-plus-circle', routerLink: ['/system/sentences/add'] },
-              //{ label: 'Sets', icon: 'pi pi-th-large', routerLink: ['/system/sets'] },
               { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
               { label: 'Active Students Reports', icon: 'pi pi-chart-bar', routerLink: ['/system/active-students-reports'] },
               { label: 'Check Essays',    icon: 'pi pi-file-edit',    routerLink: ['/lesson/check-essays'] }
-              //{ label: 'Composed Sentences', icon: 'pi pi-file-edit', routerLink: ['/system/sentences/composed'] },
             ]
           },
-          //{
-          //  label: 'Stream & Grading',
-          //  icon: 'pi pi-server',
-          //  items: [
-          //    { label: 'Stream', icon: 'pi pi-server', routerLink: ['/system/stream'] },
-          //    { label: 'Add Stream', icon: 'pi pi-plus-circle', routerLink: ['/system/stream/add'] },
-          //    { label: 'Grade Assignments', icon: 'pi pi-check-square', routerLink: ['/system/grade/assignments'] },
-          //    { label: 'Grade Sentences', icon: 'pi pi-check-square', routerLink: ['/system/grade/sentences'] },
-          //    { label: 'Label Sentences', icon: 'pi pi-tag', routerLink: ['/system/sentences/label'] },
-          //    { label: 'Download Assignments', icon: 'pi pi-download', routerLink: ['/system/assignments/download'] },
-          //  ]
-          //},
           {
             label: 'Theater',
             icon: 'pi pi-video',

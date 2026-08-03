@@ -28,18 +28,19 @@
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
 
       <div>
-        <label class="block font-bold mb-2">Student <span class="text-red-500">*</span></label>
-        <p-select
+        <label class="block font-bold mb-2">Students <span class="text-red-500">*</span></label>
+        <p-multiselect
           [options]="users()"
-          [ngModel]="selectedUserId()"
-          (ngModelChange)="selectedUserId.set($event)"
+          [ngModel]="selectedUserIds()"
+          (ngModelChange)="selectedUserIds.set($event)"
           optionLabel="label"
           optionValue="id"
-          placeholder="Select student"
+          placeholder="Select students"
           [filter]="true"
           filterPlaceholder="Search..."
+          display="chip"
           fluid />
-        <small class="text-red-500" *ngIf="submitted && !selectedUserId()">Student is required.</small>
+        <small class="text-red-500" *ngIf="submitted && !selectedUserIds().length">At least one student is required.</small>
       </div>
 
       <div>

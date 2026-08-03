@@ -1,0 +1,66 @@
+<p-toast />
+
+<div class="card">
+  <div class="mb-6">
+    <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Assign Course</h2>
+    <p class="text-muted-color mt-1 m-0">Assign a full course (all its matrices) to one or more students at once.</p>
+  </div>
+
+  <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700 max-w-3xl">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
+
+      <div>
+        <label class="block font-bold mb-2">Course <span class="text-red-500">*</span></label>
+        <p-select
+          [options]="courses()"
+          [ngModel]="selectedCourseId()"
+          (ngModelChange)="selectedCourseId.set($event)"
+          optionLabel="label"
+          optionValue="id"
+          placeholder="Select course"
+          [filter]="true"
+          filterPlaceholder="Search..."
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedCourseId()">Course is required.</small>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-2">Start Date <span class="text-red-500">*</span></label>
+        <p-datepicker
+          [ngModel]="selectedStartDate()"
+          (ngModelChange)="selectedStartDate.set($event)"
+          dateFormat="yy-mm-dd"
+          [showIcon]="true"
+          placeholder="Pick start date"
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedStartDate()">Start date is required.</small>
+      </div>
+
+      <div class="md:col-span-2">
+        <label class="block font-bold mb-2">Students <span class="text-red-500">*</span></label>
+        <p-multiselect
+          [options]="users()"
+          [ngModel]="selectedUserIds()"
+          (ngModelChange)="selectedUserIds.set($event)"
+          optionLabel="label"
+          optionValue="id"
+          placeholder="Select students"
+          [filter]="true"
+          filterPlaceholder="Search..."
+          display="chip"
+          fluid />
+        <small class="text-red-500" *ngIf="submitted && !selectedUserIds().length">At least one student is required.</small>
+      </div>
+
+    </div>
+
+    <p class="text-sm text-muted-color mt-4">
+      All matrices in the selected course will start on the chosen date, using the weeks/days already configured in each matrix.
+    </p>
+
+    <div class="flex gap-3 mt-5">
+      <p-button label="Assign Course" icon="pi pi-check" [loading]="loadingSubmit" (onClick)="submitAssignment()" />
+      <p-button label="Reset" severity="secondary" outlined (onClick)="reset()" />
+    </div>
+  </div>
+</div>

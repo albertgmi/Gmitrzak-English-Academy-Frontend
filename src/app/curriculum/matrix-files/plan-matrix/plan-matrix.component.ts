@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -15,7 +16,10 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ProgressBarModule } from 'primeng/progressbar';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { AssignmentService, AssignmentDto, CreateAssignmentRequest } from '../../../services/assignment.service';
+import {
+    AssignmentService, AssignmentDto,
+    CreateBulkMatrixAssignmentRequest
+} from '../../../services/assignment.service';
 import { UserService } from '../../../services/user.service';
 import { MatrixService } from '../../../services/matrix.service';
 
@@ -25,7 +29,7 @@ import { MatrixService } from '../../../services/matrix.service';
     imports: [
         CommonModule, FormsModule,
         TableModule, ButtonModule, InputTextModule,
-        IconFieldModule, InputIconModule, SelectModule,
+        IconFieldModule, InputIconModule, SelectModule, MultiSelectModule,
         DatePickerModule, TagModule, ToolbarModule,
         ToastModule, ConfirmDialogModule, ProgressBarModule,
         TooltipModule
@@ -45,7 +49,7 @@ export class PlanMatrixComponent implements OnInit {
     submitted = false;
     loadingSubmit = false;
 
-    selectedUserId = signal<number | null>(null);
+    selectedUserIds = signal<number[]>([]);
     selectedMatrixId = signal<number | null>(null);
     selectedStartDate = signal<Date | null>(null);
 
@@ -82,7 +86,7 @@ export class PlanMatrixComponent implements OnInit {
     }
 
     openAddForm() {
-        this.selectedUserId.set(null);
+        this.selectedUserIds.set([]);
         this.selectedMatrixId.set(null);
         this.selectedStartDate.set(null);
         this.submitted = false;
@@ -103,27 +107,36 @@ export class PlanMatrixComponent implements OnInit {
 
     submitAssignment() {
         this.submitted = true;
-        const userId = this.selectedUserId();
+        const userIds = this.selectedUserIds();
         const matrixId = this.selectedMatrixId();
         const date = this.selectedStartDate();
 
-        if (!userId || !matrixId || !date) return;
+        if (!userIds.length || !matrixId || !date) return;
 
         this.loadingSubmit = true;
 
-        const request: CreateAssignmentRequest = {
-            userId,
+        const request: CreateBulkMatrixAssignmentRequest = {
             matrixId,
-            startDate: this.formatDate(date)
+            startDate: this.formatDate(date),
+            userIds
         };
 
-        this.assignmentService.createAssignment(request).subscribe({
-            next: () => {
+        this.assignmentService.createBulkMatrixAssignment(request).subscribe({
+            next: (result) => {
                 this.assignmentService.reloadAssignments();
-                this.messageService.add({
-                    severity: 'success', summary: 'Assigned',
-                    detail: 'Matrix assigned successfully.', life: 3000
-                });
+
+                if (result.assignedUsernames.length) {
+                    this.messageService.add({
+                        severity: 'success', summary: 'Assigned',
+                        detail: `Assigned to: ${result.assignedUsernames.join(', ')}`, life: 4000
+                    });
+                }
+                if (result.skipped.length) {
+                    this.messageService.add({
+                        severity: 'warn', summary: 'Some assignments skipped',
+                        detail: result.skipped.join(' • '), life: 6000
+                    });
+                }
                 this.closeAddForm();
                 this.loadingSubmit = false;
             },
@@ -166,7 +179,7 @@ export class PlanMatrixComponent implements OnInit {
         const unlockedCount = a.modules.filter(m => m.isUnlocked).length;
         return Math.round((unlockedCount / a.modules.length) * 100);
     }
-    
+
     modulesLabel(a: AssignmentDto): string {
         if (!a.modules || a.modules.length === 0) return 'No modules';
         const unlockedCount = a.modules.filter(m => m.isUnlocked).length;

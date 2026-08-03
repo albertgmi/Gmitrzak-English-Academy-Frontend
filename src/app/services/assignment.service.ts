@@ -51,6 +51,23 @@ export interface CreateModuleAssignmentRequest {
     dueDate: string;
 }
 
+export interface BulkAssignmentResultDto {
+    assignedUsernames: string[];
+    skipped: string[];
+}
+
+export interface CreateBulkMatrixAssignmentRequest {
+    matrixId: number;
+    startDate: string;
+    userIds: number[];
+}
+
+export interface CreateCourseAssignmentRequest {
+    courseId: number;
+    startDate: string;
+    userIds: number[];
+}
+
 export type AssignmentDto = MatrixAssignmentDto;
 export type CreateAssignmentRequest = CreateMatrixAssignmentRequest;
 
@@ -105,5 +122,13 @@ export class AssignmentService {
 
     getModuleByUser(userId: number) {
         return this.http.get<ModuleAssignmentDto[]>(`${this.apiUrl}/module/user/${userId}`);
+    }
+
+    createBulkMatrixAssignment(request: CreateBulkMatrixAssignmentRequest) {
+        return this.http.post<BulkAssignmentResultDto>(`${this.apiUrl}/matrix/bulk`, request);
+    }
+    
+    createCourseAssignment(request: CreateCourseAssignmentRequest) {
+        return this.http.post<BulkAssignmentResultDto>(`${this.apiUrl}/course`, request);
     }
 }
