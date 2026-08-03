@@ -13,11 +13,11 @@
     [showCurrentPageReport]="true" [rowsPerPageOptions]="[20, 50, 100]">
 
     <ng-template #caption>
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-muted-color">{{ flashcards.value()?.length || 0 }} words</span>
-        <p-iconfield>
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <span class="text-sm text-muted-color flex-shrink-0">{{ flashcards.value()?.length || 0 }} words</span>
+        <p-iconfield class="w-full sm:w-auto">
           <p-inputicon styleClass="pi pi-search" />
-          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full" />
         </p-iconfield>
       </div>
     </ng-template>

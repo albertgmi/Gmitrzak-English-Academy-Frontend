@@ -75,8 +75,8 @@
         [styles]="{ 'min-height': '350px', 'font-size': '15px' }">
       </quill-editor>
 
-      <div class="flex items-center justify-between mt-4">
-        <span class="text-xs text-muted-color">
+      <div class="flex items-center justify-between mt-4 flex-wrap gap-3">
+        <span class="text-xs text-muted-color flex-1 min-w-[200px]">
           Your essay will be submitted to your teacher for review.
           You cannot edit it after submission.
         </span>
@@ -85,6 +85,7 @@
           icon="pi pi-send"
           [loading]="submitting()"
           [disabled]="!content().trim() || content() === '<p><br></p>'"
+          class="flex-shrink-0"
           (onClick)="submit()" />
       </div>
     </div>

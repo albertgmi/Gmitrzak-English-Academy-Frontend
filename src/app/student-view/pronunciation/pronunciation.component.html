@@ -1,8 +1,8 @@
 <p-toast />
 
 <div class="card">
-  <div class="flex items-center justify-between mb-6">
-    <div>
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div class="min-w-0">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
         Pronunciation
       </h2>
@@ -10,7 +10,7 @@
         {{ sessionCount() }} words in current session
       </p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 flex-shrink-0">
       <p-button label="Practice" icon="pi pi-microphone"
         size="small"
         [outlined]="activeView() !== 'practice'"

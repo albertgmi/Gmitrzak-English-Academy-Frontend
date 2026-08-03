@@ -13,11 +13,11 @@
     [showCurrentPageReport]="true">
 
     <ng-template #caption>
-      <div class="flex items-center justify-between">
-        <span class="text-sm text-muted-color">{{ memories.value()?.length || 0 }} memories</span>
-        <p-iconfield>
+      <div class="flex items-center justify-between flex-wrap gap-3">
+        <span class="text-sm text-muted-color flex-shrink-0">{{ memories.value()?.length || 0 }} memories</span>
+        <p-iconfield class="w-full sm:w-auto">
           <p-inputicon styleClass="pi pi-search" />
-          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full" />
         </p-iconfield>
       </div>
     </ng-template>

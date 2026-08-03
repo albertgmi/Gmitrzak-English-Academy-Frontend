@@ -17,6 +17,7 @@
         width: 20rem;
         display: flex;
         align-items: center;
+        min-width: 0;
     }
 
     .layout-topbar-logo {
@@ -27,9 +28,19 @@
         color: var(--text-color);
         font-weight: 500;
         gap: 0.5rem;
+        min-width: 0;
+        overflow: hidden;
+
+        span {
+            white-space: nowrap;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            min-width: 0;
+        }
 
         svg {
             width: 3rem;
+            flex-shrink: 0;
         }
 
         &:focus-visible {
@@ -99,10 +110,12 @@
 
 @media (max-width: 991px) {
     .layout-topbar {
-        padding: 0 2rem;
+        padding: 0 1rem;
 
         .layout-topbar-logo-container {
             width: auto;
+            flex: 1 1 auto;
+            min-width: 0;
         }
 
         .layout-menu-button {

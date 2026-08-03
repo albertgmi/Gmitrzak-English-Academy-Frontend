@@ -26,11 +26,11 @@
   [rowsPerPageOptions]="[10, 20, 30]"
 >
   <ng-template #caption>
-    <div class="flex items-center justify-between">
-      <h5 class="m-0">{{ router.url.includes('inactive') ? 'Inactive Users' : 'Manage Active Users' }}</h5>
-      <p-iconfield>
+    <div class="flex items-center justify-between flex-wrap gap-3">
+      <h5 class="m-0 flex-shrink-0">{{ router.url.includes('inactive') ? 'Inactive Users' : 'Manage Active Users' }}</h5>
+      <p-iconfield class="w-full sm:w-auto">
         <p-inputicon styleClass="pi pi-search" />
-        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." />
+        <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search..." class="w-full" />
       </p-iconfield>
     </div>
   </ng-template>

@@ -1,7 +1,7 @@
 <p-toast />
 <div class="card">
-  <div class="flex items-center justify-between mb-6">
-    <div>
+  <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
+    <div class="min-w-0">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Last Week</h2>
       <p class="text-muted-color mt-1 m-0" *ngIf="data()">
         {{ data()!.weekStart | date:'d MMM' }} — {{ data()!.weekEnd | date:'d MMM yyyy' }}
@@ -11,7 +11,7 @@
       *ngIf="data()"
       [severity]="data()!.rankingCriteriaMet ? 'success' : 'danger'"
       [value]="data()!.rankingCriteriaMet ? '✓ Criteria met' : '✗ Criteria not met'"
-      styleClass="text-sm px-3 py-1" />
+      styleClass="text-sm px-3 py-1 flex-shrink-0" />
   </div>
 
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
