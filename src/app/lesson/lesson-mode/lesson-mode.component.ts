@@ -57,7 +57,7 @@ export class LessonModeComponent {
     }
 
     searchQuery = signal('');
-    searchResult = signal<SearchVocabularyResult | null>(null);
+    searchResult = signal<SearchVocabularyResult[] | null>(null);
     searching = signal(false);
     saving = signal(false);
     newFront = signal('');
@@ -238,13 +238,13 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result: SearchVocabularyResult | null) => {
+                next: (result: SearchVocabularyResult[] | null) => {
                     this.searching.set(false);
                     if (result !== null) {
                         this.searchResult.set(result);
-                        if (!result.existsInGlobal) {
-                            this.newFront.set(result.front);
-                            this.newBack.set(result.back || '');
+                        if (result.length === 1 && !result[0].existsInGlobal) {
+                            this.newFront.set(result[0].front);
+                            this.newBack.set(result[0].back || '');
                         }
                     } else {
                         this.searchResult.set(null);
@@ -271,18 +271,20 @@ export class LessonModeComponent {
                 })
             )
             .subscribe({
-                next: (result: SearchVocabularyResult | null) => {
+                next: (result: SearchVocabularyResult[] | null) => {
                     this.checkingDuplicateFlashcard.set(false);
-                    
-                    if (result !== null) {
+                
+                    if (result && result.length > 0) {
                         const enteredWord = this.newFront().toLowerCase().trim();
-                        const foundWord = result.front.toLowerCase().trim();
-                        
-                        if (enteredWord === foundWord && result.back) {
-                            this.newBack.set(result.back);
+                        const exactMatch = result.find(
+                            r => r.existsInGlobal && r.front.toLowerCase().trim() === enteredWord
+                        );
+                    
+                        if (exactMatch?.back) {
+                            this.newBack.set(exactMatch.back);
                         }
-
-                        this.isFlashcardDuplicate.set(result.existsInGlobal);
+                    
+                        this.isFlashcardDuplicate.set(!!exactMatch);
                     } else {
                         this.isFlashcardDuplicate.set(false);
                     }
@@ -514,17 +516,16 @@ export class LessonModeComponent {
         });
     }
 
-    assignExisting() {
-        const result = this.searchResult();
+    assignExisting(vocab: SearchVocabularyResult) {
         const studentId = this.studentId;
-        if (!result?.id || !studentId) return;
+        if (!vocab?.id || !studentId) return;
 
         this.saving.set(true);
-        this.vocabularyService.assignSingleVocabularyToStudent(result.id, studentId).subscribe({
+        this.vocabularyService.assignSingleVocabularyToStudent(vocab.id, studentId).subscribe({
             next: () => {
                 this.messageService.add({
                     severity: 'success', summary: 'Assigned',
-                    detail: `"${result.front}" assigned to student`, life: 3000
+                    detail: `"${vocab.front}" assigned to student`, life: 3000
                 });
                 this.resetFlashcardForm();
                 this.saving.set(false);

@@ -76,7 +76,7 @@ export class VocabularyService {
     }
 
     searchVocabulary(query: string, studentUserId: number) {
-        return this.http.get<SearchVocabularyResult>(
+        return this.http.get<SearchVocabularyResult[]>(
             `${this.apiUrl}/search?query=${encodeURIComponent(query)}&studentUserId=${studentUserId}`
         );
     }
