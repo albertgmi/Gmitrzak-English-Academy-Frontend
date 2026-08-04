@@ -117,7 +117,7 @@
         <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-2">
           Search global database
         </h3>
-
+      
         <div class="flex gap-3 position-relative">
           <input pInputText type="text"
             [ngModel]="searchQuery()" (ngModelChange)="searchQuery.set($event)"
@@ -126,14 +126,14 @@
           <p-button icon="pi pi-spinner pi-spin" *ngIf="searching()" severity="secondary" [disabled]="true" />
           <p-button icon="pi pi-search" *ngIf="!searching()" severity="secondary" [disabled]="true" />
         </div>
-
+      
         <div class="flex flex-col gap-3">
           <div *ngIf="!searchResult() || searchResult()?.length === 0 && !searching()"
             class="text-center py-8 text-muted-color text-sm">
             <i class="pi pi-search text-2xl block mb-2"></i>
             Search for a word to see results
           </div>
-          
+        
           <div *ngIf="searchResult() as results" class="flex flex-col gap-3 max-h-[450px] overflow-y-auto pr-1">
             <div *ngFor="let r of results">
             
@@ -174,8 +174,8 @@
             
             </div>
           </div>
+        </div>
       </div>
-
     </div>
   </div>
 
