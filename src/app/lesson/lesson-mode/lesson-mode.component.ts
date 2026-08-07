@@ -120,6 +120,8 @@ export class LessonModeComponent {
         { key: 'collocations', label: 'Collocations',  template: "What are the most common collocations with {A}? Use them in sentences.",needsB: false },
         { key: 'formal',       label: 'Formal/Informal', template: "Is {A} formal or informal? What's the formal/informal alternative?",needsB: false },
         { key: 'grammar',      label: 'Grammar rules', template: "Explain the grammar rules for using {A}. What are the most common mistakes?", needsB: false },
+        { key: 'plural',       label: 'Plural forms', template: "What's the plural of the word {A}?", needsB: false }
+        
     ];
 
     memoryCategoryOptions = this.TEMPLATES.map(t => ({ label: t.label, value: t.key }));
