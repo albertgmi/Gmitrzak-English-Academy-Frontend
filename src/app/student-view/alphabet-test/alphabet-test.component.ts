@@ -7,7 +7,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import {
     ContentService,
-    AlphabetEntryDto,
     AlphabetAttemptDto
 } from '../../services/student-services/content.service';
 import { SectionActivityService } from '../../services/section-activity.service';
@@ -16,7 +15,7 @@ type AlphabetTab = 'letters' | 'spelling';
 
 function getMondayIso(date: Date): string {
     const d = new Date(date);
-    const day = (d.getDay() + 6) % 7; // 0 = poniedziałek
+    const day = (d.getDay() + 6) % 7;
     d.setDate(d.getDate() - day);
     return d.toISOString().slice(0, 10);
 }
@@ -43,10 +42,10 @@ export class AlphabetTestComponent implements OnInit {
     submitting = signal<number | null>(null);
     generating = signal(false);
 
-    private mediaRecorder: MediaRecorder | null = null;
-    private audioChunks: Blob[] = [];
-    private recordStartedAt = 0;
-    private readonly MIN_RECORD_MS = 500;
+    private audioContext: AudioContext | null = null;
+    private mediaStream: MediaStream | null = null;
+    private audioProcessor: ScriptProcessorNode | null = null;
+    private pcmBuffers: Float32Array[] = [];
 
     letterEntries = computed(() =>
         (this.entries.value() ?? []).filter(e => e.type === 'Letters')
@@ -136,36 +135,25 @@ export class AlphabetTestComponent implements OnInit {
         if (this.isRecording()) return;
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.audioChunks = [];
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
 
-            const mimeType = MediaRecorder.isTypeSupported('audio/webm')
-                ? 'audio/webm'
-                : MediaRecorder.isTypeSupported('audio/mp4') ? 'audio/mp4' : '';
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            this.audioContext = new AudioCtx({ sampleRate: 16000 });
 
-            this.mediaRecorder = mimeType
-                ? new MediaRecorder(stream, { mimeType })
-                : new MediaRecorder(stream);
+            const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+            this.audioProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
+            this.pcmBuffers = [];
 
-            this.mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) this.audioChunks.push(e.data);
-            };
-
-            this.mediaRecorder.onstop = () => {
-                stream.getTracks().forEach(t => t.stop());
-                const duration = Date.now() - this.recordStartedAt;
-                if (duration < this.MIN_RECORD_MS) {
-                    this.messageService.add({
-                        severity: 'warn', summary: 'Too short',
-                        detail: 'Hold the button a bit longer while speaking.', life: 3000
-                    });
-                    return;
+            this.audioProcessor.onaudioprocess = (e) => {
+                if (this.isRecording()) {
+                    const inputData = e.inputBuffer.getChannelData(0);
+                    this.pcmBuffers.push(new Float32Array(inputData));
                 }
-                this.submitRecording(entryId);
             };
 
-            this.recordStartedAt = Date.now();
-            this.mediaRecorder.start();
+            source.connect(this.audioProcessor);
+            this.audioProcessor.connect(this.audioContext.destination);
+
             this.isRecording.set(true);
             this.recordingEntryId.set(entryId);
         } catch {
@@ -177,17 +165,81 @@ export class AlphabetTestComponent implements OnInit {
     }
 
     stopRecording() {
-        if (this.mediaRecorder && this.isRecording()) {
-            this.mediaRecorder.stop();
+        if (this.isRecording()) {
             this.isRecording.set(false);
+            const entryId = this.recordingEntryId();
             this.recordingEntryId.set(null);
+
+            if (this.audioProcessor) {
+                this.audioProcessor.disconnect();
+                this.audioProcessor = null;
+            }
+
+            if (this.mediaStream) {
+                this.mediaStream.getTracks().forEach(t => t.stop());
+                this.mediaStream = null;
+            }
+
+            if (this.audioContext) {
+                const sampleRate = this.audioContext.sampleRate;
+                this.audioContext.close().then(() => {
+                    this.audioContext = null;
+                    if (entryId !== null && this.pcmBuffers.length > 0) {
+                        const wavBlob = this.encodeWAV(this.pcmBuffers, sampleRate);
+                        this.submitRecording(entryId, wavBlob);
+                    }
+                });
+            }
         }
     }
 
-    private submitRecording(entryId: number) {
-        const blob = new Blob(this.audioChunks, { type: this.mediaRecorder?.mimeType || 'audio/webm' });
+    private encodeWAV(samples: Float32Array[], sampleRate: number): Blob {
+        let totalLength = 0;
+        for (const buffer of samples) totalLength += buffer.length;
+
+        const mergedSamples = new Float32Array(totalLength);
+        let offset = 0;
+        for (const buffer of samples) {
+            mergedSamples.set(buffer, offset);
+            offset += buffer.length;
+        }
+
+        const buffer = new ArrayBuffer(44 + mergedSamples.length * 2);
+        const view = new DataView(buffer);
+
+        const writeString = (view: DataView, offset: number, string: string) => {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        };
+
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + mergedSamples.length * 2, true);
+        writeString(view, 8, 'WAVE');
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeString(view, 36, 'data');
+        view.setUint32(40, mergedSamples.length * 2, true);
+
+        let index = 44;
+        for (let i = 0; i < mergedSamples.length; i++) {
+            const s = Math.max(-1, Math.min(1, mergedSamples[i]));
+            view.setInt16(index, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            index += 2;
+        }
+
+        return new Blob([view], { type: 'audio/wav' });
+    }
+
+    private submitRecording(entryId: number, wavBlob: Blob) {
         const formData = new FormData();
-        formData.append('audioFile', blob, 'recording.webm');
+        formData.append('audioFile', wavBlob, 'recording.wav');
 
         this.submitting.set(entryId);
 
