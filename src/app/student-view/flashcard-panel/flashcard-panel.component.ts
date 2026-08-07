@@ -48,7 +48,6 @@ export class FlashcardPanelComponent implements OnInit {
         { id: 'logs',    label: 'Study logs',    icon: 'pi pi-history' },
     ];
 
-    // ---- Podcast Mode ----
     podcastDialogVisible = signal(false);
     selectedCategories = signal<string[]>([]);
     podcastQueue = signal<FlashcardDto[]>([]);
@@ -75,6 +74,10 @@ export class FlashcardPanelComponent implements OnInit {
 
     ngOnInit() {
         this.flashcardService.flashcards.reload();
+
+        if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
+            speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
+        }
     }
 
     setTab(tabId: string) {
@@ -129,6 +132,24 @@ export class FlashcardPanelComponent implements OnInit {
             .replace(/\bsb\b/gi, 'somebody')
             .replace(/\bsth\b/gi, 'something');
     }
+
+    private getBestPolishVoice(): SpeechSynthesisVoice | null {
+        if (typeof speechSynthesis === 'undefined') return null;
+        const voices = speechSynthesis.getVoices();
+        if (!voices.length) return null;
+
+        const plVoices = voices.filter(v => v.lang.startsWith('pl'));
+        if (!plVoices.length) return null;
+
+        const naturalVoice = plVoices.find(v =>
+            v.name.includes('Natural') ||
+            v.name.includes('Google') ||
+            v.name.includes('Online') ||
+            v.name.includes('Neural')
+        );
+
+        return naturalVoice || plVoices[0];
+    }
     
     speak(text: string, event?: Event) {
         event?.stopPropagation();
@@ -149,6 +170,12 @@ export class FlashcardPanelComponent implements OnInit {
             u.lang = lang;
             u.rate = 0.9;
             u.pitch = 1;
+
+            if (lang.startsWith('pl')) {
+                const voice = this.getBestPolishVoice();
+                if (voice) u.voice = voice;
+            }
+
             u.onend = () => resolve();
             u.onerror = () => resolve();
             speechSynthesis.speak(u);
