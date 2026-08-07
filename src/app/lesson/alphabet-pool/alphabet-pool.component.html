@@ -81,7 +81,7 @@
 
       <div *ngIf="h.attempts.length" class="flex flex-col gap-1 mt-2">
         <div *ngFor="let a of h.attempts" class="text-xs text-muted-color italic flex items-center gap-2 flex-wrap">
-          <span>{{ a.createdAt | date:'d MMM, HH:mm' }} — {{ a.feedback }}</span>
+          <span>{{ a.createdAt | date:'d MMM, HH:mm':'UTC' }} — {{ a.feedback }}</span>
           <span *ngFor="let l of problemLetterList(a.problemLetters)"
             class="px-1 py-0.5 rounded bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-mono font-bold not-italic">
             {{ l }}
