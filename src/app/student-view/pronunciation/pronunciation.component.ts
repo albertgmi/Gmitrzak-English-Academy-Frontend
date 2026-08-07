@@ -34,8 +34,12 @@ export class PronunciationComponent implements OnInit {
     historyLoading  = signal<Record<number, boolean>>({});
     isRecording     = signal(false);
     recordingEntryId = signal<number | null>(null);
-    private mediaRecorder: MediaRecorder | null = null;
-    private audioChunks: Blob[] = [];
+
+    // Zmienne do nagrywania WAV przez Web Audio API
+    private audioContext: AudioContext | null = null;
+    private mediaStream: MediaStream | null = null;
+    private audioProcessor: ScriptProcessorNode | null = null;
+    private pcmBuffers: Float32Array[] = [];
 
     podcastDialogVisible = signal(false);
     selectedGroups       = signal<string[]>(['incorrect', 'pending']);
@@ -146,7 +150,7 @@ export class PronunciationComponent implements OnInit {
             const processedText = lang === 'en-US' ? this.expandAbbreviations(text) : text;
 
             const u = new SpeechSynthesisUtterance(processedText);
-            u.lang  = lang;
+            u.lang  = 'en-US';
             u.rate  = 0.9;
             u.pitch = 1;
 
@@ -311,20 +315,25 @@ export class PronunciationComponent implements OnInit {
         if (this.isRecording()) return;
 
         try {
-            const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
-            this.audioChunks = [];
-            this.mediaRecorder = new MediaRecorder(stream, { mimeType: 'audio/webm' });
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            
+            const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
+            this.audioContext = new AudioCtx({ sampleRate: 16000 });
+            
+            const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+            this.audioProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
+            this.pcmBuffers = [];
 
-            this.mediaRecorder.ondataavailable = (e) => {
-                if (e.data.size > 0) this.audioChunks.push(e.data);
+            this.audioProcessor.onaudioprocess = (e) => {
+                if (this.isRecording()) {
+                    const inputData = e.inputBuffer.getChannelData(0);
+                    this.pcmBuffers.push(new Float32Array(inputData));
+                }
             };
 
-            this.mediaRecorder.onstop = () => {
-                stream.getTracks().forEach(t => t.stop());
-                this.submitRecording(entryId);
-            };
+            source.connect(this.audioProcessor);
+            this.audioProcessor.connect(this.audioContext.destination);
 
-            this.mediaRecorder.start();
             this.isRecording.set(true);
             this.recordingEntryId.set(entryId);
         } catch {
@@ -337,17 +346,81 @@ export class PronunciationComponent implements OnInit {
     }
 
     stopRecording() {
-        if (this.mediaRecorder && this.isRecording()) {
-            this.mediaRecorder.stop();
+        if (this.isRecording()) {
             this.isRecording.set(false);
+            const entryId = this.recordingEntryId();
             this.recordingEntryId.set(null);
+
+            if (this.audioProcessor) {
+                this.audioProcessor.disconnect();
+                this.audioProcessor = null;
+            }
+
+            if (this.mediaStream) {
+                this.mediaStream.getTracks().forEach(t => t.stop());
+                this.mediaStream = null;
+            }
+
+            if (this.audioContext) {
+                const sampleRate = this.audioContext.sampleRate;
+                this.audioContext.close().then(() => {
+                    this.audioContext = null;
+                    if (entryId !== null && this.pcmBuffers.length > 0) {
+                        const wavBlob = this.encodeWAV(this.pcmBuffers, sampleRate);
+                        this.submitRecording(entryId, wavBlob);
+                    }
+                });
+            }
         }
     }
 
-    private submitRecording(entryId: number) {
-        const blob = new Blob(this.audioChunks, { type: 'audio/webm' });
+    private encodeWAV(samples: Float32Array[], sampleRate: number): Blob {
+        let totalLength = 0;
+        for (const buffer of samples) totalLength += buffer.length;
+        
+        const mergedSamples = new Float32Array(totalLength);
+        let offset = 0;
+        for (const buffer of samples) {
+            mergedSamples.set(buffer, offset);
+            offset += buffer.length;
+        }
+
+        const buffer = new ArrayBuffer(44 + mergedSamples.length * 2);
+        const view = new DataView(buffer);
+
+        const writeString = (view: DataView, offset: number, string: string) => {
+            for (let i = 0; i < string.length; i++) {
+                view.setUint8(offset + i, string.charCodeAt(i));
+            }
+        };
+
+        writeString(view, 0, 'RIFF');
+        view.setUint32(4, 36 + mergedSamples.length * 2, true);
+        writeString(view, 8, 'WAVE');
+        writeString(view, 12, 'fmt ');
+        view.setUint32(16, 16, true);
+        view.setUint16(20, 1, true);
+        view.setUint16(22, 1, true);
+        view.setUint32(24, sampleRate, true);
+        view.setUint32(28, sampleRate * 2, true);
+        view.setUint16(32, 2, true);
+        view.setUint16(34, 16, true);
+        writeString(view, 36, 'data');
+        view.setUint32(40, mergedSamples.length * 2, true);
+
+        let index = 44;
+        for (let i = 0; i < mergedSamples.length; i++) {
+            const s = Math.max(-1, Math.min(1, mergedSamples[i]));
+            view.setInt16(index, s < 0 ? s * 0x8000 : s * 0x7FFF, true);
+            index += 2;
+        }
+
+        return new Blob([view], { type: 'audio/wav' });
+    }
+
+    private submitRecording(entryId: number, wavBlob: Blob) {
         const formData = new FormData();
-        formData.append('audioFile', blob, 'recording.webm');
+        formData.append('audioFile', wavBlob, 'recording.wav');
 
         this.contentService.submitAttempt(entryId, formData).subscribe({
             next: (result) => {
