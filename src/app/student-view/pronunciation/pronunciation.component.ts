@@ -35,7 +35,6 @@ export class PronunciationComponent implements OnInit {
     isRecording     = signal(false);
     recordingEntryId = signal<number | null>(null);
 
-    // Zmienne do nagrywania WAV przez Web Audio API
     private audioContext: AudioContext | null = null;
     private mediaStream: MediaStream | null = null;
     private audioProcessor: ScriptProcessorNode | null = null;
@@ -427,8 +426,8 @@ export class PronunciationComponent implements OnInit {
                 const isGreat = result.result === 'Great';
                 this.messageService.add({
                     severity: isGreat ? 'success' : 'warn',
-                    summary: isGreat ? 'Great job!' : 'Not quite yet',
-                    detail: `Score: ${result.score}% · ${result.feedback}`,
+                    summary: isGreat ? 'Great job!' : 'Needs improvement',
+                    detail: result.feedback,
                     life: 5000
                 });
 
@@ -437,7 +436,8 @@ export class PronunciationComponent implements OnInit {
                     feedback: result.feedback,
                     result: result.result,
                     score: result.score,
-                    createdAt: new Date().toISOString()
+                    createdAt: new Date().toISOString(),
+                    phonemes: result.phonemes
                 };
 
                 this.historyCache.update(s => ({

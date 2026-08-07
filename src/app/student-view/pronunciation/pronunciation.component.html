@@ -245,57 +245,54 @@
         My AI practice history
       </h4>
 
-      <!-- Loading history -->
       <div *ngIf="isHistoryLoading(e.id)" class="py-4 text-center text-muted-color">
         <i class="pi pi-spin pi-spinner"></i>
       </div>
 
-      <!-- Empty history -->
       <div *ngIf="!isHistoryLoading(e.id) && !getHistory(e.id).length"
         class="py-3 text-center text-xs text-muted-color italic">
         No attempts yet — try recording above!
       </div>
 
-      <!-- Attempts list -->
       <div *ngIf="!isHistoryLoading(e.id) && getHistory(e.id).length"
-        class="flex flex-col gap-1.5 max-h-48 overflow-y-auto pr-1">
+        class="flex flex-col gap-2 max-h-60 overflow-y-auto pr-1">
 
         <div *ngFor="let attempt of getHistory(e.id)"
-          class="flex items-center justify-between rounded-lg px-3 py-2 text-sm
-                 border transition-colors"
+          class="flex flex-col gap-1.5 rounded-xl p-3 text-sm border transition-colors"
           [ngClass]="attempt.result === 'Great'
-            ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
-            : 'bg-orange-50 dark:bg-orange-900/20 border-orange-200 dark:border-orange-800'">
+            ? 'bg-green-50/60 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+            : 'bg-red-50/60 dark:bg-red-900/20 border-red-200 dark:border-red-800'">
 
-          <div class="flex items-center gap-2 min-w-0">
-            <i class="pi shrink-0 text-sm"
-               [class.pi-check-circle]="attempt.result === 'Great'"
-               [class.text-green-500]="attempt.result === 'Great'"
-               [class.pi-refresh]="attempt.result !== 'Great'"
-               [class.text-orange-400]="attempt.result !== 'Great'"></i>
-               
-            <span class="text-muted-color text-xs truncate italic"
-                  [pTooltip]="attempt.feedback"
-                  tooltipPosition="top">
-                  "{{ attempt.feedback }}"
-            </span>
-          </div>
-
-          <div class="flex items-center gap-2 shrink-0 ml-2">
-            <div class="flex flex-col items-end">
-              <span class="text-xs font-semibold"
-                [class.text-green-600]="attempt.result === 'Great'"
-                [class.dark:text-green-400]="attempt.result === 'Great'"
-                [class.text-orange-500]="attempt.result !== 'Great'">
-                {{ attempt.result === 'Great' ? 'Great' : 'Not yet' }}
-              </span>
-              <span class="text-xs text-muted-color">
-                {{ attempt.score }}%
-              </span>
+          <div class="flex items-center justify-between">
+            <div class="flex items-center gap-1.5 font-semibold text-xs"
+              [class.text-green-600]="attempt.result === 'Great'"
+              [class.dark:text-green-400]="attempt.result === 'Great'"
+              [class.text-red-500]="attempt.result !== 'Great'">
+              <i class="pi"
+                 [class.pi-check-circle]="attempt.result === 'Great'"
+                 [class.pi-times-circle]="attempt.result !== 'Great'"></i>
+              <span>{{ attempt.result === 'Great' ? 'Great' : 'Needs Practice' }}</span>
             </div>
+            
             <span class="text-xs text-muted-color">
               {{ attempt.createdAt | date:'d MMM, HH:mm' }}
             </span>
+          </div>
+
+          <div *ngIf="attempt.phonemes?.length" class="flex flex-wrap items-center gap-1 font-mono text-base my-0.5">
+            <span class="text-xs text-muted-color mr-1 font-sans">Sounds:</span>
+            <ng-container *ngFor="let p of attempt.phonemes">
+              <span class="px-1.5 py-0.5 rounded text-sm font-bold tracking-wide"
+                    [ngClass]="p.isCorrect 
+                      ? 'text-green-700 dark:text-green-300 bg-green-100 dark:bg-green-900/40' 
+                      : 'text-red-600 dark:text-red-400 bg-red-100 dark:bg-red-900/50 underline font-extrabold'">
+                /{{ p.phoneme }}/
+              </span>
+            </ng-container>
+          </div>
+
+          <div class="text-xs text-surface-700 dark:text-surface-200 mt-0.5 leading-relaxed">
+            {{ attempt.feedback }}
           </div>
 
         </div>

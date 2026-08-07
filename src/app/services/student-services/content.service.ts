@@ -70,18 +70,25 @@ export interface CorrectPronunciationDto {
     daysUntilRefresh: number;
 }
 
+export interface PhonemeAssessmentDto {
+    phoneme: string;
+    isCorrect: boolean;
+}
+
 export interface PronunciationAttemptDto {
     id: number;
     feedback: string;
     result: string;
     score: number;
     createdAt: string;
+    phonemes?: PhonemeAssessmentDto[];
 }
 
 export interface PronunciationResult {
     result: string;
     feedback: string;
     score: number;
+    phonemes?: PhonemeAssessmentDto[];
 }
 
 export interface AddNotesRequest {
