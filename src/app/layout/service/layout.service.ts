@@ -26,6 +26,8 @@ interface MenuChangeEvent {
     providedIn: 'root'
 })
 export class LayoutService {
+    private readonly STORAGE_KEY = 'sakai_layout_config';
+
     _config: layoutConfig = {
         preset: 'Aura',
         primary: 'emerald',
@@ -42,7 +44,21 @@ export class LayoutService {
         menuHoverActive: false
     };
 
-    layoutConfig = signal<layoutConfig>(this._config);
+    private getSavedConfig(): layoutConfig {
+        if (typeof window !== 'undefined') {
+            const saved = localStorage.getItem(this.STORAGE_KEY);
+            if (saved) {
+                try {
+                    return { ...this._config, ...JSON.parse(saved) };
+                } catch (e) {
+                    console.error('Błąd odczytu z localStorage:', e);
+                }
+            }
+        }
+        return this._config;
+    }
+
+    layoutConfig = signal<layoutConfig>(this.getSavedConfig());
 
     layoutState = signal<LayoutState>(this._state);
 
@@ -82,6 +98,13 @@ export class LayoutService {
         effect(() => {
             const config = this.layoutConfig();
             if (config) {
+                if (typeof window !== 'undefined') {
+                    try {
+                        localStorage.setItem(this.STORAGE_KEY, JSON.stringify(config));
+                    } catch (e) {
+                        console.warn('Brak dostępu do localStorage (np. tryb prywatny):', e);
+                    }
+                }
                 this.onConfigUpdate();
             }
         });
@@ -91,6 +114,7 @@ export class LayoutService {
 
             if (!this.initialized || !config) {
                 this.initialized = true;
+                this.toggleDarkMode(config);
                 return;
             }
 
