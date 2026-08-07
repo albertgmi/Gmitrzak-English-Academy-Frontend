@@ -584,6 +584,108 @@
     </div>
   </div>
 
+  <div *ngIf="activeTab() === 'alphabet'">
+    <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
+    
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div class="flex items-center justify-between">
+          <div>
+            <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+              Letter sequences
+            </h3>
+            <p class="text-xs text-muted-color m-0 mt-0.5">
+              This week's 15 sequences · mark as tested during the lesson
+            </p>
+          </div>
+          <p-button icon="pi pi-refresh" size="small" outlined
+            [loading]="loadingAlphabet()"
+            (onClick)="loadAlphabetTest()" />
+        </div>
+      
+        <div *ngIf="loadingAlphabet()" class="text-center py-6 text-muted-color">
+          <i class="pi pi-spin pi-spinner text-2xl"></i>
+        </div>
+      
+        <div *ngIf="!loadingAlphabet() && !alphabetLetters().length"
+          class="text-center py-8 text-muted-color text-sm">
+          <i class="pi pi-language text-2xl block mb-2"></i>
+          No letter sequences yet — student needs to generate this week's program.
+        </div>
+      
+        <div class="flex flex-col gap-2 overflow-y-auto max-h-[420px] pr-1">
+          <div *ngFor="let e of alphabetLetters()"
+            class="flex items-center justify-between p-3 rounded-xl border"
+            [ngClass]="{
+              'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800': e.status === 'Incorrect',
+              'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': e.status === 'Correct',
+              'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700': e.status === 'Pending'
+            }">
+            <span class="font-mono font-semibold text-surface-900 dark:text-surface-0 tracking-widest">
+              {{ e.content.split('').join(' ') }}
+            </span>
+            <div class="flex gap-2">
+              <p-button icon="pi pi-check" severity="success" size="small" outlined
+                [loading]="markingAlphabetId() === e.id"
+                pTooltip="Correct"
+                (onClick)="markAlphabet(e.id, 'correct')" />
+              <p-button icon="pi pi-times" severity="danger" size="small" outlined
+                [loading]="markingAlphabetId() === e.id"
+                pTooltip="Incorrect"
+                (onClick)="markAlphabet(e.id, 'incorrect')" />
+            </div>
+          </div>
+        </div>
+      
+        <div *ngIf="alphabetLetters().length" class="text-xs text-muted-color text-center pt-2
+          border-t border-surface-100 dark:border-surface-700">
+          {{ alphabetLetters().length }} sequences ·
+          <span class="text-red-500">{{ incorrectAlphabetInSession() }} incorrect</span>
+        </div>
+      </div>
+    
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
+        <div>
+          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">
+            Words to spell
+          </h3>
+          <p class="text-xs text-muted-color m-0 mt-0.5">
+            This week's 10 words from the global pool
+          </p>
+        </div>
+      
+        <div *ngIf="!loadingAlphabet() && !alphabetAbbreviations().length"
+          class="text-center py-8 text-muted-color text-sm">
+          <i class="pi pi-align-left text-2xl block mb-2"></i>
+          No words yet — student needs to generate this week's program.
+        </div>
+      
+        <div class="flex flex-col gap-2 overflow-y-auto max-h-[420px] pr-1">
+          <div *ngFor="let e of alphabetAbbreviations()"
+            class="flex items-center justify-between p-3 rounded-xl border"
+            [ngClass]="{
+              'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800': e.status === 'Incorrect',
+              'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800': e.status === 'Correct',
+              'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700': e.status === 'Pending'
+            }">
+            <span class="font-semibold text-surface-900 dark:text-surface-0">
+              {{ e.content }}
+            </span>
+            <div class="flex gap-2">
+              <p-button icon="pi pi-check" severity="success" size="small" outlined
+                [loading]="markingAlphabetId() === e.id"
+                pTooltip="Correct"
+                (onClick)="markAlphabet(e.id, 'correct')" />
+              <p-button icon="pi pi-times" severity="danger" size="small" outlined
+                [loading]="markingAlphabetId() === e.id"
+                pTooltip="Incorrect"
+                (onClick)="markAlphabet(e.id, 'incorrect')" />
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
   <div *ngIf="activeTab() === 'catalogues'">
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     

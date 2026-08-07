@@ -1,0 +1,96 @@
+<p-toast />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p class="text-muted-color mb-6">Select a student before starting the alphabet test.</p>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar [username]="student.username" [avatarUrl]="$any(student).avatarUrl"
+      customClass="w-10 h-10 text-base" fallbackBgClass="bg-primary text-white" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Alphabet Test</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} · {{ remaining() }} remaining</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && !entries().length" class="text-center py-16 text-muted-color">
+    <i class="pi pi-language text-5xl block mb-4"></i>
+    <p class="text-lg">This student hasn't generated an alphabet program yet.</p>
+  </div>
+
+  <div *ngIf="!loading() && entries().length" class="flex flex-col gap-8">
+
+    <ng-container *ngFor="let group of [
+      { title: 'Letters (' + letterEntries().length + ')', items: letterEntries(), mono: true },
+      { title: 'Spelling (' + spellingEntries().length + ')', items: spellingEntries(), mono: false }
+    ]">
+      <div>
+        <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-3">{{ group.title }}</h3>
+        <div class="flex flex-col gap-2">
+          <div *ngFor="let e of group.items" class="rounded-xl border overflow-hidden"
+            [ngClass]="e.status === 'Correct' ? 'bg-green-50 dark:bg-green-900/20 border-green-200 dark:border-green-800'
+              : e.status === 'Incorrect' ? 'bg-red-50 dark:bg-red-900/20 border-red-200 dark:border-red-800'
+              : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700'">
+
+            <div class="flex items-center justify-between p-3">
+              <div class="flex items-center gap-2 cursor-pointer" (click)="toggleExpand(e.id)">
+                <i class="pi text-muted-color text-xs"
+                  [class.pi-chevron-right]="expandedId() !== e.id"
+                  [class.pi-chevron-down]="expandedId() === e.id"></i>
+                <span class="font-semibold text-surface-900 dark:text-surface-0"
+                  [class.font-mono]="group.mono" [class.tracking-widest]="group.mono">
+                  {{ group.mono ? e.content.split('').join(' ') : e.content }}
+                </span>
+                <p-tag *ngIf="e.status === 'Incorrect'" severity="danger" value="Retry" />
+                <p-tag *ngIf="e.status === 'Correct'" severity="success" value="Correct" />
+              </div>
+              <div class="flex gap-2">
+                <p-button icon="pi pi-check" severity="success" size="small" outlined
+                  [loading]="markingId() === e.id" (onClick)="mark(e, 'correct')" />
+                <p-button icon="pi pi-times" severity="danger" size="small" outlined
+                  [loading]="markingId() === e.id" (onClick)="mark(e, 'incorrect')" />
+              </div>
+            </div>
+
+            <div *ngIf="expandedId() === e.id" class="border-t border-surface-200 dark:border-surface-700 px-3 py-3">
+              <div *ngIf="isAttemptsLoading(e.id)" class="text-center py-2 text-muted-color">
+                <i class="pi pi-spin pi-spinner"></i>
+              </div>
+              <div *ngIf="!isAttemptsLoading(e.id) && !getAttempts(e.id).length"
+                class="text-xs text-muted-color italic text-center py-2">
+                No AI attempts recorded yet.
+              </div>
+              <div *ngIf="!isAttemptsLoading(e.id) && getAttempts(e.id).length" class="flex flex-col gap-1.5">
+                <div *ngFor="let a of getAttempts(e.id)"
+                  class="flex items-start justify-between gap-2 text-xs bg-surface-50 dark:bg-surface-800 rounded-lg px-2.5 py-1.5">
+                  <div class="flex flex-col gap-1">
+                    <span class="text-muted-color italic">{{ a.feedback }}</span>
+                    <div *ngIf="a.problemLetters" class="flex gap-1 flex-wrap">
+                      <span *ngFor="let l of problemLetterList(a.problemLetters)"
+                        class="px-1 py-0.5 rounded bg-orange-200 dark:bg-orange-800 text-orange-800 dark:text-orange-200 font-mono font-bold">
+                        {{ l }}
+                      </span>
+                    </div>
+                  </div>
+                  <span class="text-muted-color shrink-0">{{ a.createdAt | date:'d MMM, HH:mm' }}</span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </ng-container>
+
+  </div>
+</div>

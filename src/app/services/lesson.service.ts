@@ -86,6 +86,38 @@ export interface SpellCheckResult {
     reason: string | null;
 }
 
+export interface AlphabetAbbreviationDto {
+    id: number;
+    text: string;
+}
+
+export interface AlphabetTestItemDto {
+    id: number;
+    type: string;
+    content: string;
+    status: string;
+    sortOrder: number;
+    markedCorrectAt?: string;
+}
+
+export interface AlphabetAttemptDto {
+    id: number;
+    problemLetters: string;
+    feedback: string;
+    createdAt: string;
+}
+
+export interface AlphabetHistoryItemDto {
+    id: number;
+    type: string;
+    content: string;
+    status: string;
+    weekStartDate: string;
+    markedCorrectAt?: string;
+    attemptCount: number;
+    attempts: AlphabetAttemptDto[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class LessonService {
     private apiUrl = `${environment.apiUrl}/api/lesson`;
@@ -208,5 +240,33 @@ export class LessonService {
 
     checkSpelling(text: string, language: string = 'English'): Observable<SpellCheckResult> {
         return this.http.post<SpellCheckResult>(`${this.apiUrl}/spellcheck`, { text, language });
+    }
+
+    getAlphabetPool() {
+        return this.http.get<AlphabetAbbreviationDto[]>(`${this.apiUrl}/alphabet/pool`);
+    }
+    
+    addAlphabetAbbreviation(text: string) {
+        return this.http.post(`${this.apiUrl}/alphabet/pool`, { text });
+    }
+    
+    deleteAlphabetAbbreviation(id: number) {
+        return this.http.delete(`${this.apiUrl}/alphabet/pool/${id}`);
+    }
+    
+    getAlphabetTest(studentUserId: number) {
+        return this.http.get<AlphabetTestItemDto[]>(`${this.apiUrl}/alphabet-test/${studentUserId}`);
+    }
+    
+    getAlphabetHistory(studentUserId: number) {
+        return this.http.get<AlphabetHistoryItemDto[]>(`${this.apiUrl}/alphabet-test/history/${studentUserId}`);
+    }
+    
+    getAlphabetEntryAttempts(entryId: number) {
+        return this.http.get<AlphabetAttemptDto[]>(`${this.apiUrl}/alphabet-test/${entryId}/attempts`);
+    }
+    
+    markAlphabetResult(entryId: number, result: 'correct' | 'incorrect') {
+        return this.http.post(`${this.apiUrl}/alphabet/mark`, { entryId, result });
     }
 }

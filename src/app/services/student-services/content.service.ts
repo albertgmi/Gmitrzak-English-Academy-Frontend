@@ -95,6 +95,27 @@ export interface AddNotesRequest {
     notes: string;
 }
 
+export interface AlphabetEntryDto {
+    id: number;
+    type: 'Letters' | 'Abbreviation';
+    content: string;
+    status: string;
+    sortOrder: number;
+    weekStartDate: string;
+}
+
+export interface AlphabetAttemptDto {
+    id: number;
+    problemLetters: string;
+    feedback: string;
+    createdAt: string;
+}
+
+export interface AlphabetResult {
+    problemLetters: string;
+    feedback: string;
+}
+
 @Injectable({ providedIn: 'root' })
 export class ContentService {
     private apiUrl = `${environment.apiUrl}/api/student-learning`;
@@ -115,6 +136,22 @@ export class ContentService {
     pronunciation = resource<PronunciationEntryDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<PronunciationEntryDto[]>(`${this.apiUrl}/pronunciation`))
     });
+
+    alphabet = resource<AlphabetEntryDto[], unknown>({
+        loader: () => lastValueFrom(this.http.get<AlphabetEntryDto[]>(`${this.apiUrl}/alphabet`))
+    });
+    
+    getAlphabetAttempts(entryId: number) {
+        return this.http.get<AlphabetAttemptDto[]>(`${this.apiUrl}/alphabet/${entryId}/attempts`);
+    }
+    
+    submitAlphabetAttempt(entryId: number, formData: FormData) {
+        return this.http.post<AlphabetResult>(`${this.apiUrl}/alphabet/${entryId}/attempt`, formData);
+    }
+    
+    generateAlphabetProgram() {
+        return this.http.post<void>(`${this.apiUrl}/alphabet/generate`, {});
+    }
 
     assignments = resource<AssignmentStudentDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<AssignmentStudentDto[]>(`${this.apiUrl}/assignments`))

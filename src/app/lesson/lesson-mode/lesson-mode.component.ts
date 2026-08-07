@@ -18,8 +18,9 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
 import { SpellCheckResult } from "../../services/lesson.service";
 import { CatalogueService, CatalogueDto } from '../../services/catalogue.service';
 import { SentenceService as SentenceSetsService } from '../../services/sentence.service';
+import { AlphabetTestItemDto } from '../../services/lesson.service';
 
-type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation' | 'catalogues';
+type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation' | 'alphabet' | 'catalogues';
 
 export interface SentenceStockDto {
     id: number;
@@ -53,6 +54,9 @@ export class LessonModeComponent {
         if (tab === 'catalogues') {
             this.catalogueService.reloadCatalogues();
             this.sentenceSetsService.reloadSets();
+        }
+        if (tab === 'alphabet') {
+            this.loadAlphabetTest();
         }
     }
 
@@ -101,6 +105,9 @@ export class LessonModeComponent {
     savingMemory   = signal(false);
 
     pronunciationTestList = signal<LessonPronunciationTestItemDto[]>([]);
+    alphabetList = signal<AlphabetTestItemDto[]>([]);
+    loadingAlphabet = signal(false);
+    markingAlphabetId = signal<number | null>(null);
     loadingPronunciationTest = signal(false);
     markingId = signal<number | null>(null);
     correctPronunciationList  = signal<LessonPronunciationTestItemDto[]>([]);
@@ -142,7 +149,8 @@ export class LessonModeComponent {
         { id: 'sentence', label: 'Sentence', icon: 'pi pi-align-left' },
         { id: 'memory', label: 'Memory', icon: 'pi pi-lightbulb' },
         { id: 'pronunciation', label: 'Pronunciation', icon: 'pi pi-microphone' },
-        { id: 'catalogues', label: 'Catalogues', icon: 'pi pi-folder' }
+        { id: 'catalogues', label: 'Catalogues', icon: 'pi pi-folder' },
+        { id: 'alphabet', label: 'Alphabet', icon: 'pi pi-language' },
     ];
 
     incorrectInSession = computed(() =>
@@ -191,6 +199,18 @@ export class LessonModeComponent {
             return dbCategory === currentCategory;
         });
     });
+
+    incorrectAlphabetInSession = computed(() =>
+        this.alphabetList().filter(e => e.status === 'Incorrect').length
+    );
+
+    alphabetLetters = computed(() =>
+        this.alphabetList().filter(e => e.type === 'Letters')
+    );
+
+    alphabetAbbreviations = computed(() =>
+        this.alphabetList().filter(e => e.type === 'Abbreviation')
+    );
 
     selectedCatalogueId = signal<number | null>(null);
     assigningCatalogue = signal(false);
@@ -832,5 +852,33 @@ export class LessonModeComponent {
             case 'sentence': this.spellCheckSentence.set(null); break;
             case 'translation': this.spellCheckTranslation.set(null); break;
         }
+    }
+
+    loadAlphabetTest() {
+        const studentId = this.studentId;
+        if (!studentId) return;
+        this.loadingAlphabet.set(true);
+        this.lessonService.getAlphabetTest(studentId).subscribe({
+            next: (res) => {
+                this.alphabetList.set(res || []);
+                this.loadingAlphabet.set(false);
+            },
+            error: () => this.loadingAlphabet.set(false)
+        });
+    }
+    
+    markAlphabet(entryId: number, result: 'correct' | 'incorrect') {
+        this.markingAlphabetId.set(entryId);
+        this.lessonService.markAlphabetResult(entryId, result).subscribe({
+            next: () => {
+                this.alphabetList.update(list =>
+                    list.map(e => e.id === entryId
+                        ? { ...e, status: result === 'correct' ? 'Correct' : 'Incorrect' }
+                        : e)
+                );
+                this.markingAlphabetId.set(null);
+            },
+            error: () => this.markingAlphabetId.set(null)
+        });
     }
 }

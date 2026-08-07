@@ -74,6 +74,9 @@ import { CheckEssaysComponent } from './content/check-essays/check-essays.compon
 import { EssayModuleComponent } from './student-view/essay-module/essay-module.component';
 import { StudentActivityComponent } from './other/student-activity/student-activity.component';
 import { AssignCourseComponent } from './curriculum/course-files/assign-course/assign-course.component';
+import { AlphabetTestComponent } from './student-view/alphabet-test/alphabet-test.component';
+import { AlphabetPoolComponent } from './lesson/alphabet-pool/alphabet-pool.component';
+import { AlphabetLessonTestComponent } from './other/alphabet-lesson-test/alphabet-lesson-test.component';
 
 
 
@@ -157,7 +160,10 @@ export const appRoutes: Routes = [
       { path: 'lesson/check-essays', component: CheckEssaysComponent, canActivate: [AuthGuard] },
       { path: 'lesson/credits', component: AdminCreditsComponent, canActivate: [AuthGuard] },
       { path: 'system/student-activity', component: StudentActivityComponent, canActivate: [AuthGuard] },
-      { path: 'curriculum/courses/plan', component: AssignCourseComponent, canActivate: [AuthGuard] }
+      { path: 'curriculum/courses/plan', component: AssignCourseComponent, canActivate: [AuthGuard] },
+      { path: 'alphabet-test', component: AlphabetTestComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/alphabet', component: AlphabetLessonTestComponent, canActivate: [AuthGuard] },
+      { path: 'system/alphabet-pool', component: AlphabetPoolComponent, canActivate: [AuthGuard] },
 
     ]
   },

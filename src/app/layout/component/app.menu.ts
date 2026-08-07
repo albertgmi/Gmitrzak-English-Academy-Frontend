@@ -113,6 +113,7 @@ export class AppMenu implements OnInit {
             items: [
               { label: 'Catalogues', icon: 'pi pi-folder-open', routerLink: ['/system/catalogues'] },
               { label: 'Global Vocabulary', icon: 'pi pi-book', routerLink: ['/system/global-vocabulary'] },
+              { label: 'Alphabet Pool', icon: 'pi pi-language', routerLink: ['/system/alphabet-pool'] },
               { label: 'Assign Global Vocabulary', icon: 'pi pi-user-plus', routerLink: ['/system/global-vocabulary/assign'] },
               { label: 'Sentence Stock', icon: 'pi pi-align-left', routerLink: ['/system/sentences/stock'] },
               { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
@@ -162,6 +163,7 @@ export class AppMenu implements OnInit {
           { label: 'Sentences', icon: 'pi pi-align-left', routerLink: ['/sentences'] },
           { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/memories'] },
           { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/pronunciation'] },
+          { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/alphabet-test'] },
           { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] }
         ]
       },
@@ -193,6 +195,7 @@ export class AppMenu implements OnInit {
       { label: 'Homework Check', icon: 'pi pi-check-square', routerLink: ['/lesson/homework'] },
       { label: 'List / Notes', icon: 'pi pi-file-edit', routerLink: ['/lesson/list'] },
       { label: 'Test Pronunciation', icon: 'pi pi-microphone', routerLink: ['/lesson/pronunciation'] },
+      { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/lesson/alphabet'] },
       { label: 'Sentence Answers', icon: 'pi pi-check-square', routerLink: '/lesson/sentence-answers' },
       { label: 'Grade Student', icon: 'pi pi-star', routerLink: ['/lesson/grade'] },
       { label: 'Grades', icon: 'pi pi-chart-bar', routerLink: ['/lesson/grades'] },
