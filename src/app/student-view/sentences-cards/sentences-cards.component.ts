@@ -39,7 +39,7 @@ export class SentencesCardsComponent implements OnInit {
         if (s === 0) {
             return {
                 icon: 'pi-calendar-plus',
-                text: '0 Day Streak — Start building your daily habit today!',
+                text: '0 Day Streak - Start today!',
                 bgClass: 'bg-surface-100 dark:bg-surface-800/60',
                 borderClass: 'border-surface-300 dark:border-surface-700',
                 textClass: 'text-surface-600 dark:text-surface-400',
@@ -49,7 +49,7 @@ export class SentencesCardsComponent implements OnInit {
         if (s === 1) {
             return {
                 icon: 'pi-bolt',
-                text: '1 Day Streak — Great start! Keep it up tomorrow!',
+                text: '1 Day Streak - Keep it up tomorrow!',
                 bgClass: 'bg-amber-500/10 dark:bg-amber-500/20',
                 borderClass: 'border-amber-500/30',
                 textClass: 'text-amber-600 dark:text-amber-400',
@@ -59,7 +59,7 @@ export class SentencesCardsComponent implements OnInit {
         if (s < 7) {
             return {
                 icon: 'pi-bolt',
-                text: `${s} Day Streak — You're building momentum!`,
+                text: `${s} Day Streak - Great job!`,
                 bgClass: 'bg-orange-500/10 dark:bg-orange-500/20',
                 borderClass: 'border-orange-500/30',
                 textClass: 'text-orange-600 dark:text-orange-400',
@@ -69,7 +69,7 @@ export class SentencesCardsComponent implements OnInit {
         if (s < 14) {
             return {
                 icon: 'pi-star-fill',
-                text: `${s} Day Streak — 1 week streak! Outstanding!`,
+                text: `${s} Day Streak - Outstanding!`,
                 bgClass: 'bg-emerald-500/10 dark:bg-emerald-500/20',
                 borderClass: 'border-emerald-500/30',
                 textClass: 'text-emerald-600 dark:text-emerald-400',
@@ -79,7 +79,7 @@ export class SentencesCardsComponent implements OnInit {
         if (s < 30) {
             return {
                 icon: 'pi-star-fill',
-                text: `${s} Day Streak — On fire! Master of consistency!`,
+                text: `${s} Day Streak - Master of consistency!`,
                 bgClass: 'bg-purple-500/10 dark:bg-purple-500/20',
                 borderClass: 'border-purple-500/30',
                 textClass: 'text-purple-600 dark:text-purple-400',
@@ -88,7 +88,7 @@ export class SentencesCardsComponent implements OnInit {
         }
         return {
             icon: 'pi-trophy',
-            text: `${s} Day Streak — Legendary streak! Absolute dedication!`,
+            text: `${s} Day Streak - Absolute dedication!`,
             bgClass: 'bg-cyan-500/10 dark:bg-cyan-500/20',
             borderClass: 'border-cyan-500/40',
             textClass: 'text-cyan-600 dark:text-cyan-400',
