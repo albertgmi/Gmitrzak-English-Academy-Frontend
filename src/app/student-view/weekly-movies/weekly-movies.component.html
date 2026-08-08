@@ -1,0 +1,193 @@
+<div class="weekly-movies-container p-4 md:p-6 space-y-6">
+
+  <!-- Header Banner -->
+  <div class="surface-card p-6 border-round-2xl shadow-2 relative overflow-hidden flex flex-column md:flex-row justify-content-between align-items-center gap-4 bg-gradient-header">
+    <div class="z-1">
+      <div class="flex align-items-center gap-2 mb-2">
+        <span class="inline-flex align-items-center justify-center p-2 border-circle bg-primary-100 text-primary">
+          <i class="pi pi-video text-2xl"></i>
+        </span>
+        <h1 class="text-3xl font-extrabold m-0 text-surface-900 dark:text-surface-0">Weekly Movie Leaderboard</h1>
+      </div>
+      <p class="text-muted-color m-0 text-base">
+        Discover what movies your fellow students are watching this week (Monday – Sunday) and see who's leading the charts!
+      </p>
+    </div>
+    
+    <div *ngIf="data()" class="z-1 flex flex-column align-items-end gap-2">
+      <p-tag severity="info" class="text-sm font-semibold px-3 py-2 border-round-xl">
+        <i class="pi pi-calendar mr-2"></i>
+        {{ data()?.weekStartDate }} &ndash; {{ data()?.weekEndDate }}
+      </p-tag>
+    </div>
+  </div>
+
+  <!-- Loading Skeleton -->
+  <div *ngIf="loading()" class="grid">
+    <div class="col-12 md:col-4" *for="let i of [1,2,3]">
+      <p-skeleton height="200px" styleClass="border-round-2xl"></p-skeleton>
+    </div>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error()" class="p-4 border-round-xl bg-red-50 text-red-700 dark:bg-red-900/30 dark:text-red-300 flex align-items-center justify-content-between">
+    <div class="flex align-items-center gap-3">
+      <i class="pi pi-exclamation-triangle text-2xl"></i>
+      <span>{{ error() }}</span>
+    </div>
+    <p-button label="Retry" icon="pi pi-refresh" (onClick)="loadWeeklyMovies()" styleClass="p-button-outlined p-button-danger p-button-sm"></p-button>
+  </div>
+
+  <ng-container *ngIf="!loading() && data() as stats">
+
+    <!-- Overall Community Stats Banner -->
+    <div class="grid">
+      <div class="col-12 md:col-6 lg:col-4">
+        <div class="surface-card p-4 border-round-2xl shadow-1 flex align-items-center justify-content-between border-left-4 border-primary">
+          <div>
+            <span class="text-muted-color font-medium text-sm block mb-1">Community Total Watched</span>
+            <span class="text-3xl font-black text-surface-900 dark:text-surface-0">
+              {{ stats.totalEpisodesWatched }}
+            </span>
+            <span class="text-xs text-muted-color block mt-1">episodes / movies this week</span>
+          </div>
+          <div class="w-3rem h-3rem border-circle bg-primary-50 dark:bg-primary-900/40 flex align-items-center justify-center text-primary">
+            <i class="pi pi-desktop text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-6 lg:col-4">
+        <div class="surface-card p-4 border-round-2xl shadow-1 flex align-items-center justify-content-between border-left-4 border-purple-500">
+          <div>
+            <span class="text-muted-color font-medium text-sm block mb-1">Unique Movies Trending</span>
+            <span class="text-3xl font-black text-surface-900 dark:text-surface-0">
+              {{ stats.topMovies.length }}
+            </span>
+            <span class="text-xs text-muted-color block mt-1">titles logged by students</span>
+          </div>
+          <div class="w-3rem h-3rem border-circle bg-purple-50 dark:bg-purple-900/40 flex align-items-center justify-center text-purple-500">
+            <i class="pi pi-ticket text-xl"></i>
+          </div>
+        </div>
+      </div>
+
+      <div class="col-12 md:col-6 lg:col-4">
+        <div class="surface-card p-4 border-round-2xl shadow-1 flex align-items-center justify-content-between border-left-4 border-amber-500">
+          <div>
+            <span class="text-muted-color font-medium text-sm block mb-1">Top Active Watchers</span>
+            <span class="text-3xl font-black text-surface-900 dark:text-surface-0">
+              {{ stats.topWatchers.length }}
+            </span>
+            <span class="text-xs text-muted-color block mt-1">lead students on podium</span>
+          </div>
+          <div class="w-3rem h-3rem border-circle bg-amber-50 dark:bg-amber-900/40 flex align-items-center justify-center text-amber-500">
+            <i class="pi pi-crown text-xl"></i>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Top 3 Watchers Podium -->
+    <div *ngIf="stats.topWatchers.length > 0" class="surface-card p-5 border-round-2xl shadow-2">
+      <div class="flex align-items-center gap-2 mb-4">
+        <i class="pi pi-trophy text-amber-500 text-2xl"></i>
+        <h2 class="text-xl font-bold m-0 text-surface-900 dark:text-surface-0">Top 3 Movie Watchers This Week</h2>
+      </div>
+
+      <div class="podium-wrapper flex flex-column md:flex-row align-items-end justify-content-center gap-4 py-4">
+        
+        <!-- 2nd Place (Silver) -->
+        <div *ngIf="top2Watcher() as w2" class="podium-card podium-silver flex-1 flex flex-column align-items-center p-4 border-round-2xl surface-100 dark:surface-800 shadow-2 w-full md:w-auto">
+          <div class="rank-badge silver-badge mb-3">#2</div>
+          <app-avatar [username]="w2.username" [avatarUrl]="w2.avatarUrl" customClass="w-5rem h-5rem shadow-2 mb-2"></app-avatar>
+          <span class="font-bold text-lg text-surface-900 dark:text-surface-0">{{ w2.username }}</span>
+          <p-tag severity="secondary" value="{{ w2.totalWatchedCount }} watched" styleClass="mt-2 text-xs px-3 py-1 font-semibold border-round-lg"></p-tag>
+        </div>
+
+        <!-- 1st Place (Gold) -->
+        <div *ngIf="top1Watcher() as w1" class="podium-card podium-gold flex-1 flex flex-column align-items-center p-4 border-round-2xl surface-0 dark:surface-900 shadow-3 w-full md:w-auto transform-elevated">
+          <div class="crown-icon mb-1"><i class="pi pi-crown text-3xl text-amber-400"></i></div>
+          <div class="rank-badge gold-badge mb-3">#1</div>
+          <app-avatar [username]="w1.username" [avatarUrl]="w1.avatarUrl" customClass="w-6rem h-6rem shadow-3 mb-2 border-2 border-amber-400"></app-avatar>
+          <span class="font-extrabold text-xl text-surface-900 dark:text-surface-0">{{ w1.username }}</span>
+          <p-tag severity="warn" value="{{ w1.totalWatchedCount }} watched" styleClass="mt-2 text-sm px-3 py-1 font-bold border-round-lg"></p-tag>
+        </div>
+
+        <!-- 3rd Place (Bronze) -->
+        <div *ngIf="top3Watcher() as w3" class="podium-card podium-bronze flex-1 flex flex-column align-items-center p-4 border-round-2xl surface-100 dark:surface-800 shadow-2 w-full md:w-auto">
+          <div class="rank-badge bronze-badge mb-3">#3</div>
+          <app-avatar [username]="w3.username" [avatarUrl]="w3.avatarUrl" customClass="w-5rem h-5rem shadow-2 mb-2"></app-avatar>
+          <span class="font-bold text-lg text-surface-900 dark:text-surface-0">{{ w3.username }}</span>
+          <p-tag severity="contrast" value="{{ w3.totalWatchedCount }} watched" styleClass="mt-2 text-xs px-3 py-1 font-semibold border-round-lg"></p-tag>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Most Watched Movies Table / Leaderboard -->
+    <div class="surface-card p-5 border-round-2xl shadow-2">
+      <div class="flex align-items-center justify-content-between mb-4">
+        <div class="flex align-items-center gap-2">
+          <i class="pi pi-list text-primary text-2xl"></i>
+          <h2 class="text-xl font-bold m-0 text-surface-900 dark:text-surface-0">Most Watched Movies</h2>
+        </div>
+        <span class="text-xs text-muted-color font-medium">Ranked by total episodes / views</span>
+      </div>
+
+      <!-- Table when items exist -->
+      <p-table *ngIf="stats.topMovies.length > 0" [value]="stats.topMovies" responsiveLayout="scroll" styleClass="p-datatable-striped">
+        <ng-template pTemplate="header">
+          <tr>
+            <th style="width: 80px" class="text-center">Rank</th>
+            <th>Movie Title</th>
+            <th class="text-center">Total Episodes / Watched</th>
+            <th class="text-center">Viewers Count</th>
+          </tr>
+        </ng-template>
+        <ng-template pTemplate="body" let-movie>
+          <tr>
+            <td class="text-center">
+              <span *ngIf="movie.rank === 1" class="rank-circle gold-circle font-bold">1</span>
+              <span *ngIf="movie.rank === 2" class="rank-circle silver-circle font-bold">2</span>
+              <span *ngIf="movie.rank === 3" class="rank-circle bronze-circle font-bold">3</span>
+              <span *ngIf="movie.rank > 3" class="text-sm font-semibold text-muted-color">#{{ movie.rank }}</span>
+            </td>
+            <td>
+              <div class="flex align-items-center gap-3">
+                <i class="pi pi-film text-xl text-primary"></i>
+                <span class="font-bold text-surface-900 dark:text-surface-0 text-base">{{ movie.title }}</span>
+              </div>
+            </td>
+            <td class="text-center">
+              <span class="inline-flex align-items-center gap-1 font-bold text-primary bg-primary-50 dark:bg-primary-900/30 px-3 py-1 border-round-xl">
+                <i class="pi pi-eye text-sm"></i>
+                {{ movie.totalWatchedCount }}
+              </span>
+            </td>
+            <td class="text-center">
+              <span class="text-sm text-muted-color font-medium">
+                <i class="pi pi-users mr-1"></i>
+                {{ movie.uniqueViewersCount }} student{{ movie.uniqueViewersCount === 1 ? '' : 's' }}
+              </span>
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+
+      <!-- Empty State -->
+      <div *ngIf="stats.topMovies.length === 0" class="flex flex-column align-items-center justify-content-center p-6 text-center">
+        <div class="w-5rem h-5rem border-circle bg-primary-50 dark:bg-primary-900/40 flex align-items-center justify-center text-primary mb-3">
+          <i class="pi pi-film text-4xl"></i>
+        </div>
+        <h3 class="text-xl font-bold m-0 mb-2 text-surface-900 dark:text-surface-0">No Movies Logged This Week</h3>
+        <p class="text-muted-color max-w-md m-0 mb-4">
+          Be the first student to submit a movie in your Listening Report to get it featured on this week's leaderboard!
+        </p>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+</div>

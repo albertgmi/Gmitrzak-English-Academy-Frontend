@@ -32,6 +32,7 @@ import {SentencesComponent} from './student-view/sentences/sentences.component';
 import {MemoriesComponent} from './student-view/memories/memories.component';
 import {PronunciationComponent} from './student-view/pronunciation/pronunciation.component';
 import {AssignmentsComponent} from './student-view/assignments/assignments.component';
+import {WeeklyMoviesComponent} from './student-view/weekly-movies/weekly-movies.component';
 import {FlashcardStudyModeComponent} from './student-view/flashcard-study-mode/flashcard-study-mode.component';
 import {SwitchClientComponent} from './lesson/switch-client/switch-client.component';
 import {LessonModeComponent} from './lesson/lesson-mode/lesson-mode.component';
@@ -109,6 +110,7 @@ export const appRoutes: Routes = [
       { path: 'curriculum/modules/plan', component: PlanModuleComponent, canActivate: [AuthGuard] },
       { path: 'courses', component: UserCourseComponent, canActivate: [AuthGuard] },
       { path: 'last-week', component: LastWeekComponent, canActivate: [AuthGuard] },
+      { path: 'weekly-movies', component: WeeklyMoviesComponent, canActivate: [AuthGuard] },
       { path: 'activity-points',  component: ActivityPointsComponent,  canActivate: [AuthGuard] },
       { path: 'grades', component: GradesComponent, canActivate: [AuthGuard] },
       { path: 'stats', component: StatsComponent, canActivate: [AuthGuard] },

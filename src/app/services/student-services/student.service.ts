@@ -99,10 +99,38 @@ export interface PointEntry {
     reason: string;
 }
 
+export interface WeeklyMovieItemDto {
+    rank: number;
+    title: string;
+    totalWatchedCount: number;
+    uniqueViewersCount: number;
+}
+
+export interface TopWatcherDto {
+    rank: number;
+    userId: number;
+    username: string;
+    avatarUrl?: string | null;
+    totalWatchedCount: number;
+}
+
+export interface WeeklyMoviesResponseDto {
+    weekStartDate: string;
+    weekEndDate: string;
+    totalEpisodesWatched: number;
+    topMovies: WeeklyMovieItemDto[];
+    topWatchers: TopWatcherDto[];
+}
+
 @Injectable({ providedIn: 'root' })
 export class StudentService {
     private apiUrl = `${environment.apiUrl}/api/student`;
+    private studentLearningApiUrl = `${environment.apiUrl}/api/student-learning`;
     http = inject(HttpClient);
+
+    getWeeklyMoviesStats() {
+        return this.http.get<WeeklyMoviesResponseDto>(`${this.studentLearningApiUrl}/weekly-movies`);
+    }
 
     courses = resource<StudentAssignmentDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<StudentAssignmentDto[]>(`${this.apiUrl}/courses`))
