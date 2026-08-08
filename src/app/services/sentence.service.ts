@@ -1,4 +1,4 @@
-import { inject, Injectable, resource } from '@angular/core';
+import { inject, Injectable, resource, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
@@ -80,16 +80,40 @@ export class SentenceService {
 
     http = inject(HttpClient);
 
-    stock = resource<SentenceStockDto[], unknown>({
-        loader: () => lastValueFrom(this.http.get<SentenceStockDto[]>(`${this.apiUrl}/stock`))
+    private loadStockTrigger = signal(false);
+    private loadSetsTrigger  = signal(false);
+
+    stock = resource<SentenceStockDto[], boolean>({
+        request: () => this.loadStockTrigger(),
+        loader: ({ request }) => {
+            if (!request) return Promise.resolve([]);
+            return lastValueFrom(this.http.get<SentenceStockDto[]>(`${this.apiUrl}/stock`));
+        }
     });
 
-    sets = resource<SentenceSetGroupDto[], unknown>({
-        loader: () => lastValueFrom(this.http.get<SentenceSetGroupDto[]>(`${this.apiUrl}/sets`))
+    sets = resource<SentenceSetGroupDto[], boolean>({
+        request: () => this.loadSetsTrigger(),
+        loader: ({ request }) => {
+            if (!request) return Promise.resolve([]);
+            return lastValueFrom(this.http.get<SentenceSetGroupDto[]>(`${this.apiUrl}/sets`));
+        }
     });
 
-    reloadStock() { this.stock.reload(); }
-    reloadSets()  { this.sets.reload(); }
+    reloadStock() {
+        if (!this.loadStockTrigger()) {
+            this.loadStockTrigger.set(true);
+        } else {
+            this.stock.reload();
+        }
+    }
+
+    reloadSets() {
+        if (!this.loadSetsTrigger()) {
+            this.loadSetsTrigger.set(true);
+        } else {
+            this.sets.reload();
+        }
+    }
 
     createStock(polish: string, englishTranslation: string, category: string) {
         return this.http.post(`${this.apiUrl}/stock`, { polish, englishTranslation, category });
