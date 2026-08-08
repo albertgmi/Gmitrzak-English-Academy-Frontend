@@ -77,6 +77,8 @@ import { AssignCourseComponent } from './curriculum/course-files/assign-course/a
 import { AlphabetTestComponent } from './student-view/alphabet-test/alphabet-test.component';
 import { AlphabetPoolComponent } from './lesson/alphabet-pool/alphabet-pool.component';
 import { AlphabetLessonTestComponent } from './other/alphabet-lesson-test/alphabet-lesson-test.component';
+import { LessonMemoriesComponent } from './lesson/lesson-memories/lesson-memories.component';
+import { LessonPronunciationComponent } from './lesson/lesson-pronunciation/lesson-pronunciation.component';
 
 
 
@@ -164,6 +166,8 @@ export const appRoutes: Routes = [
       { path: 'alphabet-test', component: AlphabetTestComponent, canActivate: [AuthGuard] },
       { path: 'lesson/alphabet', component: AlphabetLessonTestComponent, canActivate: [AuthGuard] },
       { path: 'system/alphabet-pool', component: AlphabetPoolComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/memories', component: LessonMemoriesComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/pronunciation-entries', component: LessonPronunciationComponent, canActivate: [AuthGuard] },
 
     ]
   },

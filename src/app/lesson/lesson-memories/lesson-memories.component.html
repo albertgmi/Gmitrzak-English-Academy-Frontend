@@ -1,0 +1,120 @@
+<p-toast />
+<p-confirmDialog />
+
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (click)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <!-- Header -->
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar [username]="student.username" [avatarUrl]="$any(student).avatarUrl"
+      customClass="w-10 h-10 text-base" fallbackBgClass="bg-primary text-white" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
+        Memories
+      </h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — view and edit memories</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+      size="small" (click)="goToSwitchClient()" />
+  </div>
+
+  <!-- Table -->
+  <p-table [value]="memories()" [loading]="loading()" [paginator]="true" [rows]="10"
+    [rowsPerPageOptions]="[10, 25, 50]" responsiveLayout="scroll"
+    styleClass="p-datatable-striped">
+    
+    <ng-template pTemplate="header">
+      <tr>
+        <th style="width: 20%">Option A</th>
+        <th style="width: 20%">Option B</th>
+        <th style="width: 25%">Content</th>
+        <th style="width: 15%">Category</th>
+        <th style="width: 10%">Notes</th>
+        <th style="width: 10%" class="text-center">Actions</th>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="body" let-item>
+      <tr>
+        <td class="font-medium text-surface-900 dark:text-surface-0">{{ item.optionA }}</td>
+        <td>{{ item.optionB || '—' }}</td>
+        <td>{{ item.content || '—' }}</td>
+        <td>
+          <p-tag *ngIf="item.category" [value]="item.category" severity="info" />
+          <span *ngIf="!item.category" class="text-muted-color">—</span>
+        </td>
+        <td class="text-sm text-muted-color">{{ item.notes || '—' }}</td>
+        <td class="text-center">
+          <div class="flex items-center justify-center gap-2">
+            <p-button icon="pi pi-pencil" severity="warn" [rounded]="true" [text]="true"
+              pTooltip="Edit Memory" (click)="openEdit(item)" />
+            <p-button icon="pi pi-trash" severity="danger" [rounded]="true" [text]="true"
+              pTooltip="Delete Memory" (click)="confirmDelete(item)" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template pTemplate="emptymessage">
+      <tr>
+        <td colspan="6" class="text-center py-8 text-muted-color">
+          <i class="pi pi-lightbulb text-3xl block mb-2"></i>
+          No memories found for {{ student.username }}.
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- Edit Dialog -->
+<p-dialog [visible]="!!editingMemory()" (visibleChange)="!$event ? editingMemory.set(null) : null"
+  header="Edit Memory" [modal]="true" [style]="{ width: '480px' }">
+  
+  <ng-template pTemplate="content">
+    <div *ngIf="editingMemory()" class="flex flex-col gap-4 pt-2">
+      <div>
+        <label class="block font-bold mb-1">Content</label>
+        <textarea pTextarea [ngModel]="editForm().content"
+          (ngModelChange)="editForm.set({ content: $event, optionA: editForm().optionA, optionB: editForm().optionB, notes: editForm().notes, category: editForm().category })"
+          rows="3" class="w-full"></textarea>
+      </div>
+
+      <div>
+        <label class="block font-bold mb-1">Option A</label>
+        <input pInputText type="text" [ngModel]="editForm().optionA"
+          (ngModelChange)="editForm.set({ content: editForm().content, optionA: $event, optionB: editForm().optionB, notes: editForm().notes, category: editForm().category })"
+          class="w-full" />
+      </div>
+
+      <div>
+        <label class="block font-bold mb-1">Option B</label>
+        <input pInputText type="text" [ngModel]="editForm().optionB"
+          (ngModelChange)="editForm.set({ content: editForm().content, optionA: editForm().optionA, optionB: $event, notes: editForm().notes, category: editForm().category })"
+          class="w-full" />
+      </div>
+
+      <div>
+        <label class="block font-bold mb-1">Category</label>
+        <input pInputText type="text" [ngModel]="editForm().category"
+          (ngModelChange)="editForm.set({ content: editForm().content, optionA: editForm().optionA, optionB: editForm().optionB, notes: editForm().notes, category: $event })"
+          class="w-full" />
+      </div>
+
+      <div>
+        <label class="block font-bold mb-1">Notes</label>
+        <textarea pTextarea [ngModel]="editForm().notes"
+          (ngModelChange)="editForm.set({ content: editForm().content, optionA: editForm().optionA, optionB: editForm().optionB, notes: $event, category: editForm().category })"
+          rows="2" class="w-full"></textarea>
+      </div>
+    </div>
+  </ng-template>
+
+  <ng-template pTemplate="footer">
+    <p-button label="Cancel" severity="secondary" outlined (click)="editingMemory.set(null)" />
+    <p-button label="Save" icon="pi pi-check" [loading]="saving()" (click)="saveEdit()" />
+  </ng-template>
+</p-dialog>
