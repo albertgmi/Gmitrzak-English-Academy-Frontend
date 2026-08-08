@@ -1,4 +1,4 @@
-import { Component, inject, signal, computed, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit, OnDestroy } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ToastModule } from 'primeng/toast';
 import { ButtonModule } from 'primeng/button';
@@ -27,7 +27,7 @@ function getMondayIso(date: Date): string {
     providers: [MessageService],
     templateUrl: './alphabet-test.component.html'
 })
-export class AlphabetTestComponent implements OnInit {
+export class AlphabetTestComponent implements OnInit, OnDestroy {
     private contentService = inject(ContentService);
     private messageService = inject(MessageService);
     private activityService = inject(SectionActivityService);
@@ -46,6 +46,8 @@ export class AlphabetTestComponent implements OnInit {
     private mediaStream: MediaStream | null = null;
     private audioProcessor: ScriptProcessorNode | null = null;
     private pcmBuffers: Float32Array[] = [];
+    private recordStartedAt = 0;
+    private readonly MIN_RECORD_MS = 600;
 
     letterEntries = computed(() =>
         (this.entries.value() ?? []).filter(e => e.type === 'Letters')
@@ -64,6 +66,10 @@ export class AlphabetTestComponent implements OnInit {
     ngOnInit() {
         this.activityService.logActivity('pronunciation').subscribe();
         this.contentService.alphabet.reload();
+    }
+
+    ngOnDestroy() {
+        this.teardownAudio();
     }
 
     setTab(tab: AlphabetTab) {
@@ -135,12 +141,23 @@ export class AlphabetTestComponent implements OnInit {
         if (this.isRecording()) return;
 
         try {
-            this.mediaStream = await navigator.mediaDevices.getUserMedia({ audio: true });
+            this.mediaStream = await navigator.mediaDevices.getUserMedia({
+                audio: {
+                    channelCount: 1,
+                    echoCancellation: true,
+                    noiseSuppression: true
+                }
+            });
 
             const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-            this.audioContext = new AudioCtx({ sampleRate: 16000 });
+            this.audioContext = new AudioCtx();
+
+            if (this.audioContext.state === 'suspended') {
+                await this.audioContext.resume();
+            }
 
             const source = this.audioContext.createMediaStreamSource(this.mediaStream);
+
             this.audioProcessor = this.audioContext.createScriptProcessor(4096, 1, 1);
             this.pcmBuffers = [];
 
@@ -156,7 +173,9 @@ export class AlphabetTestComponent implements OnInit {
 
             this.isRecording.set(true);
             this.recordingEntryId.set(entryId);
+            this.recordStartedAt = Date.now();
         } catch {
+            this.teardownAudio();
             this.messageService.add({
                 severity: 'error', summary: 'Microphone error',
                 detail: 'Could not access microphone. Please check your permissions.'
@@ -165,32 +184,49 @@ export class AlphabetTestComponent implements OnInit {
     }
 
     stopRecording() {
-        if (this.isRecording()) {
-            this.isRecording.set(false);
-            const entryId = this.recordingEntryId();
-            this.recordingEntryId.set(null);
+        if (!this.isRecording()) return;
 
-            if (this.audioProcessor) {
-                this.audioProcessor.disconnect();
-                this.audioProcessor = null;
-            }
+        const tooShort = Date.now() - this.recordStartedAt < this.MIN_RECORD_MS;
+        const entryId = this.recordingEntryId();
+        const sampleRate = this.audioContext?.sampleRate ?? 16000;
+        const buffers = this.pcmBuffers;
 
-            if (this.mediaStream) {
-                this.mediaStream.getTracks().forEach(t => t.stop());
-                this.mediaStream = null;
-            }
+        this.isRecording.set(false);
+        this.recordingEntryId.set(null);
+        this.pcmBuffers = [];
 
-            if (this.audioContext) {
-                const sampleRate = this.audioContext.sampleRate;
-                this.audioContext.close().then(() => {
-                    this.audioContext = null;
-                    if (entryId !== null && this.pcmBuffers.length > 0) {
-                        const wavBlob = this.encodeWAV(this.pcmBuffers, sampleRate);
-                        this.submitRecording(entryId, wavBlob);
-                    }
-                });
-            }
+        this.teardownAudio();
+
+        if (tooShort) {
+            this.messageService.add({
+                severity: 'warn', summary: 'Too short',
+                detail: 'Hold the button a bit longer while speaking.', life: 3000
+            });
+            return;
         }
+
+        if (entryId !== null && buffers.length > 0) {
+            const wavBlob = this.encodeWAV(buffers, sampleRate);
+            this.submitRecording(entryId, wavBlob);
+        }
+    }
+
+    private teardownAudio() {
+        if (this.audioProcessor) {
+            this.audioProcessor.disconnect();
+            this.audioProcessor.onaudioprocess = null;
+            this.audioProcessor = null;
+        }
+
+        if (this.mediaStream) {
+            this.mediaStream.getTracks().forEach(t => t.stop());
+            this.mediaStream = null;
+        }
+
+        if (this.audioContext && this.audioContext.state !== 'closed') {
+            this.audioContext.close().catch(() => {});
+        }
+        this.audioContext = null;
     }
 
     private encodeWAV(samples: Float32Array[], sampleRate: number): Blob {
@@ -267,11 +303,16 @@ export class AlphabetTestComponent implements OnInit {
                     [entryId]: [newAttempt, ...(s[entryId] ?? [])]
                 }));
             },
-            error: () => {
+            error: (err) => {
                 this.submitting.set(null);
+                const isRateLimited = err?.status === 429;
                 this.messageService.add({
-                    severity: 'error', summary: 'Error',
-                    detail: 'Could not process your recording. Please try again.'
+                    severity: isRateLimited ? 'warn' : 'error',
+                    summary: isRateLimited ? 'Slow down' : 'Error',
+                    detail: isRateLimited
+                        ? (err?.error?.message ?? 'Too many attempts. Please wait a moment.')
+                        : 'Could not process your recording. Please try again.',
+                    life: isRateLimited ? 5000 : 3000
                 });
             }
         });
