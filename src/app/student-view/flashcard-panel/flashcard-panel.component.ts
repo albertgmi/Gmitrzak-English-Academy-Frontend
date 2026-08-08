@@ -1,6 +1,6 @@
 import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { RouterModule } from '@angular/router';
+import { RouterModule, ActivatedRoute } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
@@ -29,6 +29,7 @@ type Tab = 'all' | 'today' | 'leeches' | 'search' | 'logs';
 export class FlashcardPanelComponent implements OnInit {
     private flashcardService = inject(FlashcardService);
     private messageService = inject(MessageService);
+    private route = inject(ActivatedRoute);
 
     activeTab = signal<Tab>('all');
 
@@ -83,6 +84,13 @@ export class FlashcardPanelComponent implements OnInit {
 
     ngOnInit() {
         this.flashcardService.flashcards.reload();
+
+        this.route.queryParams.subscribe(params => {
+            const tabParam = params['tab'];
+            if (tabParam && ['all', 'today', 'leeches', 'search', 'logs'].includes(tabParam)) {
+                this.setTab(tabParam);
+            }
+        });
 
         if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();

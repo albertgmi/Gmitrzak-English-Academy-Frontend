@@ -253,7 +253,7 @@
           <span class="text-muted-color">flashcards reviewed</span>
         </div>
         <div class="mt-3">
-          <a routerLink="/flashcards"
+          <a [routerLink]="['/flashcards']" [queryParams]="{ tab: 'today' }"
             class="text-primary text-sm font-medium hover:underline cursor-pointer">
             View list →
           </a>
