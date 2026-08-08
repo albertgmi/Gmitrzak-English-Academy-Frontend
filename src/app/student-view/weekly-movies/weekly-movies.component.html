@@ -68,7 +68,7 @@
           <span class="text-xs text-muted-color mt-1 block">different titles logged this week</span>
         </div>
         <div class="w-12 h-12 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center text-xl flex-shrink-0">
-          <i class="pi pi-film"></i>
+          <i class="pi pi-play-circle"></i>
         </div>
       </div>
 
@@ -156,7 +156,7 @@
           <tr>
             <th style="width: 90px" class="text-center">Rank</th>
             <th>Title</th>
-            <th class="text-center" style="width: 220px">Episodes / Watched</th>
+            <th class="text-center" style="width: 220px">Episodes</th>
             <th class="text-center" style="width: 160px">Viewers</th>
           </tr>
         </ng-template>
@@ -184,7 +184,7 @@
       <!-- Empty State -->
       <div *ngIf="stats.topMovies.length === 0" class="flex flex-col items-center justify-center py-12 text-center">
         <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl mb-4">
-          <i class="pi pi-film text-3xl"></i>
+          <i class="pi pi-video text-3xl"></i>
         </div>
         <h3 class="text-xl font-bold m-0 mb-2 text-surface-900 dark:text-surface-0">No Movies Logged This Week</h3>
         <p class="text-muted-color max-w-md m-0 text-sm">
