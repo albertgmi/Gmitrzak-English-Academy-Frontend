@@ -27,13 +27,19 @@ export class AppMenu implements OnInit {
   }
 
   private buildMenu(role: string | null, userId: number | null): MenuItem[] {
+    const homeItems: MenuItem[] = [
+      { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
+      { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
+    ];
+
+    if (role === 'User') {
+      homeItems.push({ label: 'Weekly Movies', icon: 'pi pi-video', routerLink: ['/weekly-movies'] });
+    }
+
     const base: MenuItem[] = [
       {
         label: 'Home',
-        items: [
-          { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
-          { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
-        ]
+        items: homeItems
       }
     ];
 
@@ -164,7 +170,6 @@ export class AppMenu implements OnInit {
           { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/memories'] },
           { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/pronunciation'] },
           { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/alphabet-test'] },
-          { label: 'Weekly Movies', icon: 'pi pi-video', routerLink: ['/weekly-movies'] },
           { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] }
         ]
       },
