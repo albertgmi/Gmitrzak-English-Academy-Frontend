@@ -59,6 +59,7 @@ export interface AssignmentStudentDto {
     isCompleted: boolean;
     isOverdue: boolean;
     isFromMatrix: boolean;
+    matrixId?: number;
     matrixName: string;
     hasDeadline: boolean;
 }

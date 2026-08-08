@@ -51,14 +51,9 @@ export class ModuleAddingComponent implements OnInit {
         { label: 'Flashcards', value: 'Flashcards'},
         { label: 'Memories', value: 'Memories'},
         { label: 'Pronunciation', value: 'Pronunciation'},
-        { label: 'Listening', value: 'Listening'},
-        { label: 'Grammar', value: 'Grammar'},
-        { label: 'Vocabulary', value: 'Vocabulary'},
-        { label: 'Speaking', value: 'Speaking'},
         { label: 'Watching', value: 'Watching'},
         { label: 'Presentation', value: 'Presentation'},
         { label: 'Essay', value: 'Essay'},
-        { label: 'Comment', value: 'Comment'},
         { label: 'Other', value: 'Other'}
     ];
 

@@ -51,7 +51,11 @@ export class AssignmentsComponent implements OnInit {
     }
 
     openModule(a: AssignmentStudentDto) {
-        this.router.navigate(['/courses']);
+        if (a.isFromMatrix && a.matrixId) {
+            this.router.navigate(['/courses'], { queryParams: { matrixId: a.matrixId } });
+        } else {
+            this.router.navigate(['/courses'], { queryParams: { singleModuleId: a.id, moduleId: a.moduleId } });
+        }
     }
 
     dueLabel(a: AssignmentStudentDto): string {

@@ -1,6 +1,6 @@
-import { Component, inject, OnInit, signal, computed } from '@angular/core';
+import { Component, inject, OnInit, signal, computed, effect } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { Router } from '@angular/router';
+import { ActivatedRoute, Router } from '@angular/router';
 import { MessageService } from 'primeng/api';
 import { ToastModule } from 'primeng/toast';
 import { ProgressBarModule } from 'primeng/progressbar';
@@ -34,11 +34,30 @@ export class UserCourseComponent implements OnInit {
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
     private router         = inject(Router);
+    private route          = inject(ActivatedRoute);
 
     courses          = this.studentService.courses;
     singleModules    = this.studentService.singleModules;
     selectedMatrixId = signal<number | null>(null);
     activeView       = signal<View>('active');
+    private hasProcessedSingleModule = false;
+
+    constructor() {
+        effect(() => {
+            const modules = this.singleModules.value();
+            const params = this.route.snapshot.queryParams;
+            const smId = params['singleModuleId'] ? Number(params['singleModuleId']) : null;
+            const mId = params['moduleId'] ? Number(params['moduleId']) : null;
+
+            if (modules && modules.length > 0 && (smId || mId) && !this.hasProcessedSingleModule) {
+                const matched = modules.find(m => (smId && m.id === smId) || (mId && m.moduleId === mId));
+                if (matched) {
+                    this.hasProcessedSingleModule = true;
+                    this.handleSingleModuleClick(matched);
+                }
+            }
+        });
+    }
 
     activeMatrices = computed(() =>
         (this.courses.value() ?? []).filter(c => this.progress(c) < 100)
@@ -85,14 +104,25 @@ export class UserCourseComponent implements OnInit {
         this.studentService.reloadCourses();
         this.studentService.reloadSingleModules();
         this.loadHistory();
+
+        this.route.queryParams.subscribe(params => {
+            if (params['matrixId']) {
+                const matrixId = Number(params['matrixId']);
+                if (matrixId) {
+                    this.selectedMatrixId.set(matrixId);
+                }
+            }
+        });
     }
 
     selectAssignment(assignment: StudentAssignmentDto) {
         this.selectedMatrixId.set(assignment.matrixId);
+        this.router.navigate([], { relativeTo: this.route, queryParams: { matrixId: assignment.matrixId } });
     }
 
     backToList() {
         this.selectedMatrixId.set(null);
+        this.router.navigate([], { relativeTo: this.route, queryParams: {} });
     }
 
     handleModuleClick(module: StudentModuleDto) {
