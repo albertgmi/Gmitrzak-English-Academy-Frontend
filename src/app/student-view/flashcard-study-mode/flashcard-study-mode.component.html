@@ -1,22 +1,22 @@
-<div class="card overflow-hidden flex flex-col items-center justify-center min-h-[calc(100vh-12rem)]">
+<div class="card overflow-hidden flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] py-3 sm:py-6 px-3 sm:px-6">
 
-  <div *ngIf="loading()" class="text-center py-16 text-muted-color">
+  <div *ngIf="loading()" class="text-center py-12 text-muted-color">
     <i class="pi pi-spin pi-spinner text-4xl block mb-3"></i>
     Loading your cards...
   </div>
 
   <ng-container *ngIf="!loading()">
     <div *ngIf="!isFinished(); else finishedView" 
-         class="w-full max-w-2xl flex flex-col">
+         class="w-full max-w-2xl flex flex-col justify-between">
 
-      <div class="flex items-center justify-between mb-6 shrink-0">
+      <div class="flex items-center justify-between mb-3 sm:mb-5 shrink-0">
         <button
-          class="w-10 h-10 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer bg-transparent"
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer bg-transparent"
           [routerLink]="['/flashcards']">
           <i class="pi pi-arrow-left"></i>
         </button>
 
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2 sm:gap-3">
           <p-tag *ngIf="activeCategoryPriority().length > 0"
             severity="warn"
             icon="pi pi-sliders-h"
@@ -32,7 +32,7 @@
         </div>
       </div>
 
-      <div *ngIf="!currentCard() && pendingQueue().length > 0" class="text-center py-16 my-auto">
+      <div *ngIf="!currentCard() && pendingQueue().length > 0" class="text-center py-12 my-auto">
         <i class="pi pi-clock text-yellow-500 text-5xl block mb-4"></i>
         <h3 class="text-xl font-semibold mb-2">Cards returning soon...</h3>
         <p class="text-muted-color">
@@ -47,15 +47,15 @@
 
         <div class="flashcard-inner">
           <div class="flashcard-face flashcard-front">
-            <div class="mb-5">
+            <div class="mb-3 sm:mb-5">
               <p-tag severity="info" [value]="currentCard()?.category || 'Vocabulary'"></p-tag>
             </div>
-            <div class="text-center px-4 w-full">
-              <h1 [class]="'font-bold text-surface-900 dark:text-surface-0 m-0 break-words leading-tight pb-2 ' + getFontSizeClass(currentCard()?.back)">
+            <div class="text-center px-3 sm:px-4 w-full">
+              <h1 [class]="'font-bold text-surface-900 dark:text-surface-0 m-0 break-normal [word-break:keep-all] leading-tight pb-1 sm:pb-2 ' + getFontSizeClass(currentCard()?.back)">
                 {{ currentCard()?.back }}
               </h1>
             </div>
-            <div class="mt-8 text-sm text-muted-color opacity-70">
+            <div class="mt-4 sm:mt-8 text-xs sm:text-sm text-muted-color opacity-70">
               Click to reveal translation
             </div>
           </div>
@@ -64,14 +64,14 @@
             <button type="button"
               class="speak-btn"
               (click)="speak(currentCard()!.front); $event.stopPropagation()">
-              <i class="pi pi-volume-up" style="font-size:1.5rem;"></i>
+              <i class="pi pi-volume-up" style="font-size:1.4rem;"></i>
             </button>
           
-            <div class="mb-5">
+            <div class="mb-3 sm:mb-5">
               <p-tag severity="success" value="Translation"></p-tag>
             </div>
-            <div class="text-center px-4 w-full">
-              <h2 [class]="'font-bold text-primary m-0 break-words ' + getFontSizeClass(currentCard()?.front)">
+            <div class="text-center px-3 sm:px-4 w-full">
+              <h2 [class]="'font-bold text-primary m-0 break-normal [word-break:keep-all] leading-tight ' + getFontSizeClass(currentCard()?.front)">
                 {{ currentCard()?.front }}
               </h2>
             </div>
@@ -80,41 +80,41 @@
         </div>
       </div>
 
-      <div class="h-24 mt-6 shrink-0 overflow-hidden">
+      <div class="h-20 sm:h-24 mt-3 sm:mt-5 shrink-0 overflow-hidden">
         <div
           *ngIf="showBack() && currentCard()"
-          class="grid grid-cols-3 gap-3 animate-fadein">
+          class="grid grid-cols-3 gap-2 sm:gap-3 animate-fadein">
 
           <button
             pButton
             severity="danger"
-            class="py-4 !bg-red-500 hover:!bg-red-600 !border-red-500 !text-white"
+            class="py-2.5 sm:py-4 !bg-red-500 hover:!bg-red-600 !border-red-500 !text-white"
             (click)="handleReview('incorrect'); $event.stopPropagation()">
             <div class="flex flex-col items-center">
-              <span class="font-bold">Again</span>
-              <small class="text-xs opacity-80">{{ currentIncorrectLabel() }}</small>
+              <span class="font-bold text-sm sm:text-base">Again</span>
+              <small class="text-[10px] sm:text-xs opacity-80">{{ currentIncorrectLabel() }}</small>
             </div>
           </button>
 
           <button
             pButton
             severity="warn"
-            class="py-4 !bg-amber-500 hover:!bg-amber-600 !border-amber-500 !text-white"
+            class="py-2.5 sm:py-4 !bg-amber-500 hover:!bg-amber-600 !border-amber-500 !text-white"
             (click)="handleReview('hard'); $event.stopPropagation()">
             <div class="flex flex-col items-center">
-              <span class="font-bold">Hard</span>
-              <small class="text-xs opacity-80">1 day</small>
+              <span class="font-bold text-sm sm:text-base">Hard</span>
+              <small class="text-[10px] sm:text-xs opacity-80">1 day</small>
             </div>
           </button>
 
           <button
             pButton
             severity="success"
-            class="py-4 !bg-emerald-600 hover:!bg-emerald-700 !border-emerald-600 !text-white"
+            class="py-2.5 sm:py-4 !bg-emerald-600 hover:!bg-emerald-700 !border-emerald-600 !text-white"
             (click)="handleReview('easy'); $event.stopPropagation()">
             <div class="flex flex-col items-center">
-              <span class="font-bold">Easy</span>
-              <small class="text-xs opacity-80">{{ nextEasyInterval() }} d</small>
+              <span class="font-bold text-sm sm:text-base">Easy</span>
+              <small class="text-[10px] sm:text-xs opacity-80">{{ nextEasyInterval() }} d</small>
             </div>
           </button>
         </div>
@@ -124,9 +124,9 @@
   </ng-container>
 
   <ng-template #finishedView>
-    <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-10 text-center max-w-xl w-full shadow-sm animate-fadein">
-      <i class="pi pi-check-circle text-green-500 text-6xl mb-4 block"></i>
-      <h2 class="text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2">Session Complete</h2>
+    <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-10 text-center max-w-xl w-full shadow-sm animate-fadein">
+      <i class="pi pi-check-circle text-green-500 text-5xl sm:text-6xl mb-4 block"></i>
+      <h2 class="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2">Session Complete</h2>
       <p class="text-muted-color mb-6">You've completed today's flashcards.</p>
       <button pButton label="Back to list" icon="pi pi-list" class="p-button-lg" [routerLink]="['/flashcards']"></button>
     </div>

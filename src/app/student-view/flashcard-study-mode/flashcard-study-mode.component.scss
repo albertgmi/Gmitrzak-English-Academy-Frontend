@@ -1,8 +1,15 @@
 .flashcard-wrapper {
   perspective: 1200px;
   width: 100%;
-  height: 420px;
+  height: clamp(230px, 46vh, 420px);
+  max-height: 420px;
   cursor: pointer;
+}
+
+@media (max-height: 720px) {
+  .flashcard-wrapper {
+    height: clamp(200px, 38vh, 310px);
+  }
 }
 
 .flashcard-inner {
@@ -26,7 +33,7 @@
   align-items: center;
   justify-content: center;
 
-  padding: 2rem;
+  padding: 1.5rem;
 
   border-radius: 1.5rem;
 
@@ -42,6 +49,13 @@
   transition:
     border-color 0.2s ease,
     transform 0.2s ease;
+}
+
+@media (max-height: 720px) {
+  .flashcard-face {
+    padding: 1rem;
+    border-radius: 1.25rem;
+  }
 }
 
 .flashcard-face:hover {
@@ -62,8 +76,8 @@
 
 .speak-btn {
   position: absolute;
-  top: 1rem;
-  right: 1rem;
+  top: 0.75rem;
+  right: 0.75rem;
   background: transparent;
   border: none;
   cursor: pointer;

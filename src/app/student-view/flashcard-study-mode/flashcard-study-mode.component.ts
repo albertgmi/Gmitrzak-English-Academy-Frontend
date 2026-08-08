@@ -188,13 +188,23 @@ export class FlashcardStudyModeComponent implements OnInit {
     }
 
     getFontSizeClass(text: string | undefined | null): string {
-        const len = text?.length ?? 0;
-        
-        if (len <= 15) return 'text-4xl md:text-5xl';
-        if (len <= 30) return 'text-3xl md:text-4xl';
-        if (len <= 50) return 'text-2xl md:text-3xl';
-        if (len <= 80) return 'text-xl md:text-2xl';
-        if (len <= 120) return 'text-lg md:text-xl';
-        return 'text-base md:text-lg';
+        if (!text) return 'text-xl sm:text-3xl md:text-4xl';
+        const len = text.length;
+        const words = text.trim().split(/\s+/);
+        const maxWordLen = Math.max(...words.map(w => w.length), 0);
+
+        if (maxWordLen >= 13) {
+            return 'text-base sm:text-2xl md:text-3xl lg:text-4xl';
+        }
+        if (maxWordLen >= 8) {
+            return 'text-lg sm:text-3xl md:text-4xl lg:text-5xl';
+        }
+
+        if (len <= 15) return 'text-xl sm:text-3xl md:text-4xl lg:text-5xl';
+        if (len <= 30) return 'text-lg sm:text-2xl md:text-3xl lg:text-4xl';
+        if (len <= 50) return 'text-base sm:text-xl md:text-2xl lg:text-3xl';
+        if (len <= 80) return 'text-sm sm:text-lg md:text-xl lg:text-2xl';
+        if (len <= 120) return 'text-xs sm:text-base md:text-lg';
+        return 'text-xs sm:text-sm md:text-base';
     }
 }
