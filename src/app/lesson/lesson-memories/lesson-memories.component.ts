@@ -66,12 +66,7 @@ export class LessonMemoriesComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    const student = this.activeStudent();
-    if (student) {
-      this.loadMemories(student.id);
-    }
-  }
+  ngOnInit(): void {}
 
   goToSwitchClient(): void {
     this.router.navigate(['/lesson/switch-client']);

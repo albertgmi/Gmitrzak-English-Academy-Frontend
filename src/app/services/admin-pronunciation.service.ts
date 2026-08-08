@@ -25,7 +25,7 @@ export interface UpdatePronunciationRequest {
 })
 export class AdminPronunciationService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/admin/pronunciation`;
+  private apiUrl = `${environment.apiUrl}/api/admin/pronunciation`;
 
   getStudentPronunciation(studentId: number): Observable<AdminPronunciationDto[]> {
     return this.http.get<AdminPronunciationDto[]>(`${this.apiUrl}/student/${studentId}`);

@@ -75,12 +75,7 @@ export class LessonPronunciationComponent implements OnInit {
     });
   }
 
-  ngOnInit(): void {
-    const student = this.activeStudent();
-    if (student) {
-      this.loadPronunciation(student.id);
-    }
-  }
+  ngOnInit(): void {}
 
   goToSwitchClient(): void {
     this.router.navigate(['/lesson/switch-client']);

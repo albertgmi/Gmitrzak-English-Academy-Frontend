@@ -26,7 +26,7 @@ export interface UpdateMemoryRequest {
 })
 export class AdminMemoriesService {
   private http = inject(HttpClient);
-  private apiUrl = `${environment.apiUrl}/admin/memories`;
+  private apiUrl = `${environment.apiUrl}/api/admin/memories`;
 
   getStudentMemories(studentId: number): Observable<AdminMemoryDto[]> {
     return this.http.get<AdminMemoryDto[]>(`${this.apiUrl}/student/${studentId}`);
