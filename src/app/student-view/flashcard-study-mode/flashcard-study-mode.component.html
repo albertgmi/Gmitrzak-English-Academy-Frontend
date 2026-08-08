@@ -17,6 +17,11 @@
         </button>
 
         <div class="flex items-center gap-3">
+          <p-tag *ngIf="activeCategoryPriority().length > 0"
+            severity="warn"
+            icon="pi pi-sliders-h"
+            [value]="'Prioritizing: ' + activeCategoryPrioritySummary()">
+          </p-tag>
           <span *ngIf="pendingQueue().length > 0" class="text-xs text-muted-color">
             {{ pendingQueue().length }} pending
           </span>

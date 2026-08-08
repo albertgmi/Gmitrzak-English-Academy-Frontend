@@ -57,6 +57,15 @@ export class FlashcardPanelComponent implements OnInit {
 
     private podcastGeneration = 0;
 
+    // Category Order Dialog Signals
+    categoryOrderDialogVisible = signal(false);
+    priorityCat1 = signal<string>('');
+    priorityCat2 = signal<string>('');
+    priorityCat3 = signal<string>('');
+
+    hasCustomCategoryPriority = computed(() => this.flashcardService.categoryPriorityOrder().length > 0);
+    activePrioritySummary = computed(() => this.flashcardService.categoryPriorityOrder().join(', '));
+
     availableCategories = computed(() => {
         const cards = this.allFlashcards.value() ?? [];
         return [...new Set(cards.map(c => c.category))].sort();
@@ -78,6 +87,39 @@ export class FlashcardPanelComponent implements OnInit {
         if (typeof speechSynthesis !== 'undefined' && speechSynthesis.onvoiceschanged !== undefined) {
             speechSynthesis.onvoiceschanged = () => speechSynthesis.getVoices();
         }
+    }
+
+    openCategoryOrderDialog() {
+        const current = this.flashcardService.categoryPriorityOrder();
+        this.priorityCat1.set(current[0] || '');
+        this.priorityCat2.set(current[1] || '');
+        this.priorityCat3.set(current[2] || '');
+        this.categoryOrderDialogVisible.set(true);
+    }
+
+    saveCategoryOrder() {
+        const order = [this.priorityCat1(), this.priorityCat2(), this.priorityCat3()].filter(c => c && c.trim().length > 0);
+        // Remove duplicates while preserving user order
+        const uniqueOrder = [...new Set(order)];
+        this.flashcardService.setCategoryPriorityOrder(uniqueOrder);
+        this.categoryOrderDialogVisible.set(false);
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Study Order Updated',
+            detail: uniqueOrder.length ? `Prioritizing: ${uniqueOrder.join(' > ')}` : 'Category priority reset to default.'
+        });
+    }
+
+    clearCategoryOrder() {
+        this.priorityCat1.set('');
+        this.priorityCat2.set('');
+        this.priorityCat3.set('');
+        this.flashcardService.setCategoryPriorityOrder([]);
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Priority Reset',
+            detail: 'Category study order reset to default.'
+        });
     }
 
     setTab(tabId: string) {

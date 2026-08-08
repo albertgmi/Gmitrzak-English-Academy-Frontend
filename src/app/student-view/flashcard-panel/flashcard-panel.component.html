@@ -6,7 +6,15 @@
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
       <p class="text-muted-color mt-1 m-0">{{ allFlashcards.value()?.length || 0 }} total cards</p>
     </div>
-    <div class="flex gap-2">
+    <div class="flex gap-2 items-center flex-wrap">
+      <p-button
+        label="Category Order"
+        icon="pi pi-sliders-h"
+        severity="secondary"
+        [outlined]="!hasCustomCategoryPriority()"
+        (onClick)="openCategoryOrderDialog()"
+        [disabled]="!allFlashcards.value()?.length"
+        [pTooltip]="hasCustomCategoryPriority() ? 'Prioritizing: ' + activePrioritySummary() : 'Set category study order'" />
       <p-button
         label="Podcast mode"
         icon="pi pi-headphones"
@@ -181,7 +189,7 @@
         <button pButton type="button" icon="pi pi-volume-up"
           class="p-button-rounded p-button-text p-button-sm"
           (click)="speak(card.front, $event)"
-          pTooltip="Odsłuchaj wymowę"></button>
+          pTooltip="Listen to correct pronunciation"></button>
         <i *ngIf="card.isLeech" class="pi pi-exclamation-triangle text-red-500"
           pTooltip="Leech"></i>
       </div>
@@ -228,6 +236,66 @@
   </div>
 
 </div>
+
+<p-dialog
+  header="Prioritize Study Categories"
+  [visible]="categoryOrderDialogVisible()"
+  (visibleChange)="categoryOrderDialogVisible.set($event)"
+  [modal]="true"
+  [style]="{width: '30rem'}">
+
+  <p class="text-sm text-muted-color mb-4">
+    Select up to 3 categories to prioritize in your study session. Cards due today (<code>nextReviewDate &le; today</code>) will appear starting with your top preferred categories. Leaving options unselected maintains the default study order.
+  </p>
+
+  <div class="flex flex-col gap-4">
+    <div>
+      <label class="block text-xs font-semibold text-muted-color uppercase mb-1">1st Priority Category</label>
+      <select
+        [ngModel]="priorityCat1()"
+        (ngModelChange)="priorityCat1.set($event)"
+        class="w-full p-2.5 border border-surface-300 dark:border-surface-700 rounded-xl bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 font-medium focus:outline-none focus:border-primary">
+        <option value="">-- None (Default Order) --</option>
+        <option *ngFor="let cat of availableCategories()" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-muted-color uppercase mb-1">2nd Priority Category</label>
+      <select
+        [ngModel]="priorityCat2()"
+        (ngModelChange)="priorityCat2.set($event)"
+        class="w-full p-2.5 border border-surface-300 dark:border-surface-700 rounded-xl bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 font-medium focus:outline-none focus:border-primary">
+        <option value="">-- None --</option>
+        <option *ngFor="let cat of availableCategories()" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+
+    <div>
+      <label class="block text-xs font-semibold text-muted-color uppercase mb-1">3rd Priority Category</label>
+      <select
+        [ngModel]="priorityCat3()"
+        (ngModelChange)="priorityCat3.set($event)"
+        class="w-full p-2.5 border border-surface-300 dark:border-surface-700 rounded-xl bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0 font-medium focus:outline-none focus:border-primary">
+        <option value="">-- None --</option>
+        <option *ngFor="let cat of availableCategories()" [value]="cat">{{ cat }}</option>
+      </select>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-between items-center w-full">
+      <button
+        type="button"
+        class="text-sm text-red-500 hover:text-red-600 bg-transparent border-none cursor-pointer font-medium p-0"
+        (click)="clearCategoryOrder()">Reset to Default</button>
+      <div class="flex gap-2">
+        <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="categoryOrderDialogVisible.set(false)" />
+        <p-button label="Save Order" icon="pi pi-check" (onClick)="saveCategoryOrder()" />
+      </div>
+    </div>
+  </ng-template>
+</p-dialog>
 
 <p-dialog
   header="Podcast Mode"

@@ -57,6 +57,9 @@ export class FlashcardStudyModeComponent implements OnInit {
         return this.queue().length + this.pendingQueue().length + (this.currentCard() ? 1 : 0);
     });
 
+    activeCategoryPriority = computed(() => this.flashcardService.categoryPriorityOrder());
+    activeCategoryPrioritySummary = computed(() => this.flashcardService.categoryPriorityOrder().join(' > '));
+
     ngOnInit() {
         this.flashcardService.flashcards.reload();
 
@@ -72,9 +75,25 @@ export class FlashcardStudyModeComponent implements OnInit {
 
     private initializeSession(allCards: FlashcardDto[]) {
         const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
-        const toReview: SessionCard[] = allCards
+        let toReview: SessionCard[] = allCards
             .filter(c => c.nextReviewDate <= today)
             .map(c => ({ ...c, incorrectStep: 0, availableAt: 0 }));
+
+        const priorityOrder = this.flashcardService.categoryPriorityOrder();
+        if (priorityOrder.length > 0) {
+            toReview.sort((a, b) => {
+                const catA = a.category ?? '';
+                const catB = b.category ?? '';
+
+                const idxA = priorityOrder.indexOf(catA);
+                const idxB = priorityOrder.indexOf(catB);
+
+                const pA = idxA !== -1 ? idxA : 999;
+                const pB = idxB !== -1 ? idxB : 999;
+
+                return pA - pB;
+            });
+        }
 
         if (toReview.length > 0) {
             this.queue.set(toReview);
