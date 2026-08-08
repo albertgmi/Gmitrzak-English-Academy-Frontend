@@ -333,7 +333,11 @@ export class PronunciationComponent implements OnInit, OnDestroy {
             });
 
             const AudioCtx = window.AudioContext || (window as any).webkitAudioContext;
-            this.audioContext = new AudioCtx();
+            try {
+                this.audioContext = new AudioCtx({ sampleRate: 16000 });
+            } catch {
+                this.audioContext = new AudioCtx();
+            }
 
             if (this.audioContext.state === 'suspended') {
                 await this.audioContext.resume();
@@ -350,8 +354,12 @@ export class PronunciationComponent implements OnInit, OnDestroy {
                 }
             };
 
+            const silentGain = this.audioContext.createGain();
+            silentGain.gain.value = 0;
+
             source.connect(this.audioProcessor);
-            this.audioProcessor.connect(this.audioContext.destination);
+            this.audioProcessor.connect(silentGain);
+            silentGain.connect(this.audioContext.destination);
 
             this.isRecording.set(true);
             this.recordingEntryId.set(entryId);
