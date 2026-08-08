@@ -29,6 +29,11 @@ export interface ReviewCardRequest {
   timeSpentSeconds: number;
 }
 
+export interface FlashcardStreakDto {
+  streak: number;
+  studiedToday: boolean;
+}
+
 const STORAGE_KEY = 'flashcard_category_priority_order';
 
 @Injectable({ providedIn: 'root' })
@@ -87,5 +92,9 @@ export class FlashcardService {
       timeSpentSeconds
     };
     return this.http.patch<void>(`${this.apiUrl}/${id}/review`, body);
+  }
+
+  getStreak(): Observable<FlashcardStreakDto> {
+    return this.http.get<FlashcardStreakDto>(`${this.apiUrl}/streak`);
   }
 }

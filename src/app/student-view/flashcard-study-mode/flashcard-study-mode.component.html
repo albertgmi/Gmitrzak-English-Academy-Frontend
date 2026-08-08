@@ -40,6 +40,12 @@
         </p>
       </div>
 
+      <!-- Streak Banner Display -->
+      <div *ngIf="currentCard()" class="mb-3 sm:mb-4 mx-auto w-full max-w-md flex items-center justify-center gap-2 px-3 sm:px-4 py-1.5 sm:py-2 rounded-xl bg-amber-500/10 dark:bg-amber-500/20 border border-amber-500/30 text-amber-600 dark:text-amber-400 shadow-sm text-xs sm:text-sm font-semibold text-center transition-all duration-300">
+        <i [class]="'pi ' + streakInfo().icon + ' text-amber-500 text-sm sm:text-base shrink-0 animate-pulse'"></i>
+        <span class="truncate sm:whitespace-normal">{{ streakInfo().text }}</span>
+      </div>
+
       <div *ngIf="currentCard()"
         class="flashcard-wrapper shrink-0 mx-auto"
         [class.flipped]="showBack()"

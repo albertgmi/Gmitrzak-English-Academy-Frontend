@@ -31,6 +31,17 @@ export class SentencesCardsComponent implements OnInit {
     showBack = signal(false);
     isFinished = signal(false);
     loading = signal(true);
+    streak = signal<number>(0);
+    studiedToday = signal<boolean>(false);
+
+    streakInfo = computed(() => {
+        const s = this.streak();
+        if (s === 0) return { icon: 'pi-calendar-plus', text: '0 Day Streak — Start building your daily habit today!' };
+        if (s === 1) return { icon: 'pi-bolt', text: '1 Day Streak — Great start! Keep it up tomorrow!' };
+        if (s < 7) return { icon: 'pi-bolt', text: `${s} Day Streak — You're building momentum!` };
+        if (s < 30) return { icon: 'pi-star-fill', text: `${s} Day Streak — Outstanding consistency!` };
+        return { icon: 'pi-trophy', text: `${s} Day Streak — Legendary streak! Absolute dedication!` };
+    });
 
     private cardStartTime = 0;
     private activeTimeout: any = null;
@@ -69,7 +80,18 @@ export class SentencesCardsComponent implements OnInit {
     });
 
     ngOnInit() {
+        this.loadStreak();
         this.loadCards();
+    }
+
+    loadStreak() {
+        this.contentService.getSentenceStreak().subscribe({
+            next: (res) => {
+                this.streak.set(res.streak);
+                this.studiedToday.set(res.studiedToday);
+            },
+            error: (err) => console.error('Failed to load sentence streak:', err)
+        });
     }
 
     loadCards() {
@@ -162,6 +184,11 @@ export class SentencesCardsComponent implements OnInit {
         const card = this.currentCard();
 
         if (!card) return;
+
+        if (!this.studiedToday()) {
+            this.studiedToday.set(true);
+            this.streak.update(s => s + 1);
+        }
 
         this.activityService.logActivity('sentenceflashcards' as any).subscribe();
 

@@ -210,4 +210,8 @@ export class ContentService {
             { notes } as AddNotesRequest
         );
     }
+
+    getSentenceStreak() {
+        return this.http.get<{ streak: number; studiedToday: boolean }>(`${this.apiUrl}/sentences/streak`);
+    }
 }
