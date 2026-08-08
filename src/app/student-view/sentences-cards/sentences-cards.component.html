@@ -71,7 +71,7 @@
       <div class="h-24 mt-6 shrink-0 overflow-hidden">
         <div *ngIf="showBack() && currentCard()" class="grid grid-cols-3 gap-3 animate-fadein">
 
-          <button pButton class="p-button-danger py-4"
+          <button pButton severity="danger" class="py-4 !bg-red-500 hover:!bg-red-600 !border-red-500 !text-white"
             (click)="handleReview('incorrect'); $event.stopPropagation()">
             <div class="flex flex-col items-center">
               <span class="font-bold">Again</span>
@@ -79,7 +79,7 @@
             </div>
           </button>
 
-          <button pButton class="p-button-warning py-4"
+          <button pButton severity="warn" class="py-4 !bg-amber-500 hover:!bg-amber-600 !border-amber-500 !text-white"
             (click)="handleReview('hard'); $event.stopPropagation()">
             <div class="flex flex-col items-center">
               <span class="font-bold">Hard</span>
@@ -87,7 +87,7 @@
             </div>
           </button>
 
-          <button pButton class="p-button-success py-4"
+          <button pButton severity="success" class="py-4 !bg-emerald-600 hover:!bg-emerald-700 !border-emerald-600 !text-white"
             (click)="handleReview('easy'); $event.stopPropagation()">
             <div class="flex flex-col items-center">
               <span class="font-bold">Easy</span>
