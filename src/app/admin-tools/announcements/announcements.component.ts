@@ -18,6 +18,7 @@ import { MultiSelectModule } from 'primeng/multiselect';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { DialogModule } from 'primeng/dialog';
+import { TooltipModule } from 'primeng/tooltip';
 import { AnnouncementDetailsDto } from '../../services/announcement.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 
@@ -28,7 +29,8 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
         CommonModule, FormsModule, TableModule, ButtonModule,
         InputTextModule, TextareaModule, SelectModule, TagModule,
         ToolbarModule, ToastModule, ConfirmDialogModule, CheckboxModule,
-        MultiSelectModule, IconFieldModule, InputIconModule, DialogModule, AvatarComponent
+        MultiSelectModule, IconFieldModule, InputIconModule, DialogModule,
+        TooltipModule, AvatarComponent
     ],
     providers: [MessageService, ConfirmationService],
     templateUrl: './announcements.component.html'
@@ -59,8 +61,18 @@ export class AnnouncementsComponent implements OnInit {
     ];
 
     selectedAnnouncementDetails = signal<AnnouncementDetailsDto | null>(null);
+    selectedAnnouncementForView = signal<AnnouncementDto | null>(null);
 
     showDetailsDialog = signal(false);
+
+    truncateText(text: string, limit: number = 80): string {
+        if (!text) return '';
+        return text.length > limit ? text.substring(0, limit) + '...' : text;
+    }
+
+    viewContent(a: AnnouncementDto) {
+        this.selectedAnnouncementForView.set(a);
+    }
 
     readCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.isRead).length ?? 0);
     registeredCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.signedUp).length ?? 0);
