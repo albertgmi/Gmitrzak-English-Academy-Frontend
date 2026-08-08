@@ -17,7 +17,7 @@
   <div class="grid grid-cols-12 gap-6">
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
+      <div class="card mb-0 h-full flex flex-col justify-between">
         <div class="flex justify-between mb-4">
           <div>
             <span class="block text-muted-color font-medium mb-2">Total Students</span>
@@ -27,13 +27,15 @@
             <i class="pi pi-users text-blue-500 text-xl"></i>
           </div>
         </div>
-        <span class="text-primary font-medium">{{ d.activeStudentsThisWeek }} active </span>
-        <span class="text-muted-color">this week</span>
+        <div>
+          <span class="text-primary font-medium">{{ d.activeStudentsThisWeek }} active </span>
+          <span class="text-muted-color">this week</span>
+        </div>
       </div>
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
+      <div class="card mb-0 h-full flex flex-col justify-between">
         <div class="flex justify-between mb-4">
           <div>
             <span class="block text-muted-color font-medium mb-2">Flashcards</span>
@@ -48,7 +50,7 @@
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
+      <div class="card mb-0 h-full flex flex-col justify-between">
         <div class="flex justify-between mb-4">
           <div>
             <span class="block text-muted-color font-medium mb-2">Pending Tasks</span>
@@ -65,7 +67,7 @@
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
+      <div class="card mb-0 h-full flex flex-col justify-between">
         <div class="flex justify-between mb-4">
           <div>
             <span class="block text-muted-color font-medium mb-2">Upcoming</span>
@@ -210,19 +212,21 @@
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
-        <div class="flex justify-between mb-4">
-          <div>
-            <span class="block text-muted-color font-medium mb-2">Due Today</span>
-            <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
-              {{ d.flashcardsDueToday }}
+      <div class="card mb-0 h-full flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between mb-4">
+            <div>
+              <span class="block text-muted-color font-medium mb-2">Due Today</span>
+              <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
+                {{ d.flashcardsDueToday }}
+              </div>
+            </div>
+            <div class="flex items-center justify-center bg-red-100 dark:bg-red-400/10 rounded-xl w-12 h-12">
+              <i class="pi pi-clone text-red-500 text-xl"></i>
             </div>
           </div>
-          <div class="flex items-center justify-center bg-red-100 dark:bg-red-400/10 rounded-xl w-12 h-12">
-            <i class="pi pi-clone text-red-500 text-xl"></i>
-          </div>
+          <span class="text-muted-color">flashcards to review</span>
         </div>
-        <span class="text-muted-color">flashcards to review</span>
         <div class="mt-3">
           <a routerLink="/flashcards/study"
             class="text-primary text-sm font-medium hover:underline cursor-pointer">
@@ -233,36 +237,46 @@
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
-        <div class="flex justify-between mb-4">
-          <div>
-            <span class="block text-muted-color font-medium mb-2">Done Today</span>
-            <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
-              {{ d.flashcardsStudiedToday }}
+      <div class="card mb-0 h-full flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between mb-4">
+            <div>
+              <span class="block text-muted-color font-medium mb-2">Done Today</span>
+              <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
+                {{ d.flashcardsStudiedToday }}
+              </div>
+            </div>
+            <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-xl w-12 h-12">
+              <i class="pi pi-check-circle text-green-500 text-xl"></i>
             </div>
           </div>
-          <div class="flex items-center justify-center bg-green-100 dark:bg-green-400/10 rounded-xl w-12 h-12">
-            <i class="pi pi-check-circle text-green-500 text-xl"></i>
-          </div>
+          <span class="text-muted-color">flashcards reviewed</span>
         </div>
-        <span class="text-muted-color">flashcards reviewed</span>
+        <div class="mt-3">
+          <a routerLink="/flashcards"
+            class="text-primary text-sm font-medium hover:underline cursor-pointer">
+            View list →
+          </a>
+        </div>
       </div>
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
-        <div class="flex justify-between mb-4">
-          <div>
-            <span class="block text-muted-color font-medium mb-2">Assignments</span>
-            <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
-              {{ d.activeAssignments.length }}
+      <div class="card mb-0 h-full flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between mb-4">
+            <div>
+              <span class="block text-muted-color font-medium mb-2">Assignments</span>
+              <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
+                {{ d.activeAssignments.length }}
+              </div>
+            </div>
+            <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-xl w-12 h-12">
+              <i class="pi pi-file text-orange-500 text-xl"></i>
             </div>
           </div>
-          <div class="flex items-center justify-center bg-orange-100 dark:bg-orange-400/10 rounded-xl w-12 h-12">
-            <i class="pi pi-file text-orange-500 text-xl"></i>
-          </div>
+          <span class="text-muted-color">pending tasks</span>
         </div>
-        <span class="text-muted-color">pending tasks</span>
         <div class="mt-3">
           <a routerLink="/assignments"
             class="text-primary text-sm font-medium hover:underline cursor-pointer">
@@ -273,19 +287,21 @@
     </div>
 
     <div class="col-span-12 lg:col-span-6 xl:col-span-3">
-      <div class="card mb-0">
-        <div class="flex justify-between mb-4">
-          <div>
-            <span class="block text-muted-color font-medium mb-2">Upcoming Matrix Modules</span>
-            <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
-              {{ d.upcomingModules.length }}
+      <div class="card mb-0 h-full flex flex-col justify-between">
+        <div>
+          <div class="flex justify-between mb-4">
+            <div>
+              <span class="block text-muted-color font-medium mb-2">Upcoming Matrix Modules</span>
+              <div class="text-surface-900 dark:text-surface-0 font-bold text-3xl">
+                {{ d.upcomingModules.length }}
+              </div>
+            </div>
+            <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-xl w-12 h-12">
+              <i class="pi pi-calendar text-purple-500 text-xl"></i>
             </div>
           </div>
-          <div class="flex items-center justify-center bg-purple-100 dark:bg-purple-400/10 rounded-xl w-12 h-12">
-            <i class="pi pi-calendar text-purple-500 text-xl"></i>
-          </div>
+          <span class="text-muted-color">modules soon</span>
         </div>
-        <span class="text-muted-color">modules soon</span>
         <div class="mt-3">
           <a routerLink="/courses"
             class="text-primary text-sm font-medium hover:underline cursor-pointer">
