@@ -147,6 +147,15 @@ export class UserCourseComponent implements OnInit {
         this.router.navigate([], { relativeTo: this.route, queryParams: {} });
     }
 
+    isManualTask(m: StudentModuleDto): boolean {
+        const interactiveCategories = [
+            'Watching', 'Sentences', 'SentenceFlashcards',
+            'Presentation', 'Flashcards', 'Memories',
+            'Pronunciation', 'Essay'
+        ];
+        return !interactiveCategories.includes(m.category);
+    }
+
     handleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
 
@@ -189,7 +198,11 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'essay']);
                 return;
         }
-        this.toggleComplete(module);
+
+        // For manual tasks (General, Other, etc.), tile click expands description if long, but DOES NOT toggle completion!
+        if (this.isDescriptionLong(module.description)) {
+            this.toggleDescription(module.id);
+        }
     }
 
     handleSingleModuleClick(module: StudentModuleDto) {
@@ -242,7 +255,10 @@ export class UserCourseComponent implements OnInit {
                 this.router.navigate(['/modules', module.moduleId, 'essay']);
                 return;
         }
-        this.toggleSingleModule(module);
+
+        if (this.isDescriptionLong(module.description)) {
+            this.toggleDescription(module.id);
+        }
     }
 
     toggleComplete(module: StudentModuleDto) {
@@ -288,15 +304,16 @@ export class UserCourseComponent implements OnInit {
 
     moduleTooltip(m: StudentModuleDto): string {
         if (!m.isUnlocked)  return `Unlocks ${m.unlockDate}`;
-        if (m.isCompleted)  return `${m.name} — completed ✓`;
+        if (m.isCompleted)  return `${m.name} — completed`;
         if (this.isActivityBased(m)) {
-            if (m.canComplete) return `${m.name} — ready! Click to complete.`;
+            if (m.canComplete) return `${m.name} — click 'Mark as done' button to complete.`;
             return m.completionBlockReason ?? `${m.name} — keep the streak going!`;
         }
         if (m.category === 'Sentences')    return `${m.name} — click to translate`;
-        if (m.category === 'Presentation') return `${m.name} — click to read`;
+        if (m.category === 'Presentation') return `${m.name} — click to view`;
         if (m.category === 'Watching')     return `${m.name} — click to watch`;
-        return `${m.name} — click to mark as done`;
+        if (m.category === 'Essay')        return `${m.name} — click to write essay`;
+        return `${m.name} — click 'Mark as done' button to complete`;
     }
 
     dayLabel(day: number): string {

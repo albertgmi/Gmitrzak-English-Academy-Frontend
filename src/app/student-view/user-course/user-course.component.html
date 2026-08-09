@@ -191,16 +191,7 @@
           {{ dayLabel(m.dayOfWeek) }}, week {{ m.weekNumber }}
         </div>
         <div class="mt-1">
-          <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
-          <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
-          <p-tag *ngIf="!m.isUnlocked" severity="secondary"
-            [value]="'Unlocks ' + (m.unlockDate | date:'d MMM')" />
-          <ng-container *ngIf="!m.isCompleted && !m.isOverdue && m.isUnlocked">
-            <p-tag *ngIf="isActivityBased(m) && m.canComplete"    severity="success" value="Ready!" />
-            <p-tag *ngIf="isActivityBased(m) && !m.canComplete"   severity="warn"    [value]="activityLabel(m)" />
-            <p-tag *ngIf="isSentences(m)"                         severity="warn"    value="Translate" />
-            <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info"   value="Available" />
-          </ng-container>
+          <ng-container *ngTemplateOutlet="actionBtn; context: { m: m, isSingle: false }" />
         </div>
       </div>
 
@@ -232,15 +223,7 @@
           </div>
 
           <div class="flex-shrink-0">
-            <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
-            <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
-            <p-tag *ngIf="!m.isUnlocked" severity="secondary" [value]="'Unlocks ' + (m.unlockDate | date:'d MMM')" />
-            <ng-container *ngIf="!m.isCompleted && !m.isOverdue && m.isUnlocked">
-              <p-tag *ngIf="isActivityBased(m) && m.canComplete"    severity="success" value="Ready!" />
-              <p-tag *ngIf="isActivityBased(m) && !m.canComplete"   severity="warn"    [value]="activityLabel(m)" />
-              <p-tag *ngIf="isSentences(m)"                         severity="warn"    value="Translate" />
-              <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info"   value="Available" />
-            </ng-container>
+            <ng-container *ngTemplateOutlet="actionBtn; context: { m: m, isSingle: false }" />
           </div>
         </div>
 
@@ -452,14 +435,7 @@
                 Due: {{ m.deadline | date:'d MMM' }}
               </div>
               <div class="mt-1">
-                <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
-                <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
-                <ng-container *ngIf="!m.isCompleted && !m.isOverdue">
-                  <p-tag *ngIf="isActivityBased(m) && m.canComplete"  severity="success" value="Ready!" />
-                  <p-tag *ngIf="isActivityBased(m) && !m.canComplete" severity="warn"    [value]="activityLabel(m)" />
-                  <p-tag *ngIf="isSentences(m)"                       severity="warn"    value="Translate" />
-                  <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info" value="Available" />
-                </ng-container>
+                <ng-container *ngTemplateOutlet="actionBtn; context: { m: m, isSingle: true }" />
               </div>
             </div>
 
@@ -489,14 +465,7 @@
                 </div>
 
                 <div class="flex-shrink-0">
-                  <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
-                  <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
-                  <ng-container *ngIf="!m.isCompleted && !m.isOverdue">
-                    <p-tag *ngIf="isActivityBased(m) && m.canComplete"  severity="success" value="Ready!" />
-                    <p-tag *ngIf="isActivityBased(m) && !m.canComplete" severity="warn"    [value]="activityLabel(m)" />
-                    <p-tag *ngIf="isSentences(m)"                       severity="warn"    value="Translate" />
-                    <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info" value="Available" />
-                  </ng-container>
+                  <ng-container *ngTemplateOutlet="actionBtn; context: { m: m, isSingle: true }" />
                 </div>
               </div>
 
@@ -602,5 +571,85 @@
         </div>
       </ng-template>
     </div>
+  </ng-template>
+
+  <ng-template #actionBtn let-m="m" let-isSingle="isSingle">
+    <ng-container *ngIf="m.isCompleted">
+      <button type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700 flex items-center gap-1.5 cursor-pointer hover:bg-green-100 transition-colors"
+        (click)="$event.stopPropagation(); isSingle ? toggleSingleModule(m) : toggleComplete(m)">
+        <i class="pi pi-check-circle text-green-600"></i>
+        Done
+      </button>
+    </ng-container>
+
+    <ng-container *ngIf="!m.isCompleted && m.isOverdue">
+      <button *ngIf="isManualTask(m)" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500 hover:bg-red-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? toggleSingleModule(m) : toggleComplete(m)">
+        <i class="pi pi-check text-xs"></i>
+        Mark as done
+      </button>
+      <p-tag *ngIf="!isManualTask(m)" severity="danger" value="Overdue" />
+    </ng-container>
+
+    <ng-container *ngIf="!m.isCompleted && !m.isOverdue && !m.isUnlocked">
+      <span class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-200 dark:bg-surface-700 text-muted-color flex items-center gap-1 inline-block">
+        <i class="pi pi-lock text-xs"></i>
+        Locked
+      </span>
+    </ng-container>
+
+    <ng-container *ngIf="!m.isCompleted && !m.isOverdue && m.isUnlocked">
+      <!-- Manual tasks or Activity tasks ready to complete -->
+      <button *ngIf="isManualTask(m) || (isActivityBased(m) && m.canComplete)" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-600 hover:bg-green-700 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? toggleSingleModule(m) : toggleComplete(m)">
+        <i class="pi pi-check text-xs"></i>
+        Mark as done
+      </button>
+
+      <!-- Activity tasks not ready yet -->
+      <button *ngIf="isActivityBased(m) && !m.canComplete" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
+        <i class="pi pi-bolt text-xs"></i>
+        Practice
+        <i class="pi pi-arrow-right text-[10px]"></i>
+      </button>
+
+      <!-- Interactive tasks -->
+      <button *ngIf="m.category === 'Watching'" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
+        <i class="pi pi-play text-xs"></i>
+        Watch video
+        <i class="pi pi-arrow-right text-[10px]"></i>
+      </button>
+
+      <button *ngIf="m.category === 'Sentences'" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
+        <i class="pi pi-pencil text-xs"></i>
+        Translate
+        <i class="pi pi-arrow-right text-[10px]"></i>
+      </button>
+
+      <button *ngIf="m.category === 'Presentation'" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
+        <i class="pi pi-book text-xs"></i>
+        View presentation
+        <i class="pi pi-arrow-right text-[10px]"></i>
+      </button>
+
+      <button *ngIf="m.category === 'Essay'" type="button"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
+        <i class="pi pi-file-edit text-xs"></i>
+        Write essay
+        <i class="pi pi-arrow-right text-[10px]"></i>
+      </button>
+    </ng-container>
   </ng-template>
 </div>
