@@ -4,7 +4,7 @@
   <div *ngIf="selectedAssignment() as assignment; else listView">
 
     <div class="flex items-center gap-3 mb-6 flex-wrap">
-      <button class="w-10 h-10 rounded-full border border-surface-200 dark:border-surface-700
+      <button class="w-10 h-10 min-w-[40px] min-h-[40px] aspect-square rounded-full border border-surface-200 dark:border-surface-700
         flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800
         transition-colors cursor-pointer bg-transparent flex-shrink-0" (click)="backToList()">
         <i class="pi pi-arrow-left"></i>
@@ -123,7 +123,7 @@
         'cursor-pointer hover:scale-[1.01]': m.isUnlocked
       }"
       [pTooltip]="moduleTooltip(m)" tooltipPosition="top"
-      (click)="handleModuleClick(m)">
+      (click)="onCardTileClick(m, $event)">
 
       <!-- DESKTOP VIEW (sm:flex) -->
       <div class="hidden sm:flex items-center justify-center module-icon w-10 h-10 rounded-full flex-shrink-0 font-bold text-sm"
@@ -385,7 +385,7 @@
               'module-ready':        m.isUnlocked && !m.isCompleted && !m.isOverdue && isActivityBased(m) && m.canComplete,
               'module-available':    m.isUnlocked && !m.isCompleted && !m.isOverdue && !isActivityBased(m)
             }"
-            (click)="handleSingleModuleClick(m)">
+            (click)="onCardTileClick(m, $event)">
 
             <!-- DESKTOP VIEW (sm:flex) -->
             <div class="hidden sm:flex items-center justify-center module-icon w-10 h-10 rounded-full flex-shrink-0"
@@ -574,6 +574,7 @@
   </ng-template>
 
   <ng-template #actionBtn let-m="m" let-isSingle="isSingle">
+    <!-- Completed tasks -->
     <ng-container *ngIf="m.isCompleted">
       <button type="button"
         class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-50 dark:bg-green-900/30 text-green-700 dark:text-green-300 border border-green-300 dark:border-green-700 flex items-center gap-1.5 cursor-pointer hover:bg-green-100 transition-colors"
@@ -583,27 +584,20 @@
       </button>
     </ng-container>
 
-    <ng-container *ngIf="!m.isCompleted && m.isOverdue">
-      <button *ngIf="isManualTask(m)" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-red-500 hover:bg-red-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
-        (click)="$event.stopPropagation(); isSingle ? toggleSingleModule(m) : toggleComplete(m)">
-        <i class="pi pi-check text-xs"></i>
-        Mark as done
-      </button>
-      <p-tag *ngIf="!isManualTask(m)" severity="danger" value="Overdue" />
-    </ng-container>
-
-    <ng-container *ngIf="!m.isCompleted && !m.isOverdue && !m.isUnlocked">
+    <!-- Locked tasks -->
+    <ng-container *ngIf="!m.isCompleted && !m.isUnlocked">
       <span class="px-3 py-1.5 rounded-lg text-xs font-medium bg-surface-200 dark:bg-surface-700 text-muted-color flex items-center gap-1 inline-block">
         <i class="pi pi-lock text-xs"></i>
         Locked
       </span>
     </ng-container>
 
-    <ng-container *ngIf="!m.isCompleted && !m.isOverdue && m.isUnlocked">
+    <!-- Unlocked, Pending or Overdue tasks -->
+    <ng-container *ngIf="!m.isCompleted && m.isUnlocked">
       <!-- Manual tasks or Activity tasks ready to complete -->
       <button *ngIf="isManualTask(m) || (isActivityBased(m) && m.canComplete)" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-green-600 hover:bg-green-700 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        [ngClass]="m.isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-green-600 hover:bg-green-700'"
         (click)="$event.stopPropagation(); isSingle ? toggleSingleModule(m) : toggleComplete(m)">
         <i class="pi pi-check text-xs"></i>
         Mark as done
@@ -611,40 +605,48 @@
 
       <!-- Activity tasks not ready yet -->
       <button *ngIf="isActivityBased(m) && !m.canComplete" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 hover:bg-amber-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        [ngClass]="m.isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-amber-500 hover:bg-amber-600'"
         (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
         <i class="pi pi-bolt text-xs"></i>
         Practice
         <i class="pi pi-arrow-right text-[10px]"></i>
       </button>
 
-      <!-- Interactive tasks -->
+      <!-- Watching video -->
       <button *ngIf="m.category === 'Watching'" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        [ngClass]="m.isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-600'"
         (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
         <i class="pi pi-play text-xs"></i>
         Watch video
         <i class="pi pi-arrow-right text-[10px]"></i>
       </button>
 
+      <!-- Sentences -->
       <button *ngIf="m.category === 'Sentences'" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        [ngClass]="m.isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-600'"
         (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
         <i class="pi pi-pencil text-xs"></i>
         Translate
         <i class="pi pi-arrow-right text-[10px]"></i>
       </button>
 
+      <!-- Presentation -->
       <button *ngIf="m.category === 'Presentation'" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        [ngClass]="m.isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-600'"
         (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
         <i class="pi pi-book text-xs"></i>
         View presentation
         <i class="pi pi-arrow-right text-[10px]"></i>
       </button>
 
+      <!-- Essay -->
       <button *ngIf="m.category === 'Essay'" type="button"
-        class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-primary hover:bg-primary-600 text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        class="px-3 py-1.5 rounded-lg text-xs font-semibold text-white transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
+        [ngClass]="m.isOverdue ? 'bg-red-600 hover:bg-red-700' : 'bg-primary hover:bg-primary-600'"
         (click)="$event.stopPropagation(); isSingle ? handleSingleModuleClick(m) : handleModuleClick(m)">
         <i class="pi pi-file-edit text-xs"></i>
         Write essay

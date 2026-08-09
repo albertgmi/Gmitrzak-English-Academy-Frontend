@@ -49,6 +49,21 @@ export class AssignmentsComponent implements OnInit {
         return !!desc && desc.trim().length > 45;
     }
 
+    isManualTask(a: AssignmentStudentDto): boolean {
+        const interactiveCategories = [
+            'Watching', 'Sentences', 'SentenceFlashcards',
+            'Presentation', 'Flashcards', 'Memories',
+            'Pronunciation', 'Essay'
+        ];
+        return !interactiveCategories.includes(a.category);
+    }
+
+    onCardTileClick(a: AssignmentStudentDto, event?: Event) {
+        if (this.isDescriptionLong(a.moduleDescription)) {
+            this.toggleDescription(a.id, event);
+        }
+    }
+
     overdueAssignments = computed(() =>
         (this.activeAssignments.value() ?? []).filter(a => a.isOverdue)
     );

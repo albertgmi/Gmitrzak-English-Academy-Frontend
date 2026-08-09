@@ -156,6 +156,12 @@ export class UserCourseComponent implements OnInit {
         return !interactiveCategories.includes(m.category);
     }
 
+    onCardTileClick(module: StudentModuleDto, event?: Event) {
+        if (this.isDescriptionLong(module.description)) {
+            this.toggleDescription(module.id, event);
+        }
+    }
+
     handleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
 
