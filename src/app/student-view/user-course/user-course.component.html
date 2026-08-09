@@ -111,7 +111,7 @@
   </div>
 
   <ng-template #moduleCard let-m="m">
-    <div class="module-card flex items-start gap-4 p-4 rounded-xl transition-all duration-300
+    <div class="module-card flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4 p-4 rounded-xl transition-all duration-300
       ease-in-out border border-stone-300 dark:border-stone-700"
       [ngClass]="{
         'module-locked':      !m.isUnlocked,
@@ -125,8 +125,8 @@
       [pTooltip]="moduleTooltip(m)" tooltipPosition="top"
       (click)="handleModuleClick(m)">
 
-      <div class="module-icon w-10 h-10 rounded-full flex items-center justify-center
-        flex-shrink-0 font-bold text-sm"
+      <!-- DESKTOP VIEW (sm:flex) -->
+      <div class="hidden sm:flex items-center justify-center module-icon w-10 h-10 rounded-full flex-shrink-0 font-bold text-sm"
         [ngClass]="{
           'bg-green-500 text-white':                               m.isCompleted,
           'bg-red-100 dark:bg-red-900/30 text-red-500':           !m.isCompleted && m.isOverdue,
@@ -145,7 +145,7 @@
           }"></i>
       </div>
 
-      <div class="flex-1 min-w-0">
+      <div class="hidden sm:block flex-1 min-w-0">
         <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
         <div class="text-xs text-muted-color mt-0.5">{{ m.description || '—' }}</div>
 
@@ -175,8 +175,7 @@
         </div>
       </div>
 
-      <div class="text-right flex-shrink-0">
-
+      <div class="hidden sm:block text-right flex-shrink-0">
         <div class="text-sm font-medium"
           [ngClass]="m.isUnlocked
             ? 'text-surface-900 dark:text-surface-0'
@@ -204,6 +203,99 @@
           </ng-container>
         </div>
       </div>
+
+      <!-- MOBILE VIEW (sm:hidden) -->
+      <div class="sm:hidden flex flex-col w-full gap-2">
+        <div class="flex items-center gap-2.5 justify-between">
+          <div class="flex items-center gap-2.5 min-w-0 flex-1">
+            <div class="module-icon w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xs"
+              [ngClass]="{
+                'bg-green-500 text-white':                               m.isCompleted,
+                'bg-red-100 dark:bg-red-900/30 text-red-500':           !m.isCompleted && m.isOverdue,
+                'bg-primary/10 text-primary':                            m.isUnlocked && !m.isCompleted && !m.isOverdue,
+                'bg-surface-200 dark:bg-surface-700 text-muted-color':  !m.isUnlocked
+              }">
+              <i class="pi text-xs"
+                [ngClass]="{
+                  'pi-lock':    !m.isUnlocked,
+                  'pi-check':    m.isCompleted,
+                  'pi-clock':   !m.isCompleted && m.isOverdue,
+                  'pi-spinner':  m.isUnlocked && !m.isCompleted && isActivityBased(m) && !m.canComplete,
+                  'pi-star':     m.isUnlocked && !m.isCompleted && isActivityBased(m) && m.canComplete,
+                  'pi-pencil':   m.isUnlocked && !m.isCompleted && isSentences(m) && !isActivityBased(m),
+                  'pi-book':     m.isUnlocked && !m.isCompleted && !isActivityBased(m) && !isSentences(m)
+                }"></i>
+            </div>
+            <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">
+              {{ m.name }}
+            </div>
+          </div>
+
+          <div class="flex-shrink-0">
+            <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
+            <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
+            <p-tag *ngIf="!m.isUnlocked" severity="secondary" [value]="'Unlocks ' + (m.unlockDate | date:'d MMM')" />
+            <ng-container *ngIf="!m.isCompleted && !m.isOverdue && m.isUnlocked">
+              <p-tag *ngIf="isActivityBased(m) && m.canComplete"    severity="success" value="Ready!" />
+              <p-tag *ngIf="isActivityBased(m) && !m.canComplete"   severity="warn"    [value]="activityLabel(m)" />
+              <p-tag *ngIf="isSentences(m)"                         severity="warn"    value="Translate" />
+              <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info"   value="Available" />
+            </ng-container>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-2 text-xs text-muted-color flex-wrap">
+          <span>Due: {{ m.deadline | date:'d MMM' }}</span>
+          <span *ngIf="m.weekNumber > 0">• Unlocks: {{ m.unlockDate | date:'d MMM' }}</span>
+          <span *ngIf="m.weekNumber > 0">• {{ dayLabel(m.dayOfWeek) }}, w{{ m.weekNumber }}</span>
+        </div>
+
+        <div *ngIf="m.description" class="text-xs">
+          <div *ngIf="!isDescriptionLong(m.description)" class="text-muted-color">
+            {{ m.description }}
+          </div>
+
+          <div *ngIf="isDescriptionLong(m.description) && !isDescriptionExpanded(m.id)" class="text-muted-color flex items-center gap-1.5 flex-wrap">
+            <span class="line-clamp-1 flex-1">{{ m.description }}</span>
+            <button type="button" class="text-xs text-primary font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer flex-shrink-0"
+              (click)="toggleDescription(m.id, $event)">
+              more
+            </button>
+          </div>
+
+          <div *ngIf="isDescriptionLong(m.description) && isDescriptionExpanded(m.id)"
+            class="text-muted-color bg-surface-100 dark:bg-surface-800 p-2.5 rounded-lg border border-surface-200 dark:border-surface-700 mt-1">
+            <div class="whitespace-normal break-words leading-relaxed mb-1.5 text-surface-800 dark:text-surface-200">
+              {{ m.description }}
+            </div>
+            <button type="button" class="text-xs text-primary font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer"
+              (click)="toggleDescription(m.id, $event)">
+              less
+            </button>
+          </div>
+        </div>
+
+        <a *ngIf="m.category === 'Presentation' && m.presentationUrl"
+          [href]="m.presentationUrl" target="_blank"
+          class="text-xs text-primary hover:underline block"
+          (click)="$event.stopPropagation()">
+          <i class="pi pi-external-link mr-1"></i>Open material
+        </a>
+
+        <div *ngIf="isActivityBased(m) && !m.isCompleted && m.isUnlocked" class="mt-1">
+          <div class="flex justify-between text-xs mb-1">
+            <span class="text-muted-color">{{ activityLabel(m) }}</span>
+            <span class="font-semibold">{{ activityProgress(m) }}%</span>
+          </div>
+          <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-1.5">
+            <div class="h-1.5 rounded-full transition-all duration-500"
+              [ngClass]="{ 'bg-yellow-400': !m.canComplete, 'bg-green-500': m.canComplete }"
+              [style.width]="activityProgress(m) + '%'">
+            </div>
+          </div>
+        </div>
+      </div>
+
     </div>
   </ng-template>
 
@@ -300,7 +392,7 @@
         <div *ngIf="singleModules.value()?.length; else noSingleModules"
           class="flex flex-col gap-3">
           <div *ngFor="let m of singleModules.value()"
-            class="module-card flex items-start gap-4 p-4 rounded-xl transition-all
+            class="module-card flex flex-col sm:flex-row items-stretch sm:items-start gap-3 sm:gap-4 p-4 rounded-xl transition-all
               cursor-pointer border border-stone-300 dark:border-stone-700"
             [ngClass]="{
               'module-locked':      !m.isUnlocked,
@@ -312,8 +404,8 @@
             }"
             (click)="handleSingleModuleClick(m)">
 
-            <div class="module-icon w-10 h-10 rounded-full flex items-center justify-center
-              flex-shrink-0"
+            <!-- DESKTOP VIEW (sm:flex) -->
+            <div class="hidden sm:flex items-center justify-center module-icon w-10 h-10 rounded-full flex-shrink-0"
               [ngClass]="{
                 'bg-green-500 text-white':                              m.isCompleted,
                 'bg-primary/10 text-primary':                           m.isUnlocked && !m.isCompleted,
@@ -330,7 +422,7 @@
                 }"></i>
             </div>
 
-            <div class="flex-1 min-w-0">
+            <div class="hidden sm:block flex-1 min-w-0">
               <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
               <div class="text-xs text-muted-color mt-0.5">{{ m.description || '—' }}</div>
 
@@ -355,7 +447,7 @@
               </div>
             </div>
 
-            <div class="text-right flex-shrink-0">
+            <div class="hidden sm:block text-right flex-shrink-0">
               <div class="text-sm font-medium text-muted-color">
                 Due: {{ m.deadline | date:'d MMM' }}
               </div>
@@ -368,6 +460,93 @@
                   <p-tag *ngIf="isSentences(m)"                       severity="warn"    value="Translate" />
                   <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info" value="Available" />
                 </ng-container>
+              </div>
+            </div>
+
+            <!-- MOBILE VIEW (sm:hidden) -->
+            <div class="sm:hidden flex flex-col w-full gap-2">
+              <div class="flex items-center gap-2.5 justify-between">
+                <div class="flex items-center gap-2.5 min-w-0 flex-1">
+                  <div class="module-icon w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0 font-bold text-xs"
+                    [ngClass]="{
+                      'bg-green-500 text-white':                              m.isCompleted,
+                      'bg-primary/10 text-primary':                           m.isUnlocked && !m.isCompleted,
+                      'bg-surface-200 dark:bg-surface-700 text-muted-color':  !m.isUnlocked
+                    }">
+                    <i class="pi text-xs"
+                      [ngClass]="{
+                        'pi-lock':    !m.isUnlocked,
+                        'pi-check':    m.isCompleted,
+                        'pi-clock':   !m.isCompleted && m.isOverdue,
+                        'pi-spinner':  m.isUnlocked && !m.isCompleted && isActivityBased(m) && !m.canComplete,
+                        'pi-star':     m.isUnlocked && !m.isCompleted && isActivityBased(m) && m.canComplete,
+                        'pi-book':     m.isUnlocked && !m.isCompleted && !isActivityBased(m)
+                      }"></i>
+                  </div>
+                  <div class="font-semibold text-sm text-surface-900 dark:text-surface-0 truncate">
+                    {{ m.name }}
+                  </div>
+                </div>
+
+                <div class="flex-shrink-0">
+                  <p-tag *ngIf="m.isCompleted" severity="success" value="Done" />
+                  <p-tag *ngIf="!m.isCompleted && m.isOverdue" severity="danger" value="Overdue" />
+                  <ng-container *ngIf="!m.isCompleted && !m.isOverdue">
+                    <p-tag *ngIf="isActivityBased(m) && m.canComplete"  severity="success" value="Ready!" />
+                    <p-tag *ngIf="isActivityBased(m) && !m.canComplete" severity="warn"    [value]="activityLabel(m)" />
+                    <p-tag *ngIf="isSentences(m)"                       severity="warn"    value="Translate" />
+                    <p-tag *ngIf="!isActivityBased(m) && !isSentences(m)" severity="info" value="Available" />
+                  </ng-container>
+                </div>
+              </div>
+
+              <div class="flex items-center gap-2 text-xs text-muted-color">
+                <span>Due: {{ m.deadline | date:'d MMM' }}</span>
+              </div>
+
+              <div *ngIf="m.description" class="text-xs">
+                <div *ngIf="!isDescriptionLong(m.description)" class="text-muted-color">
+                  {{ m.description }}
+                </div>
+
+                <div *ngIf="isDescriptionLong(m.description) && !isDescriptionExpanded(m.id)" class="text-muted-color flex items-center gap-1.5 flex-wrap">
+                  <span class="line-clamp-1 flex-1">{{ m.description }}</span>
+                  <button type="button" class="text-xs text-primary font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer flex-shrink-0"
+                    (click)="toggleDescription(m.id, $event)">
+                    more
+                  </button>
+                </div>
+
+                <div *ngIf="isDescriptionLong(m.description) && isDescriptionExpanded(m.id)"
+                  class="text-muted-color bg-surface-100 dark:bg-surface-800 p-2.5 rounded-lg border border-surface-200 dark:border-surface-700 mt-1">
+                  <div class="whitespace-normal break-words leading-relaxed mb-1.5 text-surface-800 dark:text-surface-200">
+                    {{ m.description }}
+                  </div>
+                  <button type="button" class="text-xs text-primary font-semibold hover:underline bg-transparent border-none p-0 cursor-pointer"
+                    (click)="toggleDescription(m.id, $event)">
+                    less
+                  </button>
+                </div>
+              </div>
+
+              <a *ngIf="m.category === 'Presentation' && m.presentationUrl"
+                [href]="m.presentationUrl" target="_blank"
+                class="text-xs text-primary hover:underline block"
+                (click)="$event.stopPropagation()">
+                <i class="pi pi-external-link mr-1"></i>Open material
+              </a>
+
+              <div *ngIf="isActivityBased(m) && !m.isCompleted" class="mt-1">
+                <div class="flex justify-between text-xs mb-1">
+                  <span class="text-muted-color">{{ activityLabel(m) }}</span>
+                  <span class="font-semibold">{{ activityProgress(m) }}%</span>
+                </div>
+                <div class="w-full bg-surface-200 dark:bg-surface-700 rounded-full h-1.5">
+                  <div class="h-1.5 rounded-full transition-all duration-500"
+                    [ngClass]="{ 'bg-yellow-400': !m.canComplete, 'bg-green-500': m.canComplete }"
+                    [style.width]="activityProgress(m) + '%'">
+                  </div>
+                </div>
               </div>
             </div>
           </div>

@@ -40,7 +40,29 @@ export class UserCourseComponent implements OnInit {
     singleModules    = this.studentService.singleModules;
     selectedMatrixId = signal<number | null>(null);
     activeView       = signal<View>('active');
+    expandedDescriptions = signal<Set<number>>(new Set());
     private hasProcessedSingleModule = false;
+
+    toggleDescription(id: number, event?: Event) {
+        event?.stopPropagation();
+        this.expandedDescriptions.update(set => {
+            const next = new Set(set);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    }
+
+    isDescriptionExpanded(id: number): boolean {
+        return this.expandedDescriptions().has(id);
+    }
+
+    isDescriptionLong(desc: string | null | undefined): boolean {
+        return !!desc && desc.trim().length > 45;
+    }
 
     constructor() {
         effect(() => {

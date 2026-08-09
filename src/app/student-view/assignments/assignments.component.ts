@@ -26,6 +26,28 @@ export class AssignmentsComponent implements OnInit {
     activeAssignments = this.contentService.assignments;
     history           = signal<AssignmentStudentDto[]>([]);
     loadingHistory    = signal(false);
+    expandedDescriptions = signal<Set<number>>(new Set());
+
+    toggleDescription(id: number, event?: Event) {
+        event?.stopPropagation();
+        this.expandedDescriptions.update(set => {
+            const next = new Set(set);
+            if (next.has(id)) {
+                next.delete(id);
+            } else {
+                next.add(id);
+            }
+            return next;
+        });
+    }
+
+    isDescriptionExpanded(id: number): boolean {
+        return this.expandedDescriptions().has(id);
+    }
+
+    isDescriptionLong(desc: string | null | undefined): boolean {
+        return !!desc && desc.trim().length > 45;
+    }
 
     overdueAssignments = computed(() =>
         (this.activeAssignments.value() ?? []).filter(a => a.isOverdue)
