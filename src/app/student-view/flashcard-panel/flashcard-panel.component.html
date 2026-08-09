@@ -204,35 +204,169 @@
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
-    <p-table *ngIf="!loadingTab()" [value]="studyLogs()"
-      [rows]="15" [paginator]="studyLogs().length > 15"
-      [tableStyle]="{'min-width': '45rem'}" [rowHover]="true">
-      <ng-template #header>
-        <tr>
-          <th pSortableColumn="studyDate">Date <p-sortIcon field="studyDate" /></th>
-          <th pSortableColumn="flashcardFront">Flashcard <p-sortIcon field="flashcardFront" /></th>
-          <th style="width: 7rem">Easy</th>
-          <th style="width: 7rem">Hard</th>
-          <th style="width: 7rem">Incorrect</th>
-          <th style="width: 9rem">Time</th>
-        </tr>
-      </ng-template>
-      <ng-template #body let-log>
-        <tr>
-          <td>{{ log.studyDate | date:'d MMM yyyy' }}</td>
-          <td class="font-semibold text-surface-900 dark:text-surface-0">{{ log.flashcardFront }}</td>
-          <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
-          <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
-          <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
-          <td class="text-sm text-muted-color">{{ formatTime(log.timeSpentSeconds) }}</td>
-        </tr>
-      </ng-template>
-      <ng-template #emptymessage>
-        <tr>
-          <td colspan="6" class="text-center text-muted-color py-8">No study logs yet.</td>
-        </tr>
-      </ng-template>
-    </p-table>
+
+    <div *ngIf="!loadingTab()">
+      <!-- Controls Bar: Checkbox for Group by Date -->
+      <div class="flex items-center justify-between mb-4 flex-wrap gap-3 bg-surface-50 dark:bg-surface-800/40 p-3.5 rounded-xl border border-surface-200 dark:border-surface-700">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-history text-primary text-lg"></i>
+          <span class="font-semibold text-surface-900 dark:text-surface-0">Study History</span>
+          <span class="text-xs text-muted-color">
+            ({{ studyLogs().length }} {{ studyLogs().length === 1 ? 'entry' : 'entries' }})
+          </span>
+        </div>
+
+        <div class="flex items-center gap-2 cursor-pointer select-none">
+          <p-checkbox
+            inputId="group-by-date-check"
+            [binary]="true"
+            [ngModel]="groupByDate()"
+            (ngModelChange)="groupByDate.set($event)" />
+          <label for="group-by-date-check" class="text-sm font-medium text-surface-700 dark:text-surface-300 cursor-pointer">
+            Group by date
+          </label>
+        </div>
+      </div>
+
+      <!-- UNGROUPED VIEW (Individual logs) -->
+      <ng-container *ngIf="!groupByDate()">
+        <!-- Desktop Table View -->
+        <div class="hidden sm:block">
+          <p-table [value]="studyLogs()"
+            [rows]="15" [paginator]="studyLogs().length > 15"
+            [tableStyle]="{'min-width': '45rem'}" [rowHover]="true">
+            <ng-template #header>
+              <tr>
+                <th pSortableColumn="studyDate">Date <p-sortIcon field="studyDate" /></th>
+                <th pSortableColumn="flashcardFront">Flashcard <p-sortIcon field="flashcardFront" /></th>
+                <th style="width: 7rem">Easy</th>
+                <th style="width: 7rem">Hard</th>
+                <th style="width: 7rem">Incorrect</th>
+                <th style="width: 9rem">Time</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-log>
+              <tr>
+                <td>{{ log.studyDate | date:'d MMM yyyy, HH:mm' }}</td>
+                <td class="font-semibold text-surface-900 dark:text-surface-0">{{ log.flashcardFront }}</td>
+                <td><span class="text-green-600 font-semibold">{{ log.easyCount }}</span></td>
+                <td><span class="text-yellow-600 font-semibold">{{ log.hardCount }}</span></td>
+                <td><span class="text-red-600 font-semibold">{{ log.incorrectCount }}</span></td>
+                <td class="text-sm text-muted-color">{{ formatTime(log.timeSpentSeconds) }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="6" class="text-center text-muted-color py-8">No study logs yet.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- Mobile Card View -->
+        <div class="block sm:hidden flex flex-col gap-3">
+          <div *ngFor="let log of studyLogs()"
+            class="p-4 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl shadow-sm flex flex-col gap-2">
+            <div class="flex justify-between items-start gap-2">
+              <span class="font-semibold text-base text-surface-900 dark:text-surface-0">{{ log.flashcardFront }}</span>
+              <span class="text-xs text-muted-color shrink-0">{{ log.studyDate | date:'d MMM, HH:mm' }}</span>
+            </div>
+            <div class="flex items-center justify-between pt-2 border-t border-surface-100 dark:border-surface-800 text-xs">
+              <div class="flex gap-1.5 flex-wrap">
+                <span class="px-2 py-0.5 rounded bg-green-100 dark:bg-green-900/40 text-green-700 dark:text-green-300 font-medium">Easy: {{ log.easyCount }}</span>
+                <span class="px-2 py-0.5 rounded bg-amber-100 dark:bg-amber-900/40 text-amber-700 dark:text-amber-300 font-medium">Hard: {{ log.hardCount }}</span>
+                <span class="px-2 py-0.5 rounded bg-red-100 dark:bg-red-900/40 text-red-700 dark:text-red-300 font-medium">Err: {{ log.incorrectCount }}</span>
+              </div>
+              <span class="text-muted-color font-medium shrink-0">{{ formatTime(log.timeSpentSeconds) }}</span>
+            </div>
+          </div>
+          <div *ngIf="!studyLogs().length" class="text-center py-8 text-muted-color">
+            No study logs yet.
+          </div>
+        </div>
+      </ng-container>
+
+      <!-- GROUPED VIEW (Grouped by date) -->
+      <ng-container *ngIf="groupByDate()">
+        <!-- Desktop Table View -->
+        <div class="hidden sm:block">
+          <p-table [value]="groupedStudyLogs()"
+            [rows]="15" [paginator]="groupedStudyLogs().length > 15"
+            [tableStyle]="{'min-width': '45rem'}" [rowHover]="true">
+            <ng-template #header>
+              <tr>
+                <th pSortableColumn="dateKey">Date <p-sortIcon field="dateKey" /></th>
+                <th pSortableColumn="totalCards">Cards Reviewed <p-sortIcon field="totalCards" /></th>
+                <th style="width: 7rem">Total Easy</th>
+                <th style="width: 7rem">Total Hard</th>
+                <th style="width: 7rem">Total Incorrect</th>
+                <th style="width: 9rem">Total Time</th>
+              </tr>
+            </ng-template>
+            <ng-template #body let-group>
+              <tr>
+                <td class="font-semibold text-surface-900 dark:text-surface-0">
+                  <div class="flex items-center gap-2">
+                    <i class="pi pi-calendar text-primary"></i>
+                    <span>{{ group.displayDate | date:'EEEE, d MMMM yyyy' }}</span>
+                  </div>
+                </td>
+                <td>
+                  <p-tag severity="info" [value]="group.totalCards + ' cards'" />
+                </td>
+                <td><span class="text-green-600 font-semibold">{{ group.easyCount }}</span></td>
+                <td><span class="text-yellow-600 font-semibold">{{ group.hardCount }}</span></td>
+                <td><span class="text-red-600 font-semibold">{{ group.incorrectCount }}</span></td>
+                <td class="text-sm text-muted-color font-medium">{{ formatTime(group.totalTimeSpentSeconds) }}</td>
+              </tr>
+            </ng-template>
+            <ng-template #emptymessage>
+              <tr>
+                <td colspan="6" class="text-center text-muted-color py-8">No study logs to group.</td>
+              </tr>
+            </ng-template>
+          </p-table>
+        </div>
+
+        <!-- Mobile Grouped Card View -->
+        <div class="block sm:hidden flex flex-col gap-3">
+          <div *ngFor="let group of groupedStudyLogs()"
+            class="p-4 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl shadow-sm flex flex-col gap-3">
+            <div class="flex justify-between items-center pb-2 border-b border-surface-100 dark:border-surface-800">
+              <div class="flex items-center gap-2">
+                <i class="pi pi-calendar text-primary text-sm"></i>
+                <span class="font-bold text-surface-900 dark:text-surface-0 text-sm">
+                  {{ group.displayDate | date:'d MMM yyyy' }}
+                </span>
+              </div>
+              <p-tag severity="info" [value]="group.totalCards + ' cards'" />
+            </div>
+
+            <div class="grid grid-cols-2 gap-2 text-xs">
+              <div class="flex justify-between p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+                <span class="text-muted-color">Easy:</span>
+                <span class="font-bold text-green-600">{{ group.easyCount }}</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+                <span class="text-muted-color">Hard:</span>
+                <span class="font-bold text-yellow-600">{{ group.hardCount }}</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+                <span class="text-muted-color">Incorrect:</span>
+                <span class="font-bold text-red-600">{{ group.incorrectCount }}</span>
+              </div>
+              <div class="flex justify-between p-2 rounded-lg bg-surface-50 dark:bg-surface-800/50">
+                <span class="text-muted-color">Total time:</span>
+                <span class="font-bold text-surface-900 dark:text-surface-0">{{ formatTime(group.totalTimeSpentSeconds) }}</span>
+              </div>
+            </div>
+          </div>
+          <div *ngIf="!groupedStudyLogs().length" class="text-center py-8 text-muted-color">
+            No study logs to group.
+          </div>
+        </div>
+      </ng-container>
+    </div>
   </div>
 
 </div>

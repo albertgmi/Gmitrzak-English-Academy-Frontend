@@ -38,6 +38,49 @@ export class FlashcardPanelComponent implements OnInit {
     leeches = signal<FlashcardDto[]>([]);
     searchResults = signal<FlashcardDto[]>([]);
     studyLogs = signal<FlashcardStudyLogDto[]>([]);
+    groupByDate = signal<boolean>(false);
+
+    groupedStudyLogs = computed(() => {
+        const logs = this.studyLogs();
+        if (!logs || !logs.length) return [];
+
+        const map = new Map<string, {
+            dateKey: string;
+            displayDate: string;
+            totalCards: number;
+            easyCount: number;
+            hardCount: number;
+            incorrectCount: number;
+            totalTimeSpentSeconds: number;
+            items: FlashcardStudyLogDto[];
+        }>();
+
+        for (const log of logs) {
+            const dateKey = log.studyDate ? log.studyDate.split('T')[0] : 'Unknown';
+
+            if (!map.has(dateKey)) {
+                map.set(dateKey, {
+                    dateKey,
+                    displayDate: log.studyDate,
+                    totalCards: 0,
+                    easyCount: 0,
+                    hardCount: 0,
+                    incorrectCount: 0,
+                    totalTimeSpentSeconds: 0,
+                    items: []
+                });
+            }
+            const entry = map.get(dateKey)!;
+            entry.totalCards += 1;
+            entry.easyCount += (log.easyCount || 0);
+            entry.hardCount += (log.hardCount || 0);
+            entry.incorrectCount += (log.incorrectCount || 0);
+            entry.totalTimeSpentSeconds += (log.timeSpentSeconds || 0);
+            entry.items.push(log);
+        }
+
+        return Array.from(map.values()).sort((a, b) => b.dateKey.localeCompare(a.dateKey));
+    });
 
     searchQuery = signal('');
     loadingTab = signal(false);

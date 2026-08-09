@@ -9,14 +9,14 @@
     <div *ngIf="!isFinished(); else finishedView" 
          class="w-full max-w-2xl flex flex-col justify-between">
 
-      <div class="flex items-center justify-between mb-3 sm:mb-5 shrink-0">
+      <div class="flex items-center justify-between mb-3 sm:mb-6 sm:mt-2 shrink-0">
         <button
           class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer bg-transparent"
           [routerLink]="['/flashcards']">
           <i class="pi pi-arrow-left"></i>
         </button>
 
-        <div class="flex items-center gap-2 sm:gap-3">
+        <div class="h-9 sm:h-10 flex items-center gap-2 sm:gap-3">
           <p-tag *ngIf="activeCategoryPriority().length > 0"
             severity="warn"
             icon="pi pi-sliders-h"
