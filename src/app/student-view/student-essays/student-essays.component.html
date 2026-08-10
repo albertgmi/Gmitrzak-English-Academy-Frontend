@@ -1,0 +1,348 @@
+<div class="space-y-6">
+
+  <!-- Header Banner -->
+  <div class="card mb-6">
+    <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
+      <div>
+        <div class="flex items-center gap-3 mb-2">
+          <span class="w-10 h-10 rounded-xl bg-primary/10 text-primary flex items-center justify-center text-xl flex-shrink-0">
+            <i class="pi pi-file-edit"></i>
+          </span>
+          <h1 class="text-2xl md:text-3xl font-extrabold m-0 text-surface-900 dark:text-surface-0">
+            My Essays
+          </h1>
+        </div>
+        <p class="text-muted-color text-sm md:text-base m-0">
+          View your submitted essays, word counts, submission dates, and teacher reviews.
+        </p>
+      </div>
+
+      <div class="flex items-center gap-3 flex-shrink-0">
+        <p-button
+          icon="pi pi-refresh"
+          label="Refresh"
+          styleClass="p-button-outlined p-button-sm"
+          (onClick)="loadMyEssays()">
+        </p-button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Loading State -->
+  <div *ngIf="loading()" class="card text-center py-12 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
+    <p class="mt-3 font-medium">Loading your essays...</p>
+  </div>
+
+  <!-- Error Alert -->
+  <div *ngIf="error()" class="card bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl p-4 flex items-center justify-between">
+    <div class="flex items-center gap-3">
+      <i class="pi pi-exclamation-triangle text-2xl"></i>
+      <span>{{ error() }}</span>
+    </div>
+    <p-button label="Retry" icon="pi pi-refresh" (onClick)="loadMyEssays()" styleClass="p-button-outlined p-button-danger p-button-sm"></p-button>
+  </div>
+
+  <ng-container *ngIf="!loading() && !error()">
+
+    <!-- Summary Stats Grid -->
+    <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6 mb-6">
+      
+      <div class="card p-4 flex items-center justify-between border-l-4 border-primary">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-muted-color block mb-1">Total Submitted</span>
+          <div class="text-2xl md:text-3xl font-extrabold text-surface-900 dark:text-surface-0">
+            {{ totalEssays() }}
+          </div>
+          <span class="text-xs text-muted-color mt-1 block">essays completed</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-primary/10 text-primary flex items-center justify-center text-xl flex-shrink-0">
+          <i class="pi pi-file"></i>
+        </div>
+      </div>
+
+      <div class="card p-4 flex items-center justify-between border-l-4 border-green-500">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-muted-color block mb-1">Reviewed by Teacher</span>
+          <div class="text-2xl md:text-3xl font-extrabold text-green-600 dark:text-green-400">
+            {{ reviewedCount() }}
+          </div>
+          <span class="text-xs text-muted-color mt-1 block">feedback available</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-green-500/10 text-green-500 flex items-center justify-center text-xl flex-shrink-0">
+          <i class="pi pi-check-circle"></i>
+        </div>
+      </div>
+
+      <div class="card p-4 flex items-center justify-between border-l-4 border-amber-500">
+        <div>
+          <span class="text-xs uppercase tracking-wider font-semibold text-muted-color block mb-1">Pending Review</span>
+          <div class="text-2xl md:text-3xl font-extrabold text-amber-600 dark:text-amber-400">
+            {{ pendingCount() }}
+          </div>
+          <span class="text-xs text-muted-color mt-1 block">awaiting teacher check</span>
+        </div>
+        <div class="w-12 h-12 rounded-2xl bg-amber-500/10 text-amber-500 flex items-center justify-center text-xl flex-shrink-0">
+          <i class="pi pi-clock"></i>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Filter & Search Toolbar -->
+    <div class="card p-4 mb-6 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+      
+      <!-- Filter Buttons -->
+      <div class="inline-flex rounded-xl p-1 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
+        <button
+          pButton
+          type="button"
+          label="All Essays"
+          [class]="statusFilter() === 'all' ? 'p-button-sm !bg-primary !text-white' : 'p-button-sm p-button-text !text-muted-color'"
+          (onClick)="setStatusFilter('all')">
+        </button>
+        <button
+          pButton
+          type="button"
+          label="Reviewed"
+          icon="pi pi-check"
+          [class]="statusFilter() === 'reviewed' ? 'p-button-sm !bg-green-600 !text-white' : 'p-button-sm p-button-text !text-muted-color'"
+          (onClick)="setStatusFilter('reviewed')">
+        </button>
+        <button
+          pButton
+          type="button"
+          label="Pending Review"
+          icon="pi pi-clock"
+          [class]="statusFilter() === 'pending' ? 'p-button-sm !bg-amber-500 !text-white' : 'p-button-sm p-button-text !text-muted-color'"
+          (onClick)="setStatusFilter('pending')">
+        </button>
+      </div>
+
+      <!-- Search Input -->
+      <div class="w-full md:w-72">
+        <p-iconfield iconPosition="left" styleClass="w-full">
+          <p-inputicon styleClass="pi pi-search"></p-inputicon>
+          <input
+            pInputText
+            type="text"
+            placeholder="Search essay topic..."
+            [ngModel]="searchQuery()"
+            (ngModelChange)="searchQuery.set($event)"
+            class="w-full p-inputtext-sm rounded-xl" />
+        </p-iconfield>
+      </div>
+
+    </div>
+
+    <!-- Main List / Table -->
+    <div class="card p-4 md:p-6">
+      
+      <!-- Desktop Table -->
+      <div class="hidden sm:block">
+        <p-table
+          *ngIf="filteredEssays().length > 0"
+          [value]="filteredEssays()"
+          [rowHover]="true"
+          styleClass="p-datatable-striped"
+          [tableStyle]="{'min-width': '50rem'}">
+          <ng-template pTemplate="header">
+            <tr>
+              <th>Essay Module</th>
+              <th style="width: 140px" class="text-center">Word Count</th>
+              <th style="width: 160px" class="text-center">Submitted Date</th>
+              <th style="width: 160px" class="text-center">Status</th>
+              <th style="width: 120px" class="text-center">Action</th>
+            </tr>
+          </ng-template>
+          <ng-template pTemplate="body" let-essay>
+            <tr>
+              <td>
+                <div class="font-bold text-surface-900 dark:text-surface-0 text-base mb-0.5">{{ essay.moduleName }}</div>
+                <div class="text-xs text-muted-color line-clamp-1 italic max-w-md">{{ essay.essayPrompt }}</div>
+              </td>
+              <td class="text-center">
+                <p-tag [value]="getWordCount(essay.content) + ' words'" severity="secondary" styleClass="text-xs font-semibold px-2.5 py-1" />
+              </td>
+              <td class="text-center text-sm text-muted-color font-medium">
+                {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : '—' }}
+              </td>
+              <td class="text-center">
+                <p-tag
+                  *ngIf="essay.isReviewed"
+                  value="Reviewed"
+                  severity="success"
+                  icon="pi pi-check-circle"
+                  styleClass="text-xs font-semibold px-2.5 py-1" />
+                <p-tag
+                  *ngIf="!essay.isReviewed"
+                  value="Pending Review"
+                  severity="warn"
+                  icon="pi pi-clock"
+                  styleClass="text-xs font-semibold px-2.5 py-1" />
+              </td>
+              <td class="text-center">
+                <p-button
+                  icon="pi pi-eye"
+                  label="View"
+                  styleClass="p-button-outlined p-button-sm"
+                  (onClick)="openEssay(essay)">
+                </p-button>
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+
+      <!-- Mobile Responsive Cards -->
+      <div class="block sm:hidden space-y-4">
+        <div
+          *ngFor="let essay of filteredEssays()"
+          class="border border-surface-200 dark:border-surface-700 rounded-2xl p-4 bg-surface-0 dark:bg-surface-900 shadow-sm space-y-3">
+          
+          <div class="flex items-start justify-between gap-2">
+            <div>
+              <h3 class="font-bold text-surface-900 dark:text-surface-0 text-base m-0">{{ essay.moduleName }}</h3>
+              <p class="text-xs text-muted-color line-clamp-2 m-0 mt-1 italic">{{ essay.essayPrompt }}</p>
+            </div>
+            <p-tag
+              *ngIf="essay.isReviewed"
+              value="Reviewed"
+              severity="success"
+              icon="pi pi-check-circle"
+              styleClass="text-xs font-semibold" />
+            <p-tag
+              *ngIf="!essay.isReviewed"
+              value="Pending"
+              severity="warn"
+              icon="pi pi-clock"
+              styleClass="text-xs font-semibold" />
+          </div>
+
+          <div class="flex items-center justify-between pt-2 border-t border-surface-100 dark:border-surface-800 text-xs text-muted-color">
+            <div class="flex items-center gap-2">
+              <span class="font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
+                {{ getWordCount(essay.content) }} words
+              </span>
+              <span>• {{ essay.submittedDate ? (essay.submittedDate | date:'shortDate') : '—' }}</span>
+            </div>
+
+            <p-button
+              icon="pi pi-eye"
+              label="View"
+              styleClass="p-button-outlined p-button-sm"
+              (onClick)="openEssay(essay)">
+            </p-button>
+          </div>
+        </div>
+      </div>
+
+      <!-- Empty State -->
+      <div *ngIf="filteredEssays().length === 0" class="text-center py-12 text-muted-color">
+        <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl mx-auto mb-3">
+          <i class="pi pi-file-edit"></i>
+        </div>
+        <h3 class="text-lg font-bold text-surface-900 dark:text-surface-0 m-0 mb-1">No Essays Found</h3>
+        <p class="text-sm m-0 max-w-sm mx-auto">
+          {{ essays().length === 0 ? 'You haven\'t submitted any essays yet. Complete essay modules in your courses to get teacher feedback.' : 'No essays match your selected filters.' }}
+        </p>
+      </div>
+
+    </div>
+
+  </ng-container>
+
+  <!-- Essay Detail & Feedback Modal Dialog -->
+  <p-dialog
+    [(visible)]="showDialog"
+    [header]="selectedEssay()?.moduleName || 'Essay Details'"
+    [modal]="true"
+    [draggable]="false"
+    [resizable]="false"
+    [style]="{ width: '90vw', maxWidth: '750px' }">
+    
+    <ng-container *ngIf="selectedEssay() as essay">
+      <div class="space-y-6 pt-2">
+        
+        <!-- Header Info Bar -->
+        <div class="flex items-center justify-between flex-wrap gap-2 p-3 bg-surface-100 dark:bg-surface-800 rounded-xl">
+          <div class="flex items-center gap-2">
+            <p-tag
+              *ngIf="essay.isReviewed"
+              value="Reviewed by Teacher"
+              severity="success"
+              icon="pi pi-check-circle"
+              styleClass="text-xs font-semibold px-2.5 py-1" />
+            <p-tag
+              *ngIf="!essay.isReviewed"
+              value="Pending Teacher Review"
+              severity="warn"
+              icon="pi pi-clock"
+              styleClass="text-xs font-semibold px-2.5 py-1" />
+            <p-tag
+              [value]="getWordCount(essay.content) + ' words'"
+              severity="info"
+              icon="pi pi-align-left"
+              styleClass="text-xs font-semibold px-2.5 py-1" />
+          </div>
+          
+          <div class="text-xs text-muted-color font-medium">
+            Submitted: {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : '—' }}
+          </div>
+        </div>
+
+        <!-- Prompt Card -->
+        <div class="bg-blue-500/10 border-l-4 border-blue-500 rounded-r-xl p-4">
+          <div class="text-xs uppercase tracking-wider font-bold text-blue-600 dark:text-blue-400 mb-1 flex items-center gap-1.5">
+            <i class="pi pi-info-circle"></i> Essay Prompt
+          </div>
+          <p class="text-surface-900 dark:text-surface-0 font-medium m-0 text-sm md:text-base leading-relaxed">
+            {{ essay.essayPrompt }}
+          </p>
+        </div>
+
+        <!-- Student Essay Content -->
+        <div>
+          <div class="flex items-center justify-between mb-2">
+            <h4 class="text-sm uppercase tracking-wider font-bold text-muted-color m-0">Your Submitted Essay</h4>
+            <span class="text-xs text-muted-color">{{ getWordCount(essay.content) }} words</span>
+          </div>
+          <div
+            class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-4 md:p-5 text-surface-900 dark:text-surface-0 text-sm md:text-base leading-relaxed max-h-72 overflow-y-auto whitespace-pre-wrap"
+            [innerHTML]="essay.content">
+          </div>
+        </div>
+
+        <!-- Teacher Feedback / Corrections -->
+        <div>
+          <h4 class="text-sm uppercase tracking-wider font-bold text-muted-color mb-2">Teacher Feedback & Corrections</h4>
+          
+          <div *ngIf="essay.isReviewed && essay.adminContent" class="bg-green-500/10 border border-green-500/30 rounded-xl p-4 md:p-5">
+            <div class="flex items-center justify-between mb-2">
+              <span class="text-xs font-bold text-green-700 dark:text-green-300 flex items-center gap-1">
+                <i class="pi pi-comment"></i> Teacher Comments
+              </span>
+              <span class="text-xs text-muted-color">Reviewed on {{ essay.reviewedDate ? (essay.reviewedDate | date:'mediumDate') : '—' }}</span>
+            </div>
+            <div
+              class="text-surface-900 dark:text-surface-0 text-sm md:text-base leading-relaxed whitespace-pre-wrap"
+              [innerHTML]="essay.adminContent">
+            </div>
+          </div>
+
+          <div *ngIf="!essay.isReviewed" class="bg-amber-500/10 border border-amber-500/30 rounded-xl p-4 text-center">
+            <i class="pi pi-clock text-amber-500 text-2xl mb-1"></i>
+            <p class="text-sm font-semibold text-amber-700 dark:text-amber-300 m-0 mb-1">Pending Teacher Review</p>
+            <p class="text-xs text-muted-color m-0">Your teacher hasn't reviewed this essay yet. Check back soon for corrections and feedback!</p>
+          </div>
+        </div>
+
+      </div>
+    </ng-container>
+
+    <ng-template pTemplate="footer">
+      <p-button label="Close" icon="pi pi-times" styleClass="p-button-outlined" (onClick)="showDialog.set(false)"></p-button>
+    </ng-template>
+  </p-dialog>
+
+</div>

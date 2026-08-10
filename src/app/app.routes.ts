@@ -84,6 +84,8 @@ import { LessonPronunciationComponent } from './lesson/lesson-pronunciation/less
 
 
 
+import { StudentEssaysComponent } from './student-view/student-essays/student-essays.component';
+
 export const appRoutes: Routes = [
   {
     path: '',
@@ -161,6 +163,7 @@ export const appRoutes: Routes = [
       { path: 'lesson/examination', component: ExaminationModeComponent, canActivate: [AuthGuard] },
       { path: 'credits', component: CreditsComponent, canActivate: [AuthGuard] },
       { path: 'modules/:moduleId/essay', component: EssayModuleComponent, canActivate: [AuthGuard] },
+      { path: 'my-essays', component: StudentEssaysComponent, canActivate: [AuthGuard] },
       { path: 'lesson/check-essays', component: CheckEssaysComponent, canActivate: [AuthGuard] },
       { path: 'lesson/credits', component: AdminCreditsComponent, canActivate: [AuthGuard] },
       { path: 'system/student-activity', component: StudentActivityComponent, canActivate: [AuthGuard] },

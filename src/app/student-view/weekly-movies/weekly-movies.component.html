@@ -28,7 +28,7 @@
             label="This Week"
             icon="pi pi-calendar"
             [class]="timeframe() === 'week' ? 'p-button-sm !bg-primary !text-white' : 'p-button-sm p-button-text !text-muted-color'"
-            (onClick)="setTimeframe('week')">
+            (click)="setTimeframe('week')">
           </button>
           <button
             pButton
@@ -36,7 +36,7 @@
             label="All Time"
             icon="pi pi-globe"
             [class]="timeframe() === 'all' ? 'p-button-sm !bg-primary !text-white' : 'p-button-sm p-button-text !text-muted-color'"
-            (onClick)="setTimeframe('all')">
+            (click)="setTimeframe('all')">
           </button>
         </div>
 

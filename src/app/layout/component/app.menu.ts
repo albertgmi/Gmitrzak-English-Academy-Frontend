@@ -167,6 +167,7 @@ export class AppMenu implements OnInit {
           { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/pronunciation'] },
           { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/alphabet-test'] },
           { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] },
+          { label: 'My Essays', icon: 'pi pi-file-edit', routerLink: ['/my-essays'] },
           { label: 'Movie Theater', icon: 'pi pi-video', routerLink: ['/weekly-movies'] }
         ]
       },

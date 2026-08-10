@@ -35,6 +35,10 @@ export class EssayService {
         return this.http.post<UserEssayDto>(`${this.apiUrl}/submit`, { moduleId, content });
     }
 
+    getMyEssays() {
+        return this.http.get<UserEssayDto[]>(`${this.apiUrl}/my-essays`);
+    }
+
     getAllForAdmin() {
         return this.http.get<UserEssayDto[]>(`${this.apiUrl}/admin/all`);
     }
