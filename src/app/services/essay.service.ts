@@ -52,4 +52,9 @@ export class EssayService {
         return this.http.get(`${this.apiUrl}/admin/export/${essayId}`,
             { responseType: 'blob' });
     }
+
+    exportAllReviewedDocx() {
+        return this.http.get(`${this.apiUrl}/admin/export-all-reviewed`,
+            { responseType: 'blob' });
+    }
 }

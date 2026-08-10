@@ -35,6 +35,7 @@ export class CheckEssaysComponent implements OnInit {
     adminContent = signal('');
     saving       = signal(false);
     downloading  = signal<number | null>(null);
+    downloadingAll = signal(false);
     filter       = signal<FilterType>('all');
     search       = signal('');
 
@@ -138,6 +139,22 @@ export class CheckEssaysComponent implements OnInit {
                 this.downloading.set(null);
             },
             error: () => this.downloading.set(null)
+        });
+    }
+
+    downloadAllReviewed() {
+        this.downloadingAll.set(true);
+        this.essayService.exportAllReviewedDocx().subscribe({
+            next: (blob) => {
+                const url = URL.createObjectURL(blob);
+                const a   = document.createElement('a');
+                a.href    = url;
+                a.download = 'checked_essays.zip';
+                a.click();
+                URL.revokeObjectURL(url);
+                this.downloadingAll.set(false);
+            },
+            error: () => this.downloadingAll.set(false)
         });
     }
 

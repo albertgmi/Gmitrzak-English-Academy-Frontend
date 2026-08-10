@@ -11,6 +11,13 @@
         <span class="text-orange-500 font-medium">{{ pendingCount() }} pending</span>
       </p>
     </div>
+    <p-button
+      label="Download all reviewed"
+      icon="pi pi-download"
+      severity="success"
+      outlined
+      [loading]="downloadingAll()"
+      (onClick)="downloadAllReviewed()" />
   </div>
 
   <!-- Filters -->
