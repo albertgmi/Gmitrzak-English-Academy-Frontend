@@ -1,14 +1,14 @@
 .essay-content-box {
-  word-break: break-word;
-  overflow-wrap: anywhere;
+  word-break: normal;
+  overflow-wrap: break-word;
   max-width: 100%;
   box-sizing: border-box;
 
   * {
     max-width: 100% !important;
     box-sizing: border-box !important;
-    overflow-wrap: anywhere !important;
-    word-break: break-word !important;
+    overflow-wrap: break-word !important;
+    word-break: normal !important;
   }
 
   p {
