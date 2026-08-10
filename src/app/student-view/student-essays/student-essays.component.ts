@@ -24,7 +24,8 @@ import { EssayService, UserEssayDto } from '../../services/essay.service';
     IconFieldModule,
     InputIconModule
   ],
-  templateUrl: './student-essays.component.html'
+  templateUrl: './student-essays.component.html',
+  styleUrls: ['./student-essays.component.scss']
 })
 export class StudentEssaysComponent implements OnInit {
   private essayService = inject(EssayService);
