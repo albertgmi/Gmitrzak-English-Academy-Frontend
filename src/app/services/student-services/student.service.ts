@@ -128,8 +128,8 @@ export class StudentService {
     private studentLearningApiUrl = `${environment.apiUrl}/api/student-learning`;
     http = inject(HttpClient);
 
-    getWeeklyMoviesStats() {
-        return this.http.get<WeeklyMoviesResponseDto>(`${this.studentLearningApiUrl}/weekly-movies`);
+    getWeeklyMoviesStats(timeframe: 'week' | 'all' = 'week') {
+        return this.http.get<WeeklyMoviesResponseDto>(`${this.studentLearningApiUrl}/weekly-movies?timeframe=${timeframe}`);
     }
 
     courses = resource<StudentAssignmentDto[], unknown>({

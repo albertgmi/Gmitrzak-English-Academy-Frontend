@@ -29,6 +29,7 @@ export class WeeklyMoviesComponent implements OnInit {
   data = signal<WeeklyMoviesResponseDto | null>(null);
   loading = signal(true);
   error = signal<string | null>(null);
+  timeframe = signal<'week' | 'all'>('week');
 
   top1Watcher = computed(() => this.data()?.topWatchers.find(w => w.rank === 1));
   top2Watcher = computed(() => this.data()?.topWatchers.find(w => w.rank === 2));
@@ -38,17 +39,23 @@ export class WeeklyMoviesComponent implements OnInit {
     this.loadWeeklyMovies();
   }
 
+  setTimeframe(tf: 'week' | 'all') {
+    if (this.timeframe() === tf) return;
+    this.timeframe.set(tf);
+    this.loadWeeklyMovies();
+  }
+
   loadWeeklyMovies() {
     this.loading.set(true);
     this.error.set(null);
-    this.studentService.getWeeklyMoviesStats().subscribe({
+    this.studentService.getWeeklyMoviesStats(this.timeframe()).subscribe({
       next: (res) => {
         this.data.set(res);
         this.loading.set(false);
       },
       error: (err) => {
-        console.error('Failed to load weekly movies stats:', err);
-        this.error.set('Failed to load weekly movie statistics.');
+        console.error('Failed to load movie stats:', err);
+        this.error.set('Failed to load movie statistics.');
         this.loading.set(false);
       }
     });
