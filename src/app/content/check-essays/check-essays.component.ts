@@ -74,6 +74,21 @@ export class CheckEssaysComponent implements OnInit {
         this.essays().filter(e => !e.isReviewed).length
     );
 
+    selectedEssayWordCount = computed(() => {
+        const essay = this.selectedEssay();
+        if (!essay || !essay.content) return 0;
+        const text = essay.content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
+        if (!text) return 0;
+        return text.split(/\s+/).filter(w => w.length > 0).length;
+    });
+
+    getWordCount(content: string | undefined | null): number {
+        if (!content) return 0;
+        const text = content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
+        if (!text) return 0;
+        return text.split(/\s+/).filter(w => w.length > 0).length;
+    }
+
     ngOnInit() {
         this.essayService.getAllForAdmin().subscribe({
             next: data => { this.essays.set(data); this.loading.set(false); },

@@ -47,7 +47,10 @@
 
       <div class="p-5 bg-surface-50 dark:bg-surface-800 border
         border-surface-200 dark:border-surface-700 rounded-xl mb-4">
-        <div class="text-xs font-bold uppercase text-muted-color mb-3">Your submitted essay</div>
+        <div class="text-xs font-bold uppercase text-muted-color mb-3 flex items-center justify-between">
+          <span>Your submitted essay</span>
+          <p-tag severity="secondary" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
+        </div>
         <div class="prose max-w-none text-surface-900 dark:text-surface-0"
           [innerHTML]="content()"></div>
       </div>
@@ -62,9 +65,12 @@
 
     <!-- Editor -->
     <div *ngIf="!submitted()">
-      <label class="block font-bold mb-3 text-surface-900 dark:text-surface-0">
-        Your essay
-      </label>
+      <div class="flex items-center justify-between mb-3">
+        <label class="font-bold text-surface-900 dark:text-surface-0 m-0">
+          Your essay
+        </label>
+        <p-tag severity="info" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
+      </div>
 
       <quill-editor
         [ngModel]="content()"
@@ -80,13 +86,18 @@
           Your essay will be submitted to your teacher for review.
           You cannot edit it after submission.
         </span>
-        <p-button
-          label="Submit essay"
-          icon="pi pi-send"
-          [loading]="submitting()"
-          [disabled]="!content().trim() || content() === '<p><br></p>'"
-          class="flex-shrink-0"
-          (onClick)="submit()" />
+        <div class="flex items-center gap-3">
+          <span class="text-sm font-semibold text-surface-700 dark:text-surface-300">
+            {{ wordCount() }} {{ wordCount() === 1 ? 'word' : 'words' }}
+          </span>
+          <p-button
+            label="Submit essay"
+            icon="pi pi-send"
+            [loading]="submitting()"
+            [disabled]="!content().trim() || content() === '<p><br></p>'"
+            class="flex-shrink-0"
+            (onClick)="submit()" />
+        </div>
       </div>
     </div>
 

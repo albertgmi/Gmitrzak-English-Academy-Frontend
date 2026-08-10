@@ -1,4 +1,4 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -27,6 +27,14 @@ export class EssayModuleComponent implements OnInit {
     loading      = signal(true);
     submitting   = signal(false);
     submitted    = signal(false);
+
+    wordCount = computed(() => {
+        const raw = this.content();
+        if (!raw) return 0;
+        const text = raw.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
+        if (!text) return 0;
+        return text.split(/\s+/).filter(w => w.length > 0).length;
+    });
 
     quillModules = {
         toolbar: [
