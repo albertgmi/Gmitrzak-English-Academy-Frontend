@@ -145,11 +145,67 @@ export class FlashcardStudyModeComponent implements OnInit {
         }, 100);
     }
 
+    private readonly STORAGE_KEY = 'flashcards_pending_queue';
+
+    private savePendingQueue(cards: SessionCard[]) {
+        try {
+            if (cards.length === 0) {
+                sessionStorage.removeItem(this.STORAGE_KEY);
+            } else {
+                const data = cards.map(c => ({
+                    id: c.id,
+                    incorrectStep: c.incorrectStep,
+                    availableAt: c.availableAt
+                }));
+                sessionStorage.setItem(this.STORAGE_KEY, JSON.stringify(data));
+            }
+        } catch (e) {
+            console.error('Failed to save pending queue to sessionStorage:', e);
+        }
+    }
+
     private initializeSession(allCards: FlashcardDto[]) {
         const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
-        let toReview: SessionCard[] = allCards
-            .filter(c => c.nextReviewDate <= today)
-            .map(c => ({ ...c, incorrectStep: 0, availableAt: 0 }));
+        const now = Date.now();
+
+        let storedPendingMap = new Map<number, { incorrectStep: number; availableAt: number }>();
+        try {
+            const raw = sessionStorage.getItem(this.STORAGE_KEY);
+            if (raw) {
+                const parsed: { id: number; incorrectStep: number; availableAt: number }[] = JSON.parse(raw);
+                parsed.forEach(item => {
+                    if (item.availableAt > now) {
+                        storedPendingMap.set(item.id, { incorrectStep: item.incorrectStep, availableAt: item.availableAt });
+                    }
+                });
+            }
+        } catch (e) {
+            console.error('Failed to restore pending queue:', e);
+        }
+
+        let restoredPending: SessionCard[] = [];
+        let toReview: SessionCard[] = [];
+
+        for (const c of allCards) {
+            if (c.nextReviewDate <= today) {
+                const pendingInfo = storedPendingMap.get(c.id);
+                if (pendingInfo) {
+                    restoredPending.push({
+                        ...c,
+                        incorrectStep: pendingInfo.incorrectStep,
+                        availableAt: pendingInfo.availableAt
+                    });
+                } else {
+                    toReview.push({
+                        ...c,
+                        incorrectStep: 0,
+                        availableAt: 0
+                    });
+                }
+            }
+        }
+
+        this.savePendingQueue(restoredPending);
 
         const priorityOrder = this.flashcardService.categoryPriorityOrder();
         if (priorityOrder.length > 0) {
@@ -167,10 +223,15 @@ export class FlashcardStudyModeComponent implements OnInit {
             });
         }
 
-        if (toReview.length > 0) {
+        this.pendingQueue.set(restoredPending);
+
+        if (toReview.length > 0 || restoredPending.length > 0) {
             this.queue.set(toReview);
+            this.isFinished.set(false);
             this.nextCard();
         } else {
+            this.queue.set([]);
+            this.currentCard.set(null);
             this.isFinished.set(true);
         }
     }
@@ -185,7 +246,8 @@ export class FlashcardStudyModeComponent implements OnInit {
 
         if (ready.length > 0) {
             this.pendingQueue.set(stillWaiting);
-            this.queue.update(q => [...q, ...ready]);
+            this.savePendingQueue(stillWaiting);
+            this.queue.update(q => [...ready, ...q]);
         }
 
         const current = this.queue();
@@ -204,6 +266,7 @@ export class FlashcardStudyModeComponent implements OnInit {
         } else {
             this.currentCard.set(null);
             this.isFinished.set(true);
+            this.savePendingQueue([]);
         }
     }
 
@@ -224,7 +287,11 @@ export class FlashcardStudyModeComponent implements OnInit {
                 ...card,
                 availableAt: Date.now() + (60 * 1000)
             };
-            this.pendingQueue.update(q => [...q, updatedCard]);
+            this.pendingQueue.update(q => {
+                const nextQ = [...q, updatedCard];
+                this.savePendingQueue(nextQ);
+                return nextQ;
+            });
         } else if (type === 'incorrect') {
             const step = Math.min(card.incorrectStep, this.INCORRECT_DELAYS_MS.length - 1);
             const delayMs = this.INCORRECT_DELAYS_MS[step];
@@ -233,7 +300,11 @@ export class FlashcardStudyModeComponent implements OnInit {
                 incorrectStep: card.incorrectStep + 1,
                 availableAt: Date.now() + delayMs
             };
-            this.pendingQueue.update(q => [...q, updatedCard]);
+            this.pendingQueue.update(q => {
+                const nextQ = [...q, updatedCard];
+                this.savePendingQueue(nextQ);
+                return nextQ;
+            });
         }
 
         const backendType = type === 'again_1m' ? 'incorrect' : type;
