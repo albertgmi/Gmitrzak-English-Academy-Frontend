@@ -233,7 +233,7 @@ export class SentencesCardsComponent implements OnInit {
         }
     }
 
-    handleReview(type: 'incorrect' | 'hard' | 'easy') {
+    handleReview(type: 'again_1m' | 'incorrect' | 'hard' | 'easy') {
         const card = this.currentCard();
 
         if (!card) return;
@@ -245,7 +245,13 @@ export class SentencesCardsComponent implements OnInit {
 
         this.activityService.logActivity('sentenceflashcards' as any).subscribe();
 
-        if (type === 'incorrect') {
+        if (type === 'again_1m') {
+            const updatedCard: SessionCard = {
+                ...card,
+                availableAt: Date.now() + (60 * 1000)
+            };
+            this.pendingQueue.update(q => [...q, updatedCard]);
+        } else if (type === 'incorrect') {
             const step = Math.min(
                 card.incorrectStep,
                 this.INCORRECT_DELAYS_MS.length - 1
@@ -262,7 +268,9 @@ export class SentencesCardsComponent implements OnInit {
             this.pendingQueue.update(q => [...q, updatedCard]);
         }
 
-        this.contentService.reviewSentence(card.id, type)
+        const backendType = type === 'again_1m' ? 'incorrect' : type;
+
+        this.contentService.reviewSentence(card.id, backendType)
             .pipe(
                 take(1),
                 takeUntilDestroyed(this.destroyRef)

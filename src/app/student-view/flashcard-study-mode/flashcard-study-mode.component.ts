@@ -207,7 +207,7 @@ export class FlashcardStudyModeComponent implements OnInit {
         }
     }
 
-    handleReview(type: 'incorrect' | 'hard' | 'easy') {
+    handleReview(type: 'again_1m' | 'incorrect' | 'hard' | 'easy') {
         const card = this.currentCard();
         if (!card) return;
 
@@ -219,7 +219,13 @@ export class FlashcardStudyModeComponent implements OnInit {
         const duration = Math.round((Date.now() - this.cardStartTime) / 1000);
         const timeSpentSeconds = Math.min(duration, 60); 
 
-        if (type === 'incorrect') {
+        if (type === 'again_1m') {
+            const updatedCard: SessionCard = {
+                ...card,
+                availableAt: Date.now() + (60 * 1000)
+            };
+            this.pendingQueue.update(q => [...q, updatedCard]);
+        } else if (type === 'incorrect') {
             const step = Math.min(card.incorrectStep, this.INCORRECT_DELAYS_MS.length - 1);
             const delayMs = this.INCORRECT_DELAYS_MS[step];
             const updatedCard: SessionCard = {
@@ -230,7 +236,9 @@ export class FlashcardStudyModeComponent implements OnInit {
             this.pendingQueue.update(q => [...q, updatedCard]);
         }
 
-        this.flashcardService.reviewCard(card.id, type, timeSpentSeconds)
+        const backendType = type === 'again_1m' ? 'incorrect' : type;
+
+        this.flashcardService.reviewCard(card.id, backendType, timeSpentSeconds)
             .pipe(
                 take(1),
                 takeUntilDestroyed(this.destroyRef)
