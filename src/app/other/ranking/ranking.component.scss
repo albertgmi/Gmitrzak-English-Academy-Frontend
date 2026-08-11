@@ -393,6 +393,24 @@
   background: rgba(99,102,241,.08);
 }
 
+.th-pos,
+.th-stat,
+.th-score {
+  text-align: center;
+}
+
+.td-pos {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.td-stat {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
 .td-user {
   display: flex;
   align-items: center;
@@ -425,6 +443,9 @@
 }
 
 .td-score {
+  display: flex;
+  align-items: center;
+  justify-content: center;
   font-weight: 800;
   color: var(--primary-color);
 }
@@ -432,6 +453,7 @@
 .td-react {
   display: flex;
   align-items: center;
+  justify-content: center;
   flex-wrap: wrap;
   gap: .4rem;
 }
