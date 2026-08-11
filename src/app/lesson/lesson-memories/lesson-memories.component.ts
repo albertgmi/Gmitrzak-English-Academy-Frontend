@@ -54,6 +54,43 @@ export class LessonMemoriesComponent implements OnInit {
     category: ''
   });
   saving = signal<boolean>(false);
+  importing = signal<boolean>(false);
+
+  onFileSelected(event: Event): void {
+    const input = event.target as HTMLInputElement;
+    if (!input.files || input.files.length === 0) return;
+
+    const student = this.activeStudent();
+    if (!student) {
+      this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select a student first.' });
+      return;
+    }
+
+    const file = input.files[0];
+    this.importing.set(true);
+
+    this.memoriesService.importMemories(student.id, file).subscribe({
+      next: (res) => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Imported',
+          detail: `Successfully imported ${res.count} memories!`
+        });
+        this.importing.set(false);
+        input.value = '';
+        this.loadMemories(student.id);
+      },
+      error: (err) => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: err?.error?.message || 'Failed to import Excel file.'
+        });
+        this.importing.set(false);
+        input.value = '';
+      }
+    });
+  }
 
   constructor() {
     effect(() => {

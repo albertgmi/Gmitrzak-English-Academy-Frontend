@@ -332,13 +332,18 @@
     
       <!-- LEWA: Formularz -->
       <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 flex flex-col gap-4">
-        <div>
-          <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
-            Generate memory prompts
-          </h3>
-          <p class="text-xs text-muted-color m-0">
-            Enter one or two words — the system generates linguistic prompts automatically.
-          </p>
+        <div class="flex items-center justify-between gap-3">
+          <div>
+            <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0 mb-1">
+              Generate memory prompts
+            </h3>
+            <p class="text-xs text-muted-color m-0">
+              Enter one or two words — the system generates linguistic prompts automatically.
+            </p>
+          </div>
+          <input type="file" #excelInputMode (change)="onMemoryFileSelected($event)" accept=".xlsx, .xls" style="display: none;" />
+          <p-button label="Import Excel" icon="pi pi-file-excel" severity="success" outlined size="small"
+            [loading]="importingMemory()" (click)="excelInputMode.click()" />
         </div>
       
         <div>

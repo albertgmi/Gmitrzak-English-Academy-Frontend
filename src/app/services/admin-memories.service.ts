@@ -39,4 +39,10 @@ export class AdminMemoriesService {
   deleteMemory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
+
+  importMemories(studentId: number, file: File): Observable<{ count: number }> {
+    const formData = new FormData();
+    formData.append('file', file);
+    return this.http.post<{ count: number }>(`${this.apiUrl}/import/${studentId}`, formData);
+  }
 }

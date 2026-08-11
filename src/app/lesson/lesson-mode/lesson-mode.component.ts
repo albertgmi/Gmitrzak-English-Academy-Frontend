@@ -19,6 +19,7 @@ import { SpellCheckResult } from "../../services/lesson.service";
 import { CatalogueService, CatalogueDto } from '../../services/catalogue.service';
 import { SentenceService as SentenceSetsService } from '../../services/sentence.service';
 import { AlphabetTestItemDto } from '../../services/lesson.service';
+import { AdminMemoriesService } from '../../services/admin-memories.service';
 
 type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation' | 'alphabet' | 'catalogues';
 
@@ -45,6 +46,7 @@ export class LessonModeComponent {
     private messageService = inject(MessageService);
     private catalogueService = inject(CatalogueService);
     private sentenceSetsService = inject(SentenceSetsService);
+    private adminMemoriesService = inject(AdminMemoriesService);
 
     activeStudent = this.lessonContext.activeStudent;
     activeTab = signal<LessonTab>('flashcard');
@@ -103,6 +105,41 @@ export class LessonModeComponent {
     memoryNotes    = signal('');
     memoryCategory = signal<string | null>(null);
     savingMemory   = signal(false);
+    importingMemory = signal(false);
+
+    onMemoryFileSelected(event: Event): void {
+        const input = event.target as HTMLInputElement;
+        if (!input.files || input.files.length === 0) return;
+        if (this.studentId === null) {
+            this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select a student first.' });
+            return;
+        }
+
+        const file = input.files[0];
+        this.importingMemory.set(true);
+
+        this.adminMemoriesService.importMemories(this.studentId, file).subscribe({
+            next: (res) => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Imported',
+                    detail: `Successfully imported ${res.count} memories!`
+                });
+                this.importingMemory.set(false);
+                input.value = '';
+                this.loadStudentDataProtection(this.studentId!);
+            },
+            error: (err) => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: err?.error?.message || 'Failed to import Excel file.'
+                });
+                this.importingMemory.set(false);
+                input.value = '';
+            }
+        });
+    }
 
     pronunciationTestList = signal<LessonPronunciationTestItemDto[]>([]);
     alphabetList = signal<AlphabetTestItemDto[]>([]);

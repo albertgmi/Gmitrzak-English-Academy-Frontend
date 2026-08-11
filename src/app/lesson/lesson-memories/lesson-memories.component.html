@@ -17,9 +17,13 @@
         Memories
       </h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — view and edit memories</p>
+    <input type="file" #excelInput (change)="onFileSelected($event)" accept=".xlsx, .xls" style="display: none;" />
+    <div class="flex items-center gap-2">
+      <p-button label="Import Excel" icon="pi pi-file-excel" severity="success" outlined
+        size="small" [loading]="importing()" (click)="excelInput.click()" />
+      <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
+        size="small" (click)="goToSwitchClient()" />
     </div>
-    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
-      size="small" (click)="goToSwitchClient()" />
   </div>
 
   <!-- Table -->
