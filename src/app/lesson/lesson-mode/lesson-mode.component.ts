@@ -153,6 +153,7 @@ export class LessonModeComponent {
     readonly SESSION_SIZE = 20;
     
     readonly TEMPLATES = [
+        { key: 'blank',        label: 'Blank (Custom sentence)', template: "{A}", needsB: false },
         { key: 'difference',   label: 'Difference',   template: "What's the difference between {A} and {B}? Provide examples.",needsB: true  },
         { key: 'comma_before', label: 'Comma before',  template: "Do you put a comma before {A}? Are there any exceptions? Back it up with examples.", needsB: false },
         { key: 'position',     label: 'Position',      template: "Where do you put the word {A} in a sentence? Is there only one option? Give examples.", needsB: false },
@@ -165,7 +166,6 @@ export class LessonModeComponent {
         { key: 'formal',       label: 'Formal/Informal', template: "Is {A} formal or informal? What's the formal/informal alternative?",needsB: false },
         { key: 'grammar',      label: 'Grammar rules', template: "Explain the grammar rules for using {A}. What are the most common mistakes?", needsB: false },
         { key: 'plural',       label: 'Plural forms', template: "What's the plural of the word {A}?", needsB: false }
-        
     ];
 
     memoryCategoryOptions = this.TEMPLATES.map(t => ({ label: t.label, value: t.key }));
