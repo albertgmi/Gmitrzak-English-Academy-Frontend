@@ -10,6 +10,7 @@ export interface RankingEntryDto {
     activityPoints: number;
     averageGrade: number;
     flashcardsDone: number;
+    streak: number;
     score: number;
     title: string;
     positionChange: number;

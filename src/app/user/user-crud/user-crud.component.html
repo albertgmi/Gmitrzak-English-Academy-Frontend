@@ -50,6 +50,9 @@
       <th pSortableColumn="role" style="min-width: 10rem">
         Role <p-sortIcon field="role" />
       </th>
+      <th pSortableColumn="streak" style="min-width: 8rem">
+        Streak <p-sortIcon field="streak" />
+      </th>
       <th style="min-width: 8rem">Status</th>
       <th style="min-width: 10rem">Actions</th>
     </tr>
@@ -64,6 +67,11 @@
       <td>{{ user.email }}</td>
       <td>{{ user.username }}</td>
       <td>{{ user.role }}</td>
+      <td>
+        <span class="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2.5 py-1 rounded-lg text-xs">
+          <i class="pi pi-bolt"></i> {{ user.streak ?? 0 }} d streak
+        </span>
+      </td>
       <td>
         <p-tag [severity]="user.isActive ? 'success' : 'danger'" [value]="user.isActive ? 'Active' : 'Inactive'" />
       </td>
@@ -92,6 +100,12 @@
       <div>
         <label for="role" class="block font-bold mb-3">Role</label>
         <p-select [(ngModel)]="user.role" inputId="role" [options]="roles" optionLabel="label" optionValue="value" placeholder="Select a Role" fluid />
+      </div>
+
+      <div>
+        <label for="streakOverride" class="block font-bold mb-3">Streak (Days)</label>
+        <p-inputnumber id="streakOverride" [(ngModel)]="user.streakOverride" [min]="0" [showButtons]="true" fluid />
+        <small class="text-muted-color">Override active streak days for this student.</small>
       </div>
 
       <div>

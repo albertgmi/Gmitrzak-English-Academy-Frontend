@@ -86,6 +86,7 @@
                 <div class="podium-stats">
                   <span>⭐ {{ p2.averageGrade }}%</span>
                   <span>🃏 {{ p2.flashcardsDone }}</span>
+                  <span><i class="pi pi-bolt text-amber-500 mr-0.5"></i> {{ p2.streak }} d streak</span>
                   <span>🎯 {{ p2.activityPoints }} AP</span>
                 </div>
 
@@ -139,6 +140,7 @@
                 <div class="podium-stats">
                   <span>⭐ {{ p1.averageGrade }}%</span>
                   <span>🃏 {{ p1.flashcardsDone }}</span>
+                  <span><i class="pi pi-bolt text-amber-500 mr-0.5"></i> {{ p1.streak }} d streak</span>
                   <span>🎯 {{ p1.activityPoints }} AP</span>
                 </div>
 
@@ -181,6 +183,7 @@
                 <div class="podium-stats">
                   <span>⭐ {{ p3.averageGrade }}%</span>
                   <span>🃏 {{ p3.flashcardsDone }}</span>
+                  <span><i class="pi pi-bolt text-amber-500 mr-0.5"></i> {{ p3.streak }} d streak</span>
                   <span>🎯 {{ p3.activityPoints }} AP</span>
                 </div>
 
@@ -213,6 +216,7 @@
             <span class="th-stat">AP</span>
             <span class="th-stat">Avg</span>
             <span class="th-stat">Cards</span>
+            <span class="th-stat">Streak</span>
             <span class="th-score">Score</span>
             <span class="th-react">React</span>
           </div>
@@ -252,6 +256,11 @@
             </span>
             <span class="td-stat" data-label="Cards">
               {{ entry.flashcardsDone }}
+            </span>
+            <span class="td-stat" data-label="Streak">
+              <span class="inline-flex items-center gap-1 font-bold text-amber-600 dark:text-amber-400 bg-amber-500/10 px-2 py-0.5 rounded-md text-xs">
+                <i class="pi pi-bolt text-amber-500"></i> {{ entry.streak }} d streak
+              </span>
             </span>
             <span class="td-score">
               {{ entry.score }}

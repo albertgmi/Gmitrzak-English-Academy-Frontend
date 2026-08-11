@@ -9,6 +9,8 @@ export interface User {
   email?: string;
   role?: string;
   isActive?: boolean;
+  streak?: number;
+  streakOverride?: number | null;
   password?: string;
 }
 
@@ -54,7 +56,7 @@ export class UserService {
     });
   }
 
-  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string; isActive?: boolean }) {
+  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string; isActive?: boolean; streakOverride?: number | null }) {
     this.http.put(`${this.apiUrl}/update/${userId}`, request).subscribe({
       next: () => {
         this.users.reload();

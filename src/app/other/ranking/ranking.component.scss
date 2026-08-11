@@ -358,7 +358,7 @@
 
 .table-header-row {
   display: grid;
-  grid-template-columns: 70px 1.7fr repeat(3, .8fr) 1fr 1.1fr;
+  grid-template-columns: 60px 1.5fr repeat(4, .75fr) 0.9fr 1fr;
   padding: 1rem 1.25rem;
   border-radius: 1rem;
   margin-bottom: 1rem;
@@ -369,7 +369,7 @@
 
 .table-row {
   display: grid;
-  grid-template-columns: 70px 1.7fr repeat(3, .8fr) 1fr 1.1fr;
+  grid-template-columns: 60px 1.5fr repeat(4, .75fr) 0.9fr 1fr;
   align-items: center;
   gap: 1rem;
   padding: 1rem 1.25rem;
@@ -688,7 +688,7 @@
 
   .table-header-row,
   .table-row {
-    grid-template-columns: 50px 1.6fr repeat(3,.7fr) .9fr 1fr;
+    grid-template-columns: 45px 1.4fr repeat(4, .65fr) .8fr .9fr;
     font-size: .85rem;
   }
 }

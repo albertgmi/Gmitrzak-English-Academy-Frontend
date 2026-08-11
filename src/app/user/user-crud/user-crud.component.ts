@@ -121,7 +121,10 @@ export class UserCrudComponent implements OnInit {
   }
 
   editUser(user: User) {
-    this.user = { ...user };
+    this.user = {
+      ...user,
+      streakOverride: user.streakOverride ?? user.streak ?? 0
+    };
     this.userDialog = true;
   }
 
@@ -175,7 +178,8 @@ export class UserCrudComponent implements OnInit {
       email: this.user.email,
       role: this.user.role,
       password: this.user.password || undefined,
-      isActive: this.user.isActive
+      isActive: this.user.isActive,
+      streakOverride: this.user.streakOverride ?? 0
     });
 
     this.userDialog = false;
