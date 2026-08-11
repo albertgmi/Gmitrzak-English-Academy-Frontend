@@ -52,6 +52,7 @@ export class ReportListeningComponent implements OnInit {
     mediaTypes = [
         { label: 'Movie',    value: 'Movie' },
         { label: 'YouTube',  value: 'YouTube' },
+        { label: 'TV Series', value: 'TV Series' },
         { label: 'Podcast',  value: 'Podcast' },
         { label: 'Video',    value: 'Video' },
         { label: 'Book',     value: 'Book' },
@@ -106,7 +107,7 @@ export class ReportListeningComponent implements OnInit {
 
     mediaTypeSeverity(type: string): SeverityType {
         const map: Record<string, SeverityType> = {
-            Movie: 'info', YouTube: 'danger', Podcast: 'warn',
+            Movie: 'info', 'TV Series': 'info', TvSeries: 'info', YouTube: 'danger', Podcast: 'warn',
             Video: 'info', Book: 'success', Article: 'secondary', Other: 'secondary'
         };
         return map[type] ?? 'info';

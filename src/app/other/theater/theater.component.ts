@@ -50,13 +50,14 @@ export class TheaterComponent implements OnInit {
     });
 
     mediaTypes = [
-        { label: 'Movie',   value: 'Movie' },
-        { label: 'YouTube', value: 'YouTube' },
-        { label: 'Podcast', value: 'Podcast' },
-        { label: 'Video',   value: 'Video' },
-        { label: 'Book',    value: 'Book' },
-        { label: 'Article', value: 'Article' },
-        { label: 'Other',   value: 'Other' }
+        { label: 'Movie',     value: 'Movie' },
+        { label: 'TV Series', value: 'TV Series' },
+        { label: 'YouTube',   value: 'YouTube' },
+        { label: 'Podcast',   value: 'Podcast' },
+        { label: 'Video',     value: 'Video' },
+        { label: 'Book',      value: 'Book' },
+        { label: 'Article',   value: 'Article' },
+        { label: 'Other',     value: 'Other' }
     ];
 
     levels = [
@@ -145,7 +146,7 @@ export class TheaterComponent implements OnInit {
 
     mediaTypeSeverity(type: string): SeverityType {
         const map: Record<string, SeverityType> = {
-            Movie: 'info', YouTube: 'danger', Podcast: 'warn',
+            Movie: 'info', 'TV Series': 'info', TvSeries: 'info', YouTube: 'danger', Podcast: 'warn',
             Video: 'info', Book: 'success', Article: 'secondary', Other: 'secondary'
         };
         return map[type] ?? 'info';
