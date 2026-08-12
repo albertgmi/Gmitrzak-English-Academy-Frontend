@@ -180,8 +180,8 @@
   display: flex;
   justify-content: center;
   align-items: flex-end;
-  gap: 2rem;
-  flex-wrap: wrap;
+  gap: 1.5rem;
+  width: 100%;
 }
 
 .podium-slot {
@@ -189,6 +189,9 @@
   flex-direction: column;
   align-items: center;
   position: relative;
+  flex: 1 1 0px;
+  min-width: 0;
+  max-width: 280px;
 }
 
 .place-1 {
@@ -267,11 +270,15 @@
 .podium-stats {
   margin-top: .8rem;
   display: flex;
-  gap: .75rem;
+  gap: .35rem .6rem;
   justify-content: center;
   flex-wrap: wrap;
   font-size: .85rem;
   color: var(--text-color-secondary);
+
+  span {
+    white-space: nowrap;
+  }
 }
 
 .podium-block {
@@ -715,12 +722,37 @@
   }
 }
 
+@media (max-width: 1280px) and (min-width: 901px) {
+  .podium-stage {
+    gap: 0.75rem;
+  }
+
+  .podium-stats {
+    font-size: 0.78rem;
+    gap: 0.25rem 0.4rem;
+  }
+
+  .podium-name {
+    font-size: 1rem;
+  }
+
+  .champion {
+    font-size: 1.18rem;
+  }
+}
+
 @media (max-width: 900px) {
 
   .podium-stage {
     flex-direction: column;
     align-items: center;
     gap: 1rem;
+  }
+
+  .podium-slot {
+    flex: initial;
+    width: 100%;
+    max-width: 100%;
   }
 
   .place-1 {
