@@ -186,19 +186,32 @@ export class FlashcardRemindersComponent implements OnInit {
     this.reminderService.sendFlashcardReminders(userIds, this.customSubject(), this.customBody()).subscribe({
       next: (res) => {
         this.sending.set(false);
-        this.messageService.add({
-          severity: 'success',
-          summary: 'Success',
-          detail: `Sent ${res.sentCount} reminder email(s) successfully.${res.failedCount > 0 ? ` Failed: ${res.failedCount}` : ''}`
-        });
+        if (res.sentCount > 0) {
+          this.messageService.add({
+            severity: 'success',
+            summary: 'Email Reminders Sent',
+            detail: `Successfully sent ${res.sentCount} reminder email(s).`
+          });
+        }
+        if (res.failedCount > 0) {
+          const errorMsg = res.errors && res.errors.length > 0 ? res.errors[0] : 'Check Railway SMTP variables.';
+          this.messageService.add({
+            severity: 'error',
+            summary: 'Email Send Failed',
+            detail: `Failed for ${res.failedCount} recipient(s): ${errorMsg}`,
+            life: 8000
+          });
+        }
       },
       error: (err) => {
         console.error('Error sending reminder emails:', err);
         this.sending.set(false);
+        const detailMsg = err.error?.message || err.error?.detail || err.message || 'Failed to send reminder emails.';
         this.messageService.add({
           severity: 'error',
-          summary: 'Error',
-          detail: 'Failed to send reminder emails. Please check SMTP settings.'
+          summary: 'SMTP Dispatch Error',
+          detail: detailMsg,
+          life: 8000
         });
       }
     });
