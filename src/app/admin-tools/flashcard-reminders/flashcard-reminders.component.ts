@@ -75,9 +75,20 @@ export class FlashcardRemindersComponent implements OnInit {
       : this.inactiveStudents();
   });
 
+  // Dynamic username for preview (uses first selected student from table or fallback)
+  previewUsername = computed(() => {
+    const selected = this.selectedStudents();
+    return selected.length > 0 ? selected[0].username : 'Student Username';
+  });
+
+  previewSubject = computed(() => {
+    return this.customSubject().replace('{username}', this.previewUsername());
+  });
+
   // Generated Live Email Preview HTML
   previewHtml = computed(() => {
-    const text = this.customBody().replace('{username}', 'John Doe');
+    const username = this.previewUsername();
+    const text = this.customBody().replace('{username}', username);
     const paragraphs = text
       .split('\n')
       .map(p => p.trim() ? `<p style="margin: 0 0 12px 0; line-height: 1.6;">${p}</p>` : '<br/>')
@@ -88,7 +99,7 @@ export class FlashcardRemindersComponent implements OnInit {
         <div style="text-align: center; padding-bottom: 16px; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px;">
           <h1 style="color: #2563eb; margin: 0; font-size: 22px;">Gmitrzak English Academy</h1>
         </div>
-        <h2 style="color: #0f172a; font-size: 18px; margin-top: 0;">Hello John Doe! 👋</h2>
+        <h2 style="color: #0f172a; font-size: 18px; margin-top: 0;">Hello ${username}! 👋</h2>
         <div style="font-size: 15px; color: #334155;">
           ${paragraphs}
         </div>
