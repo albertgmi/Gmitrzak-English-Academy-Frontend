@@ -9,13 +9,14 @@ import { ButtonModule } from 'primeng/button';
 import { TooltipModule } from 'primeng/tooltip';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
+import { TextareaModule } from 'primeng/textarea';
 import { ContentService, MemoryDto } from '../../services/student-services/content.service';
 import { SectionActivityService } from '../../services/section-activity.service';
 
 @Component({
     selector: 'app-memories',
     standalone: true,
-    imports: [CommonModule, FormsModule, TableModule, InputTextModule,
+    imports: [CommonModule, FormsModule, TableModule, InputTextModule, TextareaModule,
         IconFieldModule, InputIconModule, ButtonModule, TooltipModule, ToastModule],
     providers: [MessageService],
     templateUrl: './memories.component.html'

@@ -24,36 +24,38 @@
 
     <ng-template #header>
       <tr>
-        <th>Content</th>
-        <th style="width: 18rem">Notes</th>
+        <th style="width: 45%">Content</th>
+        <th style="width: 55%">Notes</th>
       </tr>
     </ng-template>
 
     <ng-template #body let-m>
       <tr>
-        <td class="font-semibold text-surface-900 dark:text-surface-0">{{ m.content }}</td>
+        <td class="font-semibold text-surface-900 dark:text-surface-0 align-top">{{ m.content }}</td>
 
-        <td style="width: 18rem">
+        <td class="align-top">
 
-          <div class="flex items-center gap-1" *ngIf="editingId() !== m.id">
+          <div class="flex items-start justify-between gap-2" *ngIf="editingId() !== m.id">
 
             <ng-container *ngIf="m.notes; else emptyNote">
               <span
-                class="flex-1 text-sm truncate transition-all"
+                class="flex-1 text-sm whitespace-pre-wrap break-words transition-all"
                 [class.blur-sm]="!isRevealed(m.id)"
                 [class.select-none]="!isRevealed(m.id)"
                 [class.text-muted-color]="!isRevealed(m.id)">
                 {{ m.notes }}
               </span>
-              <button pButton type="button"
-                [icon]="isRevealed(m.id) ? 'pi pi-eye-slash' : 'pi pi-eye'"
-                class="p-button-rounded p-button-text p-button-sm"
-                (click)="toggleReveal(m.id, $event)"
-                [pTooltip]="isRevealed(m.id) ? 'Hide' : 'Show'"></button>
-              <button pButton type="button" icon="pi pi-pencil"
-                class="p-button-rounded p-button-text p-button-sm"
-                (click)="startEdit(m, $event)"
-                pTooltip="Edit"></button>
+              <div class="flex items-center gap-1 flex-shrink-0">
+                <button pButton type="button"
+                  [icon]="isRevealed(m.id) ? 'pi pi-eye-slash' : 'pi pi-eye'"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  (click)="toggleReveal(m.id, $event)"
+                  [pTooltip]="isRevealed(m.id) ? 'Hide' : 'Show'"></button>
+                <button pButton type="button" icon="pi pi-pencil"
+                  class="p-button-rounded p-button-text p-button-sm"
+                  (click)="startEdit(m, $event)"
+                  pTooltip="Edit"></button>
+              </div>
             </ng-container>
 
             <ng-template #emptyNote>
@@ -70,24 +72,28 @@
 
           </div>
 
-          <div class="flex items-center gap-1" *ngIf="editingId() === m.id">
-            <input pInputText type="text"
+          <div class="flex items-start gap-2" *ngIf="editingId() === m.id">
+            <textarea pTextarea
               [id]="'note-input-' + m.id"
-              class="flex-1 text-sm"
+              class="flex-1 text-sm w-full"
+              rows="2"
+              [autoResize]="true"
               [ngModel]="editValue()"
               (ngModelChange)="editValue.set($event)"
-              (keyup.enter)="saveNote(m.id)"
-              (keyup.escape)="cancelEdit(m.id)"
-              placeholder="Add note" />
-            <button pButton type="button" icon="pi pi-check"
-              class="p-button-rounded p-button-text p-button-sm p-button-success"
-              [loading]="savingId() === m.id"
-              (click)="saveNote(m.id)"
-              pTooltip="Save"></button>
-            <button pButton type="button" icon="pi pi-times"
-              class="p-button-rounded p-button-text p-button-sm p-button-danger"
-              (click)="cancelEdit(m.id, $event)"
-              pTooltip="Cancel"></button>
+              (keydown.ctrl.enter)="saveNote(m.id)"
+              (keydown.escape)="cancelEdit(m.id)"
+              placeholder="Add note"></textarea>
+            <div class="flex flex-col gap-1 flex-shrink-0">
+              <button pButton type="button" icon="pi pi-check"
+                class="p-button-rounded p-button-text p-button-sm p-button-success"
+                [loading]="savingId() === m.id"
+                (click)="saveNote(m.id)"
+                pTooltip="Save (Ctrl+Enter)"></button>
+              <button pButton type="button" icon="pi pi-times"
+                class="p-button-rounded p-button-text p-button-sm p-button-danger"
+                (click)="cancelEdit(m.id, $event)"
+                pTooltip="Cancel (Esc)"></button>
+            </div>
           </div>
 
         </td>
