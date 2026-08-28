@@ -7,7 +7,7 @@ export class SectionActivityService {
     private apiUrl = `${environment.apiUrl}/api/activity`;
     private http = inject(HttpClient);
 
-    logActivity(section: 'memories' | 'pronunciation' | 'sentences' | 'flashcards') {
+    logActivity(section: 'memories' | 'pronunciation' | 'alphabet' | 'sentences' | 'flashcards') {
         return this.http.post(`${this.apiUrl}/log`, { section });
     }
 }

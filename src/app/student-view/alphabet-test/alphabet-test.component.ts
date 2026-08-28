@@ -64,7 +64,7 @@ export class AlphabetTestComponent implements OnInit, OnDestroy {
     });
 
     ngOnInit() {
-        this.activityService.logActivity('pronunciation').subscribe();
+        this.activityService.logActivity('alphabet').subscribe();
         this.contentService.alphabet.reload();
     }
 
