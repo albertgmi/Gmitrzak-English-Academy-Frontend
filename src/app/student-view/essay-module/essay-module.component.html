@@ -69,12 +69,36 @@
         <label class="font-bold text-surface-900 dark:text-surface-0 m-0">
           Your essay
         </label>
-        <p-tag severity="info" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
+        <div class="flex items-center gap-2">
+          <span *ngIf="activeWritingTimeSeconds() > 0" class="text-xs text-muted-color">
+            <i class="pi pi-clock text-xs mr-1"></i>{{ activeWritingTimeSeconds() }}s active
+          </span>
+          <p-tag severity="info" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
+        </div>
+      </div>
+
+      <!-- Real-time AI / Paste Warning Banner -->
+      <div *ngIf="showAiWarning()"
+        class="mb-4 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-xl flex items-start gap-3 text-amber-900 dark:text-amber-200 shadow-sm animate-fadein">
+        <i class="pi pi-exclamation-triangle text-amber-500 text-xl shrink-0 mt-0.5"></i>
+        <div class="text-sm">
+          <div class="font-bold mb-1">
+            Pasted text or AI stylistic patterns detected
+          </div>
+          <div>
+            Please note that essay assignments undergo automated verification. 
+            Essays pasted directly from AI generators (e.g., ChatGPT) or external sources are flagged during teacher evaluation. Please compose your essay independently in your own words.
+          </div>
+          <div *ngIf="pastePercentage() > 0" class="text-xs mt-2 text-amber-700 dark:text-amber-400 font-semibold">
+            Pasted content: {{ pastePercentage() }}% of total ({{ pastedWordCount() }} words)
+          </div>
+        </div>
       </div>
 
       <quill-editor
         [ngModel]="content()"
         (ngModelChange)="content.set($event)"
+        (onEditorCreated)="onEditorCreated($event)"
         [modules]="quillModules"
         placeholder="Start writing your essay here..."
         class="block mb-4"
@@ -83,8 +107,7 @@
 
       <div class="flex items-center justify-between mt-4 flex-wrap gap-3">
         <span class="text-xs text-muted-color flex-1 min-w-[200px]">
-          Your essay will be submitted to your teacher for review.
-          You cannot edit it after submission.
+          Your essay will be submitted to your teacher for review. You cannot edit it after submission.
         </span>
         <div class="flex items-center gap-3">
           <span class="text-sm font-semibold text-surface-700 dark:text-surface-300">

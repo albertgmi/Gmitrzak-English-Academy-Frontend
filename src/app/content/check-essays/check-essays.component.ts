@@ -10,6 +10,7 @@ import { DialogModule } from 'primeng/dialog';
 import { MessageService } from 'primeng/api';
 import { QuillModule } from 'ngx-quill';
 import { EssayService, UserEssayDto } from '../../services/essay.service';
+import { EssayDetectorService, EssayAnalysisResult } from '../../services/essay-detector.service';
 
 type FilterType = 'all' | 'pending' | 'reviewed';
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
@@ -27,6 +28,7 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
 })
 export class CheckEssaysComponent implements OnInit {
     private essayService   = inject(EssayService);
+    public essayDetectorService = inject(EssayDetectorService);
     private messageService = inject(MessageService);
 
     essays       = signal<UserEssayDto[]>([]);
@@ -75,12 +77,22 @@ export class CheckEssaysComponent implements OnInit {
         this.essays().filter(e => !e.isReviewed).length
     );
 
-    selectedEssayWordCount = computed(() => {
+    selectedEssayAnalysis = computed<EssayAnalysisResult | null>(() => {
         const essay = this.selectedEssay();
-        if (!essay || !essay.content) return 0;
-        const text = essay.content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
-        if (!text) return 0;
-        return text.split(/\s+/).filter(w => w.length > 0).length;
+        if (!essay) return null;
+        return this.essayDetectorService.analyzeEssay(essay.content);
+    });
+
+    selectedEssayHighlightedContent = computed<string>(() => {
+        const analysis = this.selectedEssayAnalysis();
+        if (!analysis) return '';
+        return this.essayDetectorService.highlightAiPhrases(analysis.cleanContent, analysis.detectedPhrases);
+    });
+
+    selectedEssayWordCount = computed(() => {
+        const analysis = this.selectedEssayAnalysis();
+        if (!analysis || !analysis.cleanContent) return 0;
+        return this.getWordCount(analysis.cleanContent);
     });
 
     getWordCount(content: string | undefined | null): number {
@@ -88,6 +100,24 @@ export class CheckEssaysComponent implements OnInit {
         const text = content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
         if (!text) return 0;
         return text.split(/\s+/).filter(w => w.length > 0).length;
+    }
+
+    getEssayAnalysis(content: string): EssayAnalysisResult {
+        return this.essayDetectorService.analyzeEssay(content);
+    }
+
+    getAiRiskSeverity(score: number): SeverityType {
+        if (score >= 70) return 'danger';
+        if (score >= 40) return 'warn';
+        return 'info';
+    }
+
+    formatWritingTime(seconds: number): string {
+        if (!seconds) return 'N/A';
+        const m = Math.floor(seconds / 60);
+        const s = seconds % 60;
+        if (m > 0) return `${m}m ${s}s`;
+        return `${s}s`;
     }
 
     ngOnInit() {
@@ -99,7 +129,8 @@ export class CheckEssaysComponent implements OnInit {
 
     openReview(essay: UserEssayDto) {
         this.selectedEssay.set(essay);
-        this.adminContent.set(essay.adminContent ?? essay.content);
+        const analysis = this.essayDetectorService.analyzeEssay(essay.content);
+        this.adminContent.set(essay.adminContent ?? analysis.cleanContent);
     }
 
     saveReview() {
