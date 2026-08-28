@@ -322,12 +322,12 @@ export class FlashcardPanelComponent implements OnInit {
             const card = this.podcastCurrentCard();
             if (!card) break;
 
-            await this.speakAsync(card.front, 'en-US');
+            await this.speakAsync(card.back, 'pl-PL');
             if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
             await this.delay(500);
 
             if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
-            await this.speakAsync(card.back, 'pl-PL');
+            await this.speakAsync(card.front, 'en-US');
             if (gen !== this.podcastGeneration || !this.podcastPlaying()) return;
             await this.delay(1200);
 
