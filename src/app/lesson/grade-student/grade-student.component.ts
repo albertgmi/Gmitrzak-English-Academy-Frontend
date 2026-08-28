@@ -47,7 +47,8 @@ export class GradeStudentComponent implements OnInit {
         { label: 'Vocabulary',    value: 'Vocabulary' },
         { label: 'Sentences',     value: 'Sentences' },
         { label: 'Memories',      value: 'Memories' },
-        { label: 'Pronunciation', value: 'Pronunciation' }
+        { label: 'Pronunciation', value: 'Pronunciation' },
+        { label: 'Alphabet',      value: 'Alphabet' }
     ];
 
     ngOnInit() {

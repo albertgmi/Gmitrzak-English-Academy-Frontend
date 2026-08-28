@@ -108,6 +108,7 @@ export interface LessonStatsDto {
         avgSentences: number;
         avgMemories: number;
         avgPronunciation: number;
+        avgAlphabet: number;
     };
 }
 

@@ -83,6 +83,7 @@ export interface CategoryBreakdownDto {
     avgSentences: number;
     avgMemories: number;
     avgPronunciation: number;
+    avgAlphabet: number;
 }
 
 export interface StatsDto {

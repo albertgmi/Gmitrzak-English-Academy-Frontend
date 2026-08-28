@@ -76,10 +76,10 @@ export class LessonStatsComponent implements OnInit {
     if (!d?.gradeHistory.length) return null;
     const cb = d.categoryBreakdown;
     return {
-      labels: ['Vocabulary', 'Sentences', 'Memories', 'Pronunciation'],
+      labels: ['Vocabulary', 'Sentences', 'Memories', 'Pronunciation', 'Alphabet'],
       datasets: [{ 
-        data: [cb.avgVocabulary, cb.avgSentences, cb.avgMemories, cb.avgPronunciation],
-        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444'], 
+        data: [cb.avgVocabulary, cb.avgSentences, cb.avgMemories, cb.avgPronunciation, cb.avgAlphabet],
+        backgroundColor: ['#6366f1', '#10b981', '#f59e0b', '#ef4444', '#8b5cf6'], 
         borderWidth: 0 
       }]
     };
