@@ -13,7 +13,6 @@ import { EssayService, UserEssayDto } from '../../services/essay.service';
 import { EssayDetectorService, EssayAnalysisResult } from '../../services/essay-detector.service';
 
 type FilterType = 'all' | 'pending' | 'reviewed';
-type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 
 @Component({
     selector: 'app-check-essays',
@@ -106,10 +105,8 @@ export class CheckEssaysComponent implements OnInit {
         return this.essayDetectorService.analyzeEssay(content);
     }
 
-    getAiRiskSeverity(score: number): SeverityType {
-        if (score >= 70) return 'danger';
-        if (score >= 40) return 'warn';
-        return 'info';
+    isAiGenerated(analysis: EssayAnalysisResult): boolean {
+        return analysis.pastePercentage > 50 || analysis.riskLevel === 'high';
     }
 
     formatWritingTime(seconds: number): string {
@@ -189,7 +186,7 @@ export class CheckEssaysComponent implements OnInit {
         });
     }
 
-    statusSeverity(e: UserEssayDto): SeverityType {
+    statusSeverity(e: UserEssayDto): 'success' | 'warn' {
         return e.isReviewed ? 'success' : 'warn';
     }
 }

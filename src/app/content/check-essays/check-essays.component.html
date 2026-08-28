@@ -43,9 +43,9 @@
   </div>
 
   <!-- Essays list -->
-  <div *ngIf="!loading()" class="flex flex-col gap-3">
+  <div *ngIf="!loading()" class="flex flex-col gap-4">
     <div *ngFor="let e of filtered()"
-      class="p-4 rounded-xl border bg-white dark:bg-surface-900
+      class="p-5 rounded-2xl border bg-white dark:bg-surface-900 shadow-sm
         border-surface-200 dark:border-surface-700">
 
       <div class="flex items-start gap-4">
@@ -58,36 +58,69 @@
           <i [class]="e.isReviewed ? 'pi pi-check' : 'pi pi-clock'"></i>
         </div>
 
-        <!-- Info -->
+        <!-- Info Header -->
         <div class="flex-1 min-w-0" *ngIf="getEssayAnalysis(e.content) as analysis">
           <div class="flex items-center gap-2 flex-wrap mb-1">
-            <span class="font-bold text-surface-900 dark:text-surface-0">
+            <span class="font-bold text-lg text-surface-900 dark:text-surface-0">
               {{ e.username }}
             </span>
             <span class="text-muted-color">·</span>
-            <span class="text-sm text-muted-color">{{ e.moduleName }}</span>
+            <span class="text-base text-muted-color font-medium">{{ e.moduleName }}</span>
             <p-tag [severity]="statusSeverity(e)"
               [value]="e.isReviewed ? 'Reviewed' : 'Pending'" />
 
-            <!-- AI Risk Tag -->
-            <p-tag
-              [severity]="getAiRiskSeverity(analysis.aiScore)"
-              icon="pi pi-shield"
-              [value]="analysis.aiScore + '% AI Risk'"
-              pTooltip="AI generation or paste probability score" />
+            <!-- Prominent AI Badge (>50% pasted or high risk) -->
+            <p-tag *ngIf="isAiGenerated(analysis)"
+              severity="danger"
+              icon="pi pi-exclamation-triangle"
+              value="AI Generated Essay"
+              styleClass="font-bold text-xs" />
 
-            <!-- Paste Tag -->
-            <p-tag *ngIf="analysis.pastePercentage > 0"
+            <!-- Suspected AI Content Badge -->
+            <p-tag *ngIf="!isAiGenerated(analysis) && analysis.riskLevel === 'medium'"
               severity="warn"
-              icon="pi pi-paperclip"
-              [value]="analysis.pastePercentage + '% pasted'"
-              pTooltip="Percentage of pasted text" />
+              icon="pi pi-shield"
+              value="Suspected AI Patterns"
+              styleClass="font-bold text-xs" />
           </div>
 
-          <div class="text-xs text-muted-color mb-2">
+          <div class="text-xs text-muted-color mb-3">
             <span class="font-medium text-surface-700 dark:text-surface-300 italic">
-              "{{ e.essayPrompt | slice:0:80 }}{{ e.essayPrompt.length > 80 ? '...' : '' }}"
+              "{{ e.essayPrompt | slice:0:100 }}{{ e.essayPrompt.length > 100 ? '...' : '' }}"
             </span>
+          </div>
+
+          <!-- PROMINENT TELEMETRY BANNER -->
+          <div class="p-3 rounded-xl border flex items-center justify-between flex-wrap gap-3 text-xs mb-3"
+            [ngClass]="isAiGenerated(analysis)
+              ? 'bg-red-50 dark:bg-red-950/40 border-red-200 dark:border-red-800/60'
+              : analysis.pastePercentage > 0 || analysis.riskLevel === 'medium'
+              ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-200 dark:border-amber-800/60'
+              : 'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700'">
+
+            <div class="flex items-center gap-3 flex-wrap">
+              <!-- Pasted Words Info -->
+              <div class="flex items-center gap-1.5 font-bold"
+                [ngClass]="analysis.pastePercentage > 50 ? 'text-red-700 dark:text-red-300' : analysis.pastePercentage > 0 ? 'text-amber-700 dark:text-amber-300' : 'text-surface-700 dark:text-surface-300'">
+                <i class="pi pi-paperclip text-sm"></i>
+                <span>Pasted: {{ analysis.pastePercentage }}%</span>
+                <span class="font-normal text-muted-color">({{ analysis.telemetry.pastedWords }} / {{ getWordCount(analysis.cleanContent) }} words)</span>
+              </div>
+
+              <span class="text-muted-color">|</span>
+
+              <!-- Typed Manually Info -->
+              <div class="flex items-center gap-1.5 text-surface-700 dark:text-surface-300">
+                <i class="pi pi-pencil text-sm text-primary"></i>
+                <span>Typed manually: <strong>{{ analysis.telemetry.typedWords }} words</strong></span>
+              </div>
+            </div>
+
+            <!-- Writing Time Info -->
+            <div class="flex items-center gap-1.5 font-bold text-surface-900 dark:text-surface-0">
+              <i class="pi pi-clock text-sm text-primary"></i>
+              <span>Writing time: {{ formatWritingTime(analysis.telemetry.totalTimeSeconds) }}</span>
+            </div>
           </div>
 
           <div class="text-xs text-muted-color flex items-center gap-2 flex-wrap">
@@ -96,9 +129,6 @@
               · Reviewed {{ e.reviewedDate | date:'d MMM yyyy' }}
             </span>
             <p-tag severity="info" icon="pi pi-align-left" [value]="getWordCount(analysis.cleanContent) + ' words'" />
-            <span *ngIf="analysis.telemetry.totalTimeSeconds > 0" class="text-xs text-muted-color">
-              · Writing time: {{ formatWritingTime(analysis.telemetry.totalTimeSeconds) }}
-            </span>
           </div>
         </div>
 
@@ -153,28 +183,67 @@
         <p-tag severity="info" icon="pi pi-align-left" [value]="selectedEssayWordCount() + ' words'" />
       </div>
 
-      <!-- AI & Paste Diagnostics Bar -->
+      <!-- PROMINENT HIGH-VISIBILITY DIAGNOSTICS CARD -->
       <div *ngIf="selectedEssayAnalysis() as analysis"
-        class="p-4 rounded-xl border bg-surface-50 dark:bg-surface-800/80 border-surface-200 dark:border-surface-700 flex flex-col gap-3">
-        <div class="flex items-center justify-between flex-wrap gap-2">
+        class="p-5 rounded-2xl border flex flex-col gap-4 shadow-sm"
+        [ngClass]="isAiGenerated(analysis)
+          ? 'bg-red-50 dark:bg-red-950/40 border-red-300 dark:border-red-800'
+          : analysis.pastePercentage > 0 || analysis.riskLevel === 'medium'
+          ? 'bg-amber-50 dark:bg-amber-950/40 border-amber-300 dark:border-amber-800'
+          : 'bg-surface-50 dark:bg-surface-800 border-surface-200 dark:border-surface-700'">
+
+        <!-- Header Status -->
+        <div class="flex items-center justify-between flex-wrap gap-3">
           <div class="flex items-center gap-2">
-            <i class="pi pi-shield text-lg"
-              [ngClass]="analysis.riskLevel === 'high' ? 'text-red-500' : analysis.riskLevel === 'medium' ? 'text-amber-500' : 'text-green-500'"></i>
-            <span class="font-bold text-surface-900 dark:text-surface-0">AI & Paste Diagnostics</span>
-            <p-tag [severity]="getAiRiskSeverity(analysis.aiScore)" [value]="analysis.aiScore + '% AI Risk Score'" />
+            <i class="pi pi-shield text-2xl"
+              [ngClass]="isAiGenerated(analysis) ? 'text-red-500' : analysis.riskLevel === 'medium' ? 'text-amber-500' : 'text-green-500'"></i>
+            <span class="font-extrabold text-lg text-surface-900 dark:text-surface-0">AI & Writing Diagnostics</span>
           </div>
-          <div class="text-xs text-muted-color flex items-center gap-3 flex-wrap">
-            <span><strong>Pasted:</strong> {{ analysis.pastePercentage }}% ({{ analysis.telemetry.pastedWords }} words)</span>
-            <span><strong>Typed manually:</strong> {{ analysis.telemetry.typedWords }} words</span>
-            <span><strong>Active editor time:</strong> {{ formatWritingTime(analysis.telemetry.totalTimeSeconds) }}</span>
+
+          <!-- Status Badges -->
+          <div class="flex items-center gap-2">
+            <p-tag *ngIf="isAiGenerated(analysis)" severity="danger" icon="pi pi-exclamation-triangle" value="AI Generated Essay" styleClass="font-bold text-sm px-3 py-1" />
+            <p-tag *ngIf="!isAiGenerated(analysis) && analysis.riskLevel === 'medium'" severity="warn" icon="pi pi-shield" value="Suspected AI Patterns" styleClass="font-bold text-sm px-3 py-1" />
+            <p-tag *ngIf="!isAiGenerated(analysis) && analysis.riskLevel === 'low'" severity="success" icon="pi pi-check-circle" value="Authentic Student Writing" styleClass="font-semibold text-sm px-3 py-1" />
           </div>
         </div>
 
+        <!-- Prominent Grid of Key Telemetry Metrics -->
+        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 text-sm">
+          
+          <!-- Pasted Metric Card -->
+          <div class="p-3.5 rounded-xl border bg-white/80 dark:bg-surface-900/80 border-surface-200 dark:border-surface-700 flex flex-col gap-1">
+            <span class="text-xs font-semibold text-muted-color uppercase">Pasted Content</span>
+            <div class="text-lg font-black" [ngClass]="analysis.pastePercentage > 50 ? 'text-red-600 dark:text-red-400' : 'text-surface-900 dark:text-surface-0'">
+              {{ analysis.pastePercentage }}%
+              <span class="text-xs font-normal text-muted-color">({{ analysis.telemetry.pastedWords }} words)</span>
+            </div>
+          </div>
+
+          <!-- Typed Manually Metric Card -->
+          <div class="p-3.5 rounded-xl border bg-white/80 dark:bg-surface-900/80 border-surface-200 dark:border-surface-700 flex flex-col gap-1">
+            <span class="text-xs font-semibold text-muted-color uppercase">Typed Manually</span>
+            <div class="text-lg font-black text-surface-900 dark:text-surface-0">
+              {{ analysis.telemetry.typedWords }}
+              <span class="text-xs font-normal text-muted-color">words</span>
+            </div>
+          </div>
+
+          <!-- Writing Time Metric Card -->
+          <div class="p-3.5 rounded-xl border bg-white/80 dark:bg-surface-900/80 border-surface-200 dark:border-surface-700 flex flex-col gap-1">
+            <span class="text-xs font-semibold text-muted-color uppercase">Active Writing Time</span>
+            <div class="text-lg font-black text-primary">
+              {{ formatWritingTime(analysis.telemetry.totalTimeSeconds) }}
+            </div>
+          </div>
+
+        </div>
+
         <!-- Detected Phrases Pill Tags -->
-        <div *ngIf="analysis.detectedPhrases.length > 0" class="flex items-center gap-2 flex-wrap text-xs pt-2 border-t border-surface-200 dark:border-surface-700">
-          <span class="font-semibold text-muted-color">Detected AI fingerprints:</span>
+        <div *ngIf="analysis.detectedPhrases.length > 0" class="flex items-center gap-2 flex-wrap text-xs pt-3 border-t border-surface-200 dark:border-surface-700">
+          <span class="font-bold text-surface-900 dark:text-surface-0">Detected AI Fingerprints & Typography:</span>
           <span *ngFor="let phrase of analysis.detectedPhrases"
-            class="px-2 py-0.5 rounded-full bg-amber-100 dark:bg-amber-900/40 text-amber-800 dark:text-amber-200 font-medium border border-amber-300 dark:border-amber-700">
+            class="px-2.5 py-1 rounded-full bg-amber-100 dark:bg-amber-900/50 text-amber-900 dark:text-amber-100 font-semibold border border-amber-300 dark:border-amber-700">
             "{{ phrase }}"
           </span>
         </div>
@@ -187,7 +256,7 @@
           <div class="flex items-center justify-between mb-2">
             <label class="font-bold text-surface-900 dark:text-surface-0 m-0">
               Student's essay
-              <span class="text-xs font-normal text-muted-color ml-2">(yellow marks highlight AI fingerprints)</span>
+              <span class="text-xs font-normal text-muted-color ml-2">(yellow marks highlight AI fingerprints & dashes)</span>
             </label>
             <p-tag severity="info" icon="pi pi-align-left" [value]="selectedEssayWordCount() + ' words'" />
           </div>
