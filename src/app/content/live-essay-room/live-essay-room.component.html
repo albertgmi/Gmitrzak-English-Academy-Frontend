@@ -181,7 +181,7 @@
       <!-- Live Selection & Typing Indicators -->
       <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="mt-4 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 font-medium">
         <i class="pi pi-eye animate-pulse"></i>
-        <span><strong>{{ remoteSelection()?.username }}</strong> is selecting text at position {{ remoteSelection()?.index }}...</span>
+        <span><strong>{{ remoteSelection()?.username }}</strong> is selecting text...</span>
       </div>
 
       <div *ngIf="isRemoteTyping()" class="mt-4 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center gap-2 text-sm text-muted-color italic">
@@ -378,19 +378,6 @@
       <div class="p-4 rounded-xl bg-surface-100 dark:bg-surface-800 font-semibold italic text-base text-surface-900 dark:text-surface-0 mt-1.5 border-l-4 border-primary max-h-40 overflow-y-auto leading-relaxed">
         "{{ selectedTextSnippet() }}"
       </div>
-    </div>
-
-    <div>
-      <label class="block text-sm font-bold text-surface-900 dark:text-surface-0 mb-2">Category</label>
-      <p-select
-        [options]="categoryOptions"
-        optionLabel="label"
-        optionValue="value"
-        [ngModel]="newNoteCategory()"
-        (ngModelChange)="newNoteCategory.set($event)"
-        appendTo="body"
-        fluid
-        styleClass="rounded-xl text-sm p-1 font-medium" />
     </div>
 
     <div>

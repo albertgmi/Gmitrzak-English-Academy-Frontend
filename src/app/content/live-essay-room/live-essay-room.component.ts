@@ -158,6 +158,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             if (!change) return;
 
             if (change.senderUsername !== this.currentUser().username) {
+                this.lastRemoteSelection = null;
                 if (change.field === 'content') {
                     this.studentContent.set(change.content);
                 } else if (change.field === 'adminContent') {
@@ -468,6 +469,17 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             'background': bgColor,
             'color': textColor
         });
+
+        const essayId = this.selectedEssayId();
+        if (essayId) {
+            this.collaborationService.sendSelectionChange(
+                essayId,
+                0,
+                0,
+                this.currentUser().username,
+                this.currentUser().role
+            );
+        }
 
         setTimeout(() => {
             const freshHtml = editor.root.innerHTML;
