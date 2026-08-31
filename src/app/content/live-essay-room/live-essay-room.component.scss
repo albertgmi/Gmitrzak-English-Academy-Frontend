@@ -1,0 +1,25 @@
+:host {
+    display: block;
+}
+
+quill-editor {
+    display: block;
+
+    ::ng-deep .ql-toolbar {
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        border-color: var(--surface-border);
+        background-color: var(--surface-card);
+    }
+
+    ::ng-deep .ql-container {
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+        border-color: var(--surface-border);
+        min-height: 400px;
+        font-family: inherit;
+        font-size: 0.95rem;
+        background-color: var(--surface-card);
+        color: var(--text-color);
+    }
+}

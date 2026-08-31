@@ -86,6 +86,7 @@ import { FlashcardRemindersComponent } from './admin-tools/flashcard-reminders/f
 
 
 import { StudentEssaysComponent } from './student-view/student-essays/student-essays.component';
+import { LiveEssayRoomComponent } from './content/live-essay-room/live-essay-room.component';
 
 export const appRoutes: Routes = [
   {
@@ -93,6 +94,7 @@ export const appRoutes: Routes = [
     component: AppLayout,
     children: [
       { path: '', component: Dashboard, canActivate: [AuthGuard] },
+      { path: 'live-essay-room', component: LiveEssayRoomComponent, canActivate: [AuthGuard] },
       { path: 'uikit', loadChildren: () => import('./pages/uikit/uikit.routes') },
       { path: 'documentation', component: Documentation },
       { path: 'pages', loadChildren: () => import('./pages/pages.routes') },
