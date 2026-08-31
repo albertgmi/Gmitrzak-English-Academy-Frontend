@@ -14,7 +14,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { EssayService, UserEssayDto } from '../../services/essay.service';
-import { EssayDetectorService, EssayAnalysisResult } from '../../services/essay-detector.service';
 import { LiveEssayCollaborationService, TeacherNoteEvent } from '../../services/live-essay-collaboration.service';
 import { AuthService } from '../../services/auth.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
@@ -37,7 +36,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     @ViewChild('adminEditor') adminEditor!: QuillEditorComponent;
 
     private essayService = inject(EssayService);
-    public essayDetectorService = inject(EssayDetectorService);
     public collaborationService = inject(LiveEssayCollaborationService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
@@ -99,7 +97,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     // Dynamic content fields
     studentContent = signal('');
     adminContent = signal('');
-    activeTab = signal<'student' | 'admin'>('student');
+    activeTab = signal<'admin' | 'student'>('admin');
 
     // Live Selection Sharing
     remoteSelection = signal<{ username: string; role: string; index: number; length: number } | null>(null);
@@ -128,6 +126,10 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     activeUsers = this.collaborationService.activeUsers;
     connectionState = this.collaborationService.connectionState;
 
+    quillReadOnlyModules = {
+        toolbar: false
+    };
+
     quillModules = {
         toolbar: [
             ['bold', 'italic', 'underline', 'strike'],
@@ -138,12 +140,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             ['clean']
         ]
     };
-
-    essayAnalysis = computed<EssayAnalysisResult | null>(() => {
-        const content = this.studentContent();
-        if (!content) return null;
-        return this.essayDetectorService.analyzeEssay(content);
-    });
 
     wordCount = computed(() => {
         const content = this.studentContent();
@@ -177,8 +173,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
                     index: sel.index,
                     length: sel.length
                 });
-
-                this.updateRemoteSelectionHighlight(sel.index, sel.length, sel.senderRole);
             }
         });
 
@@ -237,8 +231,19 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.selectedEssay.set(essay);
         this.studentContent.set(essay.content || '');
         this.adminContent.set(essay.adminContent || '');
+        this.activeTab.set('admin');
         this.remoteSelection.set(null);
-        this.teacherNotes.set([]);
+
+        let initialNotes: TeacherNoteEvent[] = [];
+        if (essay.adminContent) {
+            const match = essay.adminContent.match(/<!--NOTES_DATA:([\s\S]*?)-->/);
+            if (match && match[1]) {
+                try {
+                    initialNotes = JSON.parse(match[1]);
+                } catch (e) {}
+            }
+        }
+        this.teacherNotes.set(initialNotes);
 
         this.collaborationService.joinRoom(
             essay.id,
@@ -285,6 +290,15 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         }
     }
 
+    private syncAdminContentWithNotes(): void {
+        const editor = this.adminEditor?.quillEditor;
+        let rawHtml = editor ? editor.root.innerHTML : this.adminContent();
+        rawHtml = rawHtml.replace(/<!--NOTES_DATA:[\s\S]*?-->/g, '');
+        const fullHtml = rawHtml + `<!--NOTES_DATA:${JSON.stringify(this.teacherNotes())}-->`;
+
+        this.onAdminContentChange(fullHtml);
+    }
+
     onSelectionChanged(event: any): void {
         if (!event || !event.range) return;
         const range = event.range;
@@ -314,7 +328,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'No text selected',
-                detail: 'Please select a text passage in the essay first.',
+                detail: 'Please select a text passage in Teacher Corrections first.',
                 life: 2500
             });
             return;
@@ -333,13 +347,24 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         const category = this.newNoteCategory();
         const author = this.currentUser().username;
 
-        const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
+        const noteObj: TeacherNoteEvent = {
+            noteId: noteId,
+            selectedText: snippet,
+            noteContent: text,
+            category: category,
+            author: author,
+            timestamp: new Date().toISOString()
+        };
+
+        const editor = this.adminEditor?.quillEditor;
         if (editor) {
             editor.formatText(this.selectedRangeIndex(), this.selectedRangeLength(), {
                 'background': '#FEF3C7',
                 'color': '#92400E'
             });
         }
+
+        this.teacherNotes.update(notes => [noteObj, ...notes]);
 
         this.collaborationService.sendTeacherNote(
             essayId,
@@ -349,6 +374,12 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             category,
             author
         );
+
+        this.syncAdminContentWithNotes();
+
+        if (this.isAdmin()) {
+            this.saveEssay();
+        }
 
         this.showNoteModal.set(false);
         this.newNoteText.set('');
@@ -361,7 +392,8 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     }
 
     focusNoteText(snippet: string): void {
-        const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
+        this.activeTab.set('admin');
+        const editor = this.adminEditor?.quillEditor;
         if (!editor) return;
 
         const fullText = editor.getText();
@@ -372,7 +404,8 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     }
 
     applyHighlight(bgColor: string, textColor: string): void {
-        const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
+        this.activeTab.set('admin');
+        const editor = this.adminEditor?.quillEditor;
         if (!editor) return;
 
         const sel = editor.getSelection();
@@ -380,7 +413,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             this.messageService.add({
                 severity: 'warn',
                 summary: 'No text selected',
-                detail: 'Please select a text snippet to highlight.',
+                detail: 'Please select a text snippet in Teacher Corrections to highlight.',
                 life: 2500
             });
             return;
@@ -391,39 +424,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             'color': textColor
         });
 
-        const html = editor.root.innerHTML;
-        if (this.activeTab() === 'student') {
-            this.onStudentContentChange(html);
-        } else {
-            this.onAdminContentChange(html);
-        }
-    }
-
-    private lastRemoteSelection: { index: number; length: number } | null = null;
-
-    private updateRemoteSelectionHighlight(index: number, length: number, role: string): void {
-        const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
-        if (!editor) return;
-
-        if (this.lastRemoteSelection && this.lastRemoteSelection.length > 0) {
-            editor.formatText(this.lastRemoteSelection.index, this.lastRemoteSelection.length, {
-                'background': false,
-                'color': false
-            });
-            this.lastRemoteSelection = null;
-        }
-
-        if (length > 0) {
-            const highlightBg = role === 'Admin' ? '#E0E7FF' : '#DCFCE7';
-            const highlightColor = role === 'Admin' ? '#3730A3' : '#166534';
-
-            editor.formatText(index, length, {
-                'background': highlightBg,
-                'color': highlightColor
-            });
-
-            this.lastRemoteSelection = { index, length };
-        }
+        this.syncAdminContentWithNotes();
     }
 
     private notifyTyping(): void {
@@ -446,13 +447,24 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.saving.set(true);
 
         if (this.isAdmin()) {
-            this.essayService.review(essay.id, this.adminContent()).subscribe({
+            const editor = this.adminEditor?.quillEditor;
+            let contentToSave = this.adminContent();
+            if (editor) {
+                let rawHtml = editor.root.innerHTML;
+                rawHtml = rawHtml.replace(/<!--NOTES_DATA:[\s\S]*?-->/g, '');
+                contentToSave = rawHtml + `<!--NOTES_DATA:${JSON.stringify(this.teacherNotes())}-->`;
+            } else {
+                let rawHtml = contentToSave.replace(/<!--NOTES_DATA:[\s\S]*?-->/g, '');
+                contentToSave = rawHtml + `<!--NOTES_DATA:${JSON.stringify(this.teacherNotes())}-->`;
+            }
+
+            this.essayService.review(essay.id, contentToSave).subscribe({
                 next: (updated: UserEssayDto) => {
                     this.saving.set(false);
                     this.messageService.add({
                         severity: 'success',
                         summary: 'Saved',
-                        detail: 'Essay review saved successfully!'
+                        detail: 'Teacher corrections and notes saved successfully!'
                     });
                 },
                 error: () => {

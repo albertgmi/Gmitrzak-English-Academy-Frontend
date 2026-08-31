@@ -195,17 +195,17 @@
             <button
               type="button"
               class="px-5 py-2.5 rounded-lg text-base font-bold transition-all"
-              [ngClass]="activeTab() === 'student' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:bg-surface-200 dark:hover:bg-surface-700'"
-              (click)="activeTab.set('student')">
-              <i class="pi pi-file-edit mr-2"></i>Student Essay
+              [ngClass]="activeTab() === 'admin' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:bg-surface-200 dark:hover:bg-surface-700'"
+              (click)="activeTab.set('admin')">
+              <i class="pi pi-check-square mr-2"></i>Teacher Corrections
             </button>
 
             <button
               type="button"
               class="px-5 py-2.5 rounded-lg text-base font-bold transition-all"
-              [ngClass]="activeTab() === 'admin' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:bg-surface-200 dark:hover:bg-surface-700'"
-              (click)="activeTab.set('admin')">
-              <i class="pi pi-check-square mr-2"></i>Teacher Corrections
+              [ngClass]="activeTab() === 'student' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:bg-surface-200 dark:hover:bg-surface-700'"
+              (click)="activeTab.set('student')">
+              <i class="pi pi-file-edit mr-2"></i>Student Essay <span class="text-xs opacity-75 font-normal ml-1">(Original)</span>
             </button>
           </div>
 
@@ -214,8 +214,8 @@
           </div>
         </div>
 
-        <!-- TEACHER HIGHLIGHT & NOTE TOOLBAR -->
-        <div class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
+        <!-- TEACHER HIGHLIGHT & NOTE TOOLBAR (ONLY FOR ADMIN IN CORRECTIONS TAB) -->
+        <div *ngIf="activeTab() === 'admin' && isAdmin()" class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
           <div class="flex items-center gap-3">
             <span class="text-sm font-bold uppercase tracking-wider text-muted-color flex items-center gap-2">
               <i class="pi pi-palette text-base"></i> Highlight Color:
@@ -247,38 +247,38 @@
             styleClass="p-button-outlined"
             (onClick)="openNoteModal()"
             [disabled]="!selectedTextSnippet()"
-            [pTooltip]="selectedTextSnippet() ? 'Attach note to: ' + selectedTextSnippet() : 'Select text in essay first'" />
+            [pTooltip]="selectedTextSnippet() ? 'Attach note to: ' + selectedTextSnippet() : 'Select text in Teacher Corrections first'" />
         </div>
 
-        <!-- STUDENT ESSAY EDITOR -->
-        <div *ngIf="activeTab() === 'student'" class="flex flex-col gap-2">
-          <quill-editor
-            #studentEditor
-            [modules]="quillModules"
-            [ngModel]="studentContent()"
-            (ngModelChange)="onStudentContentChange($event)"
-            (onSelectionChanged)="onSelectionChanged($event)"
-            placeholder="Student writes essay here..."
-            styleClass="min-h-[440px] rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900 text-base">
-          </quill-editor>
-        </div>
-
-        <!-- TEACHER CORRECTIONS EDITOR -->
+        <!-- TEACHER CORRECTIONS EDITOR (DEFAULT VIEW) -->
         <div *ngIf="activeTab() === 'admin'" class="flex flex-col gap-2">
           <quill-editor
             #adminEditor
             [modules]="quillModules"
+            [readOnly]="!isAdmin()"
             [ngModel]="adminContent()"
             (ngModelChange)="onAdminContentChange($event)"
             (onSelectionChanged)="onSelectionChanged($event)"
-            placeholder="Teacher writes corrections and feedback here..."
+            placeholder="Teacher writes corrections, highlights and notes here..."
             styleClass="min-h-[440px] rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900 text-base">
+          </quill-editor>
+        </div>
+
+        <!-- STUDENT ESSAY EDITOR (READ ONLY ORIGINAL) -->
+        <div *ngIf="activeTab() === 'student'" class="flex flex-col gap-2">
+          <quill-editor
+            #studentEditor
+            [modules]="quillReadOnlyModules"
+            [readOnly]="true"
+            [ngModel]="studentContent()"
+            placeholder="Student original essay submission..."
+            styleClass="min-h-[440px] rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-50 dark:bg-surface-900 text-base opacity-90">
           </quill-editor>
         </div>
 
       </div>
 
-      <!-- RIGHT COLUMN: TEACHER NOTES LIST & AI DETECTOR (4 COLS) -->
+      <!-- RIGHT COLUMN: TEACHER NOTES LIST (4 COLS) -->
       <div class="lg:col-span-4 flex flex-col gap-6">
 
         <!-- TEACHER MARGIN NOTES CARD -->
@@ -322,27 +322,8 @@
 
             <div *ngIf="teacherNotes().length === 0" class="text-center text-muted-color text-sm py-8">
               <i class="pi pi-bookmark text-4xl block mb-2 opacity-40"></i>
-              No teacher notes attached yet. Highlight text in essay and click "Attach Teacher Note".
+              No teacher notes attached yet. Highlight text in Teacher Corrections and click "Attach Teacher Note".
             </div>
-          </div>
-        </div>
-
-        <!-- AI ESSAY DETECTOR WIDGET -->
-        <div *ngIf="essayAnalysis()" class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-5 shadow-sm">
-          <div class="flex items-center justify-between mb-3">
-            <span class="text-xs font-bold uppercase tracking-wider text-muted-color">AI Detector Status</span>
-            <p-tag
-              [value]="essayAnalysis()?.riskLevel?.toUpperCase()"
-              [severity]="essayAnalysis()?.riskLevel === 'high' ? 'danger' : (essayAnalysis()?.riskLevel === 'medium' ? 'warn' : 'success')"
-              styleClass="text-xs font-bold px-2 py-0.5" />
-          </div>
-
-          <div class="text-2xl font-extrabold text-surface-900 dark:text-surface-0 mb-1">
-            {{ essayAnalysis()?.aiScore }}% AI Probability
-          </div>
-
-          <div class="text-xs text-muted-color leading-relaxed">
-            Detected {{ essayAnalysis()?.detectedPhrases?.length || 0 }} AI-characteristic phrases in student text.
           </div>
         </div>
 
