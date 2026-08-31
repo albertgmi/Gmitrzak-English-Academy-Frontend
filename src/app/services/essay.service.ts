@@ -21,6 +21,7 @@ export interface UserEssayDto {
     submittedDate?: string;
     reviewedDate?: string;
     username: string;
+    avatarUrl?: string;
 }
 
 @Injectable({ providedIn: 'root' })

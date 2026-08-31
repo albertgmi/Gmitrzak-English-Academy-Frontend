@@ -243,7 +243,8 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.collaborationService.joinRoom(
             essay.id,
             this.currentUser().username,
-            this.currentUser().role
+            this.currentUser().role,
+            essay.avatarUrl
         );
 
         this.currentView.set('room');

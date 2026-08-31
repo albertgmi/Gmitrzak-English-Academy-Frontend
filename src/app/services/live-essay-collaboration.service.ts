@@ -7,6 +7,7 @@ export interface ActiveCollaborator {
     connectionId: string;
     username: string;
     role: string;
+    avatarUrl?: string;
     joinedAt: string;
 }
 
@@ -109,7 +110,7 @@ export class LiveEssayCollaborationService {
         });
     }
 
-    async joinRoom(essayId: number, username: string, role: string): Promise<void> {
+    async joinRoom(essayId: number, username: string, role: string, avatarUrl?: string): Promise<void> {
         await this.startConnection();
         if (this.currentEssayId && this.currentEssayId !== essayId) {
             await this.leaveRoom(this.currentEssayId);
@@ -118,7 +119,7 @@ export class LiveEssayCollaborationService {
         this.currentEssayId = essayId;
 
         if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
-            await this.hubConnection.invoke('JoinEssayRoom', essayId, username, role);
+            await this.hubConnection.invoke('JoinEssayRoom', essayId, username, role, avatarUrl);
         }
     }
 
