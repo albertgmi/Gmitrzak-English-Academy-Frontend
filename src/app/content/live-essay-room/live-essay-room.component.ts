@@ -408,6 +408,13 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         });
     }
 
+    hasCorrections(essay: UserEssayDto): boolean {
+        if (!essay || !essay.adminContent) return false;
+        const text = essay.adminContent.replace(/<[^>]*>/g, '').trim();
+        if (!text) return false;
+        return essay.adminContent !== essay.content || essay.adminContent.includes('style=') || essay.adminContent.includes('background');
+    }
+
     archiveNote(noteId: string): void {
         const numericId = parseInt(noteId.replace('note_', ''), 10);
         if (!isNaN(numericId)) {

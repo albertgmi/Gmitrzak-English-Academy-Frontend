@@ -62,7 +62,7 @@
       <div
         *ngFor="let essay of filteredEssays()"
         class="border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-5 cursor-pointer group"
-        [ngClass]="essay.adminContent ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700' : 'bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 hover:border-primary'"
+        [ngClass]="hasCorrections(essay) ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700' : 'bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 hover:border-primary'"
         (click)="enterRoom(essay)">
 
         <div class="flex flex-col gap-4">
@@ -78,7 +78,7 @@
 
             <div class="flex items-center gap-1.5">
               <p-tag
-                *ngIf="essay.adminContent"
+                *ngIf="hasCorrections(essay)"
                 value="CORRECTIONS SAVED"
                 severity="info"
                 styleClass="text-xs font-bold px-2.5 py-1" />
