@@ -4,16 +4,16 @@ import { FormsModule } from '@angular/forms';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import { SelectModule } from 'primeng/select';
 import { InputTextModule } from 'primeng/inputtext';
-import { TabsModule } from 'primeng/tabs';
+import { TextareaModule } from 'primeng/textarea';
+import { DialogModule } from 'primeng/dialog';
+import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
-import { RatingModule } from 'primeng/rating';
 import { MessageService } from 'primeng/api';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { EssayService, UserEssayDto } from '../../services/essay.service';
 import { EssayDetectorService, EssayAnalysisResult } from '../../services/essay-detector.service';
-import { LiveEssayCollaborationService, SelectionChangeEvent, LiveGradeEvent } from '../../services/live-essay-collaboration.service';
+import { LiveEssayCollaborationService, TeacherNoteEvent } from '../../services/live-essay-collaboration.service';
 import { AuthService } from '../../services/auth.service';
 
 @Component({
@@ -21,8 +21,8 @@ import { AuthService } from '../../services/auth.service';
     standalone: true,
     imports: [
         CommonModule, FormsModule, ButtonModule, TagModule,
-        ToastModule, SelectModule, InputTextModule,
-        QuillModule, TabsModule, TooltipModule, RatingModule
+        ToastModule, InputTextModule, TextareaModule, DialogModule,
+        SelectModule, QuillModule, TooltipModule
     ],
     providers: [MessageService],
     templateUrl: './live-essay-room.component.html',
@@ -46,6 +46,9 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     isAdmin = computed(() => this.currentUser().role === 'Admin');
 
+    // View state: 'selection' (cards grid) or 'room' (active essay session)
+    currentView = signal<'selection' | 'room'>('selection');
+
     essays = signal<UserEssayDto[]>([]);
     selectedEssayId = signal<number | null>(null);
     selectedEssay = signal<UserEssayDto | null>(null);
@@ -55,34 +58,31 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     // Dynamic content fields
     studentContent = signal('');
     adminContent = signal('');
-    activeTab = signal<'student' | 'admin' | 'split'>('student');
+    activeTab = signal<'student' | 'admin'>('student');
 
     // Live Selection Sharing
     remoteSelection = signal<{ username: string; role: string; index: number; length: number } | null>(null);
     selectedTextSnippet = signal<string>('');
+    selectedRangeIndex = signal<number>(0);
+    selectedRangeLength = signal<number>(0);
 
-    // Live Grading Signals
-    grammarScore = signal(5);
-    vocabScore = signal(5);
-    structureScore = signal(5);
-    teacherFeedbackNotes = signal('');
-    liveGradeTimestamp = signal<string | null>(null);
+    // Teacher Notes & Annotations
+    teacherNotes = signal<TeacherNoteEvent[]>([]);
+    showNoteModal = signal(false);
+    newNoteText = signal('');
+    newNoteCategory = signal<'Grammar' | 'Vocabulary' | 'Structure' | 'General'>('Grammar');
 
-    // Chat
-    chatInput = signal('');
+    categoryOptions = [
+        { label: 'Grammar', value: 'Grammar' },
+        { label: 'Vocabulary', value: 'Vocabulary' },
+        { label: 'Structure', value: 'Structure' },
+        { label: 'General Feedback', value: 'General' }
+    ];
 
     // Typing debounce
     private typingTimeout: any = null;
     isRemoteTyping = signal(false);
     remoteTypingUser = signal<string>('');
-
-    essayOptions = computed(() => {
-        return this.essays().map(e => ({
-            label: `${e.username} - ${e.moduleName} (${e.isReviewed ? 'Reviewed' : 'Pending'})`,
-            value: e.id,
-            essay: e
-        }));
-    });
 
     activeUsers = this.collaborationService.activeUsers;
     connectionState = this.collaborationService.connectionState;
@@ -139,28 +139,20 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
                     length: sel.length
                 });
 
-                // Highlight remote selection in local Quill instance
-                if (sel.length > 0) {
-                    this.highlightRemoteSelectionInEditor(sel.index, sel.length, sel.senderRole);
-                }
+                this.updateRemoteSelectionHighlight(sel.index, sel.length, sel.senderRole);
             }
         });
 
-        // Handle incoming live grades
+        // Handle incoming teacher notes
         effect(() => {
-            const grade = this.collaborationService.incomingLiveGrade();
-            if (!grade) return;
+            const note = this.collaborationService.incomingTeacherNote();
+            if (!note) return;
 
-            this.grammarScore.set(grade.grammarScore);
-            this.vocabScore.set(grade.vocabScore);
-            this.structureScore.set(grade.structureScore);
-            this.teacherFeedbackNotes.set(grade.feedbackNotes);
-            this.liveGradeTimestamp.set(grade.timestamp);
-
+            this.teacherNotes.update(notes => [note, ...notes]);
             this.messageService.add({
                 severity: 'info',
-                summary: 'Live Grade Updated!',
-                detail: 'Teacher updated essay feedback scores in real-time.',
+                summary: 'New Teacher Note',
+                detail: `Note added by ${note.author} on: "${note.selectedText}"`,
                 life: 3000
             });
         });
@@ -196,10 +188,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             next: (data) => {
                 this.essays.set(data);
                 this.loading.set(false);
-
-                if (data.length > 0) {
-                    this.selectEssay(data[0].id);
-                }
             },
             error: () => {
                 this.loading.set(false);
@@ -207,21 +195,28 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         });
     }
 
-    selectEssay(essayId: number): void {
-        const found = this.essays().find(e => e.id === essayId);
-        if (!found) return;
-
-        this.selectedEssayId.set(essayId);
-        this.selectedEssay.set(found);
-        this.studentContent.set(found.content || '');
-        this.adminContent.set(found.adminContent || '');
+    enterRoom(essay: UserEssayDto): void {
+        this.selectedEssayId.set(essay.id);
+        this.selectedEssay.set(essay);
+        this.studentContent.set(essay.content || '');
+        this.adminContent.set(essay.adminContent || '');
         this.remoteSelection.set(null);
+        this.teacherNotes.set([]);
 
         this.collaborationService.joinRoom(
-            essayId,
+            essay.id,
             this.currentUser().username,
             this.currentUser().role
         );
+
+        this.currentView.set('room');
+    }
+
+    backToSelection(): void {
+        if (this.selectedEssayId()) {
+            this.collaborationService.leaveRoom(this.selectedEssayId()!);
+        }
+        this.currentView.set('selection');
     }
 
     onStudentContentChange(newContent: string): void {
@@ -259,8 +254,10 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         if (!essayId) return;
 
         if (range.length > 0 && event.editor) {
-            const selectedText = event.editor.getText(range.index, range.length);
+            const selectedText = event.editor.getText(range.index, range.length).trim();
             this.selectedTextSnippet.set(selectedText);
+            this.selectedRangeIndex.set(range.index);
+            this.selectedRangeLength.set(range.length);
         } else {
             this.selectedTextSnippet.set('');
         }
@@ -272,6 +269,69 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             this.currentUser().username,
             this.currentUser().role
         );
+    }
+
+    openNoteModal(): void {
+        if (!this.selectedTextSnippet()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'No text selected',
+                detail: 'Please select a text passage in the essay first.',
+                life: 2500
+            });
+            return;
+        }
+        this.newNoteText.set('');
+        this.showNoteModal.set(true);
+    }
+
+    addTeacherNote(): void {
+        const text = this.newNoteText().trim();
+        const snippet = this.selectedTextSnippet();
+        const essayId = this.selectedEssayId();
+        if (!text || !snippet || !essayId) return;
+
+        const noteId = 'note_' + Date.now();
+        const category = this.newNoteCategory();
+        const author = this.currentUser().username;
+
+        // Apply distinct formatting overlay in Quill
+        const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
+        if (editor) {
+            editor.formatText(this.selectedRangeIndex(), this.selectedRangeLength(), {
+                'background': '#FEF3C7',
+                'color': '#92400E'
+            });
+        }
+
+        this.collaborationService.sendTeacherNote(
+            essayId,
+            noteId,
+            snippet,
+            text,
+            category,
+            author
+        );
+
+        this.showNoteModal.set(false);
+        this.newNoteText.set('');
+
+        this.messageService.add({
+            severity: 'success',
+            summary: 'Note Attached',
+            detail: 'Teacher note linked to selected text snippet.'
+        });
+    }
+
+    focusNoteText(snippet: string): void {
+        const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
+        if (!editor) return;
+
+        const fullText = editor.getText();
+        const index = fullText.indexOf(snippet);
+        if (index >= 0) {
+            editor.setSelection(index, snippet.length);
+        }
     }
 
     applyHighlight(bgColor: string, textColor: string): void {
@@ -294,7 +354,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             'color': textColor
         });
 
-        // Trigger change sync
         const html = editor.root.innerHTML;
         if (this.activeTab() === 'student') {
             this.onStudentContentChange(html);
@@ -303,58 +362,31 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         }
     }
 
-    insertStamp(stampText: string, bgColor: string, textColor: string): void {
+    private lastRemoteSelection: { index: number; length: number } | null = null;
+
+    private updateRemoteSelectionHighlight(index: number, length: number, role: string): void {
         const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
         if (!editor) return;
 
-        const range = editor.getSelection() || { index: editor.getLength(), length: 0 };
-        const textToInsert = ` [${stampText}] `;
-        
-        editor.insertText(range.index, textToInsert, {
-            'background': bgColor,
-            'color': textColor,
-            'bold': true
-        });
-
-        const html = editor.root.innerHTML;
-        if (this.activeTab() === 'student') {
-            this.onStudentContentChange(html);
-        } else {
-            this.onAdminContentChange(html);
+        if (this.lastRemoteSelection && this.lastRemoteSelection.length > 0) {
+            editor.formatText(this.lastRemoteSelection.index, this.lastRemoteSelection.length, {
+                'background': false,
+                'color': false
+            });
+            this.lastRemoteSelection = null;
         }
-    }
 
-    sendLiveGrade(): void {
-        const essayId = this.selectedEssayId();
-        if (!essayId) return;
+        if (length > 0) {
+            const highlightBg = role === 'Admin' ? '#E0E7FF' : '#DCFCE7';
+            const highlightColor = role === 'Admin' ? '#3730A3' : '#166534';
 
-        this.collaborationService.sendLiveGrade(
-            essayId,
-            this.grammarScore(),
-            this.vocabScore(),
-            this.structureScore(),
-            this.teacherFeedbackNotes()
-        );
+            editor.formatText(index, length, {
+                'background': highlightBg,
+                'color': highlightColor
+            });
 
-        this.messageService.add({
-            severity: 'success',
-            summary: 'Live Grade Broadcasted!',
-            detail: 'Student receives score updates on their screen live.',
-            life: 2500
-        });
-    }
-
-    private highlightRemoteSelectionInEditor(index: number, length: number, role: string): void {
-        const editor = this.studentEditor?.quillEditor;
-        if (!editor) return;
-
-        const highlightBg = role === 'Admin' ? '#E0E7FF' : '#DCFCE7';
-        const highlightColor = role === 'Admin' ? '#3730A3' : '#166534';
-
-        editor.formatText(index, length, {
-            'background': highlightBg,
-            'color': highlightColor
-        });
+            this.lastRemoteSelection = { index, length };
+        }
     }
 
     private notifyTyping(): void {
@@ -368,20 +400,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.typingTimeout = setTimeout(() => {
             this.collaborationService.sendTypingStatus(essayId, false, this.currentUser().username);
         }, 2000);
-    }
-
-    sendChatMessage(): void {
-        const msg = this.chatInput().trim();
-        const essayId = this.selectedEssayId();
-        if (!msg || !essayId) return;
-
-        this.collaborationService.sendChatMessage(
-            essayId,
-            msg,
-            this.currentUser().username,
-            this.currentUser().role
-        );
-        this.chatInput.set('');
     }
 
     saveEssay(): void {

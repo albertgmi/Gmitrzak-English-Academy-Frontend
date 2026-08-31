@@ -10,13 +10,6 @@ export interface ActiveCollaborator {
     joinedAt: string;
 }
 
-export interface LiveChatMessage {
-    senderUsername: string;
-    senderRole: string;
-    message: string;
-    timestamp: string;
-}
-
 export interface ContentChangeEvent {
     content: string;
     field: string;
@@ -31,11 +24,12 @@ export interface SelectionChangeEvent {
     senderRole: string;
 }
 
-export interface LiveGradeEvent {
-    grammarScore: number;
-    vocabScore: number;
-    structureScore: number;
-    feedbackNotes: string;
+export interface TeacherNoteEvent {
+    noteId: string;
+    selectedText: string;
+    noteContent: string;
+    category: string;
+    author: string;
     timestamp: string;
 }
 
@@ -48,9 +42,8 @@ export class LiveEssayCollaborationService {
     activeUsers = signal<ActiveCollaborator[]>([]);
     incomingContentChange = signal<ContentChangeEvent | null>(null);
     incomingSelectionChange = signal<SelectionChangeEvent | null>(null);
-    incomingLiveGrade = signal<LiveGradeEvent | null>(null);
+    incomingTeacherNote = signal<TeacherNoteEvent | null>(null);
     typingUser = signal<{ isTyping: boolean; senderUsername: string } | null>(null);
-    chatMessages = signal<LiveChatMessage[]>([]);
 
     private currentEssayId: number | null = null;
 
@@ -107,16 +100,12 @@ export class LiveEssayCollaborationService {
             this.incomingSelectionChange.set(data);
         });
 
-        this.hubConnection.on('ReceiveLiveGrade', (data: LiveGradeEvent) => {
-            this.incomingLiveGrade.set(data);
+        this.hubConnection.on('ReceiveTeacherNote', (data: TeacherNoteEvent) => {
+            this.incomingTeacherNote.set(data);
         });
 
         this.hubConnection.on('ReceiveTypingStatus', (data: { isTyping: boolean; senderUsername: string }) => {
             this.typingUser.set(data);
-        });
-
-        this.hubConnection.on('ReceiveChatMessage', (msg: LiveChatMessage) => {
-            this.chatMessages.update(msgs => [...msgs, msg]);
         });
     }
 
@@ -127,7 +116,6 @@ export class LiveEssayCollaborationService {
         }
 
         this.currentEssayId = essayId;
-        this.chatMessages.set([]);
 
         if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
             await this.hubConnection.invoke('JoinEssayRoom', essayId, username, role);
@@ -156,21 +144,15 @@ export class LiveEssayCollaborationService {
         }
     }
 
-    async sendLiveGrade(essayId: number, grammarScore: number, vocabScore: number, structureScore: number, feedbackNotes: string): Promise<void> {
+    async sendTeacherNote(essayId: number, noteId: string, selectedText: string, noteContent: string, category: string, author: string): Promise<void> {
         if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
-            await this.hubConnection.invoke('SendLiveGrade', essayId, grammarScore, vocabScore, structureScore, feedbackNotes);
+            await this.hubConnection.invoke('SendTeacherNote', essayId, noteId, selectedText, noteContent, category, author);
         }
     }
 
     async sendTypingStatus(essayId: number, isTyping: boolean, senderUsername: string): Promise<void> {
         if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
             await this.hubConnection.invoke('SendTypingStatus', essayId, isTyping, senderUsername);
-        }
-    }
-
-    async sendChatMessage(essayId: number, message: string, senderUsername: string, senderRole: string): Promise<void> {
-        if (this.hubConnection && this.hubConnection.state === signalR.HubConnectionState.Connected) {
-            await this.hubConnection.invoke('SendChatMessage', essayId, message, senderUsername, senderRole);
         }
     }
 
