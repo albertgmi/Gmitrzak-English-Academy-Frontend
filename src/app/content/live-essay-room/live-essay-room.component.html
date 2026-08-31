@@ -141,17 +141,19 @@
         </div>
 
         <!-- Active Collaborators & Action Buttons -->
-        <div class="flex flex-wrap items-center gap-4">
+        <div class="flex flex-wrap items-center gap-5 sm:gap-6">
 
-          <div class="flex items-center gap-2">
+          <div class="flex items-center gap-2.5">
             <span class="text-sm font-semibold text-muted-color">Online:</span>
-            <div class="flex items-center -space-x-2">
+            <div class="flex items-center -space-x-2.5">
               <app-avatar
                 *ngFor="let user of activeUsers()"
                 [username]="user.username"
                 [avatarUrl]="user.avatarUrl"
-                customClass="w-9 h-9 border-2 border-surface-0 dark:border-surface-900 shadow"
-                [pTooltip]="user.username + ' (' + user.role + ')'">
+                customClass="w-9 h-9 border-2 border-surface-0 dark:border-surface-900 shadow cursor-pointer"
+                [pTooltip]="user.username + ' (' + user.role + ')'"
+                tooltipPosition="bottom"
+                appendTo="body">
               </app-avatar>
             </div>
           </div>
@@ -251,7 +253,7 @@
         </div>
 
         <!-- TEACHER CORRECTIONS EDITOR (DEFAULT VIEW) -->
-        <div *ngIf="activeTab() === 'admin'" class="flex flex-col gap-2">
+        <div *ngIf="activeTab() === 'admin'" id="adminEditor" class="flex flex-col gap-2">
           <quill-editor
             #adminEditor
             [modules]="quillModules"

@@ -23,3 +23,10 @@ quill-editor {
         color: var(--text-color);
     }
 }
+
+#adminEditor {
+    ::ng-deep .ql-editor {
+        color: #3730a3;
+        font-weight: 500;
+    }
+}

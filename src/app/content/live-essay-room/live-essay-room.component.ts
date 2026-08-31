@@ -16,6 +16,7 @@ import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { EssayService, UserEssayDto } from '../../services/essay.service';
 import { LiveEssayCollaborationService, TeacherNoteEvent } from '../../services/live-essay-collaboration.service';
 import { AuthService } from '../../services/auth.service';
+import { UserService } from '../../services/user.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
@@ -36,6 +37,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     @ViewChild('adminEditor') adminEditor!: QuillEditorComponent;
 
     private essayService = inject(EssayService);
+    private userService = inject(UserService);
     public collaborationService = inject(LiveEssayCollaborationService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
@@ -45,6 +47,8 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         username: this.authService.getUsername() || 'User',
         role: this.authService.getRole() || 'User'
     }));
+
+    currentUserAvatarUrl = signal<string | null>(null);
 
     isAdmin = computed(() => this.currentUser().role === 'Admin');
 
@@ -173,6 +177,8 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
                     index: sel.index,
                     length: sel.length
                 });
+
+                this.updateRemoteSelectionHighlight(sel.index, sel.length, sel.senderRole);
             }
         });
 
@@ -180,7 +186,12 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             const note = this.collaborationService.incomingTeacherNote();
             if (!note) return;
 
-            this.teacherNotes.update(notes => [note, ...notes]);
+            this.teacherNotes.update(notes => {
+                const id = note.noteId || (note as any).id;
+                if (notes.some(n => (n.noteId || (n as any).id) === id)) return notes;
+                return [note, ...notes];
+            });
+
             this.messageService.add({
                 severity: 'info',
                 summary: 'New Teacher Note',
@@ -202,6 +213,14 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.loadEssays();
+        this.userService.getProfile().subscribe({
+            next: (profile) => {
+                if (profile && profile.avatarUrl) {
+                    this.currentUserAvatarUrl.set(profile.avatarUrl);
+                }
+            },
+            error: () => {}
+        });
     }
 
     ngOnDestroy(): void {
@@ -249,7 +268,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             essay.id,
             this.currentUser().username,
             this.currentUser().role,
-            essay.avatarUrl
+            this.currentUserAvatarUrl() || undefined
         );
 
         this.currentView.set('room');
@@ -425,6 +444,37 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         });
 
         this.syncAdminContentWithNotes();
+    }
+
+    private lastRemoteSelection: { index: number; length: number; originalBg?: any; originalColor?: any } | null = null;
+
+    private updateRemoteSelectionHighlight(index: number, length: number, role: string): void {
+        const editor = this.adminEditor?.quillEditor || this.studentEditor?.quillEditor;
+        if (!editor) return;
+
+        if (this.lastRemoteSelection) {
+            editor.formatText(this.lastRemoteSelection.index, this.lastRemoteSelection.length, {
+                'background': this.lastRemoteSelection.originalBg || false,
+                'color': this.lastRemoteSelection.originalColor || false
+            });
+            this.lastRemoteSelection = null;
+        }
+
+        if (length > 0) {
+            const currentFormat = editor.getFormat(index, length);
+            const highlightBg = role === 'Admin' ? '#C7D2FE' : '#A7F3D0';
+
+            this.lastRemoteSelection = {
+                index,
+                length,
+                originalBg: currentFormat['background'],
+                originalColor: currentFormat['color']
+            };
+
+            editor.formatText(index, length, {
+                'background': highlightBg
+            });
+        }
     }
 
     private notifyTyping(): void {
