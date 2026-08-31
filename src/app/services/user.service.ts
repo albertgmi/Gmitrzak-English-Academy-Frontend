@@ -2,6 +2,7 @@ import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable, lastValueFrom } from 'rxjs';
 import { environment } from '../../environments/environment';
+import { AuthService } from './auth.service';
 
 export interface User {
   id: number;
@@ -25,9 +26,13 @@ export class UserService {
   private apiUrl = `${environment.apiUrl}/api/user`;
 
   http = inject(HttpClient);
+  authService = inject(AuthService);
 
   users = resource<User[], never>({
     loader: () => {
+      if (this.authService.getRole() !== 'Admin') {
+        return Promise.resolve([]);
+      }
       return lastValueFrom(
         this.http.get<User[]>(`${this.apiUrl}/users`)
       );
@@ -35,9 +40,14 @@ export class UserService {
   });
 
   inactiveUsers = resource<User[], never>({
-    loader: () => lastValueFrom(
-      this.http.get<User[]>(`${this.apiUrl}/users/inactive`)
-    )
+    loader: () => {
+      if (this.authService.getRole() !== 'Admin') {
+        return Promise.resolve([]);
+      }
+      return lastValueFrom(
+        this.http.get<User[]>(`${this.apiUrl}/users/inactive`)
+      );
+    }
   });
 
   getProfile(): Observable<any> {

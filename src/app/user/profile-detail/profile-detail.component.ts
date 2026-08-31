@@ -95,7 +95,7 @@ export class ProfileDetailComponent implements OnInit {
   }
 
   toggleEdit() {
-    if (!this.isAdmin) return;
+    if (!this.isAdmin && !this.isOwnProfile) return;
     this.editMode = !this.editMode;
     if (!this.editMode) {
       this.loadProfile();
@@ -148,7 +148,7 @@ export class ProfileDetailComponent implements OnInit {
   }
 
   save() {
-    if (!this.profile || !this.isAdmin) return;
+    if (!this.profile || (!this.isAdmin && !this.isOwnProfile)) return;
     if (this.selectedFile) {
       this.profileService.uploadAvatar(this.userId, this.selectedFile).subscribe({
         next: (url) => {
