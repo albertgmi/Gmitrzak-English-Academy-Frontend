@@ -313,7 +313,7 @@ export class UserCourseComponent implements OnInit {
         if (m.isCompleted)  return `${m.name} — completed`;
         if (this.isActivityBased(m)) {
             if (m.canComplete) return `${m.name} — click 'Mark as done' button to complete.`;
-            return m.completionBlockReason ?? `${m.name} — keep the streak going!`;
+            return m.completionBlockReason ?? `${m.name} — complete required activity days!`;
         }
         if (m.category === 'Sentences')    return `${m.name} — click to translate`;
         if (m.category === 'Presentation') return `${m.name} — click to view`;
@@ -341,8 +341,8 @@ export class UserCourseComponent implements OnInit {
         if (m.activityDaysRequired === 0) return 'Click to complete';
         if (m.canComplete)                return 'Ready to complete!';
         const d = m.activityDaysCount, r = m.activityDaysRequired;
-        if (d === 0) return `${r} consecutive days needed`;
-        return `${d}/${r} consecutive days`;
+        if (d === 0) return `${r} days needed`;
+        return `${d}/${r} days`;
     }
 
     loadHistory() {
