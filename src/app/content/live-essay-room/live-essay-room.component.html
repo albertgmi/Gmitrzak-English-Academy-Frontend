@@ -162,6 +162,17 @@
             </div>
           </div>
 
+          <!-- Live Activity Pill Badges (Zero Layout Shift!) -->
+          <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold flex items-center gap-1.5 animate-pulse">
+            <i class="pi pi-eye text-xs"></i>
+            <span>{{ remoteSelection()?.username }} is selecting text...</span>
+          </div>
+
+          <div *ngIf="isRemoteTyping()" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5">
+            <i class="pi pi-spin pi-spinner text-xs"></i>
+            <span>{{ remoteTypingUser() }} is typing...</span>
+          </div>
+
           <p-button
             label="Export DOCX"
             icon="pi pi-file-word"
@@ -176,17 +187,6 @@
             (onClick)="saveEssay()" />
         </div>
 
-      </div>
-
-      <!-- Live Selection & Typing Indicators -->
-      <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="mt-4 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center gap-2 text-sm text-indigo-600 dark:text-indigo-400 font-medium">
-        <i class="pi pi-eye animate-pulse"></i>
-        <span><strong>{{ remoteSelection()?.username }}</strong> is selecting text...</span>
-      </div>
-
-      <div *ngIf="isRemoteTyping()" class="mt-4 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center gap-2 text-sm text-muted-color italic">
-        <i class="pi pi-spin pi-spinner text-primary"></i>
-        <span><strong>{{ remoteTypingUser() }}</strong> is typing...</span>
       </div>
     </div>
 
