@@ -31,7 +31,7 @@
 
     <ng-template #body let-m>
       <tr>
-        <td class="font-semibold text-surface-900 dark:text-surface-0 align-top break-all">{{ m.content }}</td>
+        <td class="font-semibold text-surface-900 dark:text-surface-0 align-top break-words">{{ m.content }}</td>
 
         <td class="align-top">
 
@@ -39,7 +39,7 @@
 
             <ng-container *ngIf="m.notes; else emptyNote">
               <span
-                class="flex-1 text-sm whitespace-pre-wrap break-all min-w-0 transition-all"
+                class="flex-1 text-sm whitespace-pre-wrap break-words min-w-0 transition-all"
                 [class.blur-sm]="!isRevealed(m.id)"
                 [class.select-none]="!isRevealed(m.id)"
                 [class.text-muted-color]="!isRevealed(m.id)">
