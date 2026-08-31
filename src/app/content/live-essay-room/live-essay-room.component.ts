@@ -9,12 +9,15 @@ import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { MessageService } from 'primeng/api';
 import { QuillEditorComponent, QuillModule } from 'ngx-quill';
 import { EssayService, UserEssayDto } from '../../services/essay.service';
 import { EssayDetectorService, EssayAnalysisResult } from '../../services/essay-detector.service';
 import { LiveEssayCollaborationService, TeacherNoteEvent } from '../../services/live-essay-collaboration.service';
 import { AuthService } from '../../services/auth.service';
+import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
     selector: 'app-live-essay-room',
@@ -22,7 +25,8 @@ import { AuthService } from '../../services/auth.service';
     imports: [
         CommonModule, FormsModule, ButtonModule, TagModule,
         ToastModule, InputTextModule, TextareaModule, DialogModule,
-        SelectModule, QuillModule, TooltipModule
+        SelectModule, QuillModule, TooltipModule, IconFieldModule, InputIconModule,
+        AvatarComponent
     ],
     providers: [MessageService],
     templateUrl: './live-essay-room.component.html',
@@ -46,7 +50,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     isAdmin = computed(() => this.currentUser().role === 'Admin');
 
-    // View state: 'selection' (cards grid) or 'room' (active essay session)
     currentView = signal<'selection' | 'room'>('selection');
 
     essays = signal<UserEssayDto[]>([]);
@@ -54,6 +57,44 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     selectedEssay = signal<UserEssayDto | null>(null);
     loading = signal(true);
     saving = signal(false);
+
+    // Filtering & Searching
+    searchQuery = signal('');
+    selectedStudentFilter = signal<string | null>(null);
+
+    studentFilterOptions = computed(() => {
+        const set = new Set<string>();
+        this.essays().forEach(e => {
+            if (e.username) set.add(e.username);
+        });
+
+        const options = Array.from(set).sort().map(username => ({
+            label: username,
+            value: username
+        }));
+
+        return [{ label: 'All Students', value: null }, ...options];
+    });
+
+    filteredEssays = computed(() => {
+        let list = this.essays();
+        const query = this.searchQuery().trim().toLowerCase();
+        const studentFilter = this.selectedStudentFilter();
+
+        if (studentFilter) {
+            list = list.filter(e => e.username === studentFilter);
+        }
+
+        if (query) {
+            list = list.filter(e => 
+                (e.username && e.username.toLowerCase().includes(query)) ||
+                (e.moduleName && e.moduleName.toLowerCase().includes(query)) ||
+                (e.essayPrompt && e.essayPrompt.toLowerCase().includes(query))
+            );
+        }
+
+        return list;
+    });
 
     // Dynamic content fields
     studentContent = signal('');
@@ -112,7 +153,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     });
 
     constructor() {
-        // Handle incoming content changes
         effect(() => {
             const change = this.collaborationService.incomingContentChange();
             if (!change) return;
@@ -126,7 +166,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             }
         });
 
-        // Handle incoming remote selection
         effect(() => {
             const sel = this.collaborationService.incomingSelectionChange();
             if (!sel) return;
@@ -143,7 +182,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             }
         });
 
-        // Handle incoming teacher notes
         effect(() => {
             const note = this.collaborationService.incomingTeacherNote();
             if (!note) return;
@@ -157,7 +195,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             });
         });
 
-        // Handle remote typing status
         effect(() => {
             const typing = this.collaborationService.typingUser();
             if (!typing) return;
@@ -295,7 +332,6 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         const category = this.newNoteCategory();
         const author = this.currentUser().username;
 
-        // Apply distinct formatting overlay in Quill
         const editor = this.studentEditor?.quillEditor || this.adminEditor?.quillEditor;
         if (editor) {
             editor.formatText(this.selectedRangeIndex(), this.selectedRangeLength(), {

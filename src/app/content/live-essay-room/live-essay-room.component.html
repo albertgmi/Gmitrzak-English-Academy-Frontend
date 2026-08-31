@@ -5,41 +5,70 @@
   <!-- VIEW 1: ESSAY TILES SELECTION GRID -->
   <div *ngIf="currentView() === 'selection'" class="flex flex-col gap-6">
 
-    <!-- Header Banner -->
-    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-6 shadow-xl border border-indigo-500/20 relative">
-      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+    <!-- Theme-aware Sakai Header Card -->
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-6 shadow-sm">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+
+        <!-- Title & Subtitle -->
         <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center shadow-lg">
-            <i class="pi pi-comments text-xl text-white"></i>
+          <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shadow-sm shrink-0">
+            <i class="pi pi-comments text-xl"></i>
           </div>
           <div>
-            <h1 class="text-xl font-extrabold text-white m-0">Live Essay Rooms</h1>
-            <p class="text-slate-400 text-xs m-0 mt-1">
+            <h1 class="text-xl font-extrabold text-surface-900 dark:text-surface-0 m-0">Live Essay Rooms</h1>
+            <p class="text-muted-color text-xs m-0 mt-1">
               Select an essay session to enter the real-time collaborative workspace
             </p>
           </div>
         </div>
 
-        <div class="text-xs text-slate-400">
-          Total Essays: <strong class="text-white">{{ essays().length }}</strong>
+        <!-- Search Bar & Student Filter Dropdown -->
+        <div class="flex flex-col sm:flex-row items-center gap-3 w-full lg:w-auto">
+
+          <!-- Search Input Field -->
+          <p-iconfield iconPosition="left" class="w-full sm:w-64">
+            <p-inputicon styleClass="pi pi-search" />
+            <input
+              pInputText
+              type="text"
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              placeholder="Search essays or student..."
+              class="w-full text-xs p-2.5 rounded-xl" />
+          </p-iconfield>
+
+          <!-- Student Filter Dropdown (For Admin) -->
+          <div *ngIf="isAdmin()" class="w-full sm:w-56">
+            <p-select
+              [options]="studentFilterOptions()"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="selectedStudentFilter()"
+              (ngModelChange)="selectedStudentFilter.set($event)"
+              placeholder="Filter by student..."
+              [filter]="true"
+              appendTo="body"
+              fluid
+              styleClass="rounded-xl text-xs" />
+          </div>
+
         </div>
+
       </div>
     </div>
 
     <!-- Essays Tiles Grid -->
     <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
       <div
-        *ngFor="let essay of essays()"
-        class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 hover:border-indigo-500/50 rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 cursor-pointer group"
+        *ngFor="let essay of filteredEssays()"
+        class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 hover:border-primary rounded-2xl p-5 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 cursor-pointer group"
         (click)="enterRoom(essay)">
 
         <div class="flex flex-col gap-3">
           <!-- Student Info & Status Tag -->
           <div class="flex items-center justify-between">
             <div class="flex items-center gap-2.5">
-              <div class="w-9 h-9 rounded-full bg-gradient-to-tr from-indigo-600 to-violet-500 flex items-center justify-center font-bold text-xs text-white shadow-sm">
-                {{ essay.username ? essay.username.charAt(0).toUpperCase() : 'U' }}
-              </div>
+              <app-avatar [username]="essay.username" customClass="w-9 h-9"></app-avatar>
               <div class="flex flex-col">
                 <span class="text-xs font-bold text-surface-900 dark:text-surface-0">{{ essay.username }}</span>
                 <span class="text-[10px] text-muted-color">Student</span>
@@ -53,7 +82,7 @@
 
           <!-- Module Title & Prompt -->
           <div>
-            <h3 class="text-sm font-bold text-surface-900 dark:text-surface-0 group-hover:text-indigo-500 transition-colors m-0">
+            <h3 class="text-sm font-bold text-surface-900 dark:text-surface-0 group-hover:text-primary transition-colors m-0">
               {{ essay.moduleName }}
             </h3>
             <p class="text-xs text-muted-color line-clamp-2 mt-1 m-0">
@@ -65,7 +94,7 @@
         <!-- Footer Info & Action Button -->
         <div class="pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between text-xs text-muted-color">
           <span>Submitted: {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : 'In progress' }}</span>
-          <span class="text-indigo-600 dark:text-indigo-400 font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+          <span class="text-primary font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
             Enter Room <i class="pi pi-arrow-right text-xs"></i>
           </span>
         </div>
@@ -73,9 +102,9 @@
       </div>
 
       <!-- Empty State -->
-      <div *ngIf="essays().length === 0 && !loading()" class="col-span-full text-center py-12 text-muted-color">
+      <div *ngIf="filteredEssays().length === 0 && !loading()" class="col-span-full text-center py-12 text-muted-color">
         <i class="pi pi-file-edit text-4xl mb-3 block opacity-40"></i>
-        <p class="m-0 font-medium">No essays found for review at the moment.</p>
+        <p class="m-0 font-medium">No matching essays found.</p>
       </div>
     </div>
 
@@ -84,8 +113,8 @@
   <!-- VIEW 2: LIVE ESSAY ROOM WORKSPACE -->
   <div *ngIf="currentView() === 'room'" class="flex flex-col gap-6">
 
-    <!-- ROOM HEADER BAR -->
-    <div class="bg-gradient-to-r from-slate-900 via-indigo-950 to-slate-900 text-white rounded-2xl p-5 shadow-xl border border-indigo-500/20 relative">
+    <!-- Theme-aware Sakai Room Header Bar -->
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-5 shadow-sm">
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
 
         <!-- Back Button & Essay Title -->
@@ -100,12 +129,12 @@
 
           <div>
             <div class="flex items-center gap-2">
-              <h1 class="text-xl font-extrabold text-white m-0">{{ selectedEssay()?.moduleName }}</h1>
-              <span class="text-xs px-2 py-0.5 rounded-full bg-indigo-500/30 text-indigo-300 border border-indigo-500/40">
+              <h1 class="text-xl font-extrabold text-surface-900 dark:text-surface-0 m-0">{{ selectedEssay()?.moduleName }}</h1>
+              <span class="text-xs px-2.5 py-0.5 rounded-full bg-primary/10 text-primary font-semibold border border-primary/20">
                 {{ selectedEssay()?.username }}
               </span>
             </div>
-            <p class="text-slate-400 text-xs m-0 mt-0.5">
+            <p class="text-muted-color text-xs m-0 mt-0.5">
               Live collaborative workspace & teacher notes session
             </p>
           </div>
@@ -115,15 +144,14 @@
         <div class="flex flex-wrap items-center gap-4">
 
           <div class="flex items-center gap-2">
-            <span class="text-xs text-slate-400">Online:</span>
+            <span class="text-xs text-muted-color">Online:</span>
             <div class="flex items-center -space-x-2">
-              <div
+              <app-avatar
                 *ngFor="let user of activeUsers()"
-                class="w-8 h-8 rounded-full flex items-center justify-center font-bold text-xs text-white border-2 border-slate-900 shadow"
-                [ngClass]="user.role === 'Admin' ? 'bg-indigo-600' : 'bg-emerald-600'"
+                [username]="user.username"
+                customClass="w-8 h-8 border-2 border-surface-0 dark:border-surface-900 shadow"
                 [pTooltip]="user.username + ' (' + user.role + ')'">
-                {{ user.username.charAt(0).toUpperCase() }}
-              </div>
+              </app-avatar>
             </div>
           </div>
 
@@ -145,12 +173,12 @@
       </div>
 
       <!-- Live Selection & Typing Indicators -->
-      <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="mt-3 pt-3 border-t border-slate-800/80 flex items-center gap-2 text-xs text-violet-300">
+      <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="mt-3 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center gap-2 text-xs text-indigo-600 dark:text-indigo-400">
         <i class="pi pi-eye"></i>
         <span><strong>{{ remoteSelection()?.username }}</strong> highlighted text snippet</span>
       </div>
 
-      <div *ngIf="isRemoteTyping()" class="mt-3 pt-3 border-t border-slate-800/80 flex items-center gap-2 text-xs text-indigo-300 animate-pulse">
+      <div *ngIf="isRemoteTyping()" class="mt-3 pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center gap-2 text-xs text-primary animate-pulse">
         <i class="pi pi-spin pi-spinner"></i>
         <span><strong>{{ remoteTypingUser() }}</strong> is typing...</span>
       </div>
@@ -269,7 +297,7 @@
           <div class="flex flex-col gap-3 max-h-[420px] overflow-y-auto pr-1">
             <div
               *ngFor="let note of teacherNotes()"
-              class="p-3.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 flex flex-col gap-2 cursor-pointer hover:border-indigo-500/40 transition-colors"
+              class="p-3.5 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-900 flex flex-col gap-2 cursor-pointer hover:border-primary/40 transition-colors"
               (click)="focusNoteText(note.selectedText)">
 
               <div class="flex items-center justify-between">
@@ -332,30 +360,33 @@
   header="Attach Teacher Note"
   [(visible)]="showNoteModal"
   [modal]="true"
-  [style]="{ width: '450px' }"
+  [style]="{ width: '560px', maxWidth: '95vw' }"
+  [contentStyle]="{ 'overflow': 'visible', 'min-height': '360px' }"
   styleClass="rounded-2xl">
 
   <div class="flex flex-col gap-4 pt-2">
     <div class="text-xs text-muted-color">
       Referenced Snippet:
-      <div class="p-2.5 rounded-xl bg-surface-100 dark:bg-surface-800 font-semibold italic text-surface-900 dark:text-surface-0 mt-1 border-l-4 border-indigo-500">
+      <div class="p-3 rounded-xl bg-surface-100 dark:bg-surface-800 font-semibold italic text-surface-900 dark:text-surface-0 mt-1 border-l-4 border-primary max-h-32 overflow-y-auto leading-relaxed">
         "{{ selectedTextSnippet() }}"
       </div>
     </div>
 
     <div>
-      <label class="block text-xs font-semibold text-muted-color mb-1">Category</label>
+      <label class="block text-xs font-semibold text-muted-color mb-1.5">Category</label>
       <p-select
         [options]="categoryOptions"
         optionLabel="label"
         optionValue="value"
         [ngModel]="newNoteCategory()"
         (ngModelChange)="newNoteCategory.set($event)"
-        fluid />
+        appendTo="body"
+        fluid
+        styleClass="rounded-xl text-xs" />
     </div>
 
     <div>
-      <label class="block text-xs font-semibold text-muted-color mb-1">Teacher Note / Advice</label>
+      <label class="block text-xs font-semibold text-muted-color mb-1.5">Teacher Note / Advice</label>
       <textarea
         pTextarea
         [ngModel]="newNoteText()"
