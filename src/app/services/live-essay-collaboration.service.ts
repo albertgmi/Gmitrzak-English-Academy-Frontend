@@ -32,6 +32,7 @@ export interface TeacherNoteEvent {
     category: string;
     author: string;
     timestamp: string;
+    isArchived?: boolean;
 }
 
 @Injectable({ providedIn: 'root' })

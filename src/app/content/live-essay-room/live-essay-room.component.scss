@@ -16,11 +16,16 @@ quill-editor {
         border-bottom-left-radius: 0.75rem;
         border-bottom-right-radius: 0.75rem;
         border-color: var(--surface-border);
-        min-height: 400px;
+        height: 460px !important;
         font-family: inherit;
         font-size: 0.95rem;
         background-color: var(--surface-card);
         color: var(--text-color);
+        overflow-y: auto;
+    }
+
+    ::ng-deep .ql-editor {
+        min-height: 100%;
     }
 }
 

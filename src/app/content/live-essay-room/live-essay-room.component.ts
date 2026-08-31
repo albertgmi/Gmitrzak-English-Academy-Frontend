@@ -253,16 +253,14 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.activeTab.set('admin');
         this.remoteSelection.set(null);
 
-        let initialNotes: TeacherNoteEvent[] = [];
-        if (essay.adminContent) {
-            const match = essay.adminContent.match(/<!--NOTES_DATA:([\s\S]*?)-->/);
-            if (match && match[1]) {
-                try {
-                    initialNotes = JSON.parse(match[1]);
-                } catch (e) {}
+        this.essayService.getComments(essay.id).subscribe({
+            next: (comments) => {
+                this.teacherNotes.set(comments as any);
+            },
+            error: () => {
+                this.teacherNotes.set([]);
             }
-        }
-        this.teacherNotes.set(initialNotes);
+        });
 
         this.collaborationService.joinRoom(
             essay.id,
@@ -311,11 +309,8 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     private syncAdminContentWithNotes(): void {
         const editor = this.adminEditor?.quillEditor;
-        let rawHtml = editor ? editor.root.innerHTML : this.adminContent();
-        rawHtml = rawHtml.replace(/<!--NOTES_DATA:[\s\S]*?-->/g, '');
-        const fullHtml = rawHtml + `<!--NOTES_DATA:${JSON.stringify(this.teacherNotes())}-->`;
-
-        this.onAdminContentChange(fullHtml);
+        const rawHtml = editor ? editor.root.innerHTML : this.adminContent();
+        this.onAdminContentChange(rawHtml);
     }
 
     onSelectionChanged(event: any): void {
@@ -362,51 +357,73 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         const essayId = this.selectedEssayId();
         if (!text || !snippet || !essayId) return;
 
-        const noteId = 'note_' + Date.now();
         const category = this.newNoteCategory();
-        const author = this.currentUser().username;
 
-        const noteObj: TeacherNoteEvent = {
-            noteId: noteId,
+        this.essayService.addComment(essayId, {
             selectedText: snippet,
             noteContent: text,
-            category: category,
-            author: author,
-            timestamp: new Date().toISOString()
-        };
+            category: category
+        }).subscribe({
+            next: (createdComment) => {
+                const noteObj: TeacherNoteEvent = {
+                    noteId: createdComment.noteId,
+                    selectedText: createdComment.selectedText,
+                    noteContent: createdComment.noteContent,
+                    category: createdComment.category,
+                    author: createdComment.author,
+                    timestamp: createdComment.timestamp,
+                    isArchived: createdComment.isArchived
+                };
 
-        const editor = this.adminEditor?.quillEditor;
-        if (editor) {
-            editor.formatText(this.selectedRangeIndex(), this.selectedRangeLength(), {
-                'background': '#FEF3C7',
-                'color': '#92400E'
-            });
+                const editor = this.adminEditor?.quillEditor;
+                if (editor) {
+                    editor.formatText(this.selectedRangeIndex(), this.selectedRangeLength(), {
+                        'background': '#FEF3C7',
+                        'color': '#92400E'
+                    });
+                }
+
+                this.teacherNotes.update(notes => [noteObj, ...notes]);
+
+                this.collaborationService.sendTeacherNote(
+                    essayId,
+                    createdComment.noteId,
+                    snippet,
+                    text,
+                    category,
+                    createdComment.author
+                );
+
+                this.syncAdminContentWithNotes();
+
+                this.showNoteModal.set(false);
+                this.newNoteText.set('');
+
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Comment Attached',
+                    detail: 'Comment linked to selected text passage.'
+                });
+            }
+        });
+    }
+
+    archiveNote(noteId: string): void {
+        const numericId = parseInt(noteId.replace('note_', ''), 10);
+        if (!isNaN(numericId)) {
+            this.essayService.archiveComment(numericId).subscribe();
         }
 
-        this.teacherNotes.update(notes => [noteObj, ...notes]);
-
-        this.collaborationService.sendTeacherNote(
-            essayId,
-            noteId,
-            snippet,
-            text,
-            category,
-            author
+        this.teacherNotes.update(notes =>
+            notes.map(n => n.noteId === noteId ? { ...n, isArchived: true } : n)
         );
 
         this.syncAdminContentWithNotes();
 
-        if (this.isAdmin()) {
-            this.saveEssay();
-        }
-
-        this.showNoteModal.set(false);
-        this.newNoteText.set('');
-
         this.messageService.add({
-            severity: 'success',
-            summary: 'Note Attached',
-            detail: 'Teacher note linked to selected text snippet.'
+            severity: 'info',
+            summary: 'Comment Resolved',
+            detail: 'Comment has been archived and marked as resolved.'
         });
     }
 
