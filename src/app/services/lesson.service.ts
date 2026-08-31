@@ -153,12 +153,12 @@ export class LessonService {
         return this.http.get<HomeworkItemDto[]>(`${this.apiUrl}/homework/${studentUserId}`);
     }
 
-    checkHomework(id: number) {
-        return this.http.patch(`${this.apiUrl}/homework/${id}/check`, {});
+    checkHomework(studentUserId: number, id: number) {
+        return this.http.patch(`${this.apiUrl}/homework/${studentUserId}/${id}/check`, {});
     }
 
-    uncheckHomework(id: number) {
-        return this.http.patch(`${this.apiUrl}/homework/${id}/uncheck`, {});
+    uncheckHomework(studentUserId: number, id: number) {
+        return this.http.patch(`${this.apiUrl}/homework/${studentUserId}/${id}/uncheck`, {});
     }
 
     getPronunciationTest(studentUserId: number) {

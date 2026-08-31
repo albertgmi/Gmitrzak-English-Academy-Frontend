@@ -43,9 +43,12 @@ export class HomeworkCheckComponent implements OnInit {
     }
 
     toggle(item: HomeworkItemDto) {
+        const studentId = this.lessonContext.studentId;
+        if (!studentId) return;
+
         const action = item.isCompleted
-            ? this.lessonService.uncheckHomework(item.id)
-            : this.lessonService.checkHomework(item.id);
+            ? this.lessonService.uncheckHomework(studentId, item.id)
+            : this.lessonService.checkHomework(studentId, item.id);
 
         action.subscribe({
             next: () => {
