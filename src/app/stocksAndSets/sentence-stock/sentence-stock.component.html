@@ -292,6 +292,7 @@
       <tr>
         <th pSortableColumn="englishTranslation">
           English Sentence
+          <i class="pi pi-pencil text-xs ml-1 text-muted-color"></i>
           <p-sortIcon field="englishTranslation" />
         </th>
         <th pSortableColumn="polish">
@@ -307,8 +308,25 @@
     </ng-template>
     <ng-template #body let-s>
       <tr>
-        <td class="font-semibold text-surface-900 dark:text-surface-0">
-          {{ s.englishTranslation }}
+        <td
+          [pEditableColumn]="s"
+          [pEditableColumnField]="'englishTranslation'">
+          <p-cellEditor>
+            <ng-template pTemplate="input">
+              <input
+                pInputText
+                type="text"
+                [(ngModel)]="s.englishTranslation"
+                (keydown.enter)="onEnglishRowEditSave(s)"
+                (blur)="onEnglishRowEditSave(s)"
+                class="w-full p-1 text-sm font-medium" />
+            </ng-template>
+            <ng-template pTemplate="output">
+              <span class="text-primary font-medium hover:bg-surface-100 dark:hover:bg-surface-700 px-2 py-1 rounded block cursor-pointer transition-colors">
+                {{ s.englishTranslation || 'Click to edit...' }}
+              </span>
+            </ng-template>
+          </p-cellEditor>
         </td>
         <td
           [pEditableColumn]="s"

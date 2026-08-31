@@ -184,6 +184,10 @@ export class SentenceService {
         return this.http.put(`${this.apiUrl}/stock/${id}`, {polish});
     }
 
+    updateEnglishStock(id: number, newEnglish: string) {
+        return this.http.put(`${this.apiUrl}/stock-english/${id}`, { newEnglish });
+    }
+
     getCompletedModules(studentId: number, dateFrom: string, dateTo: string) {
         return this.http.get<CompletedSentenceModuleDto[]>(
             `${this.answersApiUrl}/modules/completed?studentId=${studentId}&dateFrom=${dateFrom}&dateTo=${dateTo}`

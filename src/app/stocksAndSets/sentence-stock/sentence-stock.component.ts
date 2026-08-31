@@ -101,6 +101,38 @@ export class SentenceStockComponent implements OnInit {
         });
     }
 
+    onEnglishRowEditSave(sentence: SentenceStockDto) {
+
+        if (!sentence.englishTranslation?.trim() || !sentence.polish?.trim()) {
+            return;
+        }
+
+        this.sentenceService.updateEnglishStock(
+            sentence.id,
+            sentence.englishTranslation,
+        ).subscribe({
+            next: () => {
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Updated',
+                    detail: 'English sentence updated successfully',
+                    life: 2000
+                });
+            },
+            error: () => {
+
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save English sentence',
+                    life: 3000
+                });
+
+                this.sentenceService.reloadStock();
+            }
+        });
+    }
+
     save() {
 
         this.submitted = true;
