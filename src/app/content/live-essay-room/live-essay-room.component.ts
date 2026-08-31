@@ -394,7 +394,9 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
                     createdComment.author
                 );
 
-                this.syncAdminContentWithNotes();
+                setTimeout(() => {
+                    this.syncAdminContentWithNotes();
+                }, 10);
 
                 this.showNoteModal.set(false);
                 this.newNoteText.set('');
@@ -408,7 +410,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         });
     }
 
-    hasCorrections(essay: UserEssayDto): boolean {
+    hasSavedChanges(essay: UserEssayDto): boolean {
         if (!essay || !essay.adminContent) return false;
         const text = essay.adminContent.replace(/<[^>]*>/g, '').trim();
         if (!text) return false;
@@ -467,7 +469,11 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             'color': textColor
         });
 
-        this.syncAdminContentWithNotes();
+        setTimeout(() => {
+            const freshHtml = editor.root.innerHTML;
+            this.adminContent.set(freshHtml);
+            this.onAdminContentChange(freshHtml);
+        }, 10);
     }
 
     private lastRemoteSelection: { index: number; length: number; originalBg?: any; originalColor?: any } | null = null;

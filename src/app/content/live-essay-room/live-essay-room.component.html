@@ -62,7 +62,7 @@
       <div
         *ngFor="let essay of filteredEssays()"
         class="border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-5 cursor-pointer group"
-        [ngClass]="hasCorrections(essay) ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700' : 'bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 hover:border-primary'"
+        [ngClass]="hasSavedChanges(essay) ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700' : 'bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 hover:border-primary'"
         (click)="enterRoom(essay)">
 
         <div class="flex flex-col gap-4">
@@ -76,16 +76,10 @@
               </div>
             </div>
 
-            <div class="flex items-center gap-1.5">
+            <div>
               <p-tag
-                *ngIf="hasCorrections(essay)"
-                value="CORRECTIONS SAVED"
-                severity="info"
-                styleClass="text-xs font-bold px-2.5 py-1" />
-
-              <p-tag
-                [value]="essay.isReviewed ? 'REVIEWED' : 'SUBMITTED'"
-                [severity]="essay.isReviewed ? 'success' : 'warn'"
+                [value]="hasSavedChanges(essay) ? 'CORRECTIONS SAVED' : 'PENDING'"
+                [severity]="hasSavedChanges(essay) ? 'success' : 'warn'"
                 styleClass="text-xs font-bold px-2.5 py-1" />
             </div>
           </div>
@@ -124,11 +118,11 @@
   <div *ngIf="currentView() === 'room'" class="flex flex-col gap-6">
 
     <!-- Theme-aware Sakai Room Header Bar -->
-    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-6 shadow-sm">
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-5 sm:p-6 shadow-sm">
       <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
 
         <!-- Back Button & Essay Title -->
-        <div class="flex items-center gap-4">
+        <div class="flex items-center gap-4 min-w-0 flex-1">
           <p-button
             icon="pi pi-arrow-left"
             severity="secondary"
@@ -136,26 +130,26 @@
             pTooltip="Back to essays list"
             tooltipPosition="right" />
 
-          <div>
-            <div class="flex items-center gap-2 mb-1">
+          <div class="min-w-0 flex-1">
+            <div class="flex items-center gap-2 mb-1 flex-wrap">
               <app-avatar [username]="selectedEssay()?.username || ''" [avatarUrl]="selectedEssay()?.avatarUrl" customClass="w-7 h-7"></app-avatar>
-              <h2 class="text-xl font-extrabold m-0 text-surface-900 dark:text-surface-0">
+              <h2 class="text-xl font-extrabold m-0 text-surface-900 dark:text-surface-0 truncate">
                 {{ selectedEssay()?.moduleName }}
               </h2>
               <span class="text-sm text-muted-color font-normal">by {{ selectedEssay()?.username }}</span>
             </div>
-            <p class="text-sm text-muted-color m-0 line-clamp-1">
+            <p class="text-sm text-muted-color m-0 truncate">
               {{ selectedEssay()?.essayPrompt }}
             </p>
           </div>
         </div>
 
         <!-- Active Collaborators & Action Buttons -->
-        <div class="flex flex-wrap items-center gap-5 sm:gap-6">
+        <div class="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
 
-          <div class="flex items-center gap-2.5">
+          <div class="flex items-center gap-2">
             <span class="text-sm font-semibold text-muted-color">Online:</span>
-            <div class="flex items-center -space-x-2.5">
+            <div class="flex items-center -space-x-2">
               <app-avatar
                 *ngFor="let user of activeUsers()"
                 [username]="user.username"
@@ -175,6 +169,7 @@
             (onClick)="exportDocx()" />
 
           <p-button
+            *ngIf="isAdmin()"
             label="Save Changes"
             icon="pi pi-check"
             [loading]="saving()"
@@ -311,8 +306,8 @@
               [ngClass]="note.isArchived ? 'bg-surface-100/50 dark:bg-surface-900/50 border-surface-200 dark:border-surface-700 opacity-60' : 'bg-surface-50 dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary cursor-pointer'"
               (click)="focusNoteText(note.selectedText)">
 
-              <div class="flex items-center justify-between">
-                <div class="flex items-center gap-2">
+              <div class="flex items-center justify-between gap-2">
+                <div class="flex items-center gap-2 flex-wrap">
                   <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded"
                         [ngClass]="{
                           'bg-amber-100 text-amber-800': note.category === 'Grammar',
@@ -330,16 +325,16 @@
 
                 <div class="flex items-center gap-2">
                   <span class="text-xs text-muted-color font-medium">{{ note.author }} • {{ note.timestamp | date:'shortTime' }}</span>
-                  <p-button
-                    *ngIf="!note.isArchived"
-                    icon="pi pi-check"
-                    severity="secondary"
-                    [text]="true"
-                    size="small"
-                    (onClick)="$event.stopPropagation(); archiveNote(note.noteId)"
-                    pTooltip="Resolve / Archive comment"
+                  <button
+                    *ngIf="isAdmin() && !note.isArchived"
+                    type="button"
+                    class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-700 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                    (click)="$event.stopPropagation(); archiveNote(note.noteId)"
+                    pTooltip="Mark comment as resolved"
                     tooltipPosition="top"
-                    appendTo="body" />
+                    appendTo="body">
+                    <i class="pi pi-check text-xs font-extrabold"></i> Resolve
+                  </button>
                 </div>
               </div>
 
