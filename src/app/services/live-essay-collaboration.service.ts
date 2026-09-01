@@ -115,6 +115,8 @@ export class LiveEssayCollaborationService {
         await this.startConnection();
         if (this.currentEssayId && this.currentEssayId !== essayId) {
             await this.leaveRoom(this.currentEssayId);
+        } else {
+            this.clearSignals();
         }
 
         this.currentEssayId = essayId;
@@ -132,6 +134,14 @@ export class LiveEssayCollaborationService {
             this.currentEssayId = null;
         }
         this.activeUsers.set([]);
+        this.clearSignals();
+    }
+
+    clearSignals(): void {
+        this.incomingContentChange.set(null);
+        this.incomingSelectionChange.set(null);
+        this.incomingTeacherNote.set(null);
+        this.typingUser.set(null);
     }
 
     async sendContentChange(essayId: number, content: string, field: string, senderUsername: string): Promise<void> {
@@ -166,6 +176,7 @@ export class LiveEssayCollaborationService {
             await this.hubConnection.stop();
             this.hubConnection = null;
         }
+        this.clearSignals();
         this.connectionState.set('disconnected');
     }
 }

@@ -263,7 +263,7 @@
         </div>
 
         <!-- TEACHER CORRECTIONS EDITOR (DEFAULT VIEW) -->
-        <div *ngIf="activeTab() === 'admin'" id="adminEditor" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
+        <div [hidden]="activeTab() !== 'admin'" id="adminEditor" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
           <quill-editor
             #adminEditor
             [modules]="quillModules"
@@ -277,7 +277,7 @@
         </div>
 
         <!-- STUDENT ESSAY EDITOR (READ ONLY ORIGINAL) -->
-        <div *ngIf="activeTab() === 'student'" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
+        <div [hidden]="activeTab() !== 'student'" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
           <quill-editor
             #studentEditor
             [modules]="quillReadOnlyModules"

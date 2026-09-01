@@ -265,7 +265,11 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.selectedEssayId.set(essay.id);
         this.selectedEssay.set(essay);
         this.studentContent.set(essay.content || '');
-        this.adminContent.set(essay.adminContent || '');
+        
+        const rawAdminContent = essay.adminContent || essay.content || '';
+        const cleanAdminContent = rawAdminContent.replace(/<!--NOTES_DATA:[\s\S]*?-->/g, '');
+        this.adminContent.set(cleanAdminContent);
+
         this.activeTab.set('admin');
         this.remoteSelection.set(null);
 
