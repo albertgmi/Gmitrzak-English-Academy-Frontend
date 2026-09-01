@@ -17,6 +17,7 @@ import { EssayService, UserEssayDto } from '../../services/essay.service';
 import { LiveEssayCollaborationService, TeacherNoteEvent } from '../../services/live-essay-collaboration.service';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
+import { ProfileService } from '../../services/profile.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 
 @Component({
@@ -38,6 +39,7 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     private essayService = inject(EssayService);
     private userService = inject(UserService);
+    private profileService = inject(ProfileService);
     public collaborationService = inject(LiveEssayCollaborationService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
@@ -214,14 +216,27 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     ngOnInit(): void {
         this.loadEssays();
-        this.userService.getProfile().subscribe({
-            next: (profile) => {
-                if (profile && profile.avatarUrl) {
-                    this.currentUserAvatarUrl.set(profile.avatarUrl);
-                }
-            },
-            error: () => {}
-        });
+        const userId = this.currentUser().id;
+        if (userId) {
+            this.profileService.getProfile(userId).subscribe({
+                next: (profile) => {
+                    if (profile && profile.avatarUrl) {
+                        this.currentUserAvatarUrl.set(profile.avatarUrl);
+
+                        const currentEssay = this.selectedEssay();
+                        if (currentEssay && this.currentView() === 'room') {
+                            this.collaborationService.joinRoom(
+                                currentEssay.id,
+                                this.currentUser().username,
+                                this.currentUser().role,
+                                profile.avatarUrl
+                            );
+                        }
+                    }
+                },
+                error: () => {}
+            });
+        }
     }
 
     ngOnDestroy(): void {
@@ -263,11 +278,14 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             }
         });
 
+        const avatarToUse = this.currentUserAvatarUrl() ||
+            (essay.username === this.currentUser().username ? essay.avatarUrl : undefined);
+
         this.collaborationService.joinRoom(
             essay.id,
             this.currentUser().username,
             this.currentUser().role,
-            this.currentUserAvatarUrl() || undefined
+            avatarToUse
         );
 
         this.currentView.set('room');

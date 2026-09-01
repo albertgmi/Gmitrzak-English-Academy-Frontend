@@ -51,7 +51,8 @@ export class UserService {
   });
 
   getProfile(): Observable<any> {
-    return this.http.get(`${this.apiUrl}/profile`);
+    const userId = this.authService.getUserId();
+    return this.http.get(`${environment.apiUrl}/api/profile/${userId}`);
   }
 
   deleteUser(userId: number) {

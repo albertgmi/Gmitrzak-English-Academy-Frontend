@@ -1,22 +1,22 @@
 <p-toast />
 
-<div class="card p-6 flex flex-col gap-6">
+<div class="card p-4 sm:p-6 flex flex-col gap-4 sm:gap-6 min-w-0 w-full overflow-hidden">
 
   <!-- VIEW 1: ESSAY TILES SELECTION GRID -->
-  <div *ngIf="currentView() === 'selection'" class="flex flex-col gap-6">
+  <div *ngIf="currentView() === 'selection'" class="flex flex-col gap-4 sm:gap-6 min-w-0 w-full">
 
     <!-- Theme-aware Sakai Header Card -->
-    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-6 shadow-sm">
-      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0 w-full">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 min-w-0 w-full">
 
         <!-- Title & Subtitle -->
-        <div class="flex items-center gap-4">
-          <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shadow-sm shrink-0">
-            <i class="pi pi-comments text-xl"></i>
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0">
+          <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-primary/10 text-primary border border-primary/20 flex items-center justify-center shadow-sm shrink-0">
+            <i class="pi pi-comments text-lg sm:text-xl"></i>
           </div>
-          <div>
-            <h1 class="text-xl font-extrabold text-surface-900 dark:text-surface-0 m-0">Live Essay Rooms</h1>
-            <p class="text-muted-color text-xs m-0 mt-1">
+          <div class="min-w-0 flex-1">
+            <h1 class="text-lg sm:text-xl font-extrabold text-surface-900 dark:text-surface-0 m-0 truncate">Live Essay Rooms</h1>
+            <p class="text-muted-color text-xs m-0 mt-0.5 sm:mt-1 truncate">
               Select an essay session to enter the real-time collaborative workspace
             </p>
           </div>
@@ -58,48 +58,48 @@
     </div>
 
     <!-- Essays Tiles Grid -->
-    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6 min-w-0 w-full">
       <div
         *ngFor="let essay of filteredEssays()"
-        class="border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-5 cursor-pointer group"
+        class="border rounded-2xl p-4 sm:p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between gap-4 sm:gap-5 cursor-pointer group min-w-0 w-full overflow-hidden"
         [ngClass]="hasSavedChanges(essay) ? 'bg-emerald-50/60 dark:bg-emerald-950/20 border-emerald-300 dark:border-emerald-700' : 'bg-surface-0 dark:bg-surface-800 border-surface-200 dark:border-surface-700 hover:border-primary'"
         (click)="enterRoom(essay)">
 
-        <div class="flex flex-col gap-4">
+        <div class="flex flex-col gap-3 sm:gap-4 min-w-0 w-full">
           <!-- Student Info & Status Tag -->
-          <div class="flex items-center justify-between">
-            <div class="flex items-center gap-3">
-              <app-avatar [username]="essay.username" [avatarUrl]="essay.avatarUrl" customClass="w-11 h-11"></app-avatar>
-              <div class="flex flex-col">
-                <span class="text-base font-bold text-surface-900 dark:text-surface-0">{{ essay.username }}</span>
-                <span class="text-xs text-muted-color font-medium">Student</span>
+          <div class="flex items-center justify-between gap-2 min-w-0 w-full">
+            <div class="flex items-center gap-2.5 sm:gap-3 min-w-0 flex-1 overflow-hidden">
+              <app-avatar [username]="essay.username" [avatarUrl]="essay.avatarUrl" customClass="w-9 h-9 sm:w-11 sm:h-11 shrink-0"></app-avatar>
+              <div class="flex flex-col min-w-0 flex-1 overflow-hidden">
+                <span class="text-sm sm:text-base font-bold text-surface-900 dark:text-surface-0 truncate max-w-full">{{ essay.username }}</span>
+                <span class="text-xs text-muted-color font-medium truncate">Student</span>
               </div>
             </div>
 
-            <div>
+            <div class="shrink-0">
               <p-tag
-                [value]="hasSavedChanges(essay) ? 'CORRECTIONS SAVED' : 'PENDING'"
+                [value]="hasSavedChanges(essay) ? 'SAVED' : 'PENDING'"
                 [severity]="hasSavedChanges(essay) ? 'success' : 'warn'"
-                styleClass="text-xs font-bold px-2.5 py-1" />
+                styleClass="text-xs font-bold px-2 py-0.5 sm:px-2.5 sm:py-1" />
             </div>
           </div>
 
           <!-- Module Title & Prompt -->
-          <div class="flex flex-col gap-1.5">
-            <h3 class="text-base font-bold text-surface-900 dark:text-surface-0 group-hover:text-primary transition-colors m-0 leading-snug">
+          <div class="flex flex-col gap-1.5 min-w-0 w-full overflow-hidden">
+            <h3 class="text-sm sm:text-base font-bold text-surface-900 dark:text-surface-0 group-hover:text-primary transition-colors m-0 leading-snug break-words line-clamp-2">
               {{ essay.moduleName }}
             </h3>
-            <p class="text-sm text-muted-color line-clamp-3 leading-relaxed m-0">
+            <p class="text-xs sm:text-sm text-muted-color line-clamp-3 leading-relaxed m-0 break-words overflow-hidden text-ellipsis">
               {{ essay.essayPrompt || 'Click to enter essay room and review content.' }}
             </p>
           </div>
         </div>
 
         <!-- Footer Info & Action Button -->
-        <div class="pt-4 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between text-sm text-muted-color">
-          <span class="font-medium">Submitted: {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : 'In progress' }}</span>
-          <span class="text-primary font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5">
-            Enter Room <i class="pi pi-arrow-right text-sm"></i>
+        <div class="pt-3 sm:pt-4 border-t border-surface-100 dark:border-surface-700 flex flex-wrap sm:flex-nowrap items-center justify-between gap-2 text-xs sm:text-sm text-muted-color min-w-0 w-full">
+          <span class="font-medium truncate">Submitted: {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : 'In progress' }}</span>
+          <span class="text-primary font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1.5 shrink-0 ml-auto sm:ml-0">
+            Enter Room <i class="pi pi-arrow-right text-xs sm:text-sm"></i>
           </span>
         </div>
 
@@ -115,46 +115,47 @@
   </div>
 
   <!-- VIEW 2: LIVE ESSAY ROOM WORKSPACE -->
-  <div *ngIf="currentView() === 'room'" class="flex flex-col gap-6">
+  <div *ngIf="currentView() === 'room'" class="flex flex-col gap-4 sm:gap-6 min-w-0 w-full">
 
     <!-- Theme-aware Sakai Room Header Bar -->
-    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-5 sm:p-6 shadow-sm">
-      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0 w-full overflow-hidden">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4 min-w-0 w-full">
 
         <!-- Back Button & Essay Title -->
-        <div class="flex items-center gap-4 min-w-0 flex-1">
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 w-full lg:w-auto flex-1 overflow-hidden">
           <p-button
             icon="pi pi-arrow-left"
             severity="secondary"
             (onClick)="backToSelection()"
             pTooltip="Back to essays list"
-            tooltipPosition="right" />
+            tooltipPosition="right"
+            styleClass="shrink-0" />
 
-          <div class="min-w-0 flex-1">
-            <div class="flex items-center gap-2 mb-1 flex-wrap">
-              <app-avatar [username]="selectedEssay()?.username || ''" [avatarUrl]="selectedEssay()?.avatarUrl" customClass="w-7 h-7"></app-avatar>
-              <h2 class="text-xl font-extrabold m-0 text-surface-900 dark:text-surface-0 truncate">
+          <div class="min-w-0 flex-1 overflow-hidden">
+            <div class="flex items-center gap-2 mb-1 flex-wrap min-w-0">
+              <app-avatar [username]="selectedEssay()?.username || ''" [avatarUrl]="selectedEssay()?.avatarUrl" customClass="w-6 h-6 sm:w-7 sm:h-7 shrink-0"></app-avatar>
+              <h2 class="text-base sm:text-xl font-extrabold m-0 text-surface-900 dark:text-surface-0 truncate max-w-full">
                 {{ selectedEssay()?.moduleName }}
               </h2>
-              <span class="text-sm text-muted-color font-normal">by {{ selectedEssay()?.username }}</span>
+              <span class="text-xs sm:text-sm text-muted-color font-normal shrink-0">by {{ selectedEssay()?.username }}</span>
             </div>
-            <p class="text-sm text-muted-color m-0 truncate">
+            <p class="text-xs sm:text-sm text-muted-color m-0 truncate break-words max-w-full">
               {{ selectedEssay()?.essayPrompt }}
             </p>
           </div>
         </div>
 
         <!-- Active Collaborators & Action Buttons -->
-        <div class="flex items-center gap-3 shrink-0 flex-wrap sm:flex-nowrap">
+        <div class="flex items-center gap-2 sm:gap-3 shrink-0 flex-wrap w-full lg:w-auto justify-between lg:justify-end min-w-0">
 
-          <div class="flex items-center gap-2">
-            <span class="text-sm font-semibold text-muted-color">Online:</span>
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs sm:text-sm font-semibold text-muted-color">Online:</span>
             <div class="flex items-center -space-x-2">
               <app-avatar
                 *ngFor="let user of activeUsers()"
                 [username]="user.username"
                 [avatarUrl]="user.avatarUrl"
-                customClass="w-9 h-9 border-2 border-surface-0 dark:border-surface-900 shadow cursor-pointer"
+                customClass="w-7 h-7 sm:w-9 sm:h-9 border-2 border-surface-0 dark:border-surface-900 shadow cursor-pointer shrink-0"
                 [pTooltip]="user.username + ' (' + user.role + ')'"
                 tooltipPosition="bottom"
                 appendTo="body">
@@ -162,103 +163,107 @@
             </div>
           </div>
 
-          <!-- Live Activity Pill Badges (Zero Layout Shift!) -->
-          <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold flex items-center gap-1.5 animate-pulse">
-            <i class="pi pi-eye text-xs"></i>
-            <span>{{ remoteSelection()?.username }} is selecting text...</span>
+          <!-- Live Activity Pill Badges -->
+          <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold flex items-center gap-1.5 animate-pulse truncate max-w-full">
+            <i class="pi pi-eye text-xs shrink-0"></i>
+            <span class="truncate">{{ remoteSelection()?.username }} is selecting...</span>
           </div>
 
-          <div *ngIf="isRemoteTyping()" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5">
-            <i class="pi pi-spin pi-spinner text-xs"></i>
-            <span>{{ remoteTypingUser() }} is typing...</span>
+          <div *ngIf="isRemoteTyping()" class="px-2.5 py-1 sm:px-3 sm:py-1.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5 truncate max-w-full">
+            <i class="pi pi-spin pi-spinner text-xs shrink-0"></i>
+            <span class="truncate">{{ remoteTypingUser() }} is typing...</span>
           </div>
 
-          <p-button
-            label="Export DOCX"
-            icon="pi pi-file-word"
-            severity="secondary"
-            (onClick)="exportDocx()" />
+          <div class="flex items-center gap-2 w-full sm:w-auto justify-end mt-1 sm:mt-0">
+            <p-button
+              label="Export DOCX"
+              icon="pi pi-file-word"
+              severity="secondary"
+              styleClass="text-xs sm:text-sm px-2.5 py-1.5 sm:px-3 sm:py-2"
+              (onClick)="exportDocx()" />
 
-          <p-button
-            *ngIf="isAdmin()"
-            label="Save Changes"
-            icon="pi pi-check"
-            [loading]="saving()"
-            (onClick)="saveEssay()" />
+            <p-button
+              *ngIf="isAdmin()"
+              label="Save Changes"
+              icon="pi pi-check"
+              [loading]="saving()"
+              styleClass="text-xs sm:text-sm px-2.5 py-1.5 sm:px-3 sm:py-2"
+              (onClick)="saveEssay()" />
+          </div>
         </div>
 
       </div>
     </div>
 
     <!-- MAIN ESSAY ROOM WORKSPACE GRID -->
-    <div class="grid grid-cols-1 lg:grid-cols-12 gap-6">
+    <div class="grid grid-cols-1 lg:grid-cols-12 gap-4 sm:gap-6 min-w-0 w-full">
 
       <!-- LEFT COLUMN: EDITOR & HIGHLIGHT TOOLBAR (8 COLS) -->
-      <div class="lg:col-span-8 flex flex-col gap-4">
+      <div class="lg:col-span-8 flex flex-col gap-3 sm:gap-4 min-w-0 w-full overflow-hidden">
 
         <!-- Tabs & Word Count -->
-        <div class="flex items-center justify-between bg-surface-100 dark:bg-surface-800 p-2.5 rounded-xl border border-surface-200 dark:border-surface-700">
-          <div class="flex items-center gap-2">
+        <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between bg-surface-100 dark:bg-surface-800 p-2 sm:p-2.5 rounded-xl border border-surface-200 dark:border-surface-700 gap-2 sm:gap-0 min-w-0 w-full">
+          <div class="flex items-center gap-1.5 sm:gap-2 w-full sm:w-auto">
             <button
               type="button"
-              class="px-5 py-2.5 rounded-lg text-base font-bold transition-all"
+              class="flex-1 sm:flex-none px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-base font-bold transition-all truncate"
               [ngClass]="activeTab() === 'admin' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:bg-surface-200 dark:hover:bg-surface-700'"
               (click)="activeTab.set('admin')">
-              <i class="pi pi-check-square mr-2"></i>Teacher Corrections
+              <i class="pi pi-check-square mr-1 sm:mr-2"></i>Teacher Corrections
             </button>
 
             <button
               type="button"
-              class="px-5 py-2.5 rounded-lg text-base font-bold transition-all"
+              class="flex-1 sm:flex-none px-3 sm:px-5 py-2 sm:py-2.5 rounded-lg text-xs sm:text-base font-bold transition-all truncate"
               [ngClass]="activeTab() === 'student' ? 'bg-primary text-primary-contrast shadow-sm' : 'text-muted-color hover:bg-surface-200 dark:hover:bg-surface-700'"
               (click)="activeTab.set('student')">
-              <i class="pi pi-file-edit mr-2"></i>Student Essay <span class="text-xs opacity-75 font-normal ml-1">(Original)</span>
+              <i class="pi pi-file-edit mr-1 sm:mr-2"></i>Student Essay <span class="hidden sm:inline text-xs opacity-75 font-normal ml-1">(Original)</span>
             </button>
           </div>
 
-          <div class="text-sm text-muted-color font-semibold px-3">
-            Word Count: <strong class="text-surface-900 dark:text-surface-0 text-base">{{ wordCount() }}</strong>
+          <div class="text-xs sm:text-sm text-muted-color font-semibold px-2 sm:px-3 text-right sm:text-left self-end sm:self-auto">
+            Word Count: <strong class="text-surface-900 dark:text-surface-0 text-sm sm:text-base">{{ wordCount() }}</strong>
           </div>
         </div>
 
         <!-- HIGHLIGHT & COMMENT TOOLBAR -->
-        <div *ngIf="activeTab() === 'admin'" class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-4 flex flex-wrap items-center justify-between gap-3">
-          <div class="flex items-center gap-3">
-            <span *ngIf="isAdmin()" class="text-sm font-bold uppercase tracking-wider text-muted-color flex items-center gap-2">
-              <i class="pi pi-palette text-base"></i> Highlight Color:
+        <div *ngIf="activeTab() === 'admin'" class="bg-surface-50 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-xl p-3 sm:p-4 flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 min-w-0 w-full">
+          <div class="flex flex-wrap items-center gap-2 sm:gap-3">
+            <span *ngIf="isAdmin()" class="text-xs sm:text-sm font-bold uppercase tracking-wider text-muted-color flex items-center gap-1.5">
+              <i class="pi pi-palette text-sm sm:text-base"></i> Highlight:
             </span>
 
-            <div *ngIf="isAdmin()" class="flex items-center gap-2">
-              <button type="button" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 shadow-sm" (click)="applyHighlight('#DCFCE7', '#166534')">
+            <div *ngIf="isAdmin()" class="flex flex-wrap items-center gap-1.5 sm:gap-2">
+              <button type="button" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold bg-emerald-100 text-emerald-800 border border-emerald-300 hover:bg-emerald-200 shadow-sm" (click)="applyHighlight('#DCFCE7', '#166534')">
                 Good
               </button>
 
-              <button type="button" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 shadow-sm" (click)="applyHighlight('#FEF3C7', '#92400E')">
+              <button type="button" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold bg-amber-100 text-amber-800 border border-amber-300 hover:bg-amber-200 shadow-sm" (click)="applyHighlight('#FEF3C7', '#92400E')">
                 Grammar
               </button>
 
-              <button type="button" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200 shadow-sm" (click)="applyHighlight('#FEE2E2', '#991B1B')">
+              <button type="button" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold bg-rose-100 text-rose-800 border border-rose-300 hover:bg-rose-200 shadow-sm" (click)="applyHighlight('#FEE2E2', '#991B1B')">
                 Typo
               </button>
 
-              <button type="button" class="px-3 py-1.5 rounded-lg text-sm font-bold bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200 shadow-sm" (click)="applyHighlight('#DBEAFE', '#1E40AF')">
+              <button type="button" class="px-2 py-1 sm:px-3 sm:py-1.5 rounded-lg text-xs sm:text-sm font-bold bg-blue-100 text-blue-800 border border-blue-300 hover:bg-blue-200 shadow-sm" (click)="applyHighlight('#DBEAFE', '#1E40AF')">
                 Comma
               </button>
             </div>
           </div>
 
-          <!-- Add Comment Button (for both student and admin) -->
+          <!-- Add Comment Button -->
           <p-button
             label="Attach Comment"
             icon="pi pi-comment"
-            styleClass="p-button-outlined"
+            styleClass="p-button-outlined w-full sm:w-auto text-xs sm:text-sm px-3 py-1.5"
             (onClick)="openNoteModal()"
             [disabled]="!selectedTextSnippet()"
             [pTooltip]="selectedTextSnippet() ? 'Attach comment to: ' + selectedTextSnippet() : 'Select text in Teacher Corrections first'" />
         </div>
 
         <!-- TEACHER CORRECTIONS EDITOR (DEFAULT VIEW) -->
-        <div *ngIf="activeTab() === 'admin'" id="adminEditor" class="flex flex-col gap-2">
+        <div *ngIf="activeTab() === 'admin'" id="adminEditor" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
           <quill-editor
             #adminEditor
             [modules]="quillModules"
@@ -267,48 +272,48 @@
             (ngModelChange)="onAdminContentChange($event)"
             (onSelectionChanged)="onSelectionChanged($event)"
             placeholder="Teacher writes corrections, highlights and notes here..."
-            styleClass="rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900 text-base">
+            styleClass="rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900 text-base min-w-0 w-full overflow-hidden">
           </quill-editor>
         </div>
 
         <!-- STUDENT ESSAY EDITOR (READ ONLY ORIGINAL) -->
-        <div *ngIf="activeTab() === 'student'" class="flex flex-col gap-2">
+        <div *ngIf="activeTab() === 'student'" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
           <quill-editor
             #studentEditor
             [modules]="quillReadOnlyModules"
             [readOnly]="true"
             [ngModel]="studentContent()"
             placeholder="Student original essay submission..."
-            styleClass="rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-50 dark:bg-surface-900 text-base opacity-90">
+            styleClass="rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-50 dark:bg-surface-900 text-base opacity-90 min-w-0 w-full overflow-hidden">
           </quill-editor>
         </div>
 
       </div>
 
       <!-- RIGHT COLUMN: COMMENTS LIST (4 COLS) -->
-      <div class="lg:col-span-4 flex flex-col gap-6">
+      <div class="lg:col-span-4 flex flex-col gap-4 sm:gap-6 min-w-0 w-full overflow-hidden">
 
         <!-- MARGIN COMMENTS CARD -->
-        <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-5 shadow-sm flex flex-col gap-4">
-          <div class="flex items-center justify-between pb-3 border-b border-surface-200 dark:border-surface-700">
-            <div class="flex items-center gap-2">
-              <i class="pi pi-comments text-primary text-xl"></i>
-              <span class="font-bold text-base text-surface-900 dark:text-surface-0">Comments</span>
+        <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-4 sm:p-5 shadow-sm flex flex-col gap-3 sm:gap-4 min-w-0 w-full overflow-hidden">
+          <div class="flex items-center justify-between pb-3 border-b border-surface-200 dark:border-surface-700 min-w-0 w-full">
+            <div class="flex items-center gap-2 min-w-0">
+              <i class="pi pi-comments text-primary text-lg sm:text-xl shrink-0"></i>
+              <span class="font-bold text-sm sm:text-base text-surface-900 dark:text-surface-0 truncate">Comments</span>
             </div>
-            <span class="text-sm text-muted-color font-semibold">{{ teacherNotes().length }} comments</span>
+            <span class="text-xs sm:text-sm text-muted-color font-semibold shrink-0">{{ teacherNotes().length }} comments</span>
           </div>
 
           <!-- Comments List Scroll Box -->
-          <div class="flex flex-col gap-3 max-h-[480px] overflow-y-auto pr-1">
+          <div class="flex flex-col gap-3 max-h-[350px] sm:max-h-[480px] overflow-y-auto pr-1 min-w-0 w-full">
             <div
               *ngFor="let note of teacherNotes()"
-              class="p-4 rounded-xl border flex flex-col gap-2.5 transition-all"
+              class="p-3 sm:p-4 rounded-xl border flex flex-col gap-2 sm:gap-2.5 transition-all min-w-0 w-full overflow-hidden"
               [ngClass]="note.isArchived ? 'bg-surface-100/50 dark:bg-surface-900/50 border-surface-200 dark:border-surface-700 opacity-60' : 'bg-surface-50 dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary cursor-pointer'"
               (click)="focusNoteText(note.selectedText)">
 
-              <div class="flex items-center justify-between gap-2">
-                <div class="flex items-center gap-2 flex-wrap">
-                  <span class="text-xs font-bold uppercase tracking-wider px-2.5 py-1 rounded"
+              <div class="flex items-center justify-between gap-2 flex-wrap sm:flex-nowrap min-w-0 w-full">
+                <div class="flex items-center gap-1.5 sm:gap-2 flex-wrap min-w-0">
+                  <span class="text-[10px] sm:text-xs font-bold uppercase tracking-wider px-2 py-0.5 sm:py-1 rounded shrink-0"
                         [ngClass]="{
                           'bg-amber-100 text-amber-800': note.category === 'Grammar',
                           'bg-blue-100 text-blue-800': note.category === 'Vocabulary',
@@ -318,38 +323,38 @@
                     {{ note.category }}
                   </span>
 
-                  <span *ngIf="note.isArchived" class="text-xs font-bold bg-emerald-100 text-emerald-800 px-2 py-0.5 rounded">
+                  <span *ngIf="note.isArchived" class="text-[10px] sm:text-xs font-bold bg-emerald-100 text-emerald-800 px-1.5 py-0.5 rounded shrink-0">
                     RESOLVED
                   </span>
                 </div>
 
-                <div class="flex items-center gap-2">
-                  <span class="text-xs text-muted-color font-medium">{{ note.author }} • {{ note.timestamp | date:'shortTime' }}</span>
+                <div class="flex items-center gap-1.5 sm:gap-2 shrink-0 ml-auto sm:ml-0">
+                  <span class="text-[10px] sm:text-xs text-muted-color font-medium">{{ note.author }} • {{ note.timestamp | date:'shortTime' }}</span>
                   <button
                     *ngIf="isAdmin() && !note.isArchived"
                     type="button"
-                    class="px-3 py-1 rounded-full text-xs font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-700 shadow-sm flex items-center gap-1.5 transition-all cursor-pointer"
+                    class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold bg-emerald-100 text-emerald-800 hover:bg-emerald-200 border border-emerald-300 dark:bg-emerald-950/80 dark:text-emerald-300 dark:border-emerald-700 shadow-sm flex items-center gap-1 transition-all cursor-pointer"
                     (click)="$event.stopPropagation(); archiveNote(note.noteId)"
                     pTooltip="Mark comment as resolved"
                     tooltipPosition="top"
                     appendTo="body">
-                    <i class="pi pi-check text-xs font-extrabold"></i> Resolve
+                    <i class="pi pi-check text-[10px] sm:text-xs font-extrabold"></i> Resolve
                   </button>
                 </div>
               </div>
 
-              <div class="text-sm font-semibold italic text-surface-800 dark:text-surface-200 bg-surface-200/50 dark:bg-surface-800 p-3 rounded-lg border-l-4 border-primary leading-relaxed"
+              <div class="text-xs sm:text-sm font-semibold italic text-surface-800 dark:text-surface-200 bg-surface-200/50 dark:bg-surface-800 p-2.5 sm:p-3 rounded-lg border-l-4 border-primary leading-relaxed break-words overflow-hidden"
                    [ngClass]="{ 'line-through': note.isArchived }">
                 "{{ note.selectedText }}"
               </div>
 
-              <div class="text-sm text-surface-900 dark:text-surface-0 leading-relaxed font-medium">
+              <div class="text-xs sm:text-sm text-surface-900 dark:text-surface-0 leading-relaxed font-medium break-words overflow-hidden">
                 {{ note.noteContent }}
               </div>
             </div>
 
-            <div *ngIf="teacherNotes().length === 0" class="text-center text-muted-color text-sm py-8">
-              <i class="pi pi-comments text-4xl block mb-2 opacity-40"></i>
+            <div *ngIf="teacherNotes().length === 0" class="text-center text-muted-color text-xs sm:text-sm py-6 sm:py-8">
+              <i class="pi pi-comments text-3xl sm:text-4xl block mb-2 opacity-40"></i>
               No comments attached yet. Highlight text in Teacher Corrections and click "Attach Comment".
             </div>
           </div>
@@ -369,42 +374,44 @@
   [(visible)]="showNoteModal"
   [modal]="true"
   [style]="{ width: '620px', maxWidth: '95vw' }"
-  [contentStyle]="{ 'overflow': 'visible', 'min-height': '400px' }"
+  [contentStyle]="{ 'overflow': 'visible', 'min-height': '320px' }"
   styleClass="rounded-2xl">
 
-  <div class="flex flex-col gap-5 pt-3">
-    <div class="text-sm font-semibold text-muted-color">
+  <div class="flex flex-col gap-4 sm:gap-5 pt-2 sm:pt-3">
+    <div class="text-xs sm:text-sm font-semibold text-muted-color">
       Referenced Text Passage:
-      <div class="p-4 rounded-xl bg-surface-100 dark:bg-surface-800 font-semibold italic text-base text-surface-900 dark:text-surface-0 mt-1.5 border-l-4 border-primary max-h-40 overflow-y-auto leading-relaxed">
+      <div class="p-3 sm:p-4 rounded-xl bg-surface-100 dark:bg-surface-800 font-semibold italic text-sm sm:text-base text-surface-900 dark:text-surface-0 mt-1.5 border-l-4 border-primary max-h-36 overflow-y-auto leading-relaxed break-words">
         "{{ selectedTextSnippet() }}"
       </div>
     </div>
 
     <div>
-      <label class="block text-sm font-bold text-surface-900 dark:text-surface-0 mb-2">Your Comment / Question</label>
+      <label class="block text-xs sm:text-sm font-bold text-surface-900 dark:text-surface-0 mb-1.5 sm:mb-2">Your Comment / Question</label>
       <textarea
         pTextarea
         [ngModel]="newNoteText()"
         (ngModelChange)="newNoteText.set($event)"
-        rows="5"
+        rows="4"
         placeholder="Type your comment or question about this passage..."
-        class="w-full text-sm p-4 rounded-xl leading-relaxed font-normal">
+        class="w-full text-xs sm:text-sm p-3 sm:p-4 rounded-xl leading-relaxed font-normal">
       </textarea>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <div class="flex items-center justify-end gap-3 pt-2">
+    <div class="flex items-center justify-end gap-2 sm:gap-3 pt-2">
       <p-button
         label="Cancel"
         severity="secondary"
+        styleClass="text-xs sm:text-sm px-3 py-1.5"
         (onClick)="showNoteModal.set(false)" />
 
       <p-button
         label="Attach Comment"
         icon="pi pi-check"
+        styleClass="text-xs sm:text-sm px-3 py-1.5"
         [disabled]="!newNoteText().trim()"
         (onClick)="addTeacherNote()" />
     </div>
   </ng-template>
-
+</p-dialog>
