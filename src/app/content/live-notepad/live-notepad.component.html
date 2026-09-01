@@ -182,7 +182,6 @@
     <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl shadow-sm overflow-hidden flex flex-col p-4 sm:p-6 min-h-[500px]">
       <quill-editor
         #quillEditor
-        [ngModel]="noteContent()"
         (onEditorCreated)="onEditorCreated($event)"
         (onContentChanged)="onContentChange($event)"
         (onSelectionChanged)="onSelectionChanged($event)"

@@ -54,7 +54,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     currentView = signal<'grid' | 'editor'>('grid');
     notes = signal<LiveNoteSummaryDto[]>([]);
     selectedNote = signal<LiveNoteDetailDto | null>(null);
-    noteContent = signal<string>('');
     searchQuery = signal<string>('');
 
     // State
@@ -85,7 +84,7 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     private autoSaveTimeout: any = null;
 
     constructor() {
-        // SignalR Remote Content Sync Effect (Real-time Quill Delta / Content Apply)
+        // SignalR Remote Content Sync Effect (Real-time Quill Delta Apply)
         effect(() => {
             const change = this.collaborationService.contentChange();
             if (!change) return;
@@ -93,22 +92,29 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             const note = this.selectedNote();
             if (!note || change.noteId !== note.id) return;
 
-            if (change.senderUsername !== this.currentUser().username) {
-                if (change.deltaJson && this.quillInstance) {
+            if (change.senderUsername !== this.currentUser().username && this.quillInstance) {
+                if (change.deltaJson) {
                     try {
                         const delta = JSON.parse(change.deltaJson);
                         this.quillInstance.updateContents(delta, 'api');
-                        this.noteContent.set(this.quillInstance.root.innerHTML);
                     } catch (e) {
-                        this.fallbackRemoteContentUpdate(change.content);
+                        if (this.quillInstance.root.innerHTML !== change.content) {
+                            const sel = this.quillInstance.getSelection();
+                            this.quillInstance.root.innerHTML = change.content;
+                            if (sel) this.quillInstance.setSelection(sel.index, sel.length);
+                        }
                     }
                 } else {
-                    this.fallbackRemoteContentUpdate(change.content);
+                    if (this.quillInstance.root.innerHTML !== change.content) {
+                        const sel = this.quillInstance.getSelection();
+                        this.quillInstance.root.innerHTML = change.content;
+                        if (sel) this.quillInstance.setSelection(sel.index, sel.length);
+                    }
                 }
             }
         });
 
-        // SignalR Remote Selection Sync Effect (Visual toolbar indicator only)
+        // SignalR Remote Selection Sync Effect
         effect(() => {
             const sel = this.collaborationService.selectionChange();
             if (!sel) return;
@@ -172,16 +178,9 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
 
     onEditorCreated(editor: any): void {
         this.quillInstance = editor;
-    }
-
-    private fallbackRemoteContentUpdate(newContent: string): void {
-        this.noteContent.set(newContent);
-        if (this.quillInstance && this.quillInstance.root.innerHTML !== newContent) {
-            const sel = this.quillInstance.getSelection();
-            this.quillInstance.root.innerHTML = newContent;
-            if (sel) {
-                this.quillInstance.setSelection(sel.index, sel.length);
-            }
+        const note = this.selectedNote();
+        if (note && note.content && this.quillInstance) {
+            this.quillInstance.root.innerHTML = note.content;
         }
     }
 
@@ -270,9 +269,12 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         this.noteService.getNoteById(noteId).subscribe({
             next: (note) => {
                 this.selectedNote.set(note);
-                this.noteContent.set(note.content || '');
                 this.currentView.set('editor');
                 this.loading.set(false);
+
+                if (this.quillInstance) {
+                    this.quillInstance.root.innerHTML = note.content || '';
+                }
 
                 const avatarToUse = this.currentUserAvatarUrl() ||
                     (note.studentUsername === this.currentUser().username ? note.studentAvatarUrl : undefined);
@@ -300,25 +302,23 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         this.collaborationService.stopConnection();
         this.currentView.set('grid');
         this.selectedNote.set(null);
-        this.noteContent.set('');
         this.quillInstance = null;
         this.loadNotes();
     }
 
     onContentChange(event: any): void {
         // Only process user-initiated keystrokes / edits
-        if (event && event.source && event.source !== 'user') return;
+        if (!event || (event.source && event.source !== 'user')) return;
 
-        const newContent = typeof event === 'string' ? event : (event.html || '');
-        this.noteContent.set(newContent);
         const note = this.selectedNote();
         if (!note) return;
 
+        const newHtml = this.quillInstance ? this.quillInstance.root.innerHTML : (event.html || '');
         const deltaJson = event.delta ? JSON.stringify(event.delta) : undefined;
 
         this.collaborationService.sendContentChange(
             note.id,
-            newContent,
+            newHtml,
             this.currentUser().username,
             deltaJson
         );
@@ -350,7 +350,7 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         if (!note) return;
 
         this.saving.set(true);
-        const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : this.noteContent();
+        const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : '';
 
         this.noteService.saveNote(note.id, {
             title: note.title,
@@ -373,7 +373,7 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         const note = this.selectedNote();
         if (!note) return;
 
-        const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : this.noteContent();
+        const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : '';
 
         this.noteService.saveNote(note.id, {
             title: note.title,
