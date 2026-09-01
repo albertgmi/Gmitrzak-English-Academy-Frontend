@@ -1,0 +1,45 @@
+:host {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+quill-editor.sentence-quill-editor {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+
+    ::ng-deep .ql-toolbar {
+        border-top-left-radius: 0.75rem;
+        border-top-right-radius: 0.75rem;
+        border-color: var(--surface-border);
+        background-color: var(--surface-card);
+        display: flex;
+        flex-wrap: wrap;
+        padding: 6px;
+    }
+
+    ::ng-deep .ql-container {
+        border-bottom-left-radius: 0.75rem;
+        border-bottom-right-radius: 0.75rem;
+        border-color: var(--surface-border);
+        height: 180px !important;
+        font-family: inherit;
+        font-size: 1rem;
+        background-color: var(--surface-card);
+        color: var(--text-color);
+        overflow-y: auto;
+
+        @media (max-width: 640px) {
+            height: 140px !important;
+            font-size: 0.875rem;
+        }
+    }
+
+    ::ng-deep .ql-editor {
+        min-height: 100%;
+        word-break: break-word;
+        overflow-wrap: break-word;
+    }
+}

@@ -222,4 +222,95 @@ export class SentenceService {
             dueDate
         });
     }
+
+    getLiveRoomModules(studentId?: number) {
+        const url = studentId 
+            ? `${this.answersApiUrl}/live-room/modules?studentId=${studentId}`
+            : `${this.answersApiUrl}/live-room/modules`;
+        return this.http.get<SentenceModuleLiveDto[]>(url);
+    }
+
+    getLiveRoomModuleAnswers(moduleId: number, studentId?: number) {
+        const url = studentId
+            ? `${this.answersApiUrl}/live-room/module/${moduleId}?studentId=${studentId}`
+            : `${this.answersApiUrl}/live-room/module/${moduleId}`;
+        return this.http.get<SentenceAnswerLiveDto[]>(url);
+    }
+
+    getLiveRoomSentenceDetail(answerId: number) {
+        return this.http.get<SentenceAnswerLiveDto>(`${this.answersApiUrl}/live-room/sentence/${answerId}`);
+    }
+
+    saveSentenceReview(answerId: number, request: SaveSentenceReviewRequest) {
+        return this.http.put<SentenceAnswerLiveDto>(`${this.answersApiUrl}/live-room/sentence/${answerId}/review`, request);
+    }
+
+    getSentenceComments(answerId: number) {
+        return this.http.get<SentenceAnswerCommentDto[]>(`${this.answersApiUrl}/live-room/sentence/${answerId}/comments`);
+    }
+
+    addSentenceComment(answerId: number, request: CreateSentenceAnswerCommentRequest) {
+        return this.http.post<SentenceAnswerCommentDto>(`${this.answersApiUrl}/live-room/sentence/${answerId}/comments`, request);
+    }
+
+    archiveSentenceComment(commentId: number) {
+        return this.http.put(`${this.answersApiUrl}/live-room/comments/${commentId}/archive`, {});
+    }
+}
+
+export interface SentenceModuleLiveDto {
+    moduleId: number;
+    moduleName: string;
+    studentId: number;
+    studentUsername: string;
+    studentAvatarUrl?: string;
+    totalSentences: number;
+    answeredSentences: number;
+    correctCount: number;
+    partialCount: number;
+    incorrectCount: number;
+    isReviewed: boolean;
+    lastAnswerDate?: string;
+}
+
+export interface SentenceAnswerLiveDto {
+    id: number;
+    moduleId: number;
+    moduleName: string;
+    sentenceStockId: number;
+    polish: string;
+    expectedTranslation: string;
+    userAnswer: string;
+    adminCorrection?: string;
+    aiResult: string;
+    aiExplanation: string;
+    teacherOverride?: string;
+    teacherExplanation?: string;
+    teacherReviewed: boolean;
+    studentUsername: string;
+    studentAvatarUrl?: string;
+}
+
+export interface SaveSentenceReviewRequest {
+    adminCorrection?: string;
+    teacherOverride?: string;
+    teacherExplanation?: string;
+}
+
+export interface SentenceAnswerCommentDto {
+    id: number;
+    noteId: string;
+    userSentenceAnswerId: number;
+    selectedText: string;
+    noteContent: string;
+    category: string;
+    author: string;
+    timestamp: string;
+    isArchived: boolean;
+}
+
+export interface CreateSentenceAnswerCommentRequest {
+    selectedText: string;
+    noteContent: string;
+    category: string;
 }

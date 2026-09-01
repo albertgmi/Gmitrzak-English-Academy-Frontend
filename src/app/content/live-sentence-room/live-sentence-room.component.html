@@ -1,0 +1,331 @@
+<p-toast></p-toast>
+
+<div class="live-sentence-container p-4">
+    <!-- VIEW 1: MODULE SELECTION -->
+    <div *ngIf="currentView() === 'modules'">
+        <div class="flex flex-column md:flex-row md:align-items-center md:justify-content-between mb-4 gap-3">
+            <div>
+                <h1 class="text-3xl font-bold text-900 m-0 flex align-items-center gap-2">
+                    <i class="pi pi-comments text-primary text-3xl"></i>
+                    Live Sentence Room
+                </h1>
+                <p class="text-600 m-0 mt-1">Real-time collaborative sentence checking and teacher feedback room</p>
+            </div>
+
+            <!-- Filters -->
+            <div class="flex flex-wrap gap-2 align-items-center">
+                <p-select 
+                    *ngIf="isAdmin()" 
+                    [options]="studentFilterOptions()" 
+                    [ngModel]="selectedStudentFilter()"
+                    (ngModelChange)="selectedStudentFilter.set($event)"
+                    optionLabel="label" 
+                    optionValue="value" 
+                    placeholder="Filter by Student" 
+                    class="w-12rem">
+                </p-select>
+
+                <p-iconfield iconPosition="left">
+                    <p-inputicon styleClass="pi pi-search"></p-inputicon>
+                    <input 
+                        pInputText 
+                        type="text" 
+                        [ngModel]="searchQuery()"
+                        (ngModelChange)="searchQuery.set($event)"
+                        placeholder="Search modules..." 
+                        class="w-15rem" />
+                </p-iconfield>
+            </div>
+        </div>
+
+        <div *ngIf="loading()" class="text-center py-6">
+            <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+            <p class="text-600">Loading sentence modules...</p>
+        </div>
+
+        <div *ngIf="!loading() && filteredModules().length === 0" class="surface-card p-5 border-round shadow-1 text-center">
+            <i class="pi pi-inbox text-5xl text-400 mb-3"></i>
+            <h3 class="text-xl font-semibold text-700">No Sentence Modules Found</h3>
+            <p class="text-500">There are no sentence modules available for collaboration at this time.</p>
+        </div>
+
+        <!-- Modules Grid -->
+        <div *ngIf="!loading() && filteredModules().length > 0" class="grid">
+            <div *ngFor="let mod of filteredModules()" class="col-12 md:col-6 lg:col-4">
+                <div class="surface-card border-round shadow-1 p-4 h-full flex flex-column justify-content-between hover:shadow-3 transition-duration-200">
+                    <div>
+                        <div class="flex align-items-center justify-content-between mb-3">
+                            <span class="font-bold text-xl text-900">{{ mod.moduleName }}</span>
+                            <p-tag [severity]="mod.isReviewed ? 'success' : 'warn'" [value]="mod.isReviewed ? 'Reviewed' : 'Pending'"></p-tag>
+                        </div>
+
+                        <div class="flex align-items-center gap-2 mb-3 surface-100 p-2 border-round">
+                            <app-avatar [avatarUrl]="mod.studentAvatarUrl" [username]="mod.studentUsername" size="sm"></app-avatar>
+                            <span class="font-medium text-700">{{ mod.studentUsername }}</span>
+                        </div>
+
+                        <div class="flex flex-column gap-2 text-sm text-600 mb-4">
+                            <div class="flex justify-content-between">
+                                <span>Sentences Answered:</span>
+                                <span class="font-bold text-900">{{ mod.answeredSentences }} / {{ mod.totalSentences }}</span>
+                            </div>
+                            <div class="flex gap-2 mt-1">
+                                <p-tag severity="success" [value]="mod.correctCount + ' Correct'"></p-tag>
+                                <p-tag severity="warn" [value]="mod.partialCount + ' Partial'"></p-tag>
+                                <p-tag severity="danger" [value]="mod.incorrectCount + ' Incorrect'"></p-tag>
+                            </div>
+                        </div>
+                    </div>
+
+                    <button 
+                        pButton 
+                        icon="pi pi-arrow-right" 
+                        label="Open Sentences" 
+                        class="p-button-outlined w-full"
+                        (click)="selectModule(mod)">
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- VIEW 2: SENTENCE LIST IN MODULE -->
+    <div *ngIf="currentView() === 'sentences'">
+        <div class="flex align-items-center gap-3 mb-4">
+            <button pButton icon="pi pi-arrow-left" label="Back to Modules" class="p-button-text" (click)="backToModules()"></button>
+            <div>
+                <h2 class="text-2xl font-bold text-900 m-0">{{ selectedModule()?.moduleName }}</h2>
+                <p class="text-600 m-0">Student: <strong>{{ selectedModule()?.studentUsername }}</strong></p>
+            </div>
+        </div>
+
+        <div *ngIf="loading()" class="text-center py-6">
+            <i class="pi pi-spin pi-spinner text-4xl text-primary mb-3"></i>
+            <p class="text-600">Loading sentences in module...</p>
+        </div>
+
+        <div *ngIf="!loading()" class="surface-card border-round shadow-1 p-4">
+            <p-table [value]="sentencesInModule()" [paginator]="true" [rows]="10" responsiveLayout="scroll">
+                <ng-template pTemplate="header">
+                    <tr>
+                        <th style="width: 5%">#</th>
+                        <th style="width: 25%">Polish Original</th>
+                        <th style="width: 25%">Student English Answer</th>
+                        <th style="width: 15%">AI Score</th>
+                        <th style="width: 15%">Status</th>
+                        <th style="width: 15%">Action</th>
+                    </tr>
+                </ng-template>
+                <ng-template pTemplate="body" let-item let-i="rowIndex">
+                    <tr>
+                        <td>{{ i + 1 }}</td>
+                        <td class="font-medium">{{ item.polish }}</td>
+                        <td>
+                            <div class="text-900">{{ item.userAnswer }}</div>
+                            <small class="text-500 block italic">Expected: {{ item.expectedTranslation }}</small>
+                        </td>
+                        <td>
+                            <p-tag 
+                                [severity]="resultSeverity(item.teacherOverride || item.aiResult)" 
+                                [value]="item.teacherOverride || item.aiResult"
+                                [pTooltip]="item.aiExplanation">
+                            </p-tag>
+                        </td>
+                        <td>
+                            <p-tag [severity]="item.teacherReviewed ? 'success' : 'warn'" [value]="item.teacherReviewed ? 'Reviewed' : 'Pending'"></p-tag>
+                        </td>
+                        <td>
+                            <button 
+                                pButton 
+                                icon="pi pi-comments" 
+                                label="Live Room" 
+                                class="p-button-sm p-button-primary"
+                                (click)="enterLiveRoom(item)">
+                            </button>
+                        </td>
+                    </tr>
+                </ng-template>
+            </p-table>
+        </div>
+    </div>
+
+    <!-- VIEW 3: LIVE ROOM COLLABORATION -->
+    <div *ngIf="currentView() === 'live' && selectedAnswer()">
+        <!-- Header & Collaborators Bar -->
+        <div class="surface-card border-round shadow-1 p-3 mb-4 flex flex-column md:flex-row align-items-center justify-content-between gap-3">
+            <div class="flex align-items-center gap-3">
+                <button pButton icon="pi pi-arrow-left" label="Back" class="p-button-text p-button-sm" (click)="backToSentenceList()"></button>
+                <div>
+                    <h3 class="text-xl font-bold text-900 m-0">{{ selectedAnswer()?.moduleName }}</h3>
+                    <span class="text-500 text-sm">Sentence Live Room</span>
+                </div>
+            </div>
+
+            <!-- Active Collaborators List -->
+            <div class="flex align-items-center gap-3">
+                <div class="flex align-items-center gap-2">
+                    <span class="w-2rem h-2rem border-circle flex align-items-center justify-content-center"
+                          [ngClass]="{'bg-green-500': connectionState() === 'connected', 'bg-yellow-500': connectionState() === 'connecting', 'bg-red-500': connectionState() === 'disconnected'}">
+                        <i class="pi pi-wifi text-white text-xs"></i>
+                    </span>
+                    <span class="text-xs font-bold uppercase text-600">{{ connectionState() }}</span>
+                </div>
+
+                <div class="flex align-items-center gap-2 surface-100 px-3 py-1 border-round">
+                    <span class="text-xs font-semibold text-600">Active Now:</span>
+                    <div class="flex gap-1">
+                        <div *ngFor="let user of activeUsers()" class="relative">
+                            <app-avatar [avatarUrl]="user.avatarUrl" [username]="user.username" size="sm" [pTooltip]="user.username + ' (' + user.role + ')'"></app-avatar>
+                        </div>
+                    </div>
+                </div>
+
+                <button pButton icon="pi pi-save" label="Save Review" class="p-button-success" [loading]="saving()" (click)="saveSentenceReview()"></button>
+            </div>
+        </div>
+
+        <!-- Typing Indicator -->
+        <div *ngIf="isRemoteTyping()" class="bg-blue-50 text-blue-700 p-2 border-round mb-3 flex align-items-center gap-2 text-sm border-1 border-blue-200">
+            <i class="pi pi-spin pi-spinner"></i>
+            <span><strong>{{ remoteTypingUser() }}</strong> is typing...</span>
+        </div>
+
+        <!-- Context Card: Polish Original & Expected English -->
+        <div class="surface-card border-round shadow-1 p-4 mb-4 border-left-4 border-primary">
+            <div class="grid">
+                <div class="col-12 md:col-6">
+                    <span class="text-xs font-bold text-500 uppercase block mb-1">Polish Sentence Original</span>
+                    <div class="text-lg font-bold text-900">{{ selectedAnswer()?.polish }}</div>
+                </div>
+                <div class="col-12 md:col-6">
+                    <span class="text-xs font-bold text-500 uppercase block mb-1">Expected English Translation</span>
+                    <div class="text-lg font-semibold text-700">{{ selectedAnswer()?.expectedTranslation }}</div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Main Live Workspace Grid -->
+        <div class="grid">
+            <!-- LEFT COLUMN: Student Original & AI Explanation -->
+            <div class="col-12 lg:col-6">
+                <div class="surface-card border-round shadow-1 p-4 h-full flex flex-column">
+                    <div class="flex align-items-center justify-content-between mb-3">
+                        <span class="font-bold text-lg text-900 flex align-items-center gap-2">
+                            <i class="pi pi-user text-primary"></i> Student Translation
+                        </span>
+                        <p-tag [severity]="resultSeverity(selectedAnswer()?.aiResult || '')" [value]="'AI Result: ' + selectedAnswer()?.aiResult"></p-tag>
+                    </div>
+
+                    <!-- Student Answer Editor -->
+                    <div class="flex-grow-1 mb-3">
+                        <quill-editor 
+                            #userEditor
+                            [ngModel]="userContent()"
+                            (ngModelChange)="onUserContentChange($event)"
+                            [modules]="quillReadOnlyModules"
+                            [readOnly]="true"
+                            placeholder="Student answer..."
+                            styleClass="sentence-quill-editor">
+                        </quill-editor>
+                    </div>
+
+                    <!-- AI Explanation Box -->
+                    <div class="bg-amber-50 border-1 border-amber-200 border-round p-3">
+                        <span class="font-bold text-amber-900 text-sm block mb-1">
+                            <i class="pi pi-microchip text-amber-700 mr-1"></i> AI Feedback & Explanation
+                        </span>
+                        <p class="text-amber-800 text-sm m-0">{{ selectedAnswer()?.aiExplanation }}</p>
+                    </div>
+                </div>
+            </div>
+
+            <!-- RIGHT COLUMN: Teacher Corrections & Live Annotations -->
+            <div class="col-12 lg:col-6">
+                <div class="surface-card border-round shadow-1 p-4 h-full flex flex-column">
+                    <div class="flex align-items-center justify-content-between mb-3">
+                        <span class="font-bold text-lg text-900 flex align-items-center gap-2">
+                            <i class="pi pi-file-edit text-green-600"></i> Teacher Corrections & Notes
+                        </span>
+
+                        <!-- Teacher Score Override Buttons -->
+                        <div class="flex gap-1" *ngIf="isAdmin()">
+                            <button pButton label="Correct" class="p-button-xs" [ngClass]="{'p-button-success': selectedOverride() === 'Correct', 'p-button-outlined': selectedOverride() !== 'Correct'}" (click)="setOverride('Correct')"></button>
+                            <button pButton label="Partial" class="p-button-xs" [ngClass]="{'p-button-warning': selectedOverride() === 'Partial', 'p-button-outlined': selectedOverride() !== 'Partial'}" (click)="setOverride('Partial')"></button>
+                            <button pButton label="Incorrect" class="p-button-xs" [ngClass]="{'p-button-danger': selectedOverride() === 'Incorrect', 'p-button-outlined': selectedOverride() !== 'Incorrect'}" (click)="setOverride('Incorrect')"></button>
+                        </div>
+                    </div>
+
+                    <!-- Toolbar for Highlighting & Annotations -->
+                    <div *ngIf="isAdmin()" class="flex flex-wrap gap-2 mb-3 surface-100 p-2 border-round align-items-center">
+                        <span class="text-xs font-bold text-600 mr-1">Quick Highlight:</span>
+                        <button pButton icon="pi pi-bookmark" class="p-button-sm p-button-success p-button-rounded" pTooltip="Great Phrase (Green)" (click)="applyHighlight('#D1FAE5', '#065F46')"></button>
+                        <button pButton icon="pi pi-exclamation-triangle" class="p-button-sm p-button-warning p-button-rounded" pTooltip="Minor Issue (Yellow)" (click)="applyHighlight('#FEF3C7', '#92400E')"></button>
+                        <button pButton icon="pi pi-times-circle" class="p-button-sm p-button-danger p-button-rounded" pTooltip="Grammar Error (Red)" (click)="applyHighlight('#FEE2E2', '#991B1B')"></button>
+                        <button pButton icon="pi pi-info-circle" class="p-button-sm p-button-info p-button-rounded" pTooltip="Suggestion (Blue)" (click)="applyHighlight('#DBEAFE', '#1E40AF')"></button>
+                        
+                        <div class="border-left-1 border-300 h-2rem mx-1"></div>
+
+                        <button pButton icon="pi pi-comment" label="Add Note" class="p-button-sm p-button-secondary" (click)="openNoteModal()"></button>
+                    </div>
+
+                    <!-- Teacher Corrections Quill Editor -->
+                    <div class="flex-grow-1 mb-3">
+                        <quill-editor 
+                            #adminEditor
+                            [ngModel]="adminContent()"
+                            (ngModelChange)="onAdminContentChange($event)"
+                            (onSelectionChanged)="onSelectionChanged($event)"
+                            [modules]="quillModules"
+                            [readOnly]="!isAdmin()"
+                            placeholder="Teacher correction..."
+                            styleClass="sentence-quill-editor">
+                        </quill-editor>
+                    </div>
+
+                    <!-- Teacher Notes List -->
+                    <div class="teacher-notes-section mt-2">
+                        <h4 class="text-md font-bold text-800 mb-2">Attached Notes ({{ teacherNotes().length }})</h4>
+                        <div *ngIf="teacherNotes().length === 0" class="text-500 text-sm italic">No teacher notes added yet. Select text in corrections and click 'Add Note'.</div>
+                        <div class="flex flex-column gap-2 max-h-15rem overflow-y-auto">
+                            <div *ngFor="let note of teacherNotes()" class="surface-100 border-round p-2 border-left-4"
+                                 [ngClass]="{'border-amber-500': note.category === 'Grammar', 'border-blue-500': note.category === 'Vocabulary', 'border-purple-500': note.category === 'Structure', 'border-gray-500': note.category === 'General'}">
+                                <div class="flex align-items-center justify-content-between mb-1">
+                                    <span class="font-bold text-xs uppercase" [ngClass]="{'text-amber-700': note.category === 'Grammar', 'text-blue-700': note.category === 'Vocabulary', 'text-purple-700': note.category === 'Structure'}">{{ note.category }}</span>
+                                    <button *ngIf="isAdmin()" pButton icon="pi pi-check" class="p-button-text p-button-xs p-button-success" pTooltip="Mark Resolved" (click)="archiveNote(note.noteId)"></button>
+                                </div>
+                                <div class="text-xs text-500 italic mb-1">"{{ note.selectedText }}"</div>
+                                <div class="text-sm text-900 font-medium">{{ note.noteContent }}</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal: Add Teacher Note -->
+<p-dialog header="Attach Teacher Note" [(visible)]="showNoteModal" [modal]="true" [style]="{ width: '400px' }">
+    <div class="flex flex-column gap-3 py-2">
+        <div>
+            <label class="font-semibold text-xs text-600 block mb-1">Selected Text</label>
+            <div class="p-2 bg-amber-50 border-1 border-amber-200 border-round text-amber-900 font-bold text-sm">
+                "{{ selectedTextSnippet() }}"
+            </div>
+        </div>
+
+        <div>
+            <label class="font-semibold text-xs text-600 block mb-1">Category</label>
+            <p-select [options]="categoryOptions" [(ngModel)]="newNoteCategory" optionLabel="label" optionValue="value" class="w-full"></p-select>
+        </div>
+
+        <div>
+            <label class="font-semibold text-xs text-600 block mb-1">Note / Feedback</label>
+            <textarea pTextarea [(ngModel)]="newNoteText" rows="3" class="w-full" placeholder="Enter feedback for student..."></textarea>
+        </div>
+    </div>
+    <ng-template pTemplate="footer">
+        <button pButton label="Cancel" class="p-button-text" (click)="showNoteModal.set(false)"></button>
+        <button pButton label="Attach Note" icon="pi pi-check" class="p-button-primary" (click)="addTeacherNote()"></button>
+    </ng-template>
+</p-dialog>

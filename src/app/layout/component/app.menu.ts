@@ -121,7 +121,8 @@ export class AppMenu implements OnInit {
               { label: 'Compose Set', icon: 'pi pi-pencil', routerLink: ['/system/sets/compose'] },
               { label: 'Active Students Reports', icon: 'pi pi-chart-bar', routerLink: ['/system/active-students-reports'] },
               { label: 'Check Essays',    icon: 'pi pi-file-edit',    routerLink: ['/lesson/check-essays'] },
-              { label: 'Live Essay Room', icon: 'pi pi-comments', routerLink: ['/live-essay-room'] }
+              { label: 'Live Essay Room', icon: 'pi pi-comments', routerLink: ['/live-essay-room'] },
+              { label: 'Live Sentence Room', icon: 'pi pi-comments', routerLink: ['/live-sentence-room'] }
             ]
           },
           {
@@ -171,6 +172,7 @@ export class AppMenu implements OnInit {
           { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] },
           { label: 'My Essays', icon: 'pi pi-file-edit', routerLink: ['/my-essays'] },
           { label: 'Live Essay Room', icon: 'pi pi-comments', routerLink: ['/live-essay-room'] },
+          { label: 'Live Sentence Room', icon: 'pi pi-comments', routerLink: ['/live-sentence-room'] },
           { label: 'Movie Theater', icon: 'pi pi-video', routerLink: ['/weekly-movies'] }
         ]
       },
