@@ -44,7 +44,7 @@ export interface SaveLiveNoteRequest {
 })
 export class LiveNotepadService {
     private http = inject(HttpClient);
-    private apiUrl = `${environment.apiUrl}/live-notepad`;
+    private apiUrl = `${environment.apiUrl}/api/live-notepad`;
 
     getNotes(studentId?: number): Observable<LiveNoteSummaryDto[]> {
         let url = `${this.apiUrl}/notes`;
