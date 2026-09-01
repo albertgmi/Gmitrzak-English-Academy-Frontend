@@ -14,6 +14,7 @@ export interface LiveNoteCollaborativeUser {
 export interface LiveNoteContentChangeEvent {
     noteId: number;
     content: string;
+    deltaJson?: string;
     senderUsername: string;
     timestamp: string;
 }
@@ -49,7 +50,12 @@ export class LiveNotepadCollaborationService {
         const token = this.authService.getToken();
         if (!token) return;
 
-        const hubUrl = `${environment.apiUrl.replace('/api', '')}/hubs/live-notepad`;
+        if (this.hubConnection) {
+            this.stopConnection();
+        }
+
+        const baseUrl = environment.apiUrl.replace(/\/api\/?$/, '').replace(/\/$/, '');
+        const hubUrl = `${baseUrl}/hubs/live-notepad`;
 
         this.hubConnection = new signalR.HubConnectionBuilder()
             .withUrl(hubUrl, {
@@ -109,9 +115,9 @@ export class LiveNotepadCollaborationService {
         }
     }
 
-    sendContentChange(noteId: number, content: string, senderUsername: string): void {
+    sendContentChange(noteId: number, content: string, senderUsername: string, deltaJson?: string): void {
         if (this.hubConnection && this.isConnected()) {
-            this.hubConnection.invoke('SendContentChange', noteId, content, senderUsername);
+            this.hubConnection.invoke('SendContentChange', noteId, content, senderUsername, deltaJson || null);
         }
     }
 

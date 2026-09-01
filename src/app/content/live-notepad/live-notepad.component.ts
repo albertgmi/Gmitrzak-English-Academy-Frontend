@@ -80,12 +80,12 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
 
     isAdmin = computed(() => this.currentUser().role === 'Admin');
 
+    private quillInstance: any = null;
     private typingTimeout: any = null;
     private autoSaveTimeout: any = null;
-    private isRemoteUpdating = false;
 
     constructor() {
-        // SignalR Remote Content Sync Effect
+        // SignalR Remote Content Sync Effect (Real-time Quill Delta / Content Apply)
         effect(() => {
             const change = this.collaborationService.contentChange();
             if (!change) return;
@@ -94,24 +94,21 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             if (!note || change.noteId !== note.id) return;
 
             if (change.senderUsername !== this.currentUser().username) {
-                this.isRemoteUpdating = true;
-                this.noteContent.set(change.content);
-
-                setTimeout(() => {
-                    if (this.editorComponent && this.editorComponent.quillEditor) {
-                        const editor = this.editorComponent.quillEditor;
-                        const currSel = editor.getSelection();
-                        editor.root.innerHTML = change.content;
-                        if (currSel) {
-                            editor.setSelection(currSel.index, currSel.length);
-                        }
+                if (change.deltaJson && this.quillInstance) {
+                    try {
+                        const delta = JSON.parse(change.deltaJson);
+                        this.quillInstance.updateContents(delta, 'api');
+                        this.noteContent.set(this.quillInstance.root.innerHTML);
+                    } catch (e) {
+                        this.fallbackRemoteContentUpdate(change.content);
                     }
-                    this.isRemoteUpdating = false;
-                }, 0);
+                } else {
+                    this.fallbackRemoteContentUpdate(change.content);
+                }
             }
         });
 
-        // SignalR Remote Selection Sync Effect
+        // SignalR Remote Selection Sync Effect (Visual toolbar indicator only)
         effect(() => {
             const sel = this.collaborationService.selectionChange();
             if (!sel) return;
@@ -122,7 +119,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
                     index: sel.index,
                     length: sel.length
                 });
-                this.updateRemoteSelectionHighlight(sel.index, sel.length, sel.role);
             }
         });
 
@@ -171,6 +167,22 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     ngOnDestroy(): void {
         this.collaborationService.stopConnection();
         if (this.autoSaveTimeout) clearTimeout(this.autoSaveTimeout);
+        if (this.typingTimeout) clearTimeout(this.typingTimeout);
+    }
+
+    onEditorCreated(editor: any): void {
+        this.quillInstance = editor;
+    }
+
+    private fallbackRemoteContentUpdate(newContent: string): void {
+        this.noteContent.set(newContent);
+        if (this.quillInstance && this.quillInstance.root.innerHTML !== newContent) {
+            const sel = this.quillInstance.getSelection();
+            this.quillInstance.root.innerHTML = newContent;
+            if (sel) {
+                this.quillInstance.setSelection(sel.index, sel.length);
+            }
+        }
     }
 
     loadNotes(): void {
@@ -289,29 +301,34 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         this.currentView.set('grid');
         this.selectedNote.set(null);
         this.noteContent.set('');
+        this.quillInstance = null;
         this.loadNotes();
     }
 
     onContentChange(event: any): void {
-        if (this.isRemoteUpdating) return;
+        // Only process user-initiated keystrokes / edits
+        if (event && event.source && event.source !== 'user') return;
 
         const newContent = typeof event === 'string' ? event : (event.html || '');
         this.noteContent.set(newContent);
         const note = this.selectedNote();
         if (!note) return;
 
+        const deltaJson = event.delta ? JSON.stringify(event.delta) : undefined;
+
         this.collaborationService.sendContentChange(
             note.id,
             newContent,
-            this.currentUser().username
+            this.currentUser().username,
+            deltaJson
         );
         this.notifyTyping();
 
-        // Auto-save debounce (3 seconds)
+        // Auto-save debounce (4 seconds)
         if (this.autoSaveTimeout) clearTimeout(this.autoSaveTimeout);
         this.autoSaveTimeout = setTimeout(() => {
             this.saveNoteSilent();
-        }, 3000);
+        }, 4000);
     }
 
     onSelectionChanged(event: any): void {
@@ -333,8 +350,7 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         if (!note) return;
 
         this.saving.set(true);
-        const editor = this.editorComponent?.quillEditor;
-        const contentToSave = editor ? editor.root.innerHTML : this.noteContent();
+        const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : this.noteContent();
 
         this.noteService.saveNote(note.id, {
             title: note.title,
@@ -357,8 +373,7 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         const note = this.selectedNote();
         if (!note) return;
 
-        const editor = this.editorComponent?.quillEditor;
-        const contentToSave = editor ? editor.root.innerHTML : this.noteContent();
+        const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : this.noteContent();
 
         this.noteService.saveNote(note.id, {
             title: note.title,
@@ -368,6 +383,16 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
 
     deleteNote(event: Event, note: LiveNoteSummaryDto): void {
         event.stopPropagation();
+
+        if (!this.isAdmin()) {
+            this.messageService.add({
+                severity: 'warn',
+                summary: 'Permission Denied',
+                detail: 'Only administrators can delete live notes.'
+            });
+            return;
+        }
+
         if (confirm(`Are you sure you want to delete "${note.title}"?`)) {
             this.noteService.deleteNote(note.id).subscribe({
                 next: () => {
@@ -377,38 +402,14 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
                         detail: 'Note deleted successfully.'
                     });
                     this.loadNotes();
+                },
+                error: (err) => {
+                    this.messageService.add({
+                        severity: 'error',
+                        summary: 'Error',
+                        detail: err.error?.message || 'Failed to delete note.'
+                    });
                 }
-            });
-        }
-    }
-
-    private lastRemoteSelection: { index: number; length: number; originalBg?: any; originalColor?: any } | null = null;
-
-    private updateRemoteSelectionHighlight(index: number, length: number, role: string): void {
-        const editor = this.editorComponent?.quillEditor;
-        if (!editor) return;
-
-        if (this.lastRemoteSelection) {
-            editor.formatText(this.lastRemoteSelection.index, this.lastRemoteSelection.length, {
-                'background': this.lastRemoteSelection.originalBg || false,
-                'color': this.lastRemoteSelection.originalColor || false
-            });
-            this.lastRemoteSelection = null;
-        }
-
-        if (length > 0) {
-            const currentFormat = editor.getFormat(index, length);
-            const highlightBg = role === 'Admin' ? '#C7D2FE' : '#A7F3D0';
-
-            this.lastRemoteSelection = {
-                index,
-                length,
-                originalBg: currentFormat['background'],
-                originalColor: currentFormat['color']
-            };
-
-            editor.formatText(index, length, {
-                'background': highlightBg
             });
         }
     }

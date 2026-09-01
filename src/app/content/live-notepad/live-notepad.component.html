@@ -75,6 +75,7 @@
             </div>
 
             <button
+              *ngIf="isAdmin()"
               type="button"
               (click)="deleteNote($event, note)"
               pTooltip="Delete Note"
@@ -182,6 +183,7 @@
       <quill-editor
         #quillEditor
         [ngModel]="noteContent()"
+        (onEditorCreated)="onEditorCreated($event)"
         (onContentChanged)="onContentChange($event)"
         (onSelectionChanged)="onSelectionChanged($event)"
         placeholder="Start typing your shared notes here... Both of you can write and format together in real-time."
