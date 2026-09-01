@@ -430,6 +430,18 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
         });
     }
 
+    focusNoteText(snippet: string): void {
+        this.activeTab.set('admin');
+        const editor = this.adminEditor?.quillEditor;
+        if (!editor) return;
+
+        const fullText = editor.getText();
+        const index = fullText.indexOf(snippet);
+        if (index >= 0) {
+            editor.setSelection(index, snippet.length);
+        }
+    }
+
     applyHighlight(bgColor: string, textColor: string): void {
         this.activeTab.set('admin');
         const editor = this.adminEditor?.quillEditor;
