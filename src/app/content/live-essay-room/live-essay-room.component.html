@@ -259,19 +259,19 @@
             styleClass="p-button-outlined w-full sm:w-auto text-xs sm:text-sm px-3 py-1.5"
             (onClick)="openNoteModal()"
             [disabled]="!selectedTextSnippet()"
-            [pTooltip]="selectedTextSnippet() ? 'Attach comment to: ' + selectedTextSnippet() : 'Select text in Teacher Corrections first'" />
+            [pTooltip]="selectedTextSnippet() ? 'Attach comment to: ' + selectedTextSnippet() : 'Select text in Essay Corrections first'" />
         </div>
 
-        <!-- TEACHER CORRECTIONS EDITOR (DEFAULT VIEW) -->
+        <!-- ESSAY CORRECTIONS EDITOR (DEFAULT VIEW) -->
         <div [style.display]="activeTab() === 'admin' ? 'flex' : 'none'" id="adminEditor" class="flex flex-col gap-2 min-w-0 w-full overflow-hidden">
           <quill-editor
             #adminEditor
             [modules]="quillModules"
-            [readOnly]="!isAdmin()"
+            [readOnly]="false"
             [ngModel]="adminContent()"
             (ngModelChange)="onAdminContentChange($event)"
             (onSelectionChanged)="onSelectionChanged($event)"
-            placeholder="Teacher writes corrections, highlights and notes here..."
+            placeholder="Collaborate on essay corrections, highlights and notes here..."
             styleClass="rounded-xl border border-surface-200 dark:border-surface-700 shadow-sm bg-surface-0 dark:bg-surface-900 text-base min-w-0 w-full overflow-hidden">
           </quill-editor>
         </div>

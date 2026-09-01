@@ -545,13 +545,39 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             next: (updated) => {
                 this.saving.set(false);
                 this.selectedAnswer.set(updated);
+
+                // Update sentence item in module list table
+                this.sentencesInModule.update(list =>
+                    list.map(item => item.id === updated.id ? updated : item)
+                );
+
+                // Update module list summary if all sentences are reviewed
+                const currentSentences = this.sentencesInModule();
+                const allReviewed = currentSentences.length > 0 && currentSentences.every(s => s.teacherReviewed);
+
+                this.modules.update(mods =>
+                    mods.map(m => {
+                        if (m.moduleId === updated.moduleId && m.studentUsername === updated.studentUsername) {
+                            return { ...m, isReviewed: allReviewed };
+                        }
+                        return m;
+                    })
+                );
+
                 this.messageService.add({
                     severity: 'success',
-                    summary: 'Saved',
-                    detail: 'Sentence review and teacher notes saved successfully!'
+                    summary: 'Review Saved',
+                    detail: 'Sentence review saved and status updated to Reviewed!'
                 });
             },
-            error: () => this.saving.set(false)
+            error: () => {
+                this.saving.set(false);
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to save sentence review.'
+                });
+            }
         });
     }
 
