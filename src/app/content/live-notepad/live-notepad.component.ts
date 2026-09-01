@@ -78,7 +78,10 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         role: this.authService.getRole() || 'User'
     }));
 
-    isAdmin = computed(() => this.currentUser().role === 'Admin');
+    isAdmin = computed(() => {
+        const role = (this.currentUser().role || '').toLowerCase();
+        return role === 'admin' || role === 'teacher';
+    });
 
     studentFilterOptions = computed(() => {
         const list = this.studentsList();

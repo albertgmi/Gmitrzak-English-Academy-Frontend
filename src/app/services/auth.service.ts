@@ -77,7 +77,10 @@ export class AuthService {
     if (!token) return null;
     try {
       const decoded = jwtDecode<JwtPayload>(token);
-      return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role'];
+      return decoded['http://schemas.microsoft.com/ws/2008/06/identity/claims/role']
+          || (decoded as any)['role']
+          || (decoded as any)['Role']
+          || null;
     } catch {
       return null;
     }

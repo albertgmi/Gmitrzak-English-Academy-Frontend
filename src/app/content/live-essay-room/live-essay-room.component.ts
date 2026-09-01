@@ -52,7 +52,10 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
 
     currentUserAvatarUrl = signal<string | null>(null);
 
-    isAdmin = computed(() => this.currentUser().role === 'Admin');
+    isAdmin = computed(() => {
+        const role = (this.currentUser().role || '').toLowerCase();
+        return role === 'admin' || role === 'teacher';
+    });
 
     currentView = signal<'selection' | 'room'>('selection');
 

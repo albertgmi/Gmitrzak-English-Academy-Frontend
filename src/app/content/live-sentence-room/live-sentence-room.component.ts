@@ -50,7 +50,10 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
     }));
 
     currentUserAvatarUrl = signal<string | null>(null);
-    isAdmin = computed(() => this.currentUser().role === 'Admin');
+    isAdmin = computed(() => {
+        const role = (this.currentUser().role || '').toLowerCase();
+        return role === 'admin' || role === 'teacher';
+    });
 
     // Navigation State: 'modules' | 'sentences' | 'live'
     currentView = signal<'modules' | 'sentences' | 'live'>('modules');
