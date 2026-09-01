@@ -270,6 +270,7 @@ export interface SentenceModuleLiveDto {
     partialCount: number;
     incorrectCount: number;
     isReviewed: boolean;
+    unresolvedStudentCommentsCount?: number;
     lastAnswerDate?: string;
 }
 
