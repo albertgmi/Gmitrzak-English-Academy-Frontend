@@ -197,6 +197,13 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     openCreateModal(): void {
         this.newNoteTitle.set('');
         this.selectedStudentId.set(null);
+        if (this.isAdmin()) {
+            this.userService.getAllUsers().subscribe({
+                next: (users: User[]) => {
+                    this.studentsList.set(users.filter(u => u.role !== 'Admin'));
+                }
+            });
+        }
         this.showCreateModal.set(true);
     }
 
