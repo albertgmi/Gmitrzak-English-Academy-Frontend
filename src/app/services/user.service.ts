@@ -79,6 +79,10 @@ export class UserService {
     });
   }
 
+  getAllUsers(): Observable<User[]> {
+    return this.http.get<User[]>(`${this.apiUrl}/users`);
+  }
+
   deleteManyUsers(ids: number[]) {
     return this.http.delete(`${this.apiUrl}/delete`, { params: { userIds: ids } });
   }

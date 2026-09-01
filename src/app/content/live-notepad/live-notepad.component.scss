@@ -1,0 +1,49 @@
+:host {
+  display: block;
+  width: 100%;
+}
+
+::ng-deep .custom-quill-notepad {
+  display: flex;
+  flex-direction: column;
+  flex: 1 1 auto;
+  min-height: 420px;
+
+  .ql-toolbar {
+    border-top-left-radius: 1rem !important;
+    border-top-right-radius: 1rem !important;
+    border-color: var(--surface-200, #e2e8f0) !important;
+    background-color: var(--surface-50, #f8fafc) !important;
+    padding: 0.75rem 1rem !important;
+
+    .dark & {
+      border-color: var(--surface-700, #334155) !important;
+      background-color: var(--surface-900, #0f172a) !important;
+    }
+  }
+
+  .ql-container {
+    border-bottom-left-radius: 1rem !important;
+    border-bottom-right-radius: 1rem !important;
+    border-color: var(--surface-200, #e2e8f0) !important;
+    flex: 1 1 auto;
+    min-height: 360px;
+    font-size: 0.95rem;
+    line-height: 1.6;
+
+    .dark & {
+      border-color: var(--surface-700, #334155) !important;
+      color: var(--surface-0, #f8fafc) !important;
+    }
+
+    .ql-editor {
+      min-height: 360px;
+      padding: 1.25rem;
+
+      &.ql-blank::before {
+        color: #94a3b8;
+        font-style: italic;
+      }
+    }
+  }
+}

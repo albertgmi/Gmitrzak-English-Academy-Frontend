@@ -97,6 +97,7 @@ export const appRoutes: Routes = [
       { path: '', component: Dashboard, canActivate: [AuthGuard] },
       { path: 'live-essay-room', component: LiveEssayRoomComponent, canActivate: [AuthGuard] },
       { path: 'live-sentence-room', component: LiveSentenceRoomComponent, canActivate: [AuthGuard] },
+      { path: 'live-notepad', loadComponent: () => import('./content/live-notepad/live-notepad.component').then(m => m.LiveNotepadComponent), canActivate: [AuthGuard] },
       { path: 'uikit', loadChildren: () => import('./pages/uikit/uikit.routes') },
       { path: 'documentation', component: Documentation },
       { path: 'pages', loadChildren: () => import('./pages/pages.routes') },

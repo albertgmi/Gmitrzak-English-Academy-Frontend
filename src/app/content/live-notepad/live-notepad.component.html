@@ -1,0 +1,236 @@
+<p-toast></p-toast>
+
+<div class="min-h-screen bg-surface-50 dark:bg-surface-950 p-4 sm:p-6 lg:p-8 flex flex-col gap-6">
+
+  <!-- VIEW 1: GRID OF NOTES WITH "+ NEW NOTE" BUTTON -->
+  <div *ngIf="currentView() === 'grid'" class="flex flex-col gap-6 min-w-0 w-full">
+
+    <!-- Sakai Page Header -->
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0 w-full">
+      <div class="flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
+        
+        <div class="flex items-center gap-3">
+          <div class="w-12 h-12 rounded-xl bg-primary/10 text-primary flex items-center justify-center shrink-0">
+            <i class="pi pi-file-edit text-2xl"></i>
+          </div>
+          <div>
+            <h1 class="text-xl sm:text-2xl font-extrabold m-0 text-surface-900 dark:text-surface-0">Live Notepad Workspace</h1>
+            <p class="text-xs sm:text-sm text-muted-color m-0">Real-time collaborative Google Docs-style notes with your teacher/student</p>
+          </div>
+        </div>
+
+        <div class="flex items-center gap-3 w-full sm:w-auto">
+          <p-iconfield styleClass="w-full sm:w-64">
+            <p-inputicon styleClass="pi pi-search" />
+            <input
+              type="text"
+              pInputText
+              placeholder="Search notes..."
+              [ngModel]="searchQuery()"
+              (ngModelChange)="searchQuery.set($event)"
+              class="w-full text-xs sm:text-sm" />
+          </p-iconfield>
+
+          <p-button
+            label="New Note"
+            icon="pi pi-plus"
+            styleClass="text-xs sm:text-sm px-4 py-2.5 shrink-0"
+            (onClick)="openCreateModal()" />
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Notes Grid List -->
+    <div *ngIf="loading()" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div *ngFor="let i of [1,2,3,4,5,6]" class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 h-48 animate-pulse"></div>
+    </div>
+
+    <div *ngIf="!loading() && filteredNotes().length === 0" class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl p-12 text-center flex flex-col items-center justify-center gap-4">
+      <div class="w-16 h-16 rounded-full bg-surface-100 dark:bg-surface-700 text-muted-color flex items-center justify-center">
+        <i class="pi pi-file-edit text-3xl"></i>
+      </div>
+      <div>
+        <h3 class="text-lg font-bold text-surface-900 dark:text-surface-0 m-0">No Live Notes Found</h3>
+        <p class="text-xs sm:text-sm text-muted-color mt-1 m-0">Click "+ New Note" above to create your first collaborative live note!</p>
+      </div>
+      <p-button label="Create New Note" icon="pi pi-plus" (onClick)="openCreateModal()" styleClass="text-xs sm:text-sm mt-2" />
+    </div>
+
+    <div *ngIf="!loading() && filteredNotes().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 sm:gap-6">
+      <div
+        *ngFor="let note of filteredNotes()"
+        (click)="openNoteEditor(note.id)"
+        class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 hover:border-primary/50 dark:hover:border-primary/50 rounded-2xl p-5 sm:p-6 shadow-sm hover:shadow-md transition-all cursor-pointer group flex flex-col justify-between h-56 relative overflow-hidden">
+        
+        <div>
+          <!-- Student & Action Top Header -->
+          <div class="flex items-center justify-between gap-3 mb-3">
+            <div class="flex items-center gap-2.5 min-w-0 flex-1">
+              <app-avatar [username]="note.studentUsername" [avatarUrl]="note.studentAvatarUrl" customClass="w-9 h-9 shrink-0"></app-avatar>
+              <div class="flex flex-col min-w-0 flex-1">
+                <span class="text-xs sm:text-sm font-bold text-surface-900 dark:text-surface-0 truncate">{{ note.studentUsername }}</span>
+                <span class="text-[11px] text-muted-color truncate">Created by {{ note.createdByUsername }}</span>
+              </div>
+            </div>
+
+            <button
+              type="button"
+              (click)="deleteNote($event, note)"
+              pTooltip="Delete Note"
+              class="w-8 h-8 rounded-lg text-muted-color hover:text-red-600 hover:bg-red-50 dark:hover:bg-red-950/50 flex items-center justify-center transition-colors shrink-0">
+              <i class="pi pi-trash text-xs"></i>
+            </button>
+          </div>
+
+          <!-- Note Title & Preview -->
+          <h3 class="text-base sm:text-lg font-bold text-surface-900 dark:text-surface-0 group-hover:text-primary transition-colors m-0 mb-1.5 leading-snug line-clamp-1">
+            {{ note.title }}
+          </h3>
+
+          <p class="text-xs sm:text-sm text-muted-color line-clamp-2 m-0 leading-relaxed">
+            {{ note.previewText || 'No text in note yet...' }}
+          </p>
+        </div>
+
+        <!-- Footer Info -->
+        <div class="pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between text-xs text-muted-color mt-3">
+          <span>Modified: {{ note.lastModifiedAt ? (note.lastModifiedAt | date:'short') : 'Just now' }}</span>
+          <span class="text-primary font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
+            Open Note <i class="pi pi-arrow-right text-xs"></i>
+          </span>
+        </div>
+
+      </div>
+    </div>
+
+  </div>
+
+  <!-- VIEW 2: LIVE NOTEPAD WORKSPACE (GOOGLE DOCS-STYLE) -->
+  <div *ngIf="currentView() === 'editor' && selectedNote()" class="flex flex-col gap-4 sm:gap-6 min-w-0 w-full">
+
+    <!-- Workspace Sakai Header Bar -->
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 text-surface-900 dark:text-surface-0 rounded-2xl p-4 sm:p-6 shadow-sm min-w-0 w-full">
+      <div class="flex flex-col lg:flex-row items-start lg:items-center justify-between gap-4">
+
+        <!-- Back Button & Note Title -->
+        <div class="flex items-center gap-3 sm:gap-4 min-w-0 w-full lg:w-auto flex-1 overflow-hidden">
+          <p-button
+            icon="pi pi-arrow-left"
+            severity="secondary"
+            (onClick)="backToGrid()"
+            pTooltip="Back to notes list"
+            tooltipPosition="right"
+            styleClass="shrink-0" />
+
+          <div class="min-w-0 flex-1 overflow-hidden">
+            <div class="flex items-center gap-2 mb-1 flex-wrap min-w-0">
+              <h2 class="text-lg sm:text-2xl font-extrabold m-0 text-surface-900 dark:text-surface-0 truncate">
+                {{ selectedNote()?.title }}
+              </h2>
+              <p-tag [value]="selectedNote()?.studentUsername + '\'s Note'" severity="info" styleClass="text-xs px-2.5 py-0.5 shrink-0" />
+            </div>
+            <p class="text-xs sm:text-sm text-muted-color m-0 truncate">
+              Collaborative Live Notepad Room
+            </p>
+          </div>
+        </div>
+
+        <!-- Collaborators & Action Buttons -->
+        <div class="flex items-center gap-3 shrink-0 flex-wrap w-full lg:w-auto justify-between lg:justify-end min-w-0">
+
+          <div class="flex items-center gap-2 shrink-0">
+            <span class="text-xs sm:text-sm font-semibold text-muted-color">Online:</span>
+            <div class="flex items-center -space-x-2">
+              <app-avatar
+                *ngFor="let user of activeUsers()"
+                [username]="user.username"
+                [avatarUrl]="user.avatarUrl"
+                customClass="w-7 h-7 sm:w-9 sm:h-9 border-2 border-surface-0 dark:border-surface-900 shadow cursor-pointer shrink-0"
+                [pTooltip]="user.username + ' (' + user.role + ')'"
+                tooltipPosition="bottom"
+                appendTo="body">
+              </app-avatar>
+            </div>
+          </div>
+
+          <!-- Typing & Selection Indicators -->
+          <div *ngIf="remoteSelection() && remoteSelection()!.length > 0" class="px-3 py-1.5 rounded-full bg-indigo-50 text-indigo-700 dark:bg-indigo-950 dark:text-indigo-300 border border-indigo-200 dark:border-indigo-800 text-xs font-bold flex items-center gap-1.5 animate-pulse truncate max-w-full">
+            <i class="pi pi-eye text-xs shrink-0"></i>
+            <span class="truncate">{{ remoteSelection()?.username }} selecting...</span>
+          </div>
+
+          <div *ngIf="isRemoteTyping()" class="px-3 py-1.5 rounded-full bg-amber-50 text-amber-700 dark:bg-amber-950 dark:text-amber-300 border border-amber-200 dark:border-amber-800 text-xs font-bold flex items-center gap-1.5 truncate max-w-full">
+            <i class="pi pi-spin pi-spinner text-xs shrink-0"></i>
+            <span class="truncate">{{ remoteTypingUser() }} is typing...</span>
+          </div>
+
+          <p-button
+            label="Save Note"
+            icon="pi pi-check"
+            [loading]="saving()"
+            styleClass="text-xs sm:text-sm px-4 py-2"
+            (onClick)="saveNoteManual()" />
+
+        </div>
+
+      </div>
+    </div>
+
+    <!-- Quill Google Docs-style Live Canvas Workspace -->
+    <div class="bg-surface-0 dark:bg-surface-800 border border-surface-200 dark:border-surface-700 rounded-2xl shadow-sm overflow-hidden flex flex-col p-4 sm:p-6 min-h-[500px]">
+      <quill-editor
+        #quillEditor
+        [ngModel]="noteContent()"
+        (onContentChanged)="onContentChange($event)"
+        (onSelectionChanged)="onSelectionChanged($event)"
+        placeholder="Start typing your shared notes here... Both of you can write and format together in real-time."
+        styleClass="custom-quill-notepad flex-1 flex flex-col min-h-[420px]">
+      </quill-editor>
+    </div>
+
+  </div>
+
+</div>
+
+<!-- DIALOG: CREATE NEW NOTE -->
+<p-dialog
+  header="Create New Live Note"
+  [(visible)]="showCreateModal"
+  [modal]="true"
+  [style]="{ width: '90vw', maxWidth: '480px' }"
+  [draggable]="false"
+  [resizable]="false">
+
+  <div class="flex flex-col gap-4 py-2">
+    <div class="flex flex-col gap-1.5">
+      <label class="text-xs font-bold text-surface-700 dark:text-surface-200">Note Title *</label>
+      <input
+        type="text"
+        pInputText
+        placeholder="e.g. Grammar Notes - Present Perfect"
+        [ngModel]="newNoteTitle()"
+        (ngModelChange)="newNoteTitle.set($event)"
+        class="w-full text-sm" />
+    </div>
+
+    <div *ngIf="isAdmin()" class="flex flex-col gap-1.5">
+      <label class="text-xs font-bold text-surface-700 dark:text-surface-200">Select Student *</label>
+      <p-select
+        [options]="studentsList()"
+        [ngModel]="selectedStudentId()"
+        (ngModelChange)="selectedStudentId.set($event)"
+        optionLabel="username"
+        optionValue="id"
+        placeholder="Choose student for this note"
+        styleClass="w-full text-sm" />
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2">
+      <p-button label="Cancel" severity="secondary" (onClick)="showCreateModal.set(false)" styleClass="text-xs sm:text-sm px-3 py-2" />
+      <p-button label="Create Note" icon="pi pi-check" [loading]="loading()" (onClick)="createNewNote()" styleClass="text-xs sm:text-sm px-4 py-2" />
+    </div>
+  </ng-template>
+</p-dialog>
