@@ -153,10 +153,6 @@ export class AppMenu implements OnInit {
   private studentMenu(): MenuItem[] {
     return [
       {
-        label: 'Live Hub',
-        items: this.liveItems()
-      },
-      {
         label: 'Learning',
         items: [
           { 
@@ -179,6 +175,10 @@ export class AppMenu implements OnInit {
           { label: 'My Essays', icon: 'pi pi-file-edit', routerLink: ['/my-essays'] },
           { label: 'Movie Theater', icon: 'pi pi-video', routerLink: ['/weekly-movies'] }
         ]
+      },
+      {
+        label: 'Live Hub',
+        items: this.liveItems()
       },
       {
         label: 'Progress',
