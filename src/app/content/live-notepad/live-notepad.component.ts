@@ -55,6 +55,7 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     notes = signal<LiveNoteSummaryDto[]>([]);
     selectedNote = signal<LiveNoteDetailDto | null>(null);
     searchQuery = signal<string>('');
+    selectedStudentFilter = signal<number | null>(null);
 
     // State
     loading = signal<boolean>(false);
@@ -78,6 +79,28 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     }));
 
     isAdmin = computed(() => this.currentUser().role === 'Admin');
+
+    studentFilterOptions = computed(() => {
+        const list = this.studentsList();
+        const options = list.map(u => ({
+            label: u.username,
+            value: u.id
+        }));
+        return [{ label: 'All Students', value: null }, ...options];
+    });
+
+    quillModules = {
+        toolbar: [
+            ['bold', 'italic', 'underline', 'strike'],
+            [{ 'header': [1, 2, 3, false] }],
+            [{ 'color': [] }, { 'background': [] }],
+            [{ 'list': 'ordered' }, { 'list': 'bullet' }],
+            [{ 'align': [] }],
+            ['table'],
+            ['clean']
+        ],
+        table: true
+    };
 
     private quillInstance: any = null;
     private typingTimeout: any = null;
@@ -196,9 +219,17 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     }
 
     filteredNotes(): LiveNoteSummaryDto[] {
+        let result = this.notes();
+
+        const studentFilter = this.selectedStudentFilter();
+        if (this.isAdmin() && studentFilter !== null) {
+            result = result.filter(n => n.studentId === studentFilter);
+        }
+
         const query = this.searchQuery().toLowerCase().trim();
-        if (!query) return this.notes();
-        return this.notes().filter(n =>
+        if (!query) return result;
+
+        return result.filter(n =>
             n.title.toLowerCase().includes(query) ||
             n.studentUsername.toLowerCase().includes(query) ||
             n.previewText.toLowerCase().includes(query)
