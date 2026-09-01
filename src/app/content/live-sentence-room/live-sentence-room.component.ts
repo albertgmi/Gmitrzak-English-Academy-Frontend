@@ -266,7 +266,15 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
 
         this.sentenceService.getSentenceComments(answer.id).subscribe({
             next: (comments) => {
-                this.teacherNotes.set(comments as any);
+                this.teacherNotes.set(comments.map(c => ({
+                    noteId: c.noteId || (c.id ? `note_${c.id}` : `note_${Date.now()}`),
+                    selectedText: c.selectedText,
+                    noteContent: c.noteContent,
+                    category: c.category,
+                    author: c.author,
+                    timestamp: c.timestamp,
+                    isArchived: c.isArchived
+                })));
             },
             error: () => this.teacherNotes.set([])
         });
