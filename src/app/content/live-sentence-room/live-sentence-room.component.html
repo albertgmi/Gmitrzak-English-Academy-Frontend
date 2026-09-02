@@ -181,7 +181,6 @@
             <td class="font-bold text-surface-900 dark:text-surface-0">{{ item.polish }}</td>
             <td>
               <div class="text-surface-900 dark:text-surface-0 font-medium">{{ item.userAnswer }}</div>
-              <span *ngIf="isAdmin()" class="text-xs text-muted-color block italic mt-0.5">Expected: {{ item.expectedTranslation }}</span>
             </td>
             <td>
               <p-tag
@@ -284,17 +283,11 @@
       </div>
     </div>
 
-    <!-- Sentence Context Banner (Polish Original & Expected English) -->
+    <!-- Sentence Context Banner (Polish Original) -->
     <div class="bg-surface-0 dark:bg-surface-800 border-l-4 border-primary border border-surface-200 dark:border-surface-700 rounded-2xl p-4 sm:p-5 shadow-sm min-w-0 w-full">
-      <div class="grid grid-cols-1 gap-4" [ngClass]="{ 'md:grid-cols-2': isAdmin() }">
-        <div>
-          <span class="text-xs font-bold text-muted-color uppercase tracking-wider block mb-1">Polish Sentence Original</span>
-          <div class="text-base sm:text-lg font-extrabold text-surface-900 dark:text-surface-0 leading-snug">{{ selectedAnswer()?.polish }}</div>
-        </div>
-        <div *ngIf="isAdmin()">
-          <span class="text-xs font-bold text-muted-color uppercase tracking-wider block mb-1">Expected English Translation</span>
-          <div class="text-base sm:text-lg font-semibold text-surface-700 dark:text-surface-200 leading-snug">{{ selectedAnswer()?.expectedTranslation }}</div>
-        </div>
+      <div>
+        <span class="text-xs font-bold text-muted-color uppercase tracking-wider block mb-1">Polish Sentence Original</span>
+        <div class="text-base sm:text-lg font-extrabold text-surface-900 dark:text-surface-0 leading-snug">{{ selectedAnswer()?.polish }}</div>
       </div>
     </div>
 
@@ -416,7 +409,7 @@
           <div class="flex flex-col gap-3 max-h-[350px] sm:max-h-[480px] overflow-y-auto pr-1 min-w-0 w-full">
             <div
               *ngFor="let note of teacherNotes()"
-              class="p-3 sm:p-4 rounded-xl border flex flex-col gap-2 sm:gap-2.5 transition-all min-w-0 w-full overflow-hidden"
+              class="p-3 sm:p-4 rounded-xl border flex flex-col gap-2 sm:gap-2.5 transition-all min-w-0 w-full shrink-0 overflow-hidden"
               [ngClass]="note.isArchived ? 'bg-surface-100/50 dark:bg-surface-900/50 border-surface-200 dark:border-surface-700 opacity-60' : 'bg-surface-50 dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary cursor-pointer'"
               (click)="focusNoteText(note.selectedText)">
 

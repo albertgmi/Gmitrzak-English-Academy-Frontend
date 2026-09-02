@@ -307,7 +307,7 @@
           <div class="flex flex-col gap-3 max-h-[350px] sm:max-h-[480px] overflow-y-auto pr-1 min-w-0 w-full">
             <div
               *ngFor="let note of teacherNotes()"
-              class="p-3 sm:p-4 rounded-xl border flex flex-col gap-2 sm:gap-2.5 transition-all min-w-0 w-full overflow-hidden"
+              class="p-3 sm:p-4 rounded-xl border flex flex-col gap-2 sm:gap-2.5 transition-all min-w-0 w-full shrink-0 overflow-hidden"
               [ngClass]="note.isArchived ? 'bg-surface-100/50 dark:bg-surface-900/50 border-surface-200 dark:border-surface-700 opacity-60' : 'bg-surface-50 dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary cursor-pointer'"
               (click)="focusNoteText(note.selectedText)">
 
