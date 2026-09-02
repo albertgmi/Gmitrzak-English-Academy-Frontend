@@ -22,6 +22,7 @@ export interface UserEssayDto {
     reviewedDate?: string;
     username: string;
     avatarUrl?: string;
+    unresolvedStudentCommentsCount?: number;
 }
 
 export interface EssayCommentDto {
