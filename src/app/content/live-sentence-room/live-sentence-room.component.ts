@@ -72,6 +72,13 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
     // Filtering & Searching Modules
     searchQuery = signal('');
     selectedStudentFilter = signal<string | null>(null);
+    selectedStatusFilter = signal<string | null>(null);
+
+    statusFilterOptions = [
+        { label: 'All Statuses', value: null },
+        { label: 'Pending Only', value: 'pending' },
+        { label: 'Reviewed Only', value: 'reviewed' }
+    ];
 
     studentFilterOptions = computed(() => {
         const set = new Set<string>();
@@ -91,9 +98,16 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
         let list = this.modules();
         const query = this.searchQuery().trim().toLowerCase();
         const studentFilter = this.selectedStudentFilter();
+        const statusFilter = this.selectedStatusFilter();
 
         if (studentFilter) {
             list = list.filter(m => m.studentUsername === studentFilter);
+        }
+
+        if (statusFilter === 'pending') {
+            list = list.filter(m => !m.isReviewed);
+        } else if (statusFilter === 'reviewed') {
+            list = list.filter(m => m.isReviewed);
         }
 
         if (query) {

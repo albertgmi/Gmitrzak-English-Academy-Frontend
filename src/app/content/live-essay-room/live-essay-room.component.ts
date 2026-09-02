@@ -68,6 +68,13 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
     // Filtering & Searching
     searchQuery = signal('');
     selectedStudentFilter = signal<string | null>(null);
+    selectedStatusFilter = signal<string | null>(null);
+
+    statusFilterOptions = [
+        { label: 'All Statuses', value: null },
+        { label: 'Pending Only', value: 'pending' },
+        { label: 'Saved Only', value: 'saved' }
+    ];
 
     studentFilterOptions = computed(() => {
         const set = new Set<string>();
@@ -87,9 +94,16 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         let list = this.essays();
         const query = this.searchQuery().trim().toLowerCase();
         const studentFilter = this.selectedStudentFilter();
+        const statusFilter = this.selectedStatusFilter();
 
         if (studentFilter) {
             list = list.filter(e => e.username === studentFilter);
+        }
+
+        if (statusFilter === 'pending') {
+            list = list.filter(e => !this.hasSavedChanges(e));
+        } else if (statusFilter === 'saved') {
+            list = list.filter(e => this.hasSavedChanges(e));
         }
 
         if (query) {

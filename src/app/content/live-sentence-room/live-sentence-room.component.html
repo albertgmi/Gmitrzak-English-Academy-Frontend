@@ -37,6 +37,20 @@
               class="w-full text-xs p-2.5 rounded-xl" />
           </p-iconfield>
 
+          <!-- Status Filter Dropdown -->
+          <div class="w-full sm:w-44">
+            <p-select
+              [options]="statusFilterOptions"
+              optionLabel="label"
+              optionValue="value"
+              [ngModel]="selectedStatusFilter()"
+              (ngModelChange)="selectedStatusFilter.set($event)"
+              placeholder="Filter status..."
+              appendTo="body"
+              fluid
+              styleClass="rounded-xl text-xs" />
+          </div>
+
           <!-- Student Filter Dropdown (For Admin) -->
           <div *ngIf="isAdmin()" class="w-full sm:w-56">
             <p-select
