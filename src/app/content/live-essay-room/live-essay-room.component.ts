@@ -257,6 +257,26 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
             next: (data) => {
                 this.essays.set(data);
                 this.loading.set(false);
+
+                data.forEach(essay => {
+                    if (essay.unresolvedStudentCommentsCount === undefined) {
+                        this.essayService.getComments(essay.id).subscribe({
+                            next: (comments) => {
+                                const studentName = (essay.username || '').toLowerCase();
+                                const count = comments.filter(c => {
+                                    if (c.isArchived) return false;
+                                    const authorName = (c.author || '').toLowerCase();
+                                    return authorName === studentName || !['admin', 'teacher'].includes(authorName);
+                                }).length;
+
+                                this.essays.update(list => list.map(item =>
+                                    item.id === essay.id ? { ...item, unresolvedStudentCommentsCount: count } : item
+                                ));
+                            },
+                            error: () => {}
+                        });
+                    }
+                });
             },
             error: () => {
                 this.loading.set(false);
@@ -452,6 +472,16 @@ export class LiveEssayRoomComponent implements OnInit, OnDestroy {
         this.teacherNotes.update(notes =>
             notes.map(n => n.noteId === noteId ? { ...n, isArchived: true } : n)
         );
+
+        const currentEssayId = this.selectedEssayId();
+        if (currentEssayId) {
+            this.essays.update(list => list.map(item => {
+                if (item.id === currentEssayId && item.unresolvedStudentCommentsCount && item.unresolvedStudentCommentsCount > 0) {
+                    return { ...item, unresolvedStudentCommentsCount: item.unresolvedStudentCommentsCount - 1 };
+                }
+                return item;
+            }));
+        }
 
         this.syncAdminContentWithNotes();
 
