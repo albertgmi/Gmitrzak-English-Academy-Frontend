@@ -85,7 +85,7 @@
             <div>
               <span class="text-muted-color text-[11px] block font-semibold uppercase">Signup deadline</span>
               <span class="font-bold text-surface-900 dark:text-surface-0 text-sm">
-                {{ exam.signupDeadline | date:'d MMM yyyy, HH:mm' }}
+                {{ exam.signupDeadline | date:'dd/MM/yyyy, HH:mm' }}
               </span>
             </div>
           </div>
@@ -269,6 +269,7 @@
           (ngModelChange)="formSignupDeadline.set($event)"
           [showTime]="true"
           hourFormat="24"
+          dateFormat="dd/mm/yy"
           appendTo="body"
           placeholder="Select deadline date & time"
           styleClass="w-full text-sm" />
@@ -368,7 +369,7 @@
           <app-avatar [avatarUrl]="taker.avatarUrl" [username]="taker.username" size="md" />
           <div>
             <div class="font-bold text-sm sm:text-base text-surface-900 dark:text-surface-0">{{ taker.username }}</div>
-            <div class="text-xs text-muted-color">Signed up: {{ taker.signedUpAt | date:'d MMM yyyy, HH:mm' }}</div>
+            <div class="text-xs text-muted-color">Signed up: {{ taker.signedUpAt | date:'dd/MM/yyyy, HH:mm' }}</div>
           </div>
         </div>
 
