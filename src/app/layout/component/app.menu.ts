@@ -231,7 +231,6 @@ export class AppMenu implements OnInit {
       { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/lesson/memories'] },
       { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/lesson/pronunciation-entries'] },
       { label: 'Onboard Client', icon: 'pi pi-play-circle', routerLink: ['/onboard'] },
-      { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },
       { label: 'Examination Mode', icon: 'pi pi-graduation-cap', routerLink: '/lesson/examination' }
     ];
   }
