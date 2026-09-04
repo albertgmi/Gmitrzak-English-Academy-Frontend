@@ -15,8 +15,8 @@
             <i class="pi pi-comments text-lg sm:text-xl"></i>
           </div>
           <div class="min-w-0 flex-1">
-            <h1 class="text-lg sm:text-xl font-extrabold text-surface-900 dark:text-surface-0 m-0 truncate">Live Essay Rooms</h1>
-            <p class="text-muted-color text-xs m-0 mt-0.5 sm:mt-1 truncate">
+            <h1 class="text-xl sm:text-2xl font-extrabold text-surface-900 dark:text-surface-0 m-0 truncate">Live Essay Rooms</h1>
+            <p class="text-muted-color text-sm m-0 mt-0.5 sm:mt-1 truncate">
               Select an essay session to enter the real-time collaborative workspace
             </p>
           </div>
@@ -155,13 +155,13 @@
 
           <div class="min-w-0 flex-1 overflow-hidden">
             <div class="flex items-center gap-2 mb-1 flex-wrap min-w-0">
-              <app-avatar [username]="selectedEssay()?.username || ''" [avatarUrl]="selectedEssay()?.avatarUrl" customClass="w-6 h-6 sm:w-7 sm:h-7 shrink-0"></app-avatar>
-              <h2 class="text-base sm:text-xl font-extrabold m-0 text-surface-900 dark:text-surface-0 truncate max-w-full">
+              <app-avatar [username]="selectedEssay()?.username || ''" [avatarUrl]="selectedEssay()?.avatarUrl" customClass="w-7 h-7 sm:w-8 sm:h-8 shrink-0"></app-avatar>
+              <h2 class="text-lg sm:text-2xl font-extrabold m-0 text-surface-900 dark:text-surface-0 truncate max-w-full">
                 {{ selectedEssay()?.moduleName }}
               </h2>
-              <span class="text-xs sm:text-sm text-muted-color font-normal shrink-0">by {{ selectedEssay()?.username }}</span>
+              <span class="text-xs sm:text-sm text-muted-color font-semibold shrink-0">by {{ selectedEssay()?.username }}</span>
             </div>
-            <p class="text-xs sm:text-sm text-muted-color m-0 truncate break-words max-w-full">
+            <p class="text-sm sm:text-base text-surface-700 dark:text-surface-300 font-medium m-0 truncate break-words max-w-full">
               {{ selectedEssay()?.essayPrompt }}
             </p>
           </div>

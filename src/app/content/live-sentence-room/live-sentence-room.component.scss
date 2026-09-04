@@ -24,23 +24,24 @@ quill-editor {
         border-bottom-left-radius: 0.75rem;
         border-bottom-right-radius: 0.75rem;
         border-color: var(--surface-border);
-        min-height: 180px !important;
-        height: 220px !important;
+        min-height: 200px !important;
+        height: 260px !important;
         font-family: inherit;
-        font-size: 1rem;
+        font-size: 1.2rem;
+        line-height: 1.7;
         background-color: var(--surface-card);
         color: var(--text-color);
         overflow-y: auto;
 
         @media (max-width: 640px) {
-            height: 160px !important;
-            font-size: 0.875rem;
+            height: 180px !important;
+            font-size: 1.05rem;
         }
     }
 
     ::ng-deep .ql-editor {
         min-height: 100%;
-        padding: 12px 15px;
+        padding: 16px 20px;
         word-break: break-word;
         overflow-wrap: break-word;
     }

@@ -197,7 +197,7 @@ export class AcademyExamsComponent implements OnInit {
 
     this.formRewardCredits.set(exam.rewardCredits);
     this.formPassingThreshold.set(exam.passingThreshold);
-    this.formSignupDeadline.set(new Date(exam.signupDeadline));
+    this.formSignupDeadline.set(exam.signupDeadline ? new Date(exam.signupDeadline) : new Date());
     this.formIsActive.set(exam.isActive);
     this.showForm.set(true);
   }
@@ -208,6 +208,16 @@ export class AcademyExamsComponent implements OnInit {
 
   removeMaterial(index: number) {
     this.formMaterials.update(list => list.filter((_, i) => i !== index));
+  }
+
+  formatDateTimeLocal(date: Date): string {
+    const year = date.getFullYear();
+    const month = String(date.getMonth() + 1).padStart(2, '0');
+    const day = String(date.getDate()).padStart(2, '0');
+    const hours = String(date.getHours()).padStart(2, '0');
+    const minutes = String(date.getMinutes()).padStart(2, '0');
+    const seconds = String(date.getSeconds()).padStart(2, '0');
+    return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
 
   saveExam() {
@@ -236,7 +246,7 @@ export class AcademyExamsComponent implements OnInit {
       materials: validMaterials,
       rewardCredits: this.formRewardCredits(),
       passingThreshold: this.formPassingThreshold().trim(),
-      signupDeadline: deadline.toISOString(),
+      signupDeadline: this.formatDateTimeLocal(deadline),
       isActive: this.formIsActive()
     };
 

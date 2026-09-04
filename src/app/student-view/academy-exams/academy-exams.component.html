@@ -1,92 +1,90 @@
 <p-toast />
 <p-confirmdialog />
 
-<div class="card p-6">
+<div class="card p-5">
   <!-- Top Header -->
-  <div class="flex justify-between items-center mb-8 flex-wrap gap-4">
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
     <div>
-      <h2 class="text-3xl font-extrabold m-0 text-surface-900 dark:text-surface-0 flex items-center gap-3">
-        <i class="pi pi-graduation-cap text-primary text-4xl"></i>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0 flex items-center gap-2.5">
+        <i class="pi pi-graduation-cap text-primary text-3xl"></i>
         Academy Exams
       </h2>
-      <p class="text-surface-600 dark:text-surface-400 text-base mt-2 m-0 font-medium">
+      <p class="text-surface-600 dark:text-surface-400 text-sm mt-1 m-0 font-medium">
         View available exams, sign up, study materials, and earn reward credits upon passing.
       </p>
     </div>
 
-    <div class="flex gap-3 items-center flex-wrap">
+    <div class="flex gap-2 items-center flex-wrap">
       <p-button
         *ngIf="isAdmin()"
         label="Add Exam"
         icon="pi pi-plus"
-        size="large"
         (onClick)="openCreateDialog()" />
     </div>
   </div>
 
   <!-- Level Tabs: Junior / Senior -->
-  <div class="flex gap-3 mb-8 flex-wrap">
+  <div class="flex gap-2 mb-6 flex-wrap">
     <p-button
       *ngFor="let levelTab of levelTabs"
       [label]="levelTab.label"
       [icon]="levelTab.icon"
       [outlined]="activeTab() !== levelTab.id"
-      size="large"
       (onClick)="setTab(levelTab.id)" />
   </div>
 
   <!-- Loading Spinner -->
-  <div *ngIf="loading()" class="text-center py-16 text-muted-color">
-    <i class="pi pi-spin pi-spinner text-5xl block mb-3"></i>
-    <span class="text-lg font-medium">Loading {{ activeTab() }} exams...</span>
+  <div *ngIf="loading()" class="text-center py-12 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl block mb-2"></i>
+    <span class="text-base font-medium">Loading {{ activeTab() }} exams...</span>
   </div>
 
   <!-- Exams List / Grid -->
-  <div *ngIf="!loading()" class="grid grid-cols-1 lg:grid-cols-2 gap-8">
+  <div *ngIf="!loading()" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div
       *ngFor="let exam of exams()"
-      class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-3xl p-8 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
+      class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
 
       <!-- Exam Card Header -->
       <div>
-        <div class="flex justify-between items-start gap-4 mb-4">
+        <div class="flex justify-between items-start gap-3 mb-3">
           <div>
-            <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0 leading-tight">{{ exam.title }}</h3>
-            <div class="flex items-center gap-2.5 mt-2">
-              <p-tag [value]="exam.level" [severity]="exam.level === 'Senior' ? 'warn' : 'info'" styleClass="text-sm px-3 py-1" />
-              <p-tag *ngIf="isAdmin() && !exam.isActive" value="Inactive" severity="danger" styleClass="text-sm px-3 py-1" />
+            <h3 class="text-xl font-bold text-surface-900 dark:text-surface-0 m-0 leading-tight">{{ exam.title }}</h3>
+            <div class="flex items-center gap-2 mt-1.5">
+              <p-tag [value]="exam.level" [severity]="exam.level === 'Senior' ? 'warn' : 'info'" styleClass="text-xs px-2.5 py-0.5" />
+              <p-tag *ngIf="isAdmin() && !exam.isActive" value="Inactive" severity="danger" styleClass="text-xs px-2.5 py-0.5" />
             </div>
           </div>
 
           <!-- Reward Credits Badge -->
-          <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700/60 rounded-2xl px-4 py-2 flex items-center gap-2 shrink-0">
-            <i class="pi pi-star-fill text-amber-500 text-xl"></i>
-            <span class="font-extrabold text-amber-800 dark:text-amber-300 text-base">+{{ exam.rewardCredits }} Credits</span>
+          <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700/60 rounded-xl px-3 py-1.5 flex items-center gap-1.5 shrink-0">
+            <i class="pi pi-star-fill text-amber-500 text-lg"></i>
+            <span class="font-bold text-amber-800 dark:text-amber-300 text-sm">+{{ exam.rewardCredits }} Credits</span>
           </div>
         </div>
 
         <!-- Description -->
-        <p class="text-surface-700 dark:text-surface-300 text-base leading-relaxed mb-6 whitespace-pre-line font-normal">
+        <p class="text-surface-700 dark:text-surface-300 text-sm sm:text-base leading-relaxed mb-5 whitespace-pre-line font-normal">
           {{ exam.description }}
         </p>
 
         <!-- Details Badges Grid -->
-        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3 mb-6 text-sm">
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5 text-sm">
           <!-- Passing Threshold -->
-          <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700">
-            <i class="pi pi-check-circle text-green-500 text-lg"></i>
+          <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700">
+            <i class="pi pi-check-circle text-green-500 text-base"></i>
             <div>
-              <span class="text-muted-color text-xs block font-semibold uppercase">Passing score</span>
-              <span class="font-bold text-surface-900 dark:text-surface-0 text-base">{{ exam.passingThreshold }}</span>
+              <span class="text-muted-color text-[11px] block font-semibold uppercase">Passing score</span>
+              <span class="font-bold text-surface-900 dark:text-surface-0 text-sm">{{ exam.passingThreshold }}</span>
             </div>
           </div>
 
           <!-- Deadline -->
-          <div class="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700">
-            <i class="pi pi-clock text-primary text-lg"></i>
+          <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700">
+            <i class="pi pi-clock text-primary text-base"></i>
             <div>
-              <span class="text-muted-color text-xs block font-semibold uppercase">Signup deadline</span>
-              <span class="font-bold text-surface-900 dark:text-surface-0 text-base">
+              <span class="text-muted-color text-[11px] block font-semibold uppercase">Signup deadline</span>
+              <span class="font-bold text-surface-900 dark:text-surface-0 text-sm">
                 {{ exam.signupDeadline | date:'d MMM yyyy, HH:mm' }}
               </span>
             </div>
@@ -94,15 +92,15 @@
         </div>
 
         <!-- Multiple Materials Links -->
-        <div *ngIf="exam.materials && exam.materials.length" class="mb-6">
-          <span class="text-xs font-bold uppercase tracking-wider text-muted-color block mb-2">Study Materials & Resources:</span>
-          <div class="flex flex-wrap gap-2.5">
+        <div *ngIf="exam.materials && exam.materials.length" class="mb-5">
+          <span class="text-[11px] font-bold uppercase tracking-wider text-muted-color block mb-1.5">Study Materials & Resources:</span>
+          <div class="flex flex-wrap gap-2">
             <a
               *ngFor="let mat of exam.materials"
               [href]="mat.url"
               target="_blank"
               rel="noopener noreferrer"
-              class="inline-flex items-center gap-2 text-sm font-bold text-primary hover:underline bg-primary/10 hover:bg-primary/20 px-4 py-2 rounded-xl border border-primary/30 transition-colors">
+              class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold text-primary hover:underline bg-primary/10 hover:bg-primary/20 px-3 py-1.5 rounded-lg border border-primary/30 transition-colors">
               <i class="pi pi-external-link"></i>
               <span>{{ mat.title || 'Study Resource' }}</span>
             </a>
@@ -111,16 +109,16 @@
       </div>
 
       <!-- Footer Action Controls -->
-      <div class="pt-6 border-t border-surface-200 dark:border-surface-800 flex flex-wrap justify-between items-center gap-4">
+      <div class="pt-4 border-t border-surface-200 dark:border-surface-800 flex flex-wrap justify-between items-center gap-3">
         <!-- Student Sign Up / Status Actions (HIDDEN FOR ADMIN) -->
-        <div class="flex items-center gap-3 flex-wrap">
+        <div class="flex items-center gap-2.5 flex-wrap">
           <ng-container *ngIf="!isAdmin()">
             <!-- Registered/Passed/Failed Tag if signed up -->
             <ng-container *ngIf="exam.isCurrentUserSignedUp">
               <p-tag
                 [value]="'Status: ' + (exam.currentUserStatus || 'Registered')"
                 [severity]="getStatusSeverity(exam.currentUserStatus || 'Registered')"
-                styleClass="text-sm px-3 py-1.5 font-bold" />
+                styleClass="text-xs px-2.5 py-1 font-bold" />
 
               <p-button
                 *ngIf="exam.canUnsign"
@@ -128,7 +126,6 @@
                 icon="pi pi-times"
                 severity="secondary"
                 [outlined]="true"
-
                 (onClick)="unsign(exam)" />
             </ng-container>
 
@@ -140,19 +137,19 @@
               (onClick)="signUp(exam)" />
 
             <!-- Signups Closed Info Tag -->
-            <span *ngIf="!exam.isCurrentUserSignedUp && !exam.canSignUp" class="text-sm text-muted-color font-semibold flex items-center gap-1.5">
-              <i class="pi pi-lock text-sm"></i> Signups closed
+            <span *ngIf="!exam.isCurrentUserSignedUp && !exam.canSignUp" class="text-xs text-muted-color font-semibold flex items-center gap-1.5">
+              <i class="pi pi-lock text-xs"></i> Signups closed
             </span>
           </ng-container>
 
           <!-- Admin badge indicating management mode -->
-          <span *ngIf="isAdmin()" class="text-sm text-muted-color font-medium italic">
+          <span *ngIf="isAdmin()" class="text-xs text-muted-color font-medium italic">
             Admin View
           </span>
         </div>
 
         <!-- Right Side Controls: Takers & Admin actions -->
-        <div class="flex items-center gap-3 shrink-0">
+        <div class="flex items-center gap-2 shrink-0">
           <p-button
             [label]="'Takers (' + exam.takersCount + ')'"
             icon="pi pi-users"
@@ -183,15 +180,14 @@
     <!-- Empty State -->
     <div
       *ngIf="!exams().length"
-      class="col-span-full text-center py-20 bg-surface-50 dark:bg-surface-900/50 rounded-3xl border-2 border-dashed border-surface-300 dark:border-surface-700">
-      <i class="pi pi-graduation-cap text-6xl text-muted-color block mb-4"></i>
-      <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">No {{ activeTab() }} exams available</h3>
-      <p class="text-muted-color text-base mt-2 mb-6">There are currently no exams listed under this category.</p>
+      class="col-span-full text-center py-16 bg-surface-50 dark:bg-surface-900/50 rounded-2xl border-2 border-dashed border-surface-300 dark:border-surface-700">
+      <i class="pi pi-graduation-cap text-5xl text-muted-color block mb-3"></i>
+      <h3 class="text-xl font-bold text-surface-900 dark:text-surface-0 m-0">No {{ activeTab() }} exams available</h3>
+      <p class="text-muted-color text-sm mt-1 mb-5">There are currently no exams listed under this category.</p>
       <p-button
         *ngIf="isAdmin()"
         label="Create First Exam"
         icon="pi pi-plus"
-        size="large"
         (onClick)="openCreateDialog()" />
     </div>
   </div>
@@ -203,35 +199,35 @@
   [visible]="showForm()"
   (visibleChange)="showForm.set($event)"
   [modal]="true"
-  [style]="{ width: '95%', maxWidth: '42rem' }"
+  [style]="{ width: '95%', maxWidth: '38rem' }"
   appendTo="body">
 
-  <div class="flex flex-col gap-5 pt-3">
+  <div class="flex flex-col gap-4 pt-2">
     <div>
-      <label class="block text-base font-bold mb-1.5">Title *</label>
+      <label class="block text-sm font-bold mb-1">Title *</label>
       <input
         pInputText
         type="text"
         [ngModel]="formTitle()"
         (ngModelChange)="formTitle.set($event)"
         placeholder="e.g. B2 Advanced Writing & Grammar Exam"
-        class="w-full text-base p-3" />
+        class="w-full text-sm p-2.5" />
     </div>
 
     <div>
-      <label class="block text-base font-bold mb-1.5">Description *</label>
+      <label class="block text-sm font-bold mb-1">Description *</label>
       <textarea
         pTextarea
         [rows]="4"
         [ngModel]="formDescription()"
         (ngModelChange)="formDescription.set($event)"
         placeholder="Provide exam guidelines, topics covered, instructions..."
-        class="w-full text-base p-3"></textarea>
+        class="w-full text-sm p-2.5"></textarea>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-base font-bold mb-1.5">Category Level *</label>
+        <label class="block text-sm font-bold mb-1">Category Level *</label>
         <p-select
           [options]="levelOptions"
           [ngModel]="formLevel()"
@@ -239,35 +235,35 @@
           optionLabel="label"
           optionValue="value"
           appendTo="body"
-          class="w-full text-base" />
+          class="w-full text-sm" />
       </div>
 
       <div>
-        <label class="block text-base font-bold mb-1.5">Reward Credits *</label>
+        <label class="block text-sm font-bold mb-1">Reward Credits *</label>
         <input
           pInputText
           type="number"
           [ngModel]="formRewardCredits()"
           (ngModelChange)="formRewardCredits.set($event)"
           min="0"
-          class="w-full text-base p-3" />
+          class="w-full text-sm p-2.5" />
       </div>
     </div>
 
-    <div class="grid grid-cols-1 sm:grid-cols-2 gap-5">
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
-        <label class="block text-base font-bold mb-1.5">Passing Threshold *</label>
+        <label class="block text-sm font-bold mb-1">Passing Threshold *</label>
         <input
           pInputText
           type="text"
           [ngModel]="formPassingThreshold()"
           (ngModelChange)="formPassingThreshold.set($event)"
           placeholder="e.g. 80% or 40/50"
-          class="w-full text-base p-3" />
+          class="w-full text-sm p-2.5" />
       </div>
 
       <div>
-        <label class="block text-base font-bold mb-1.5">Signup Deadline *</label>
+        <label class="block text-sm font-bold mb-1">Signup Deadline *</label>
         <p-datepicker
           [ngModel]="formSignupDeadline()"
           (ngModelChange)="formSignupDeadline.set($event)"
@@ -275,76 +271,73 @@
           hourFormat="24"
           appendTo="body"
           placeholder="Select deadline date & time"
-          styleClass="w-full text-base" />
+          styleClass="w-full text-sm" />
       </div>
     </div>
 
     <!-- Multiple Materials Section -->
     <div>
-      <div class="flex justify-between items-center mb-2">
-        <label class="block text-base font-bold">Study Materials & Links (Multiple)</label>
+      <div class="flex justify-between items-center mb-1.5">
+        <label class="block text-sm font-bold">Study Materials & Links (Multiple)</label>
         <p-button
           label="Add Link"
           icon="pi pi-plus"
-          size="small"
           severity="secondary"
           [outlined]="true"
           (onClick)="addMaterial()" />
       </div>
 
-      <div class="flex flex-col gap-3">
+      <div class="flex flex-col gap-2.5">
         <div
           *ngFor="let mat of formMaterials(); let i = index"
-          class="flex items-center gap-3 p-3 bg-surface-50 dark:bg-surface-800/60 rounded-xl border border-surface-200 dark:border-surface-700">
+          class="flex items-center gap-2.5 p-2.5 bg-surface-50 dark:bg-surface-800/60 rounded-xl border border-surface-200 dark:border-surface-700">
 
           <input
             pInputText
             type="text"
             [(ngModel)]="mat.title"
             placeholder="Material Title (e.g. PDF Guide)"
-            class="flex-1 text-sm p-2.5" />
+            class="flex-1 text-xs sm:text-sm p-2" />
 
           <input
             pInputText
             type="url"
             [(ngModel)]="mat.url"
             placeholder="URL (https://...)"
-            class="flex-1 text-sm p-2.5" />
+            class="flex-1 text-xs sm:text-sm p-2" />
 
           <p-button
             icon="pi pi-trash"
             severity="danger"
             [outlined]="true"
-            size="small"
             (onClick)="removeMaterial(i)"
             [pTooltip]="'Remove material link'" />
         </div>
 
-        <div *ngIf="!formMaterials().length" class="text-sm text-muted-color italic">
+        <div *ngIf="!formMaterials().length" class="text-xs text-muted-color italic">
           No materials added yet. Click "Add Link" to add study resources.
         </div>
       </div>
     </div>
 
-    <div class="flex items-center gap-3 pt-2">
+    <div class="flex items-center gap-2 pt-1">
       <p-checkbox
         inputId="exam-is-active"
         [binary]="true"
         [ngModel]="formIsActive()"
         (ngModelChange)="formIsActive.set($event)" />
-      <label for="exam-is-active" class="text-base font-semibold cursor-pointer">
+      <label for="exam-is-active" class="text-sm font-semibold cursor-pointer">
         Active for student signups
       </label>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-end gap-3 pt-5 border-t border-surface-200 dark:border-surface-700">
-      <p-button label="Cancel" severity="secondary" [outlined]="true" size="large" (onClick)="showForm.set(false)" />
+    <div class="flex justify-end gap-2 pt-4 border-t border-surface-200 dark:border-surface-700">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="showForm.set(false)" />
       <p-button
         [label]="editingExam() ? 'Update Exam' : 'Create Exam'"
         icon="pi pi-check"
-        size="large"
         [loading]="saving()"
         (onClick)="saveExam()" />
     </div>
@@ -357,30 +350,30 @@
   [visible]="showTakersDialog()"
   (visibleChange)="showTakersDialog.set($event)"
   [modal]="true"
-  [style]="{ width: '95%', maxWidth: '45rem' }"
+  [style]="{ width: '95%', maxWidth: '42rem' }"
   appendTo="body">
 
-  <div *ngIf="selectedExamForTakers()" class="pt-2">
-    <p class="text-sm text-muted-color mb-5">
-      Total registered takers: <strong class="text-surface-900 dark:text-surface-0 text-base">{{ selectedExamForTakers()?.takersCount }}</strong>
+  <div *ngIf="selectedExamForTakers()" class="pt-1">
+    <p class="text-xs sm:text-sm text-muted-color mb-4">
+      Total registered takers: <strong class="text-surface-900 dark:text-surface-0 text-sm sm:text-base">{{ selectedExamForTakers()?.takersCount }}</strong>
     </p>
 
-    <div class="flex flex-col gap-3.5 max-h-[28rem] overflow-y-auto pr-1">
+    <div class="flex flex-col gap-3 max-h-[26rem] overflow-y-auto pr-1">
       <div
         *ngFor="let taker of selectedExamForTakers()?.takers"
-        class="flex items-center justify-between p-4 bg-surface-50 dark:bg-surface-800/60 rounded-2xl border border-surface-200 dark:border-surface-700 gap-4">
+        class="flex items-center justify-between p-3.5 bg-surface-50 dark:bg-surface-800/60 rounded-xl border border-surface-200 dark:border-surface-700 gap-3">
 
         <!-- User Info -->
-        <div class="flex items-center gap-3.5">
+        <div class="flex items-center gap-3">
           <app-avatar [avatarUrl]="taker.avatarUrl" [username]="taker.username" size="md" />
           <div>
-            <div class="font-bold text-base text-surface-900 dark:text-surface-0">{{ taker.username }}</div>
+            <div class="font-bold text-sm sm:text-base text-surface-900 dark:text-surface-0">{{ taker.username }}</div>
             <div class="text-xs text-muted-color">Signed up: {{ taker.signedUpAt | date:'d MMM yyyy, HH:mm' }}</div>
           </div>
         </div>
 
         <!-- Status & Admin Actions -->
-        <div class="flex items-center gap-3">
+        <div class="flex items-center gap-2">
           <!-- Admin Status Evaluator with appendTo="body" -->
           <ng-container *ngIf="isAdmin()">
             <p-select
@@ -390,26 +383,25 @@
               optionLabel="label"
               optionValue="value"
               appendTo="body"
-              size="small"
-              class="w-48 text-sm" />
+              class="w-44 text-xs sm:text-sm" />
           </ng-container>
 
           <!-- Non-Admin Status Tag -->
           <ng-container *ngIf="!isAdmin()">
-            <p-tag [value]="taker.status" [severity]="getStatusSeverity(taker.status)" styleClass="text-sm px-3 py-1" />
+            <p-tag [value]="taker.status" [severity]="getStatusSeverity(taker.status)" styleClass="text-xs px-2.5 py-0.5" />
           </ng-container>
         </div>
       </div>
 
-      <div *ngIf="!selectedExamForTakers()?.takers?.length" class="text-center py-10 text-muted-color">
-        <i class="pi pi-users text-4xl block mb-2"></i>
-        <span class="text-base font-medium">No students have registered for this exam yet.</span>
+      <div *ngIf="!selectedExamForTakers()?.takers?.length" class="text-center py-8 text-muted-color">
+        <i class="pi pi-users text-3xl block mb-2"></i>
+        <span class="text-sm font-medium">No students have registered for this exam yet.</span>
       </div>
     </div>
   </div>
 
   <ng-template pTemplate="footer">
-    <div class="flex justify-end pt-4">
+    <div class="flex justify-end pt-3">
       <p-button label="Close" severity="secondary" [outlined]="true" (onClick)="showTakersDialog.set(false)" />
     </div>
   </ng-template>
