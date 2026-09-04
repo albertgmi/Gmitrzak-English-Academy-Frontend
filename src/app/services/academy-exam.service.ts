@@ -5,6 +5,11 @@ import { environment } from '../../environments/environment';
 export type ExamLevel = 'Junior' | 'Senior';
 export type ExamSignupStatus = 'Registered' | 'Passed' | 'Failed' | 'Cancelled';
 
+export interface ExamMaterialDto {
+    title: string;
+    url: string;
+}
+
 export interface ExamTakerDto {
     userId: number;
     username: string;
@@ -19,6 +24,7 @@ export interface AcademyExamDto {
     description: string;
     level: ExamLevel;
     materialsUrl?: string;
+    materials: ExamMaterialDto[];
     rewardCredits: number;
     passingThreshold: string;
     signupDeadline: string;
@@ -37,6 +43,7 @@ export interface CreateAcademyExamDto {
     description: string;
     level: ExamLevel;
     materialsUrl?: string;
+    materials: ExamMaterialDto[];
     rewardCredits: number;
     passingThreshold: string;
     signupDeadline: string;

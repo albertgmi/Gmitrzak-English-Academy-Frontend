@@ -142,6 +142,7 @@ export class AppMenu implements OnInit {
               { label: 'Announcements', icon: 'pi pi-bell', routerLink: ['/system/announcements'] },
               { label: 'Student Credits', icon: 'pi pi-star', routerLink: ['/lesson/credits'] },
               { label: 'Student Activity', icon: 'pi pi-history', routerLink: ['/system/student-activity'] },
+              { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },
               { label: 'Flashcard Reminders', icon: 'pi pi-send', routerLink: ['/system/flashcard-reminders'] }
             ]
           }

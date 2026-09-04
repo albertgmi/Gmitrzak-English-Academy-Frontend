@@ -8,11 +8,12 @@ import { DialogModule } from 'primeng/dialog';
 import { InputTextModule } from 'primeng/inputtext';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { DatePickerModule } from 'primeng/datepicker';
 import { CheckboxModule } from 'primeng/checkbox';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { AcademyExamService, AcademyExamDto, ExamLevel, ExamSignupStatus, CreateAcademyExamDto } from '../../services/academy-exam.service';
+import { AcademyExamService, AcademyExamDto, ExamLevel, ExamSignupStatus, CreateAcademyExamDto, ExamMaterialDto } from '../../services/academy-exam.service';
 import { AuthService } from '../../services/auth.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 
@@ -29,6 +30,7 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
     InputTextModule,
     TextareaModule,
     SelectModule,
+    DatePickerModule,
     CheckboxModule,
     TooltipModule,
     ConfirmDialogModule,
@@ -58,10 +60,10 @@ export class AcademyExamsComponent implements OnInit {
   formTitle = signal<string>('');
   formDescription = signal<string>('');
   formLevel = signal<ExamLevel>('Junior');
-  formMaterialsUrl = signal<string>('');
+  formMaterials = signal<ExamMaterialDto[]>([]);
   formRewardCredits = signal<number>(50);
   formPassingThreshold = signal<string>('80%');
-  formSignupDeadline = signal<string>('');
+  formSignupDeadline = signal<Date | null>(null);
   formIsActive = signal<boolean>(true);
 
   // Takers modal state
@@ -169,15 +171,14 @@ export class AcademyExamsComponent implements OnInit {
     this.formTitle.set('');
     this.formDescription.set('');
     this.formLevel.set(this.activeTab());
-    this.formMaterialsUrl.set('');
+    this.formMaterials.set([{ title: 'Study Resource 1', url: '' }]);
     this.formRewardCredits.set(50);
     this.formPassingThreshold.set('80%');
 
-    // Default deadline: 7 days from now formatted for datetime-local
+    // Default deadline: 7 days from now
     const defaultDate = new Date();
     defaultDate.setDate(defaultDate.getDate() + 7);
-    const isoStr = defaultDate.toISOString().slice(0, 16);
-    this.formSignupDeadline.set(isoStr);
+    this.formSignupDeadline.set(defaultDate);
 
     this.formIsActive.set(true);
     this.showForm.set(true);
@@ -188,34 +189,54 @@ export class AcademyExamsComponent implements OnInit {
     this.formTitle.set(exam.title);
     this.formDescription.set(exam.description);
     this.formLevel.set(exam.level);
-    this.formMaterialsUrl.set(exam.materialsUrl || '');
+
+    const materials = exam.materials && exam.materials.length
+      ? exam.materials.map(m => ({ ...m }))
+      : (exam.materialsUrl ? [{ title: 'Study Materials', url: exam.materialsUrl }] : []);
+    this.formMaterials.set(materials);
+
     this.formRewardCredits.set(exam.rewardCredits);
     this.formPassingThreshold.set(exam.passingThreshold);
-    this.formSignupDeadline.set(new Date(exam.signupDeadline).toISOString().slice(0, 16));
+    this.formSignupDeadline.set(new Date(exam.signupDeadline));
     this.formIsActive.set(exam.isActive);
     this.showForm.set(true);
   }
 
+  addMaterial() {
+    this.formMaterials.update(list => [...list, { title: '', url: '' }]);
+  }
+
+  removeMaterial(index: number) {
+    this.formMaterials.update(list => list.filter((_, i) => i !== index));
+  }
+
   saveExam() {
-    if (!this.formTitle().trim() || !this.formDescription().trim() || !this.formSignupDeadline()) {
+    const deadline = this.formSignupDeadline();
+    if (!this.formTitle().trim() || !this.formDescription().trim() || !deadline) {
       this.messageService.add({
         severity: 'warn',
         summary: 'Validation Error',
-        detail: 'Please fill in all required fields.',
+        detail: 'Please fill in title, description, and valid deadline.',
         life: 3000
       });
       return;
     }
 
     this.saving.set(true);
+
+    const validMaterials = this.formMaterials()
+      .filter(m => m.url && m.url.trim().length > 0)
+      .map(m => ({ title: m.title.trim() || 'Study Resource', url: m.url.trim() }));
+
     const payload: CreateAcademyExamDto = {
       title: this.formTitle().trim(),
       description: this.formDescription().trim(),
       level: this.formLevel(),
-      materialsUrl: this.formMaterialsUrl().trim() || undefined,
+      materialsUrl: validMaterials.length > 0 ? validMaterials[0].url : undefined,
+      materials: validMaterials,
       rewardCredits: this.formRewardCredits(),
       passingThreshold: this.formPassingThreshold().trim(),
-      signupDeadline: new Date(this.formSignupDeadline()).toISOString(),
+      signupDeadline: deadline.toISOString(),
       isActive: this.formIsActive()
     };
 
