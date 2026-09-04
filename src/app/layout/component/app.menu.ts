@@ -172,6 +172,7 @@ export class AppMenu implements OnInit {
           { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/pronunciation'] },
           { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/alphabet-test'] },
           { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] },
+          { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },
           { label: 'My Essays', icon: 'pi pi-file-edit', routerLink: ['/my-essays'] },
           { label: 'Movie Theater', icon: 'pi pi-video', routerLink: ['/weekly-movies'] }
         ]
@@ -229,6 +230,7 @@ export class AppMenu implements OnInit {
       { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/lesson/memories'] },
       { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/lesson/pronunciation-entries'] },
       { label: 'Onboard Client', icon: 'pi pi-play-circle', routerLink: ['/onboard'] },
+      { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },
       { label: 'Examination Mode', icon: 'pi pi-graduation-cap', routerLink: '/lesson/examination' }
     ];
   }

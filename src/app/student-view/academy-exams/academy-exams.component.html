@@ -1,0 +1,361 @@
+<p-toast />
+<p-confirmdialog />
+
+<div class="card">
+  <!-- Top Header -->
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0 flex items-center gap-2">
+        <i class="pi pi-graduation-cap text-primary text-3xl"></i>
+        Academy Exams
+      </h2>
+      <p class="text-muted-color mt-1 m-0">View available exams, sign up, and earn reward credits upon passing.</p>
+    </div>
+
+    <div class="flex gap-2 items-center flex-wrap">
+      <p-button
+        *ngIf="isAdmin()"
+        label="Add Exam"
+        icon="pi pi-plus"
+        (onClick)="openCreateDialog()" />
+    </div>
+  </div>
+
+  <!-- Level Tabs: Junior / Senior -->
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <p-button
+      *ngFor="let levelTab of levelTabs"
+      [label]="levelTab.label"
+      [icon]="levelTab.icon"
+      [outlined]="activeTab() !== levelTab.id"
+      size="small"
+      (onClick)="setTab(levelTab.id)" />
+  </div>
+
+  <!-- Loading Spinner -->
+  <div *ngIf="loading()" class="text-center py-12 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl block mb-2"></i>
+    <span>Loading {{ activeTab() }} exams...</span>
+  </div>
+
+  <!-- Exams List / Grid -->
+  <div *ngIf="!loading()" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <div
+      *ngFor="let exam of exams()"
+      class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-shadow flex flex-col justify-between">
+
+      <!-- Exam Card Header -->
+      <div>
+        <div class="flex justify-between items-start gap-3 mb-3">
+          <div>
+            <h3 class="text-xl font-bold text-surface-900 dark:text-surface-0 m-0">{{ exam.title }}</h3>
+            <div class="flex items-center gap-2 mt-1">
+              <p-tag [value]="exam.level" [severity]="exam.level === 'Senior' ? 'warn' : 'info'" />
+              <p-tag *ngIf="isAdmin() && !exam.isActive" value="Inactive" severity="danger" />
+            </div>
+          </div>
+
+          <!-- Reward Credits Badge -->
+          <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-200 dark:border-amber-700/50 rounded-xl px-3 py-1.5 flex items-center gap-1.5 shrink-0">
+            <i class="pi pi-star-fill text-amber-500 text-lg"></i>
+            <span class="font-bold text-amber-700 dark:text-amber-300 text-sm">+{{ exam.rewardCredits }} Credits</span>
+          </div>
+        </div>
+
+        <!-- Description -->
+        <p class="text-surface-700 dark:text-surface-300 text-sm leading-relaxed mb-4 whitespace-pre-line">
+          {{ exam.description }}
+        </p>
+
+        <!-- Details Badges Grid -->
+        <div class="grid grid-cols-1 sm:grid-cols-2 gap-2 mb-4 text-xs">
+          <!-- Passing Threshold -->
+          <div class="flex items-center gap-2 p-2 rounded-lg bg-surface-50 dark:bg-surface-800/60 border border-surface-100 dark:border-surface-700">
+            <i class="pi pi-check-circle text-green-500 text-sm"></i>
+            <div>
+              <span class="text-muted-color block">Passing score</span>
+              <span class="font-semibold text-surface-900 dark:text-surface-0">{{ exam.passingThreshold }}</span>
+            </div>
+          </div>
+
+          <!-- Deadline -->
+          <div class="flex items-center gap-2 p-2 rounded-lg bg-surface-50 dark:bg-surface-800/60 border border-surface-100 dark:border-surface-700">
+            <i class="pi pi-clock text-primary text-sm"></i>
+            <div>
+              <span class="text-muted-color block">Signup deadline</span>
+              <span class="font-semibold text-surface-900 dark:text-surface-0">
+                {{ exam.signupDeadline | date:'d MMM yyyy, HH:mm' }}
+              </span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Materials Link (if available) -->
+        <div *ngIf="exam.materialsUrl" class="mb-4">
+          <a
+            [href]="exam.materialsUrl"
+            target="_blank"
+            rel="noopener noreferrer"
+            class="inline-flex items-center gap-2 text-sm font-semibold text-primary hover:underline bg-primary/10 px-3 py-1.5 rounded-lg border border-primary/20 transition-colors">
+            <i class="pi pi-external-link"></i>
+            <span>Study Materials & Resources</span>
+          </a>
+        </div>
+      </div>
+
+      <!-- Footer Action Controls -->
+      <div class="pt-4 border-t border-surface-100 dark:border-surface-800 flex flex-wrap justify-between items-center gap-3">
+        <!-- Sign up / Status Actions -->
+        <div class="flex items-center gap-2 flex-wrap">
+          <!-- Registered/Passed/Failed Tag if signed up -->
+          <ng-container *ngIf="exam.isCurrentUserSignedUp">
+            <p-tag
+              [value]="'Status: ' + (exam.currentUserStatus || 'Registered')"
+              [severity]="getStatusSeverity(exam.currentUserStatus || 'Registered')" />
+
+            <p-button
+              *ngIf="exam.canUnsign"
+              label="Cancel Sign Up"
+              icon="pi pi-times"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              (onClick)="unsign(exam)" />
+          </ng-container>
+
+          <!-- Sign Up Button -->
+          <p-button
+            *ngIf="!exam.isCurrentUserSignedUp && exam.canSignUp"
+            label="Sign Up"
+            icon="pi pi-user-plus"
+            size="small"
+            (onClick)="signUp(exam)" />
+
+          <!-- Signups Closed Info Tag -->
+          <span *ngIf="!exam.isCurrentUserSignedUp && !exam.canSignUp" class="text-xs text-muted-color font-medium">
+            <i class="pi pi-lock text-xs mr-1"></i>Signups closed
+          </span>
+        </div>
+
+        <!-- Right Side Controls: Takers & Admin actions -->
+        <div class="flex items-center gap-2 shrink-0">
+          <p-button
+            [label]="'Takers (' + exam.takersCount + ')'"
+            icon="pi pi-users"
+            severity="secondary"
+            [outlined]="true"
+            size="small"
+            (onClick)="openTakersDialog(exam)"
+            [pTooltip]="'View registered students'" />
+
+          <ng-container *ngIf="isAdmin()">
+            <p-button
+              icon="pi pi-pencil"
+              severity="secondary"
+              [outlined]="true"
+              size="small"
+              (onClick)="openEditDialog(exam)"
+              [pTooltip]="'Edit exam'" />
+            <p-button
+              icon="pi pi-trash"
+              severity="danger"
+              [outlined]="true"
+              size="small"
+              (onClick)="confirmDelete(exam)"
+              [pTooltip]="'Delete exam'" />
+          </ng-container>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- Empty State -->
+    <div
+      *ngIf="!exams().length"
+      class="col-span-full text-center py-16 bg-surface-50 dark:bg-surface-900/50 rounded-2xl border border-dashed border-surface-300 dark:border-surface-700">
+      <i class="pi pi-graduation-cap text-5xl text-muted-color block mb-3"></i>
+      <h3 class="text-lg font-semibold text-surface-900 dark:text-surface-0 m-0">No {{ activeTab() }} exams available</h3>
+      <p class="text-muted-color text-sm mt-1 mb-4">There are currently no exams listed under this level.</p>
+      <p-button
+        *ngIf="isAdmin()"
+        label="Create First Exam"
+        icon="pi pi-plus"
+        (onClick)="openCreateDialog()" />
+    </div>
+  </div>
+</div>
+
+<!-- CREATE / EDIT DIALOG (Admin) -->
+<p-dialog
+  [header]="editingExam() ? 'Edit Exam' : 'Create New Exam'"
+  [visible]="showForm()"
+  (visibleChange)="showForm.set($event)"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '35rem' }">
+
+  <div class="flex flex-col gap-4 pt-2">
+    <div>
+      <label class="block text-sm font-semibold mb-1">Title *</label>
+      <input
+        pInputText
+        type="text"
+        [ngModel]="formTitle()"
+        (ngModelChange)="formTitle.set($event)"
+        placeholder="e.g. B2 Advanced Grammar & Writing"
+        class="w-full" />
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Description *</label>
+      <textarea
+        pTextarea
+        [rows]="4"
+        [ngModel]="formDescription()"
+        (ngModelChange)="formDescription.set($event)"
+        placeholder="Provide exam guidelines, scope, requirements..."
+        class="w-full"></textarea>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Category Level *</label>
+        <p-select
+          [options]="levelOptions"
+          [ngModel]="formLevel()"
+          (ngModelChange)="formLevel.set($event)"
+          optionLabel="label"
+          optionValue="value"
+          class="w-full" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Reward Credits *</label>
+        <input
+          pInputText
+          type="number"
+          [ngModel]="formRewardCredits()"
+          (ngModelChange)="formRewardCredits.set($event)"
+          min="0"
+          class="w-full" />
+      </div>
+    </div>
+
+    <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
+      <div>
+        <label class="block text-sm font-semibold mb-1">Passing Threshold *</label>
+        <input
+          pInputText
+          type="text"
+          [ngModel]="formPassingThreshold()"
+          (ngModelChange)="formPassingThreshold.set($event)"
+          placeholder="e.g. 80% or 40/50"
+          class="w-full" />
+      </div>
+
+      <div>
+        <label class="block text-sm font-semibold mb-1">Signup Deadline *</label>
+        <input
+          pInputText
+          type="datetime-local"
+          [ngModel]="formSignupDeadline()"
+          (ngModelChange)="formSignupDeadline.set($event)"
+          class="w-full" />
+      </div>
+    </div>
+
+    <div>
+      <label class="block text-sm font-semibold mb-1">Study Materials Link (Hyperlink)</label>
+      <input
+        pInputText
+        type="url"
+        [ngModel]="formMaterialsUrl()"
+        (ngModelChange)="formMaterialsUrl.set($event)"
+        placeholder="https://example.com/materials.pdf"
+        class="w-full" />
+    </div>
+
+    <div class="flex items-center gap-2 pt-2">
+      <p-checkbox
+        inputId="exam-is-active"
+        [binary]="true"
+        [ngModel]="formIsActive()"
+        (ngModelChange)="formIsActive.set($event)" />
+      <label for="exam-is-active" class="text-sm font-medium cursor-pointer">
+        Active for student signups
+      </label>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end gap-2 pt-4 border-t border-surface-200 dark:border-surface-700">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="showForm.set(false)" />
+      <p-button
+        [label]="editingExam() ? 'Update Exam' : 'Create Exam'"
+        icon="pi pi-check"
+        [loading]="saving()"
+        (onClick)="saveExam()" />
+    </div>
+  </ng-template>
+</p-dialog>
+
+<!-- TAKERS LIST DIALOG -->
+<p-dialog
+  [header]="(selectedExamForTakers()?.title || 'Exam') + ' — Registered Takers'"
+  [visible]="showTakersDialog()"
+  (visibleChange)="showTakersDialog.set($event)"
+  [modal]="true"
+  [style]="{ width: '90%', maxWidth: '40rem' }">
+
+  <div *ngIf="selectedExamForTakers()" class="pt-2">
+    <p class="text-xs text-muted-color mb-4">
+      Total registered takers: <strong class="text-surface-900 dark:text-surface-0">{{ selectedExamForTakers()?.takersCount }}</strong>
+    </p>
+
+    <div class="flex flex-col gap-3 max-h-96 overflow-y-auto">
+      <div
+        *ngFor="let taker of selectedExamForTakers()?.takers"
+        class="flex items-center justify-between p-3 bg-surface-50 dark:bg-surface-800/50 rounded-xl border border-surface-200 dark:border-surface-700 gap-3">
+
+        <!-- User Info -->
+        <div class="flex items-center gap-3">
+          <app-avatar [avatarUrl]="taker.avatarUrl" [username]="taker.username" size="md" />
+          <div>
+            <div class="font-semibold text-sm text-surface-900 dark:text-surface-0">{{ taker.username }}</div>
+            <div class="text-xs text-muted-color">Signed up: {{ taker.signedUpAt | date:'d MMM yyyy, HH:mm' }}</div>
+          </div>
+        </div>
+
+        <!-- Status & Admin Actions -->
+        <div class="flex items-center gap-2">
+          <!-- Admin Status Evaluator -->
+          <ng-container *ngIf="isAdmin()">
+            <p-select
+              [options]="statusOptions"
+              [ngModel]="taker.status"
+              (ngModelChange)="markTakerStatus(selectedExamForTakers()!.id, taker.userId, $event)"
+              optionLabel="label"
+              optionValue="value"
+              size="small"
+              class="w-44 text-xs" />
+          </ng-container>
+
+          <!-- Non-Admin Status Tag -->
+          <ng-container *ngIf="!isAdmin()">
+            <p-tag [value]="taker.status" [severity]="getStatusSeverity(taker.status)" />
+          </ng-container>
+        </div>
+      </div>
+
+      <div *ngIf="!selectedExamForTakers()?.takers?.length" class="text-center py-8 text-muted-color">
+        <i class="pi pi-users text-3xl block mb-2"></i>
+        No students have registered for this exam yet.
+      </div>
+    </div>
+  </div>
+
+  <ng-template pTemplate="footer">
+    <div class="flex justify-end pt-3">
+      <p-button label="Close" severity="secondary" [outlined]="true" (onClick)="showTakersDialog.set(false)" />
+    </div>
+  </ng-template>
+</p-dialog>

@@ -88,6 +88,7 @@ import { FlashcardRemindersComponent } from './admin-tools/flashcard-reminders/f
 import { StudentEssaysComponent } from './student-view/student-essays/student-essays.component';
 import { LiveEssayRoomComponent } from './content/live-essay-room/live-essay-room.component';
 import { LiveSentenceRoomComponent } from './content/live-sentence-room/live-sentence-room.component';
+import { AcademyExamsComponent } from './student-view/academy-exams/academy-exams.component';
 
 export const appRoutes: Routes = [
   {
@@ -127,6 +128,7 @@ export const appRoutes: Routes = [
       { path: 'memories', component: MemoriesComponent, canActivate: [AuthGuard] },
       { path: 'pronunciation', component: PronunciationComponent, canActivate: [AuthGuard] },
       { path: 'assignments', component: AssignmentsComponent, canActivate: [AuthGuard] },
+      { path: 'exams', component: AcademyExamsComponent, canActivate: [AuthGuard] },
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/switch-client', component: SwitchClientComponent, canActivate: [AuthGuard] },
