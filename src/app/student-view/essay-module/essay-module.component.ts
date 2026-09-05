@@ -3,19 +3,43 @@ import { CommonModule } from '@angular/common';
 import { ActivatedRoute, Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { QuillModule } from 'ngx-quill';
 import { FormsModule } from '@angular/forms';
 import { EssayService, EssayModuleDto } from '../../services/essay.service';
 import { EssayDetectorService, EssayTelemetry } from '../../services/essay-detector.service';
 import { TagModule } from 'primeng/tag';
+import { CardModule } from 'primeng/card';
+import { MessageModule } from 'primeng/message';
+import { ProgressBarModule } from 'primeng/progressbar';
+import { SkeletonModule } from 'primeng/skeleton';
+import { ChipModule } from 'primeng/chip';
+import { TooltipModule } from 'primeng/tooltip';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { DividerModule } from 'primeng/divider';
 
 @Component({
     selector: 'app-essay-module',
     standalone: true,
-    imports: [CommonModule, FormsModule, ButtonModule, ToastModule, QuillModule, TagModule],
-    providers: [MessageService],
-    templateUrl: './essay-module.component.html'
+    imports: [
+        CommonModule,
+        FormsModule,
+        ButtonModule,
+        ToastModule,
+        QuillModule,
+        TagModule,
+        CardModule,
+        MessageModule,
+        ProgressBarModule,
+        SkeletonModule,
+        ChipModule,
+        TooltipModule,
+        ConfirmDialogModule,
+        DividerModule
+    ],
+    providers: [MessageService, ConfirmationService],
+    templateUrl: './essay-module.component.html',
+    styleUrls: ['./essay-module.component.scss']
 })
 export class EssayModuleComponent implements OnInit, OnDestroy {
     private route        = inject(ActivatedRoute);
@@ -23,6 +47,7 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
     private essayService = inject(EssayService);
     private essayDetectorService = inject(EssayDetectorService);
     private messageService = inject(MessageService);
+    private confirmationService = inject(ConfirmationService);
 
     moduleData   = signal<EssayModuleDto | null>(null);
     content      = signal('');
@@ -49,6 +74,45 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         const total = this.wordCount();
         if (total === 0) return 0;
         return Math.min(100, Math.round((this.pastedWordCount() / total) * 100));
+    });
+
+    targetWordRange = computed(() => {
+        const prompt = this.moduleData()?.essayPrompt;
+        if (!prompt) return null;
+
+        // Match range e.g. "200-300 words" or "200 - 300 words"
+        const rangeMatch = prompt.match(/(\d+)\s*[-–—\s]+\s*(\d+)\s*words?/i);
+        if (rangeMatch) {
+            const min = parseInt(rangeMatch[1], 10);
+            const max = parseInt(rangeMatch[2], 10);
+            return { min, max, text: `${min}-${max} words` };
+        }
+
+        // Match single target e.g. "250 words"
+        const singleMatch = prompt.match(/(\d+)\s*words?/i);
+        if (singleMatch) {
+            const target = parseInt(singleMatch[1], 10);
+            return { min: Math.round(target * 0.8), max: target, text: `~${target} words` };
+        }
+
+        return null;
+    });
+
+    wordProgressPercentage = computed(() => {
+        const target = this.targetWordRange();
+        if (!target) return 0;
+        const current = this.wordCount();
+        return Math.min(100, Math.round((current / target.max) * 100));
+    });
+
+    formattedWritingTime = computed(() => {
+        const totalSeconds = this.activeWritingTimeSeconds();
+        const mins = Math.floor(totalSeconds / 60);
+        const secs = totalSeconds % 60;
+        if (mins === 0) {
+            return `${secs}s`;
+        }
+        return `${mins}m ${secs}s`;
     });
 
     aiAnalysis = computed(() => {
@@ -127,6 +191,37 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         });
     }
 
+    copyPromptText() {
+        const prompt = this.moduleData()?.essayPrompt;
+        if (!prompt) return;
+        navigator.clipboard.writeText(prompt);
+        this.messageService.add({
+            severity: 'info',
+            summary: 'Copied',
+            detail: 'Essay prompt copied to clipboard.',
+            life: 2000
+        });
+    }
+
+    goBack() {
+        this.router.navigate(['/student/my-essays']);
+    }
+
+    confirmSubmit() {
+        this.confirmationService.confirm({
+            message: 'Are you sure you want to submit your essay? You will not be able to edit it after submission.',
+            header: 'Submit Essay Confirmation',
+            icon: 'pi pi-exclamation-triangle',
+            acceptLabel: 'Yes, Submit Essay',
+            rejectLabel: 'Cancel',
+            acceptButtonStyleClass: 'p-button-primary',
+            rejectButtonStyleClass: 'p-button-outlined p-button-secondary',
+            accept: () => {
+                this.submit();
+            }
+        });
+    }
+
     submit() {
         const data = this.moduleData();
         if (!data || !this.content().trim()) return;
@@ -153,7 +248,7 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
                     detail:   'Your essay has been submitted successfully.',
                     life:     3000
                 });
-                setTimeout(() => this.router.navigate(['/courses']), 2000);
+                setTimeout(() => this.router.navigate(['/student/my-essays']), 2000);
             },
             error: () => this.submitting.set(false)
         });

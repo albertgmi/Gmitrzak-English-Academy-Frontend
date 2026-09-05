@@ -1,128 +1,236 @@
 <p-toast />
+<p-confirmdialog />
 
-<div class="card">
-  <div *ngIf="loading()" class="text-center py-16 text-muted-color">
-    <i class="pi pi-spin pi-spinner text-4xl block mb-4"></i>
+<div class="space-y-6 max-w-6xl mx-auto pb-10">
+
+  <!-- Skeleton Loading State -->
+  <div *ngIf="loading()" class="space-y-6">
+    <div class="card p-6 space-y-4">
+      <p-skeleton width="30%" height="2rem" />
+      <p-skeleton width="15%" height="1rem" />
+    </div>
+    <div class="card p-6 space-y-3">
+      <p-skeleton width="20%" height="1.5rem" />
+      <p-skeleton width="100%" height="4rem" />
+    </div>
+    <div class="card p-6 space-y-4">
+      <p-skeleton width="100%" height="300px" />
+    </div>
   </div>
 
   <div *ngIf="!loading() && moduleData() as m">
 
-    <!-- Header -->
-    <div class="mb-6">
-      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
-        {{ m.moduleName }}
-      </h2>
-      <p class="text-muted-color mt-1 m-0">Essay assignment</p>
-    </div>
-
-    <!-- Prompt -->
-    <div class="bg-primary/5 border border-primary/20 rounded-xl p-5 mb-6">
-      <div class="flex items-start gap-3">
-        <i class="pi pi-pencil text-primary text-xl flex-shrink-0 mt-0.5"></i>
+    <!-- Top Header Banner -->
+    <div class="card !p-5 md:!p-6 border-b-2 border-primary/20">
+      <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
         <div>
-          <div class="text-xs font-bold uppercase text-primary mb-2">Essay Prompt</div>
-          <div class="text-surface-900 dark:text-surface-0 leading-relaxed font-medium">
-            {{ m.essayPrompt }}
+          <div class="flex items-center gap-3 mb-2 flex-wrap">
+            <p-button
+              icon="pi pi-arrow-left"
+              label="Back"
+              styleClass="p-button-outlined p-button-sm p-button-secondary"
+              (onClick)="goBack()"
+              pTooltip="Return to My Essays"
+              tooltipPosition="top" />
+            <h1 class="text-2xl md:text-3xl font-extrabold m-0 text-surface-900 dark:text-surface-0">
+              {{ m.moduleName }}
+            </h1>
           </div>
+          <p class="text-muted-color text-sm m-0">Essay Assignment & Composition Studio</p>
+        </div>
+
+        <div class="flex items-center gap-2 flex-shrink-0">
+          <p-tag
+            *ngIf="submitted() && m.existingEssay?.isReviewed"
+            severity="success"
+            icon="pi pi-check-circle"
+            value="Reviewed by Teacher"
+            styleClass="px-3 py-1 text-sm font-semibold" />
+          <p-tag
+            *ngIf="submitted() && !m.existingEssay?.isReviewed"
+            severity="info"
+            icon="pi pi-clock"
+            value="Submitted — Awaiting Review"
+            styleClass="px-3 py-1 text-sm font-semibold" />
+          <p-tag
+            *ngIf="!submitted()"
+            severity="warn"
+            icon="pi pi-pencil"
+            value="Drafting in Progress"
+            styleClass="px-3 py-1 text-sm font-semibold" />
         </div>
       </div>
     </div>
 
-    <!-- Already submitted -->
-    <div *ngIf="submitted()">
-
-      <!-- Admin feedback if available -->
-      <div *ngIf="m.existingEssay?.isReviewed && m.existingEssay?.adminContent"
-        class="mb-6 p-5 bg-green-50 dark:bg-green-900/20
-          border border-green-200 dark:border-green-800 rounded-xl">
-        <div class="flex items-center gap-2 mb-3">
-          <i class="pi pi-check-circle text-green-500"></i>
-          <span class="font-semibold text-green-700 dark:text-green-300">
-            Teacher's feedback
+    <!-- Essay Prompt Card -->
+    <div class="card !p-5 md:!p-6 border-l-4 border-primary bg-primary/5 dark:bg-primary/10 relative">
+      <div class="flex items-start justify-between gap-4 mb-3">
+        <div class="flex items-center gap-2.5">
+          <span class="w-8 h-8 rounded-lg bg-primary/20 text-primary flex items-center justify-center font-bold text-base">
+            <i class="pi pi-file-edit"></i>
+          </span>
+          <span class="text-xs font-bold uppercase tracking-wider text-primary">
+            Essay Prompt & Guidelines
           </span>
         </div>
-        <div class="prose max-w-none text-surface-900 dark:text-surface-0"
-          [innerHTML]="m.existingEssay!.adminContent"></div>
-      </div>
 
-      <div class="p-5 bg-surface-50 dark:bg-surface-800 border
-        border-surface-200 dark:border-surface-700 rounded-xl mb-4">
-        <div class="text-xs font-bold uppercase text-muted-color mb-3 flex items-center justify-between">
-          <span>Your submitted essay</span>
-          <p-tag severity="secondary" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
-        </div>
-        <div class="prose max-w-none text-surface-900 dark:text-surface-0"
-          [innerHTML]="content()"></div>
-      </div>
-
-      <div class="flex items-center gap-2 text-muted-color text-sm">
-        <i class="pi pi-check-circle text-green-500"></i>
-        Essay submitted on {{ m.existingEssay?.submittedDate | date:'d MMM yyyy' }}
-        <p-tag *ngIf="m.existingEssay?.isReviewed" severity="success" value="Reviewed" />
-        <p-tag *ngIf="!m.existingEssay?.isReviewed" severity="warn" value="Awaiting review" />
-      </div>
-    </div>
-
-    <!-- Editor -->
-    <div *ngIf="!submitted()">
-      <div class="flex items-center justify-between mb-3">
-        <label class="font-bold text-surface-900 dark:text-surface-0 m-0">
-          Your essay
-        </label>
         <div class="flex items-center gap-2">
-          <span *ngIf="activeWritingTimeSeconds() > 0" class="text-xs text-muted-color">
-            <i class="pi pi-clock text-xs mr-1"></i>{{ activeWritingTimeSeconds() }}s active
-          </span>
-          <p-tag severity="info" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
+          <p-tag
+            *ngIf="targetWordRange() as target"
+            severity="secondary"
+            icon="pi pi-sliders-h"
+            [value]="'Target: ' + target.text"
+            styleClass="text-xs font-semibold" />
+          <p-button
+            icon="pi pi-copy"
+            styleClass="p-button-text p-button-sm p-button-secondary"
+            pTooltip="Copy prompt"
+            tooltipPosition="left"
+            (onClick)="copyPromptText()" />
         </div>
+      </div>
+
+      <div class="text-surface-900 dark:text-surface-0 leading-relaxed font-medium text-base md:text-lg pl-0.5">
+        {{ m.essayPrompt }}
+      </div>
+    </div>
+
+    <!-- WRITING MODE (Not Submitted) -->
+    <div *ngIf="!submitted()" class="space-y-6">
+
+      <!-- Writing Dashboard & Progress Controls -->
+      <div class="card p-4 md:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
+        
+        <!-- Live Stats -->
+        <div class="flex items-center gap-4 flex-wrap">
+          <div class="flex items-center gap-2 bg-surface-100 dark:bg-surface-800 px-3.5 py-2 rounded-xl border border-surface-200 dark:border-surface-700">
+            <i class="pi pi-align-left text-primary text-lg"></i>
+            <div>
+              <div class="text-xs text-muted-color uppercase font-bold">Word Count</div>
+              <div class="text-lg font-extrabold text-surface-900 dark:text-surface-0 leading-none">
+                {{ wordCount() }} <span *ngIf="targetWordRange() as t" class="text-xs font-normal text-muted-color">/ {{ t.max }} max</span>
+              </div>
+            </div>
+          </div>
+
+          <p-chip
+            *ngIf="activeWritingTimeSeconds() > 0"
+            [label]="formattedWritingTime() + ' writing active'"
+            icon="pi pi-clock"
+            styleClass="bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200 border border-surface-200 dark:border-surface-700 text-xs font-semibold px-3 py-1.5" />
+        </div>
+
+        <!-- Target Progress Bar (if target exists) -->
+        <div *ngIf="targetWordRange() as target" class="flex-1 max-w-xs space-y-1">
+          <div class="flex justify-between text-xs font-semibold text-muted-color">
+            <span>Target Progress</span>
+            <span>{{ wordProgressPercentage() }}%</span>
+          </div>
+          <p-progressbar [value]="wordProgressPercentage()" [showValue]="false" [style]="{'height': '8px'}" />
+        </div>
+
       </div>
 
       <!-- Real-time AI / Paste Warning Banner -->
-      <div *ngIf="showAiWarning()"
-        class="mb-4 p-4 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-xl flex items-start gap-3 text-amber-900 dark:text-amber-200 shadow-sm animate-fadein">
-        <i class="pi pi-exclamation-triangle text-amber-500 text-xl shrink-0 mt-0.5"></i>
-        <div class="text-sm">
-          <div class="font-bold mb-1">
-            Pasted text or AI stylistic patterns detected
-          </div>
-          <div>
-            Please note that essay assignments undergo automated verification. 
-            Essays pasted directly from AI generators (e.g., ChatGPT) or external sources are flagged during teacher evaluation. Please compose your essay independently in your own words.
-          </div>
-          <div *ngIf="pastePercentage() > 0" class="text-xs mt-2 text-amber-700 dark:text-amber-400 font-semibold">
-            Pasted content: {{ pastePercentage() }}% of total ({{ pastedWordCount() }} words)
-          </div>
+      <div *ngIf="showAiWarning()">
+        <p-message
+          severity="warn"
+          styleClass="w-full shadow-sm rounded-xl">
+          <ng-template pTemplate>
+            <div class="flex items-start gap-3 py-1">
+              <i class="pi pi-exclamation-triangle text-xl text-amber-500 shrink-0 mt-0.5"></i>
+              <div class="text-sm">
+                <div class="font-bold text-amber-900 dark:text-amber-200 mb-1">
+                  Pasted text or AI pattern indicator detected
+                </div>
+                <div class="text-amber-800 dark:text-amber-300 leading-relaxed">
+                  Essays must be written independently in your own words. Pasted text from external AI generators or web sources will be flagged for teacher review.
+                </div>
+                <div *ngIf="pastePercentage() > 0" class="text-xs mt-2 font-semibold text-amber-900 dark:text-amber-200">
+                  Pasted content: {{ pastePercentage() }}% of total ({{ pastedWordCount() }} words)
+                </div>
+              </div>
+            </div>
+          </ng-template>
+        </p-message>
+      </div>
+
+      <!-- Quill Editor Canvas Card -->
+      <div class="card p-0 overflow-hidden shadow-sm">
+        <div class="essay-editor-wrapper">
+          <quill-editor
+            [ngModel]="content()"
+            (ngModelChange)="content.set($event)"
+            (onEditorCreated)="onEditorCreated($event)"
+            [modules]="quillModules"
+            placeholder="Start writing your essay here..."
+            class="block w-full" />
         </div>
       </div>
 
-      <quill-editor
-        [ngModel]="content()"
-        (ngModelChange)="content.set($event)"
-        (onEditorCreated)="onEditorCreated($event)"
-        [modules]="quillModules"
-        placeholder="Start writing your essay here..."
-        class="block mb-4"
-        [styles]="{ 'min-height': '350px', 'font-size': '15px' }">
-      </quill-editor>
+      <!-- Bottom Action Footer -->
+      <div class="card p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-4">
+        <div class="flex items-center gap-2 text-xs text-muted-color">
+          <i class="pi pi-shield text-base text-primary"></i>
+          <span>Your essay will be submitted to your teacher for review. Editing is disabled after submission.</span>
+        </div>
 
-      <div class="flex items-center justify-between mt-4 flex-wrap gap-3">
-        <span class="text-xs text-muted-color flex-1 min-w-[200px]">
-          Your essay will be submitted to your teacher for review. You cannot edit it after submission.
-        </span>
-        <div class="flex items-center gap-3">
-          <span class="text-sm font-semibold text-surface-700 dark:text-surface-300">
-            {{ wordCount() }} {{ wordCount() === 1 ? 'word' : 'words' }}
-          </span>
+        <div class="flex items-center gap-3 w-full sm:w-auto justify-end">
+          <p-tag
+            severity="secondary"
+            icon="pi pi-file"
+            [value]="wordCount() + ' ' + (wordCount() === 1 ? 'word' : 'words')"
+            styleClass="text-xs font-bold px-3 py-1.5" />
+
           <p-button
             label="Submit essay"
             icon="pi pi-send"
+            severity="primary"
             [loading]="submitting()"
             [disabled]="!content().trim() || content() === '<p><br></p>'"
-            class="flex-shrink-0"
-            (onClick)="submit()" />
+            styleClass="px-5 py-2.5 font-bold"
+            (onClick)="confirmSubmit()" />
         </div>
       </div>
+
+    </div>
+
+    <!-- SUBMITTED VIEW MODE -->
+    <div *ngIf="submitted()" class="space-y-6">
+
+      <!-- Success Notification Banner -->
+      <p-message severity="success" styleClass="w-full rounded-xl">
+        <ng-template pTemplate>
+          <div class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-2xl text-green-500"></i>
+            <div>
+              <div class="font-bold text-base">Essay Submitted Successfully!</div>
+              <div class="text-xs text-muted-color">
+                Submitted on {{ m.existingEssay?.submittedDate ? (m.existingEssay?.submittedDate | date:'mediumDate') : '—' }}
+              </div>
+            </div>
+          </div>
+        </ng-template>
+      </p-message>
+
+      <!-- Submitted Essay Content Card -->
+      <div class="card p-6 space-y-4">
+        <div class="flex items-center justify-between pb-3 border-b border-surface-200 dark:border-surface-700">
+          <div class="flex items-center gap-2">
+            <i class="pi pi-file-edit text-primary"></i>
+            <h3 class="font-extrabold text-lg text-surface-900 dark:text-surface-0 m-0">Your Submitted Essay</h3>
+          </div>
+          <p-tag severity="secondary" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
+        </div>
+
+        <div
+          class="essay-content-box text-surface-900 dark:text-surface-0 leading-relaxed pt-2"
+          [innerHTML]="content()">
+        </div>
+      </div>
+
     </div>
 
   </div>
+
 </div>
