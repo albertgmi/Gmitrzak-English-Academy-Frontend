@@ -7,7 +7,6 @@
   <div *ngIf="loading()" class="space-y-4 sm:space-y-6">
     <div class="card p-4 sm:p-6 space-y-4">
       <p-skeleton width="40%" height="2rem" />
-      <p-skeleton width="20%" height="1rem" />
     </div>
     <div class="card p-4 sm:p-6 space-y-3">
       <p-skeleton width="30%" height="1.5rem" />
@@ -24,19 +23,18 @@
     <div class="card !p-4 sm:!p-5 md:!p-6 border-b-2 border-primary/20">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
-          <div class="flex items-center gap-2.5 sm:gap-3 mb-1.5 sm:mb-2 flex-wrap">
+          <div class="flex items-center gap-2.5 sm:gap-3 flex-wrap">
             <p-button
               icon="pi pi-arrow-left"
               label="Back"
               styleClass="p-button-outlined p-button-sm p-button-secondary"
               (onClick)="goBack()"
-              pTooltip="Return to My Essays"
+              pTooltip="Return to Assignments"
               tooltipPosition="top" />
             <h1 class="text-xl sm:text-2xl md:text-3xl font-extrabold m-0 text-surface-900 dark:text-surface-0 leading-tight">
               {{ m.moduleName }}
             </h1>
           </div>
-          <p class="text-muted-color text-xs sm:text-sm m-0">Essay Assignment & Composition Studio</p>
         </div>
 
         <div class="flex items-center gap-2 shrink-0 self-start sm:self-auto">
@@ -74,19 +72,12 @@
           </span>
         </div>
 
-        <div class="flex items-center gap-2 self-end sm:self-auto ml-auto sm:ml-0">
+        <div *ngIf="targetWordRange() as target" class="flex items-center gap-2 self-end sm:self-auto ml-auto sm:ml-0">
           <p-tag
-            *ngIf="targetWordRange() as target"
             severity="secondary"
             icon="pi pi-sliders-h"
             [value]="'Target: ' + target.text"
             styleClass="text-xs font-semibold" />
-          <p-button
-            icon="pi pi-copy"
-            styleClass="p-button-text p-button-sm p-button-secondary"
-            pTooltip="Copy prompt"
-            tooltipPosition="left"
-            (onClick)="copyPromptText()" />
         </div>
       </div>
 
@@ -156,7 +147,7 @@
         <div class="essay-editor-wrapper">
           <quill-editor
             [ngModel]="content()"
-            (ngModelChange)="content.set($event)"
+            (ngModelChange)="onContentChange($event)"
             (onEditorCreated)="onEditorCreated($event)"
             [modules]="quillModules"
             placeholder="Start writing your essay here..."

@@ -128,6 +128,7 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
     });
 
     showAiWarning = computed(() => {
+        if (this.wordCount() === 0) return false;
         const analysis = this.aiAnalysis();
         return analysis.riskLevel === 'high' || analysis.riskLevel === 'medium' || this.pastePercentage() >= 40;
     });
@@ -179,6 +180,17 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         }, 1000);
     }
 
+    onContentChange(newVal: string) {
+        this.content.set(newVal);
+        const currentWords = this.wordCount();
+        if (currentWords === 0) {
+            this.pastedWordCount.set(0);
+            this.isPasteDetected.set(false);
+        } else if (this.pastedWordCount() > currentWords) {
+            this.pastedWordCount.set(currentWords);
+        }
+    }
+
     onEditorCreated(quill: any) {
         if (!quill || !quill.root) return;
         quill.root.addEventListener('paste', (e: ClipboardEvent) => {
@@ -191,20 +203,8 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         });
     }
 
-    copyPromptText() {
-        const prompt = this.moduleData()?.essayPrompt;
-        if (!prompt) return;
-        navigator.clipboard.writeText(prompt);
-        this.messageService.add({
-            severity: 'info',
-            summary: 'Copied',
-            detail: 'Essay prompt copied to clipboard.',
-            life: 2000
-        });
-    }
-
     goBack() {
-        this.router.navigate(['/student/my-essays']);
+        this.router.navigate(['/assignments']);
     }
 
     confirmSubmit() {
@@ -248,7 +248,7 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
                     detail:   'Your essay has been submitted successfully.',
                     life:     3000
                 });
-                setTimeout(() => this.router.navigate(['/student/my-essays']), 2000);
+                setTimeout(() => this.router.navigate(['/assignments']), 2000);
             },
             error: () => this.submitting.set(false)
         });
