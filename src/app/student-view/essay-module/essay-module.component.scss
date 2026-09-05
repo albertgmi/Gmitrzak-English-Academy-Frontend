@@ -27,11 +27,20 @@ quill-editor {
         background-color: var(--surface-50, #f8fafc);
         display: flex;
         flex-wrap: wrap;
-        padding: 8px 12px;
-        gap: 4px;
+        padding: 6px 10px;
+        gap: 2px;
+
+        @media (max-width: 640px) {
+            padding: 4px 6px;
+        }
 
         .ql-formats {
-            margin-right: 12px !important;
+            margin-right: 8px !important;
+            margin-bottom: 2px;
+
+            @media (max-width: 640px) {
+                margin-right: 4px !important;
+            }
         }
 
         button, .ql-picker {
@@ -54,8 +63,9 @@ quill-editor {
         min-height: 380px;
 
         @media (max-width: 640px) {
-            min-height: 280px;
-            font-size: 1rem;
+            min-height: 260px;
+            font-size: 0.975rem;
+            line-height: 1.6;
         }
     }
 
@@ -64,11 +74,21 @@ quill-editor {
         padding: 1.25rem 1.5rem;
         word-break: break-word;
 
+        @media (max-width: 640px) {
+            min-height: 260px;
+            padding: 0.875rem 1rem;
+        }
+
         &.ql-blank::before {
             font-style: normal;
             color: var(--text-color-secondary, #94a3b8);
             left: 1.5rem;
             right: 1.5rem;
+
+            @media (max-width: 640px) {
+                left: 1rem;
+                right: 1rem;
+            }
         }
     }
 }
@@ -76,4 +96,9 @@ quill-editor {
 .essay-content-box {
     line-height: 1.75;
     font-size: 1.05rem;
+
+    @media (max-width: 640px) {
+        font-size: 0.975rem;
+        line-height: 1.6;
+    }
 }
