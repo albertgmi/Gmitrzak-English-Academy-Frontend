@@ -79,6 +79,10 @@
             left: 0;
             top: 0;
             height: 100vh;
+            height: 100dvh;
+            padding-bottom: calc(4rem + env(safe-area-inset-bottom, 0px));
+            -webkit-overflow-scrolling: touch;
+            overscroll-behavior-y: contain;
             border-top-left-radius: 0;
             border-bottom-left-radius: 0;
             transition:
