@@ -90,6 +90,8 @@ import { StudentEssaysComponent } from './student-view/student-essays/student-es
 import { LiveEssayRoomComponent } from './content/live-essay-room/live-essay-room.component';
 import { LiveSentenceRoomComponent } from './content/live-sentence-room/live-sentence-room.component';
 import { AcademyExamsComponent } from './student-view/academy-exams/academy-exams.component';
+import { IrregularVerbsSelectionComponent } from './student-view/irregular-verbs-selection/irregular-verbs-selection.component';
+import { IrregularVerbsStudyComponent } from './student-view/irregular-verbs-study/irregular-verbs-study.component';
 
 export const appRoutes: Routes = [
   {
@@ -132,6 +134,8 @@ export const appRoutes: Routes = [
       { path: 'exams', component: AcademyExamsComponent, canActivate: [AuthGuard] },
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
+      { path: 'irregular-verbs', component: IrregularVerbsSelectionComponent, canActivate: [AuthGuard] },
+      { path: 'irregular-verbs/study', component: IrregularVerbsStudyComponent, canActivate: [AuthGuard] },
       { path: 'lesson/switch-client', component: SwitchClientComponent, canActivate: [AuthGuard] },
       { path: 'lesson/mode', component: LessonModeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/homework', component: HomeworkCheckComponent, canActivate: [AuthGuard] },

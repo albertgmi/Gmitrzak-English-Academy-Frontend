@@ -1,0 +1,65 @@
+<div class="card p-6 max-w-4xl mx-auto my-6">
+  <div class="text-center mb-8">
+    <span class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary mb-4">
+      <i class="pi pi-list-check text-3xl"></i>
+    </span>
+    <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2">Czasowniki Nieregularne</h1>
+    <p class="text-muted-color max-w-xl mx-auto">
+      Wybierz zestaw czasowników nieregularnych, który chcesz dzisiaj powtórzyć w formacie fiszkowym.
+    </p>
+  </div>
+
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+    <!-- Card Basic -->
+    <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 flex flex-col justify-between hover:border-primary transition-all duration-300 shadow-sm hover:shadow-md">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
+            <i class="pi pi-star-fill text-xl"></i>
+          </span>
+          <p-tag severity="success" value="Podstawowy"></p-tag>
+        </div>
+        <h3 class="text-xl font-bold text-surface-900 dark:text-surface-0 mb-2">Basic Level</h3>
+        <p class="text-muted-color text-sm mb-6 leading-relaxed">
+          Najważniejsze i najczęściej używane czasowniki nieregularne w codziennej komunikacji (np. <i>go, see, be, have, do</i>).
+        </p>
+      </div>
+
+      <button
+        pButton
+        label="Rozpocznij powtórkę Basic"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        class="w-full p-button-success"
+        [routerLink]="['/irregular-verbs/study']"
+        [queryParams]="{ level: 'Basic' }">
+      </button>
+    </div>
+
+    <!-- Card Advanced -->
+    <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 flex flex-col justify-between hover:border-primary transition-all duration-300 shadow-sm hover:shadow-md">
+      <div>
+        <div class="flex items-center justify-between mb-4">
+          <span class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
+            <i class="pi pi-bolt text-xl"></i>
+          </span>
+          <p-tag severity="warn" value="Zaawansowany"></p-tag>
+        </div>
+        <h3 class="text-xl font-bold text-surface-900 dark:text-surface-0 mb-2">Advanced Level</h3>
+        <p class="text-muted-color text-sm mb-6 leading-relaxed">
+          Bogatrze i bardziej zaawansowane czasowniki nieregularne wymagane na wyższych poziomach (np. <i>arise, cling, creep, flee</i>).
+        </p>
+      </div>
+
+      <button
+        pButton
+        label="Rozpocznij powtórkę Advanced"
+        icon="pi pi-arrow-right"
+        iconPos="right"
+        class="w-full p-button-help"
+        [routerLink]="['/irregular-verbs/study']"
+        [queryParams]="{ level: 'Advanced' }">
+      </button>
+    </div>
+  </div>
+</div>

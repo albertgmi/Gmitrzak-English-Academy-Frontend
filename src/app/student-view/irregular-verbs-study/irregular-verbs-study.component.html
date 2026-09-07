@@ -1,0 +1,145 @@
+<div class="card overflow-hidden flex flex-col items-center justify-center min-h-[calc(100vh-8rem)] py-3 sm:py-6 px-3 sm:px-6">
+
+  <div *ngIf="loading()" class="text-center py-12 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-4xl block mb-3"></i>
+    Ładowanie czasowników nieregularnych...
+  </div>
+
+  <ng-container *ngIf="!loading()">
+    <div *ngIf="!isFinished(); else finishedView" 
+         class="w-full max-w-2xl flex flex-col justify-between">
+
+      <div class="flex items-center justify-between mb-3 sm:mb-6 sm:mt-2 shrink-0">
+        <button
+          class="w-9 h-9 sm:w-10 sm:h-10 rounded-full border border-surface-200 dark:border-surface-700 flex items-center justify-center hover:bg-surface-100 dark:hover:bg-surface-800 transition-colors cursor-pointer bg-transparent"
+          [routerLink]="['/irregular-verbs']">
+          <i class="pi pi-arrow-left"></i>
+        </button>
+
+        <div class="h-9 sm:h-10 flex items-center gap-2 sm:gap-3">
+          <p-tag
+            [severity]="level() === 'Basic' ? 'success' : 'warn'"
+            [value]="'Poziom: ' + level()">
+          </p-tag>
+          <span *ngIf="pendingQueue().length > 0" class="text-xs text-muted-color">
+            {{ pendingQueue().length }} w powtórce
+          </span>
+          <p-tag
+            severity="secondary"
+            [value]="queue().length + 1 + ' pozostało'">
+          </p-tag>
+        </div>
+      </div>
+
+      <div *ngIf="!currentCard() && pendingQueue().length > 0" class="text-center py-12 my-auto">
+        <i class="pi pi-clock text-yellow-500 text-5xl block mb-4"></i>
+        <h3 class="text-xl font-semibold mb-2">Czasowniki powrócą za chwilę...</h3>
+        <p class="text-muted-color">
+          {{ pendingQueue().length }} fiszka{{ pendingQueue().length !== 1 ? 'i' : '' }} za chwilę powróci do powtórki.
+        </p>
+      </div>
+
+      <div *ngIf="currentCard()"
+        class="flashcard-wrapper shrink-0 mx-auto"
+        [class.flipped]="showBack()"
+        (click)="toggleCard()">
+
+        <div class="flashcard-inner">
+          <div class="flashcard-face flashcard-front">
+            <div class="mb-3 sm:mb-5">
+              <p-tag severity="info" [value]="'Irregular Verbs - ' + level()"></p-tag>
+            </div>
+            <div class="text-center px-3 sm:px-4 w-full">
+              <h1 [class]="'font-bold text-surface-900 dark:text-surface-0 m-0 break-normal [word-break:keep-all] leading-tight pb-1 sm:pb-2 ' + getFontSizeClass(currentCard()?.polishTranslation)">
+                {{ currentCard()?.polishTranslation }}
+              </h1>
+            </div>
+            <div class="mt-4 sm:mt-8 text-xs sm:text-sm text-muted-color opacity-70">
+              Kliknij, aby odsłonić 3 formy czasownika
+            </div>
+          </div>
+        
+          <div class="flashcard-face flashcard-back">
+            <button type="button"
+              class="speak-btn"
+              (click)="speak(currentCard()!.englishForms); $event.stopPropagation()">
+              <i class="pi pi-volume-up" style="font-size:1.4rem;"></i>
+            </button>
+          
+            <div class="mb-3 sm:mb-5">
+              <p-tag severity="success" value="3 Formy Czasownika"></p-tag>
+            </div>
+            <div class="text-center px-3 sm:px-4 w-full">
+              <h2 [class]="'font-bold text-primary m-0 break-normal [word-break:keep-all] leading-tight ' + getFontSizeClass(currentCard()?.englishForms)">
+                {{ currentCard()?.englishForms }}
+              </h2>
+            </div>
+          </div>
+        
+        </div>
+      </div>
+
+      <div class="h-20 sm:h-24 mt-3 sm:mt-5 shrink-0 overflow-hidden">
+        <div
+          *ngIf="showBack() && currentCard()"
+          class="grid grid-cols-4 gap-1.5 sm:gap-3 animate-fadein">
+
+          <button
+            pButton
+            type="button"
+            class="py-2 sm:py-3.5 px-1 sm:px-3 !bg-rose-600 hover:!bg-rose-700 !border-rose-600 !text-white flex flex-col items-center justify-center rounded-xl shadow-sm transition-all cursor-pointer"
+            (click)="handleReview('again_1m'); $event.stopPropagation()">
+            <div class="flex flex-col items-center leading-tight">
+              <span class="font-bold text-xs sm:text-base">Soon</span>
+              <small class="text-[9px] sm:text-xs opacity-80 font-medium">1 min</small>
+            </div>
+          </button>
+
+          <button
+            pButton
+            type="button"
+            class="py-2 sm:py-3.5 px-1 sm:px-3 !bg-orange-500 hover:!bg-orange-600 !border-orange-500 !text-white flex flex-col items-center justify-center rounded-xl shadow-sm transition-all cursor-pointer"
+            (click)="handleReview('incorrect'); $event.stopPropagation()">
+            <div class="flex flex-col items-center leading-tight">
+              <span class="font-bold text-xs sm:text-base">Again</span>
+              <small class="text-[9px] sm:text-xs opacity-80 font-medium">{{ currentIncorrectLabel() }}</small>
+            </div>
+          </button>
+
+          <button
+            pButton
+            type="button"
+            class="py-2 sm:py-3.5 px-1 sm:px-3 !bg-amber-500 hover:!bg-amber-600 !border-amber-500 !text-white flex flex-col items-center justify-center rounded-xl shadow-sm transition-all cursor-pointer"
+            (click)="handleReview('hard'); $event.stopPropagation()">
+            <div class="flex flex-col items-center leading-tight">
+              <span class="font-bold text-xs sm:text-base">Hard</span>
+              <small class="text-[9px] sm:text-xs opacity-80 font-medium">1 day</small>
+            </div>
+          </button>
+
+          <button
+            pButton
+            type="button"
+            class="py-2 sm:py-3.5 px-1 sm:px-3 !bg-emerald-600 hover:!bg-emerald-700 !border-emerald-600 !text-white flex flex-col items-center justify-center rounded-xl shadow-sm transition-all cursor-pointer"
+            (click)="handleReview('easy'); $event.stopPropagation()">
+            <div class="flex flex-col items-center leading-tight">
+              <span class="font-bold text-xs sm:text-base">Easy</span>
+              <small class="text-[9px] sm:text-xs opacity-80 font-medium">{{ nextEasyInterval() }} d</small>
+            </div>
+          </button>
+        </div>
+      </div>
+
+    </div>
+  </ng-container>
+
+  <ng-template #finishedView>
+    <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-10 text-center max-w-xl w-full shadow-sm animate-fadein">
+      <i class="pi pi-check-circle text-green-500 text-5xl sm:text-6xl mb-4 block"></i>
+      <h2 class="text-2xl sm:text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2">Sesja Zakończona!</h2>
+      <p class="text-muted-color mb-6">Przerobiłeś wszystkie czasowniki nieregularne zaplanowane na dzisiaj dla poziomu <strong>{{ level() }}</strong>.</p>
+      <button pButton label="Wróć do wyboru zbioru" icon="pi pi-list" class="p-button-lg" [routerLink]="['/irregular-verbs']"></button>
+    </div>
+  </ng-template>
+
+</div>

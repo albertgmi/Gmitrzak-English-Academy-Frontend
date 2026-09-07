@@ -168,6 +168,7 @@ export class AppMenu implements OnInit {
             routerLink: ['/flashcards'] 
           },
           { label: 'Vocabulary', icon: 'pi pi-book', routerLink: ['/vocabulary'] },
+          { label: 'Irregular Verbs', icon: 'pi pi-list-check', routerLink: ['/irregular-verbs'] },
           { label: 'Sentences Session', icon: 'pi pi-bolt', routerLink: ['/sentences-cards'] },
           { label: 'Sentences', icon: 'pi pi-align-left', routerLink: ['/sentences'] },
           { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/memories'] },

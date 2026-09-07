@@ -1,0 +1,101 @@
+.flashcard-wrapper {
+  perspective: 1200px;
+  width: 100%;
+  height: clamp(230px, 46vh, 420px);
+  max-height: 420px;
+  cursor: pointer;
+}
+
+@media (max-height: 720px) {
+  .flashcard-wrapper {
+    height: clamp(200px, 38vh, 310px);
+  }
+}
+
+.flashcard-inner {
+  position: relative;
+  width: 100%;
+  height: 100%;
+  transition: transform 0.5s ease;
+  transform-style: preserve-3d;
+}
+
+.flashcard-wrapper.flipped .flashcard-inner {
+  transform: rotateY(180deg);
+}
+
+.flashcard-face {
+  position: absolute;
+  inset: 0;
+
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+
+  padding: 1.5rem;
+
+  border-radius: 1.5rem;
+
+  backface-visibility: hidden;
+
+  border: 1px solid var(--surface-border);
+
+  background: var(--surface-card);
+
+  box-shadow: 0 10px 30px rgba(0,0,0,0.08);
+
+  transition: border-color 0.2s ease, transform 0.2s ease;
+}
+
+@media (max-height: 720px) {
+  .flashcard-face {
+    padding: 1rem;
+    border-radius: 1.25rem;
+  }
+}
+
+.flashcard-face:hover {
+  border-color: var(--primary-color);
+}
+
+.flashcard-front {
+  color: var(--text-color);
+}
+
+.flashcard-back {
+  transform: rotateY(180deg);
+}
+
+.animate-fadein {
+  animation: fadeIn .25s ease;
+}
+
+.speak-btn {
+  position: absolute;
+  top: 0.75rem;
+  right: 0.75rem;
+  background: transparent;
+  border: none;
+  cursor: pointer;
+  opacity: 0.6;
+  color: inherit;
+  transition: color 0.2s ease, opacity 0.2s ease;
+
+  &:hover {
+    opacity: 1;
+    color: var(--primary-color);
+  }
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
