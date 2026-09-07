@@ -4,31 +4,31 @@
 <div class="card">
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
-      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0 flex items-center gap-2">
-        <i class="pi pi-calendar text-primary text-2xl"></i>
+      <h2 class="text-3xl font-extrabold m-0 text-surface-900 dark:text-surface-0 flex items-center gap-3">
+        <i class="pi pi-calendar text-primary text-3xl"></i>
         Attendance Overview
       </h2>
-      <p class="text-muted-color mt-1 m-0">
+      <p class="text-muted-color mt-1.5 m-0 text-base">
         All logged lessons grouped by date, showing student name, duration, and lesson type.
       </p>
     </div>
 
     <div class="flex flex-wrap items-center gap-3">
-      <div class="bg-surface-100 dark:bg-surface-800 px-3 py-2 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[5rem]">
-        <span class="block text-xs text-muted-color font-medium">Total Lessons</span>
-        <span class="text-lg font-bold text-surface-900 dark:text-surface-0">{{ totalLessonsCount() }}</span>
+      <div class="bg-surface-100 dark:bg-surface-800 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[5.5rem]">
+        <span class="block text-xs text-muted-color font-semibold uppercase tracking-wider">Total Lessons</span>
+        <span class="text-xl font-extrabold text-surface-900 dark:text-surface-0">{{ totalLessonsCount() }}</span>
       </div>
-      <div class="bg-surface-100 dark:bg-surface-800 px-3 py-2 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[6rem]">
-        <span class="block text-xs text-muted-color font-medium">Total Time</span>
-        <span class="text-lg font-bold text-primary">{{ formatDuration(totalMinutesCount()) }}</span>
+      <div class="bg-surface-100 dark:bg-surface-800 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[6.5rem]">
+        <span class="block text-xs text-muted-color font-semibold uppercase tracking-wider">Total Time</span>
+        <span class="text-xl font-extrabold text-primary">{{ formatDuration(totalMinutesCount()) }}</span>
       </div>
-      <div class="bg-surface-100 dark:bg-surface-800 px-3 py-2 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[5rem]">
-        <span class="block text-xs text-muted-color font-medium">Scheduled</span>
-        <span class="text-lg font-bold text-emerald-600 dark:text-emerald-400">{{ scheduledCount() }}</span>
+      <div class="bg-surface-100 dark:bg-surface-800 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[5.5rem]">
+        <span class="block text-xs text-muted-color font-semibold uppercase tracking-wider">Scheduled</span>
+        <span class="text-xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ scheduledCount() }}</span>
       </div>
-      <div class="bg-surface-100 dark:bg-surface-800 px-3 py-2 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[5rem]">
-        <span class="block text-xs text-muted-color font-medium">Makeup</span>
-        <span class="text-lg font-bold text-orange-500">{{ makeupCount() }}</span>
+      <div class="bg-surface-100 dark:bg-surface-800 px-4 py-2.5 rounded-xl border border-surface-200 dark:border-surface-700 text-center min-w-[5.5rem]">
+        <span class="block text-xs text-muted-color font-semibold uppercase tracking-wider">Makeup</span>
+        <span class="text-xl font-extrabold text-orange-500">{{ makeupCount() }}</span>
       </div>
     </div>
   </div>
@@ -36,14 +36,14 @@
   <div class="bg-surface-50 dark:bg-surface-800/60 rounded-xl p-4 mb-6 border border-surface-200 dark:border-surface-700 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
     <div class="flex-1 max-w-md">
       <p-iconField iconPosition="left" class="w-full">
-        <p-inputIcon styleClass="pi pi-search" />
+        <p-inputIcon styleClass="pi pi-search text-lg" />
         <input 
           type="text" 
           pInputText 
           placeholder="Search by student name or ID..." 
           [ngModel]="searchTerm()"
           (ngModelChange)="searchTerm.set($event)"
-          class="w-full" />
+          class="w-full text-base py-2.5" />
       </p-iconField>
     </div>
 
@@ -57,6 +57,20 @@
         [allowEmpty]="false" />
 
       <p-button 
+        icon="pi pi-angle-double-down" 
+        severity="secondary" 
+        outlined 
+        pTooltip="Expand All"
+        (onClick)="expandAll()" />
+
+      <p-button 
+        icon="pi pi-angle-double-up" 
+        severity="secondary" 
+        outlined 
+        pTooltip="Collapse All"
+        (onClick)="collapseAll()" />
+
+      <p-button 
         icon="pi pi-refresh" 
         severity="secondary" 
         outlined 
@@ -66,15 +80,15 @@
     </div>
   </div>
 
-  <div *ngIf="loading()" class="py-12 text-center text-muted-color">
-    <i class="pi pi-spin pi-spinner text-4xl text-primary block mb-3"></i>
-    <p class="m-0 text-base">Loading attendance records...</p>
+  <div *ngIf="loading()" class="py-16 text-center text-muted-color">
+    <i class="pi pi-spin pi-spinner text-5xl text-primary block mb-4"></i>
+    <p class="m-0 text-lg font-medium">Loading attendance records...</p>
   </div>
 
   <div *ngIf="!loading() && groupedAttendance().length === 0" class="card text-center py-16 border border-dashed border-surface-300 dark:border-surface-700 rounded-xl">
-    <i class="pi pi-calendar-times text-5xl text-muted-color block mb-4"></i>
-    <h3 class="text-xl font-semibold mb-2 text-surface-900 dark:text-surface-0">No attendance records found</h3>
-    <p class="text-muted-color max-w-md mx-auto m-0">
+    <i class="pi pi-calendar-times text-6xl text-muted-color block mb-4"></i>
+    <h3 class="text-2xl font-bold mb-2 text-surface-900 dark:text-surface-0">No attendance records found</h3>
+    <p class="text-muted-color text-base max-w-md mx-auto m-0">
       No attendance logs match the current search criteria.
     </p>
   </div>
@@ -82,89 +96,94 @@
   <div *ngIf="!loading() && groupedAttendance().length > 0" class="flex flex-col gap-6">
     <div 
       *ngFor="let group of groupedAttendance()" 
-      class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-700 shadow-sm overflow-hidden">
+      class="bg-surface-0 dark:bg-surface-900 rounded-2xl border border-surface-200 dark:border-surface-700 shadow-md overflow-hidden transition-all duration-200">
       
-      <div class="bg-surface-100/80 dark:bg-surface-800 px-5 py-3.5 border-b border-surface-200 dark:border-surface-700 flex flex-wrap items-center justify-between gap-3">
-        <div class="flex items-center gap-2.5">
-          <i class="pi pi-calendar text-primary text-lg"></i>
-          <h3 class="font-bold text-base m-0 capitalize text-surface-900 dark:text-surface-0">
+      <div 
+        (click)="toggleGroup(group.dateKey)"
+        class="bg-surface-100/90 dark:bg-surface-800 px-6 py-4 border-b border-surface-200 dark:border-surface-700 flex flex-wrap items-center justify-between gap-4 cursor-pointer select-none hover:bg-surface-200/80 dark:hover:bg-surface-700/80 transition-colors">
+        
+        <div class="flex items-center gap-3.5">
+          <i [class]="isExpanded(group.dateKey) ? 'pi pi-chevron-down text-primary text-xl' : 'pi pi-chevron-right text-muted-color text-xl'"></i>
+          <i class="pi pi-calendar text-primary text-xl"></i>
+          <h3 class="font-bold text-xl m-0 capitalize text-surface-900 dark:text-surface-0">
             {{ group.dateFormatted }}
           </h3>
         </div>
 
-        <div class="flex items-center gap-3 text-xs font-semibold">
-          <span class="bg-surface-200 dark:bg-surface-700 text-surface-700 dark:text-surface-300 px-2.5 py-1 rounded-md">
+        <div class="flex items-center gap-3 text-sm font-semibold">
+          <span class="bg-surface-200/90 dark:bg-surface-700 text-surface-800 dark:text-surface-200 px-3 py-1.5 rounded-lg text-sm">
             {{ group.records.length }} {{ group.records.length === 1 ? 'lesson' : 'lessons' }}
           </span>
-          <span class="bg-primary-50 dark:bg-primary-950/40 text-primary px-2.5 py-1 rounded-md border border-primary-200 dark:border-primary-800">
+          <span class="bg-primary-50 dark:bg-primary-950/50 text-primary px-3 py-1.5 rounded-lg border border-primary-200 dark:border-primary-800 text-sm font-bold">
             {{ formatDuration(group.totalDuration) }}
           </span>
         </div>
       </div>
 
-      <p-table [value]="group.records" styleClass="p-datatable-sm" [rowHover]="true">
-        <ng-template #header>
-          <tr>
-            <th style="width: 35%">Student</th>
-            <th style="width: 20%">Time</th>
-            <th style="width: 20%">Type</th>
-            <th style="width: 15%">Duration</th>
-            <th style="width: 10%" class="text-right">Actions</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-rec>
-          <tr>
-            <td>
-              <div class="flex items-center gap-3 py-1">
-                <app-avatar 
-                  [username]="rec.username || ('User #' + rec.userId)" 
-                  [avatarUrl]="rec.avatarUrl" 
-                  customClass="w-9 h-9 text-sm font-semibold"
-                  fallbackBgClass="bg-primary text-white" />
-                
-                <div class="flex flex-col">
-                  <span class="font-bold text-sm text-surface-900 dark:text-surface-0">
-                    {{ rec.username || ('User #' + rec.userId) }}
-                  </span>
-                  <span class="text-xs text-muted-color">
-                    User ID: #{{ rec.userId }}
-                  </span>
+      <div *ngIf="isExpanded(group.dateKey)">
+        <p-table [value]="group.records" styleClass="p-datatable-lg" [rowHover]="true">
+          <ng-template #header>
+            <tr>
+              <th style="width: 35%" class="text-base font-bold text-surface-800 dark:text-surface-200 py-3.5">Student</th>
+              <th style="width: 20%" class="text-base font-bold text-surface-800 dark:text-surface-200 py-3.5">Created At</th>
+              <th style="width: 20%" class="text-base font-bold text-surface-800 dark:text-surface-200 py-3.5">Type</th>
+              <th style="width: 15%" class="text-base font-bold text-surface-800 dark:text-surface-200 py-3.5">Duration</th>
+              <th style="width: 10%" class="text-base font-bold text-surface-800 dark:text-surface-200 py-3.5 text-right">Actions</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-rec>
+            <tr class="transition-colors hover:bg-surface-50/60 dark:hover:bg-surface-800/40">
+              <td>
+                <div class="flex items-center gap-3.5 py-1.5">
+                  <app-avatar 
+                    [username]="rec.username || ('User #' + rec.userId)" 
+                    [avatarUrl]="rec.avatarUrl" 
+                    customClass="w-11 h-11 text-base font-bold shadow-sm"
+                    fallbackBgClass="bg-primary text-white" />
+                  
+                  <div class="flex flex-col">
+                    <span class="font-bold text-base text-surface-900 dark:text-surface-0">
+                      {{ rec.username || ('User #' + rec.userId) }}
+                    </span>
+                    <span class="text-xs text-muted-color">
+                      User ID: #{{ rec.userId }}
+                    </span>
+                  </div>
                 </div>
-              </div>
-            </td>
+              </td>
 
-            <td class="text-sm font-medium text-surface-700 dark:text-surface-300">
-              <i class="pi pi-clock text-xs text-muted-color mr-1.5"></i>
-              {{ rec.createdAt | date:'HH:mm' }}
-            </td>
+              <td class="text-base font-semibold text-surface-700 dark:text-surface-300">
+                <i class="pi pi-clock text-sm text-muted-color mr-2"></i>
+                {{ rec.createdAt | date:'HH:mm' }}
+              </td>
 
-            <td>
-              <p-tag 
-                [severity]="rec.type === 'SCHEDULED' ? 'success' : 'warn'" 
-                [value]="rec.type === 'SCHEDULED' ? 'Scheduled' : 'Makeup'"
-                [rounded]="true" 
-                class="text-xs font-semibold" />
-            </td>
+              <td>
+                <p-tag 
+                  [severity]="rec.type === 'SCHEDULED' ? 'success' : 'warn'" 
+                  [value]="rec.type === 'SCHEDULED' ? 'Scheduled' : 'Makeup'"
+                  [rounded]="true" 
+                  class="text-sm font-bold px-3 py-1" />
+              </td>
 
-            <td>
-              <span class="font-bold text-sm text-surface-900 dark:text-surface-0 bg-surface-100 dark:bg-surface-800 px-2.5 py-1 rounded-lg border border-surface-200 dark:border-surface-700 inline-block">
-                {{ rec.duration }} min
-              </span>
-            </td>
+              <td>
+                <span class="font-bold text-base text-surface-900 dark:text-surface-0 bg-surface-100 dark:bg-surface-800 px-3 py-1.5 rounded-lg border border-surface-200 dark:border-surface-700 inline-block shadow-xs">
+                  {{ rec.duration }} min
+                </span>
+              </td>
 
-            <td class="text-right">
-              <p-button 
-                icon="pi pi-trash" 
-                severity="danger" 
-                [rounded]="true" 
-                [text]="true"
-                size="small" 
-                pTooltip="Delete record"
-                (onClick)="confirmDelete(rec)" />
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+              <td class="text-right">
+                <p-button 
+                  icon="pi pi-trash" 
+                  severity="danger" 
+                  [rounded]="true" 
+                  [text]="true" 
+                  pTooltip="Delete record"
+                  (onClick)="confirmDelete(rec)" />
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
     </div>
   </div>
 </div>

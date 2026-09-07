@@ -11,6 +11,7 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { CardModule } from 'primeng/card';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AttendanceService, AttendanceDto } from '../../services/attendance.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
@@ -38,6 +39,7 @@ export interface AttendanceGroup {
         CardModule,
         IconFieldModule,
         InputIconModule,
+        TooltipModule,
         AvatarComponent
     ],
     providers: [MessageService, ConfirmationService],
@@ -54,6 +56,7 @@ export class AttendanceListComponent implements OnInit {
 
     searchTerm = signal('');
     selectedTypeFilter = signal<'ALL' | 'SCHEDULED' | 'MAKEUP'>('ALL');
+    collapsedDateKeys = signal<Set<string>>(new Set());
 
     typeFilterOptions = [
         { label: 'All', value: 'ALL' },
@@ -83,6 +86,31 @@ export class AttendanceListComponent implements OnInit {
                 this.loading.set(false);
             }
         });
+    }
+
+    toggleGroup(dateKey: string) {
+        this.collapsedDateKeys.update(set => {
+            const next = new Set(set);
+            if (next.has(dateKey)) {
+                next.delete(dateKey);
+            } else {
+                next.add(dateKey);
+            }
+            return next;
+        });
+    }
+
+    isExpanded(dateKey: string): boolean {
+        return !this.collapsedDateKeys().has(dateKey);
+    }
+
+    expandAll() {
+        this.collapsedDateKeys.set(new Set());
+    }
+
+    collapseAll() {
+        const allKeys = this.groupedAttendance().map(g => g.dateKey);
+        this.collapsedDateKeys.set(new Set(allKeys));
     }
 
     filteredAttendances = computed(() => {
