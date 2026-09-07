@@ -6,6 +6,8 @@ export interface RankingEntryDto {
     userId: number;
     username: string;
     avatarUrl?: string;
+    lastActiveAt?: string | null;
+    isOnline?: boolean;
     position: number;
     activityPoints: number;
     averageGrade: number;
