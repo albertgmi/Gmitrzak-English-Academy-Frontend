@@ -9,6 +9,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
+import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { IrregularVerbsService, IrregularVerbDto } from '../../services/student-services/irregular-verbs.service';
 
@@ -20,7 +21,7 @@ type Tab = 'all' | 'today' | 'leeches' | 'search';
   imports: [
     CommonModule, FormsModule, TableModule, ButtonModule,
     InputTextModule, IconFieldModule, InputIconModule,
-    TagModule, ToastModule, RouterModule
+    TagModule, ToastModule, TooltipModule, RouterModule
   ],
   providers: [MessageService],
   templateUrl: './irregular-verbs-panel.component.html'
@@ -96,6 +97,10 @@ export class IrregularVerbsPanelComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to search irregular verbs' });
       }
     });
+  }
+
+  onGlobalFilter(table: any, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
   speak(text: string, event?: Event) {

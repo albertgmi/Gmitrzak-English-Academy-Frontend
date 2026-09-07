@@ -1,121 +1,84 @@
-<p-toast></p-toast>
+<p-toast />
 
-<div class="card p-6 w-full">
-  
-  <!-- Header with Title & Action Button -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+<div class="card">
+  <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
     <div>
-      <h1 class="text-2xl sm:text-3xl font-extrabold text-surface-900 dark:text-surface-0 m-0 flex items-center gap-2">
-        <i class="pi pi-list-check text-primary"></i> Irregular Verbs List
-      </h1>
-      <p class="text-muted-color text-sm mt-1 mb-0">
-        Review your irregular verbs progression, intervals, and leeches.
-      </p>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Irregular Verbs</h2>
+      <p class="text-muted-color mt-1 m-0">{{ allVerbs.value()?.length || 0 }} total verbs</p>
     </div>
-
-    <button
-      pButton
-      label="Start Review Session"
-      icon="pi pi-bolt"
-      class="p-button-success p-button-lg rounded-xl font-bold shadow-sm"
-      [routerLink]="['/irregular-verbs/study']">
-    </button>
+    <div class="flex gap-2 items-center flex-wrap">
+      <p-button
+        label="Study now"
+        icon="pi pi-play"
+        [routerLink]="['/irregular-verbs/study']"
+        [disabled]="!allVerbs.value()?.length" />
+    </div>
   </div>
 
-  <!-- Tabs Header -->
-  <div class="flex flex-wrap gap-2 border-b border-surface-200 dark:border-surface-700 pb-3 mb-6">
-    <button
-      *ngFor="let t of tabs"
-      pButton
-      [label]="t.label"
-      [icon]="t.icon"
-      [severity]="activeTab() === t.id ? 'primary' : 'secondary'"
-      [outlined]="activeTab() !== t.id"
-      class="rounded-xl font-semibold text-sm"
-      (click)="setTab($any(t.id))">
-    </button>
+  <div class="flex gap-2 mb-6 flex-wrap">
+    <p-button
+      *ngFor="let tab of [
+        {id: 'all',     label: 'All verbs',     icon: 'pi pi-list-check'},
+        {id: 'today',   label: 'Studied today', icon: 'pi pi-calendar'},
+        {id: 'leeches', label: 'Leeches',       icon: 'pi pi-exclamation-triangle'},
+        {id: 'search',  label: 'Search',        icon: 'pi pi-search'}
+      ]"
+      [label]="tab.label"
+      [icon]="tab.icon"
+      [outlined]="activeTab() !== tab.id"
+      size="small"
+      (onClick)="setTab($any(tab.id))" />
   </div>
 
-  <!-- TAB 1: ALL VERBS -->
+  <!-- ALL -->
   <div *ngIf="activeTab() === 'all'">
-    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
-      <span class="text-sm text-muted-color">
-        Total: <strong>{{ allVerbs.value()?.length || 0 }}</strong> verbs
-      </span>
-
-      <p-iconfield iconPosition="left" class="w-full sm:w-auto">
-        <p-inputicon styleClass="pi pi-search"></p-inputicon>
-        <input
-          pInputText
-          type="text"
-          (input)="dt.filterGlobal($any($event.target).value, 'contains')"
-          placeholder="Filter verbs..."
-          class="w-full sm:w-auto" />
-      </p-iconfield>
-    </div>
-
-    <p-table
-      #dt
-      [value]="allVerbs.value() || []"
+    <p-table #dt [value]="allVerbs.value() || []"
       [loading]="allVerbs.isLoading()"
-      [paginator]="true"
-      [rows]="15"
+      [rows]="15" [paginator]="true" [rowHover]="true"
       [globalFilterFields]="['polishTranslation', 'englishForms']"
-      styleClass="p-datatable-striped">
-
+      [tableStyle]="{'min-width': '40rem'}"
+      [showCurrentPageReport]="true"
+      currentPageReportTemplate="Showing {first} to {last} of {totalRecords} verbs">
+      <ng-template #caption>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Filter..." />
+        </p-iconfield>
+      </ng-template>
       <ng-template #header>
         <tr>
-          <th>Polish Translation</th>
-          <th>English Forms (Infinitive - Past - Participle)</th>
+          <th pSortableColumn="polishTranslation">Polish Translation <p-sortIcon field="polishTranslation" /></th>
+          <th pSortableColumn="englishForms">English Forms <p-sortIcon field="englishForms" /></th>
           <th style="width: 8rem">Level</th>
-          <th style="width: 6rem">Interval</th>
-          <th style="width: 9rem">Next Review</th>
-          <th style="width: 6rem">Leech</th>
-          <th style="width: 4rem">Audio</th>
+          <th style="width: 8rem">Interval</th>
+          <th style="width: 8rem">Next Review</th>
+          <th style="width: 3rem"></th>
+          <th style="width: 3rem"></th>
         </tr>
       </ng-template>
-
       <ng-template #body let-verb>
         <tr>
-          <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
-          <td class="font-medium text-primary">{{ verb.englishForms }}</td>
+          <td class="font-semibold">{{ verb.polishTranslation }}</td>
+          <td class="text-muted-color">{{ verb.englishForms }}</td>
+          <td><p-tag [value]="verb.level" [severity]="verb.level === 'Basic' ? 'success' : 'warn'" /></td>
+          <td class="text-sm">{{ verb.interval === 0 ? 'New' : verb.interval + 'd' }}</td>
+          <td class="text-sm">{{ verb.nextReviewDate | date:'d MMM' }}</td>
           <td>
-            <p-tag
-              [severity]="verb.level === 'Basic' ? 'success' : 'warn'"
-              [value]="verb.level">
-            </p-tag>
+            <button pButton type="button" icon="pi pi-volume-up"
+              class="p-button-rounded p-button-text p-button-sm"
+              (click)="speak(verb.englishForms, $event)"
+              pTooltip="Listen to pronunciation"></button>
           </td>
           <td>
-            <p-tag
-              [value]="verb.interval + 'd'"
-              [severity]="verb.interval === 0 ? 'danger' : (verb.interval < 5 ? 'warn' : 'success')">
-            </p-tag>
-          </td>
-          <td class="text-xs text-muted-color">
-            {{ verb.nextReviewDate | date:'d MMM yyyy' }}
-          </td>
-          <td>
-            <p-tag
-              *ngIf="verb.isLeech || verb.easeFactor <= 150"
-              severity="danger"
-              value="Leech">
-            </p-tag>
-          </td>
-          <td>
-            <button
-              pButton
-              type="button"
-              icon="pi pi-volume-up"
-              class="p-button-text p-button-rounded p-button-secondary"
-              (click)="speak(verb.englishForms, $event)">
-            </button>
+            <i *ngIf="verb.isLeech || verb.easeFactor <= 150" class="pi pi-exclamation-triangle text-red-500"
+              pTooltip="Leech — needs extra attention"></i>
           </td>
         </tr>
       </ng-template>
-
       <ng-template #emptymessage>
         <tr>
           <td colspan="7" class="text-center text-muted-color py-8">
+            <i class="pi pi-list-check text-4xl block mb-2"></i>
             No irregular verbs found.
           </td>
         </tr>
@@ -123,130 +86,101 @@
     </p-table>
   </div>
 
-  <!-- TAB 2: STUDIED TODAY -->
+  <!-- STUDIED TODAY -->
   <div *ngIf="activeTab() === 'today'">
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
-
     <div *ngIf="!loadingTab()">
-      <p-table [value]="studiedToday()" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
-        <ng-template #header>
-          <tr>
-            <th>Polish Translation</th>
-            <th>English Forms</th>
-            <th>Level</th>
-            <th>Next Interval</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-verb>
-          <tr>
-            <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
-            <td class="font-medium text-primary">{{ verb.englishForms }}</td>
-            <td><p-tag [severity]="verb.level === 'Basic' ? 'success' : 'warn'" [value]="verb.level"></p-tag></td>
-            <td><p-tag [value]="verb.interval + 'd'" severity="success"></p-tag></td>
-          </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-          <tr>
-            <td colspan="4" class="text-center text-muted-color py-8">
-              No irregular verbs reviewed today.
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+      <p class="text-sm text-muted-color mb-4">{{ studiedToday().length }} verbs reviewed today</p>
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let verb of studiedToday()"
+          class="flex items-center gap-4 p-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</div>
+            <div class="text-sm text-muted-color">{{ verb.englishForms }}</div>
+          </div>
+          <p-tag [value]="verb.level" [severity]="verb.level === 'Basic' ? 'success' : 'warn'" />
+          <span class="text-xs text-muted-color">
+            {{ verb.interval === 0 ? 'New' : verb.interval + 'd' }}
+          </span>
+          <button pButton type="button" icon="pi pi-volume-up"
+            class="p-button-rounded p-button-text p-button-sm"
+            (click)="speak(verb.englishForms, $event)"
+            pTooltip="Listen to pronunciation"></button>
+        </div>
+        <div *ngIf="!studiedToday().length" class="text-center py-10 text-muted-color">
+          <i class="pi pi-calendar text-3xl block mb-2"></i>
+          No verbs studied today yet.
+        </div>
+      </div>
     </div>
   </div>
 
-  <!-- TAB 3: LEECHES -->
+  <!-- LEECHES -->
   <div *ngIf="activeTab() === 'leeches'">
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
-
     <div *ngIf="!loadingTab()">
-      <div *ngIf="leeches().length > 0" class="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
-        <i class="pi pi-exclamation-triangle font-bold mr-2"></i>
-        These verbs require extra practice because they have low ease factors or repeated review resets.
+      <p class="text-sm text-muted-color mb-4">
+        {{ leeches().length }} difficult verbs — these need extra attention
+      </p>
+      <div class="flex flex-col gap-2">
+        <div *ngFor="let verb of leeches()"
+          class="flex items-center gap-4 p-3 bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 rounded-xl">
+          <i class="pi pi-exclamation-triangle text-red-500 flex-shrink-0"></i>
+          <div class="flex-1">
+            <div class="font-semibold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</div>
+            <div class="text-sm text-muted-color">{{ verb.englishForms }}</div>
+          </div>
+          <span class="text-xs text-muted-color">{{ verb.interval }}d interval</span>
+          <button pButton type="button" icon="pi pi-volume-up"
+            class="p-button-rounded p-button-text p-button-sm"
+            (click)="speak(verb.englishForms, $event)"
+            pTooltip="Listen to pronunciation"></button>
+        </div>
+        <div *ngIf="!leeches().length" class="text-center py-10 text-muted-color">
+          <i class="pi pi-check-circle text-green-500 text-3xl block mb-2"></i>
+          No leeches — great job!
+        </div>
       </div>
-
-      <p-table [value]="leeches()" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
-        <ng-template #header>
-          <tr>
-            <th>Polish Translation</th>
-            <th>English Forms</th>
-            <th>Level</th>
-            <th>Ease Factor</th>
-            <th>Interval</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-verb>
-          <tr>
-            <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
-            <td class="font-medium text-primary">{{ verb.englishForms }}</td>
-            <td><p-tag [severity]="verb.level === 'Basic' ? 'success' : 'warn'" [value]="verb.level"></p-tag></td>
-            <td><span class="text-red-500 font-bold">{{ verb.easeFactor }}</span></td>
-            <td><p-tag [value]="verb.interval + 'd'" severity="danger"></p-tag></td>
-          </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-          <tr>
-            <td colspan="5" class="text-center text-muted-color py-8">
-              Great job! You have no leeches right now.
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
     </div>
   </div>
 
-  <!-- TAB 4: SEARCH -->
+  <!-- SEARCH -->
   <div *ngIf="activeTab() === 'search'">
-    <div class="flex items-center gap-3 mb-6">
-      <p-iconfield iconPosition="left" class="flex-1">
-        <p-inputicon styleClass="pi pi-search"></p-inputicon>
-        <input
-          pInputText
-          type="text"
-          [(ngModel)]="searchQuery"
-          (keyup.enter)="search()"
-          placeholder="Type polish word or english verb forms..."
-          class="w-full" />
-      </p-iconfield>
-
-      <button pButton label="Search" icon="pi pi-search" (click)="search()"></button>
+    <div class="flex gap-3 mb-6">
+      <input pInputText type="text"
+        [ngModel]="searchQuery()"
+        (ngModelChange)="searchQuery.set($event)"
+        placeholder="Search polish translation or english forms..."
+        class="flex-1"
+        (keyup.enter)="search()" />
+      <p-button label="Search" icon="pi pi-search" (onClick)="search()" />
     </div>
-
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
-
-    <div *ngIf="!loadingTab()">
-      <p-table [value]="searchResults()" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
-        <ng-template #header>
-          <tr>
-            <th>Polish Translation</th>
-            <th>English Forms</th>
-            <th>Level</th>
-            <th>Interval</th>
-          </tr>
-        </ng-template>
-        <ng-template #body let-verb>
-          <tr>
-            <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
-            <td class="font-medium text-primary">{{ verb.englishForms }}</td>
-            <td><p-tag [severity]="verb.level === 'Basic' ? 'success' : 'warn'" [value]="verb.level"></p-tag></td>
-            <td><p-tag [value]="verb.interval + 'd'" severity="info"></p-tag></td>
-          </tr>
-        </ng-template>
-        <ng-template #emptymessage>
-          <tr>
-            <td colspan="4" class="text-center text-muted-color py-8">
-              No results found. Type a query and press Search.
-            </td>
-          </tr>
-        </ng-template>
-      </p-table>
+    <div *ngIf="!loadingTab() && searchResults().length" class="flex flex-col gap-2">
+      <div *ngFor="let verb of searchResults()"
+        class="flex items-center gap-4 p-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl">
+        <div class="flex-1">
+          <div class="font-semibold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</div>
+          <div class="text-sm text-muted-color">{{ verb.englishForms }}</div>
+        </div>
+        <p-tag [value]="verb.level" [severity]="verb.level === 'Basic' ? 'success' : 'warn'" />
+        <button pButton type="button" icon="pi pi-volume-up"
+          class="p-button-rounded p-button-text p-button-sm"
+          (click)="speak(verb.englishForms, $event)"
+          pTooltip="Listen to pronunciation"></button>
+        <i *ngIf="verb.isLeech || verb.easeFactor <= 150" class="pi pi-exclamation-triangle text-red-500"
+          pTooltip="Leech"></i>
+      </div>
+    </div>
+    <div *ngIf="!loadingTab() && !searchResults().length && searchQuery()"
+      class="text-center py-10 text-muted-color">
+      No results for "{{ searchQuery() }}".
     </div>
   </div>
 
