@@ -69,13 +69,12 @@
 
             <div class="podium-slot place-2" *ngIf="podiumEntries().p2 as p2">
 
-              <div class="avatar-wrapper silver-glow relative">
+              <div class="avatar-wrapper silver-glow">
                 <app-avatar
                   [username]="p2.username"
                   [avatarUrl]="p2.avatarUrl"
                   customClass="w-20 h-20 text-2xl"
                   fallbackBgClass="bg-slate-400 text-white" />
-                <span *ngIf="p2.isOnline" class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-green-500 border-2 border-white dark:border-surface-900 shadow-md z-10" pTooltip="Active now" tooltipPosition="top"></span>
                 <span class="medal-badge">🥈</span>
               </div>
 
@@ -84,7 +83,7 @@
                   {{ p2.username }}
                   <span *ngIf="p2.isOnline" class="inline-flex items-center gap-1 text-[10px] bg-green-500/15 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full" pTooltip="Active now" tooltipPosition="top">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                    online
+                    Online
                   </span>
                 </div>
                 <div class="podium-title">{{ p2.title }}</div>
@@ -121,7 +120,7 @@
 
               <div class="crown-container">👑</div>
 
-              <div class="avatar-wrapper gold-glow relative">
+              <div class="avatar-wrapper gold-glow">
                 <div class="gold-ring"></div>
 
                 <app-avatar
@@ -130,7 +129,6 @@
                   customClass="w-28 h-28 text-3xl"
                   fallbackBgClass="bg-yellow-500 text-white" />
 
-                <span *ngIf="p1.isOnline" class="absolute bottom-1 right-1 w-5 h-5 rounded-full bg-green-500 border-2 border-white dark:border-surface-900 shadow-md z-10" pTooltip="Active now" tooltipPosition="top"></span>
                 <span class="medal-badge">🥇</span>
               </div>
 
@@ -139,7 +137,7 @@
                   {{ p1.username }}
                   <span *ngIf="p1.isOnline" class="inline-flex items-center gap-1 text-[10px] bg-green-500/15 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full" pTooltip="Active now" tooltipPosition="top">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                    online
+                    Online
                   </span>
                 </div>
 
@@ -180,13 +178,12 @@
 
             <div class="podium-slot place-3" *ngIf="podiumEntries().p3 as p3">
 
-              <div class="avatar-wrapper bronze-glow relative">
+              <div class="avatar-wrapper bronze-glow">
                 <app-avatar
                   [username]="p3.username"
                   [avatarUrl]="p3.avatarUrl"
                   customClass="w-20 h-20 text-2xl"
                   fallbackBgClass="bg-amber-700 text-white" />
-                <span *ngIf="p3.isOnline" class="absolute bottom-0 right-0 w-4 h-4 rounded-full bg-green-500 border-2 border-white dark:border-surface-900 shadow-md z-10" pTooltip="Active now" tooltipPosition="top"></span>
                 <span class="medal-badge">🥉</span>
               </div>
 
@@ -195,7 +192,7 @@
                   {{ p3.username }}
                   <span *ngIf="p3.isOnline" class="inline-flex items-center gap-1 text-[10px] bg-green-500/15 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full" pTooltip="Active now" tooltipPosition="top">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                    online
+                    Online
                   </span>
                 </div>
                 <div class="podium-title">{{ p3.title }}</div>
@@ -268,7 +265,7 @@
                   <span *ngIf="entry.isOnline"
                     class="inline-flex items-center gap-1 text-[10px] bg-green-500/10 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
-                    online
+                    Online
                   </span>
                   <span *ngIf="isCurrentUser(entry)"
                     class="you-badge">
