@@ -81,6 +81,7 @@ import { AlphabetLessonTestComponent } from './other/alphabet-lesson-test/alphab
 import { LessonMemoriesComponent } from './lesson/lesson-memories/lesson-memories.component';
 import { LessonPronunciationComponent } from './lesson/lesson-pronunciation/lesson-pronunciation.component';
 import { FlashcardRemindersComponent } from './admin-tools/flashcard-reminders/flashcard-reminders.component';
+import { AttendanceListComponent } from './admin-tools/attendance-list/attendance-list.component';
 
 
 
@@ -176,6 +177,7 @@ export const appRoutes: Routes = [
       { path: 'lesson/credits', component: AdminCreditsComponent, canActivate: [AuthGuard] },
       { path: 'system/student-activity', component: StudentActivityComponent, canActivate: [AuthGuard] },
       { path: 'system/flashcard-reminders', component: FlashcardRemindersComponent, canActivate: [AuthGuard] },
+      { path: 'system/attendance-list', component: AttendanceListComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/courses/plan', component: AssignCourseComponent, canActivate: [AuthGuard] },
       { path: 'alphabet-test', component: AlphabetTestComponent, canActivate: [AuthGuard] },
       { path: 'lesson/alphabet', component: AlphabetLessonTestComponent, canActivate: [AuthGuard] },

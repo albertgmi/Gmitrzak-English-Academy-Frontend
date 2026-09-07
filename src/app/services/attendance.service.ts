@@ -5,6 +5,8 @@ import { environment } from '../../environments/environment';
 export interface AttendanceDto {
     id: number;
     userId: number;
+    username?: string;
+    avatarUrl?: string;
     type: 'SCHEDULED' | 'MAKEUP';
     duration: number;
     createdAt: string;
@@ -20,6 +22,10 @@ export interface CreateAttendanceRequest {
 export class AttendanceService {
     private apiUrl = `${environment.apiUrl}/api/lesson-panel/attendance`;
     private http = inject(HttpClient);
+
+    getAllAttendance() {
+        return this.http.get<AttendanceDto[]>(`${this.apiUrl}/all`);
+    }
 
     getAttendance(userId: number) {
         return this.http.get<AttendanceDto[]>(`${this.apiUrl}/${userId}`);
