@@ -79,7 +79,7 @@
               </div>
 
               <div class="podium-info">
-                <div class="podium-name flex items-center justify-center gap-1.5">
+                <div class="podium-name flex items-center justify-center gap-1.5 flex-wrap">
                   {{ p2.username }}
                   <span *ngIf="p2.isOnline" class="inline-flex items-center gap-1 text-[10px] bg-green-500/15 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full" pTooltip="Active now" tooltipPosition="top">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
@@ -133,7 +133,7 @@
               </div>
 
               <div class="podium-info">
-                <div class="podium-name champion flex items-center justify-center gap-1.5">
+                <div class="podium-name champion flex items-center justify-center gap-1.5 flex-wrap">
                   {{ p1.username }}
                   <span *ngIf="p1.isOnline" class="inline-flex items-center gap-1 text-[10px] bg-green-500/15 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full" pTooltip="Active now" tooltipPosition="top">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
@@ -188,7 +188,7 @@
               </div>
 
               <div class="podium-info">
-                <div class="podium-name flex items-center justify-center gap-1.5">
+                <div class="podium-name flex items-center justify-center gap-1.5 flex-wrap">
                   {{ p3.username }}
                   <span *ngIf="p3.isOnline" class="inline-flex items-center gap-1 text-[10px] bg-green-500/15 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full" pTooltip="Active now" tooltipPosition="top">
                     <span class="w-1.5 h-1.5 rounded-full bg-green-500 animate-pulse"></span>
@@ -260,7 +260,7 @@
                 </span>
               </div>
               <div class="user-info">
-                <span class="user-name flex items-center gap-1.5">
+                <span class="user-name flex items-center gap-1.5 flex-wrap">
                   {{ entry.username }}
                   <span *ngIf="entry.isOnline"
                     class="inline-flex items-center gap-1 text-[10px] bg-green-500/10 text-green-600 dark:text-green-400 font-medium px-1.5 py-0.5 rounded-full">
