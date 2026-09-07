@@ -1,14 +1,14 @@
 .flashcard-wrapper {
   perspective: 1200px;
   width: 100%;
-  height: clamp(230px, 46vh, 420px);
-  max-height: 420px;
+  height: clamp(200px, 36vh, 320px);
+  max-height: 320px;
   cursor: pointer;
 }
 
 @media (max-height: 720px) {
   .flashcard-wrapper {
-    height: clamp(200px, 38vh, 310px);
+    height: clamp(180px, 30vh, 250px);
   }
 }
 
