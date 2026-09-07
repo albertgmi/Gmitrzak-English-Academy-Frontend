@@ -1,6 +1,7 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
+import { IrregularVerbDto } from './student-services/irregular-verbs.service';
 
 export interface AgendaDto {
     id: number;
@@ -50,6 +51,14 @@ export interface LessonFlashcardSummaryDto {
     leeches: LessonFlashcardDto[];
     studiedToday: LessonFlashcardDto[];
     recentLogs: LessonStudyLogDto[];
+}
+
+export interface LessonIrregularVerbSummaryDto {
+    totalCards: number;
+    dueCount: number;
+    studiedTodayCount: number;
+    leechCount: number;
+    leeches: IrregularVerbDto[];
 }
 
 export interface StreamEntryDto {
@@ -157,8 +166,21 @@ export class LessonPanelService {
         return this.http.get<LessonStatsDto>(`${this.apiUrl}/stats/${studentUserId}`);
     }
 
+
     updateInterval(studentUserId: number, flashcardId: number, interval: number) {
         return this.http.put(`${this.apiUrl}/flashcards/${studentUserId}/${flashcardId}/interval`, interval);
+    }
+
+    getIrregularVerbs(studentUserId: number) {
+        return this.http.get<LessonIrregularVerbSummaryDto>(`${this.apiUrl}/irregular-verbs/${studentUserId}`);
+    }
+
+    getAllIrregularVerbs(studentUserId: number) {
+        return this.http.get<IrregularVerbDto[]>(`${this.apiUrl}/irregular-verbs/all/${studentUserId}`);
+    }
+
+    updateIrregularVerbInterval(studentUserId: number, verbId: number, interval: number) {
+        return this.http.put(`${this.apiUrl}/irregular-verbs/${studentUserId}/${verbId}/interval`, interval);
     }
 
     exportFlashcardsPdf(studentUserId: number) {

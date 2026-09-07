@@ -167,8 +167,16 @@ export class AppMenu implements OnInit {
             icon: 'pi pi-list', 
             routerLink: ['/flashcards'] 
           },
-          { label: 'Vocabulary', icon: 'pi pi-book', routerLink: ['/vocabulary'] },
-          { label: 'Irregular Verbs', icon: 'pi pi-list-check', routerLink: ['/irregular-verbs'] },
+          { 
+            label: 'Irregular Verbs Session', 
+            icon: 'pi pi-bolt', 
+            routerLink: ['/irregular-verbs/study'] 
+          },
+          { 
+            label: 'Irregular Verbs', 
+            icon: 'pi pi-list-check', 
+            routerLink: ['/irregular-verbs'] 
+          },
           { label: 'Sentences Session', icon: 'pi pi-bolt', routerLink: ['/sentences-cards'] },
           { label: 'Sentences', icon: 'pi pi-align-left', routerLink: ['/sentences'] },
           { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/memories'] },
@@ -226,6 +234,7 @@ export class AppMenu implements OnInit {
       { label: 'Grades', icon: 'pi pi-chart-bar', routerLink: ['/lesson/grades'] },
       { label: 'Activity Points', icon: 'pi pi-history', routerLink: ['/lesson/activity-points'] },
       { label: 'Flashcards', icon: 'pi pi-clone', routerLink: ['/lesson/flashcards'] },
+      { label: 'Irregular Verbs', icon: 'pi pi-list-check', routerLink: ['/lesson/irregular-verbs'] },
       { label: 'Report Listening', icon: 'pi pi-video', routerLink: ['/lesson/listening'] },
       { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/flashcards-study-time'] },
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },

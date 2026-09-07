@@ -1,0 +1,253 @@
+<p-toast></p-toast>
+
+<div class="card p-6 w-full">
+  
+  <!-- Header with Title & Action Button -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h1 class="text-2xl sm:text-3xl font-extrabold text-surface-900 dark:text-surface-0 m-0 flex items-center gap-2">
+        <i class="pi pi-list-check text-primary"></i> Irregular Verbs List
+      </h1>
+      <p class="text-muted-color text-sm mt-1 mb-0">
+        Review your irregular verbs progression, intervals, and leeches.
+      </p>
+    </div>
+
+    <button
+      pButton
+      label="Start Review Session"
+      icon="pi pi-bolt"
+      class="p-button-success p-button-lg rounded-xl font-bold shadow-sm"
+      [routerLink]="['/irregular-verbs/study']">
+    </button>
+  </div>
+
+  <!-- Tabs Header -->
+  <div class="flex flex-wrap gap-2 border-b border-surface-200 dark:border-surface-700 pb-3 mb-6">
+    <button
+      *ngFor="let t of tabs"
+      pButton
+      [label]="t.label"
+      [icon]="t.icon"
+      [severity]="activeTab() === t.id ? 'primary' : 'secondary'"
+      [outlined]="activeTab() !== t.id"
+      class="rounded-xl font-semibold text-sm"
+      (click)="setTab($any(t.id))">
+    </button>
+  </div>
+
+  <!-- TAB 1: ALL VERBS -->
+  <div *ngIf="activeTab() === 'all'">
+    <div class="flex flex-col sm:flex-row justify-between items-center gap-4 mb-4">
+      <span class="text-sm text-muted-color">
+        Total: <strong>{{ allVerbs.value()?.length || 0 }}</strong> verbs
+      </span>
+
+      <p-iconfield iconPosition="left" class="w-full sm:w-auto">
+        <p-inputicon styleClass="pi pi-search"></p-inputicon>
+        <input
+          pInputText
+          type="text"
+          (input)="dt.filterGlobal($any($event.target).value, 'contains')"
+          placeholder="Filter verbs..."
+          class="w-full sm:w-auto" />
+      </p-iconfield>
+    </div>
+
+    <p-table
+      #dt
+      [value]="allVerbs.value() || []"
+      [loading]="allVerbs.isLoading()"
+      [paginator]="true"
+      [rows]="15"
+      [globalFilterFields]="['polishTranslation', 'englishForms']"
+      styleClass="p-datatable-striped">
+
+      <ng-template #header>
+        <tr>
+          <th>Polish Translation</th>
+          <th>English Forms (Infinitive - Past - Participle)</th>
+          <th style="width: 8rem">Level</th>
+          <th style="width: 6rem">Interval</th>
+          <th style="width: 9rem">Next Review</th>
+          <th style="width: 6rem">Leech</th>
+          <th style="width: 4rem">Audio</th>
+        </tr>
+      </ng-template>
+
+      <ng-template #body let-verb>
+        <tr>
+          <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
+          <td class="font-medium text-primary">{{ verb.englishForms }}</td>
+          <td>
+            <p-tag
+              [severity]="verb.level === 'Basic' ? 'success' : 'warn'"
+              [value]="verb.level">
+            </p-tag>
+          </td>
+          <td>
+            <p-tag
+              [value]="verb.interval + 'd'"
+              [severity]="verb.interval === 0 ? 'danger' : (verb.interval < 5 ? 'warn' : 'success')">
+            </p-tag>
+          </td>
+          <td class="text-xs text-muted-color">
+            {{ verb.nextReviewDate | date:'d MMM yyyy' }}
+          </td>
+          <td>
+            <p-tag
+              *ngIf="verb.isLeech || verb.easeFactor <= 150"
+              severity="danger"
+              value="Leech">
+            </p-tag>
+          </td>
+          <td>
+            <button
+              pButton
+              type="button"
+              icon="pi pi-volume-up"
+              class="p-button-text p-button-rounded p-button-secondary"
+              (click)="speak(verb.englishForms, $event)">
+            </button>
+          </td>
+        </tr>
+      </ng-template>
+
+      <ng-template #emptymessage>
+        <tr>
+          <td colspan="7" class="text-center text-muted-color py-8">
+            No irregular verbs found.
+          </td>
+        </tr>
+      </ng-template>
+    </p-table>
+  </div>
+
+  <!-- TAB 2: STUDIED TODAY -->
+  <div *ngIf="activeTab() === 'today'">
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+
+    <div *ngIf="!loadingTab()">
+      <p-table [value]="studiedToday()" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
+        <ng-template #header>
+          <tr>
+            <th>Polish Translation</th>
+            <th>English Forms</th>
+            <th>Level</th>
+            <th>Next Interval</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-verb>
+          <tr>
+            <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
+            <td class="font-medium text-primary">{{ verb.englishForms }}</td>
+            <td><p-tag [severity]="verb.level === 'Basic' ? 'success' : 'warn'" [value]="verb.level"></p-tag></td>
+            <td><p-tag [value]="verb.interval + 'd'" severity="success"></p-tag></td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="4" class="text-center text-muted-color py-8">
+              No irregular verbs reviewed today.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- TAB 3: LEECHES -->
+  <div *ngIf="activeTab() === 'leeches'">
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+
+    <div *ngIf="!loadingTab()">
+      <div *ngIf="leeches().length > 0" class="mb-4 p-4 rounded-xl bg-red-50 dark:bg-red-900/20 border border-red-200 dark:border-red-800 text-red-700 dark:text-red-300 text-sm">
+        <i class="pi pi-exclamation-triangle font-bold mr-2"></i>
+        These verbs require extra practice because they have low ease factors or repeated review resets.
+      </div>
+
+      <p-table [value]="leeches()" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
+        <ng-template #header>
+          <tr>
+            <th>Polish Translation</th>
+            <th>English Forms</th>
+            <th>Level</th>
+            <th>Ease Factor</th>
+            <th>Interval</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-verb>
+          <tr>
+            <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
+            <td class="font-medium text-primary">{{ verb.englishForms }}</td>
+            <td><p-tag [severity]="verb.level === 'Basic' ? 'success' : 'warn'" [value]="verb.level"></p-tag></td>
+            <td><span class="text-red-500 font-bold">{{ verb.easeFactor }}</span></td>
+            <td><p-tag [value]="verb.interval + 'd'" severity="danger"></p-tag></td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="5" class="text-center text-muted-color py-8">
+              Great job! You have no leeches right now.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+  <!-- TAB 4: SEARCH -->
+  <div *ngIf="activeTab() === 'search'">
+    <div class="flex items-center gap-3 mb-6">
+      <p-iconfield iconPosition="left" class="flex-1">
+        <p-inputicon styleClass="pi pi-search"></p-inputicon>
+        <input
+          pInputText
+          type="text"
+          [(ngModel)]="searchQuery"
+          (keyup.enter)="search()"
+          placeholder="Type polish word or english verb forms..."
+          class="w-full" />
+      </p-iconfield>
+
+      <button pButton label="Search" icon="pi pi-search" (click)="search()"></button>
+    </div>
+
+    <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
+      <i class="pi pi-spin pi-spinner text-3xl"></i>
+    </div>
+
+    <div *ngIf="!loadingTab()">
+      <p-table [value]="searchResults()" [paginator]="true" [rows]="15" styleClass="p-datatable-striped">
+        <ng-template #header>
+          <tr>
+            <th>Polish Translation</th>
+            <th>English Forms</th>
+            <th>Level</th>
+            <th>Interval</th>
+          </tr>
+        </ng-template>
+        <ng-template #body let-verb>
+          <tr>
+            <td class="font-bold text-surface-900 dark:text-surface-0">{{ verb.polishTranslation }}</td>
+            <td class="font-medium text-primary">{{ verb.englishForms }}</td>
+            <td><p-tag [severity]="verb.level === 'Basic' ? 'success' : 'warn'" [value]="verb.level"></p-tag></td>
+            <td><p-tag [value]="verb.interval + 'd'" severity="info"></p-tag></td>
+          </tr>
+        </ng-template>
+        <ng-template #emptymessage>
+          <tr>
+            <td colspan="4" class="text-center text-muted-color py-8">
+              No results found. Type a query and press Search.
+            </td>
+          </tr>
+        </ng-template>
+      </p-table>
+    </div>
+  </div>
+
+</div>

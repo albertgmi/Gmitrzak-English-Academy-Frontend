@@ -92,6 +92,8 @@ import { LiveSentenceRoomComponent } from './content/live-sentence-room/live-sen
 import { AcademyExamsComponent } from './student-view/academy-exams/academy-exams.component';
 import { IrregularVerbsSelectionComponent } from './student-view/irregular-verbs-selection/irregular-verbs-selection.component';
 import { IrregularVerbsStudyComponent } from './student-view/irregular-verbs-study/irregular-verbs-study.component';
+import {IrregularVerbsPanelComponent} from './student-view/irregular-verbs-panel/irregular-verbs-panel.component';
+import {LessonIrregularVerbsComponent} from './lesson/lesson-irregular-verbs/lesson-irregular-verbs.component';
 
 export const appRoutes: Routes = [
   {
@@ -134,8 +136,9 @@ export const appRoutes: Routes = [
       { path: 'exams', component: AcademyExamsComponent, canActivate: [AuthGuard] },
       { path: 'flashcards', component: FlashcardPanelComponent, canActivate: [AuthGuard] },
       { path: 'flashcards/study', component: FlashcardStudyModeComponent, canActivate: [AuthGuard] },
-      { path: 'irregular-verbs', component: IrregularVerbsSelectionComponent, canActivate: [AuthGuard] },
-      { path: 'irregular-verbs/study', component: IrregularVerbsStudyComponent, canActivate: [AuthGuard] },
+      { path: 'irregular-verbs', component: IrregularVerbsPanelComponent, canActivate: [AuthGuard] },
+      { path: 'irregular-verbs/study', component: IrregularVerbsSelectionComponent, canActivate: [AuthGuard] },
+      { path: 'irregular-verbs/study-mode', component: IrregularVerbsStudyComponent, canActivate: [AuthGuard] },
       { path: 'lesson/switch-client', component: SwitchClientComponent, canActivate: [AuthGuard] },
       { path: 'lesson/mode', component: LessonModeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/homework', component: HomeworkCheckComponent, canActivate: [AuthGuard] },
@@ -147,6 +150,7 @@ export const appRoutes: Routes = [
       { path: 'lesson/grades', component: LessonGradesComponent, canActivate: [AuthGuard] },
       { path: 'lesson/activity-points', component: LessonActivityPointsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards', component: LessonFlashcardsComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/irregular-verbs', component: LessonIrregularVerbsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/attendance', component: AttendanceComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards-study-time', component: LessonStudyTimeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/last-week', component: LessonLastWeekComponent, canActivate: [AuthGuard] },
