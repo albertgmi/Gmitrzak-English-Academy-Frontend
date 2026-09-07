@@ -35,6 +35,7 @@
     <p-table #dt [value]="allVerbs.value() || []"
       [loading]="allVerbs.isLoading()"
       [rows]="15" [paginator]="true" [rowHover]="true"
+      sortField="nextReviewDate" [sortOrder]="1"
       [globalFilterFields]="['polishTranslation', 'englishForms']"
       [tableStyle]="{'min-width': '40rem'}"
       [showCurrentPageReport]="true"
@@ -51,7 +52,7 @@
           <th pSortableColumn="englishForms">English Forms <p-sortIcon field="englishForms" /></th>
           <th style="width: 8rem">Level</th>
           <th style="width: 8rem">Interval</th>
-          <th style="width: 8rem">Next Review</th>
+          <th pSortableColumn="nextReviewDate" style="width: 8rem">Next Review <p-sortIcon field="nextReviewDate" /></th>
           <th style="width: 3rem"></th>
           <th style="width: 3rem"></th>
         </tr>

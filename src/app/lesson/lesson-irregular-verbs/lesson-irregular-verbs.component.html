@@ -82,14 +82,14 @@
           </p-iconfield>
         </div>
 
-        <p-table #dt [value]="allVerbs()" [paginator]="true" [rows]="15" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['polishTranslation', 'englishForms']">
+        <p-table #dt [value]="allVerbs()" [paginator]="true" [rows]="15" sortField="nextReviewDate" [sortOrder]="1" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['polishTranslation', 'englishForms']">
           <ng-template #header>
             <tr>
-              <th>Polish Translation</th>
-              <th>English Forms</th>
+              <th pSortableColumn="polishTranslation">Polish Translation <p-sortIcon field="polishTranslation" /></th>
+              <th pSortableColumn="englishForms">English Forms <p-sortIcon field="englishForms" /></th>
               <th style="width: 7rem">Level</th>
               <th style="width: 5rem">Int.</th>
-              <th style="width: 8rem">Next Due</th>
+              <th pSortableColumn="nextReviewDate" style="width: 8rem">Next Due <p-sortIcon field="nextReviewDate" /></th>
               <th style="width: 4rem"></th>
             </tr>
           </ng-template>
