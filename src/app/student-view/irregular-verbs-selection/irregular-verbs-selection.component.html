@@ -1,28 +1,50 @@
-<div class="card p-6 sm:p-8">
-  <div class="flex flex-col items-center text-center mb-8">
-    <span class="inline-flex items-center justify-center w-16 h-16 rounded-full bg-primary-100 dark:bg-primary-900/40 text-primary mb-4">
-      <i class="pi pi-list-check text-3xl"></i>
+<div class="card p-6 sm:p-10 flex flex-col justify-between min-h-[calc(100vh-11rem)]">
+  
+  <!-- Header Section -->
+  <div class="flex flex-col items-center text-center mb-8 sm:mb-12">
+    <span class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-2xl bg-primary-100 dark:bg-primary-900/40 text-primary mb-4 shadow-sm">
+      <i class="pi pi-list-check text-3xl sm:text-4xl"></i>
     </span>
-    <h1 class="text-3xl font-bold text-surface-900 dark:text-surface-0 mb-2">Irregular Verbs</h1>
-    <p class="text-muted-color max-w-2xl">
-      Select an irregular verbs set to practice today in flashcard format.
+    <h1 class="text-3xl sm:text-4xl font-extrabold text-surface-900 dark:text-surface-0 mb-3 tracking-tight">Irregular Verbs</h1>
+    <p class="text-muted-color text-base sm:text-lg max-w-2xl leading-relaxed">
+      Select your target irregular verbs collection to practice today with our Spaced Repetition System.
     </p>
   </div>
 
-  <div class="grid grid-cols-1 md:grid-cols-2 gap-6 lg:gap-8">
-    <!-- Card Basic -->
-    <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-primary transition-all duration-300 shadow-sm hover:shadow-md">
+  <!-- Cards Grid (Tall & Proportionate) -->
+  <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 my-auto">
+    
+    <!-- Card Basic Level -->
+    <div class="bg-surface-0 dark:bg-surface-900 border-2 border-surface-200 dark:border-surface-700 rounded-3xl p-8 sm:p-10 flex flex-col justify-between hover:border-emerald-500 transition-all duration-300 shadow-md hover:shadow-xl min-h-[420px] sm:min-h-[480px]">
       <div>
-        <div class="flex items-center justify-between mb-4">
-          <span class="w-12 h-12 rounded-xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center">
-            <i class="pi pi-star-fill text-xl"></i>
+        <div class="flex items-center justify-between mb-6">
+          <span class="w-16 h-16 rounded-2xl bg-emerald-500/10 text-emerald-500 flex items-center justify-center shadow-inner">
+            <i class="pi pi-star-fill text-2xl"></i>
           </span>
-          <p-tag severity="success" value="Basic"></p-tag>
+          <p-tag severity="success" value="Basic Level" class="text-sm px-3 py-1"></p-tag>
         </div>
-        <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 mb-3">Basic Level</h3>
-        <p class="text-muted-color text-base mb-6 leading-relaxed">
-          Essential and most common irregular verbs used in everyday communication (e.g. <i>go, see, be, have, do</i>).
+
+        <h3 class="text-2xl sm:text-3xl font-extrabold text-surface-900 dark:text-surface-0 mb-4">Basic Irregular Verbs</h3>
+        
+        <p class="text-muted-color text-base sm:text-lg mb-8 leading-relaxed">
+          Master the core irregular verbs essential for fluent everyday communication and general English proficiency.
         </p>
+
+        <!-- Feature List -->
+        <ul class="space-y-3 mb-8 text-surface-700 dark:text-surface-300 font-medium text-sm sm:text-base">
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-emerald-500 text-lg"></i>
+            <span>68 core everyday verbs</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-emerald-500 text-lg"></i>
+            <span>Essential forms (e.g. <i>go, see, drive, eat</i>)</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-emerald-500 text-lg"></i>
+            <span>Smart Spaced Repetition (SRS)</span>
+          </li>
+        </ul>
       </div>
 
       <button
@@ -30,25 +52,43 @@
         label="Start Basic Review"
         icon="pi pi-arrow-right"
         iconPos="right"
-        class="w-full p-button-success p-button-lg"
+        class="w-full p-button-success p-button-lg py-4 text-lg font-bold rounded-2xl shadow-md hover:shadow-lg transition-all"
         [routerLink]="['/irregular-verbs/study']"
         [queryParams]="{ level: 'Basic' }">
       </button>
     </div>
 
-    <!-- Card Advanced -->
-    <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 sm:p-8 flex flex-col justify-between hover:border-primary transition-all duration-300 shadow-sm hover:shadow-md">
+    <!-- Card Advanced Level -->
+    <div class="bg-surface-0 dark:bg-surface-900 border-2 border-surface-200 dark:border-surface-700 rounded-3xl p-8 sm:p-10 flex flex-col justify-between hover:border-purple-500 transition-all duration-300 shadow-md hover:shadow-xl min-h-[420px] sm:min-h-[480px]">
       <div>
-        <div class="flex items-center justify-between mb-4">
-          <span class="w-12 h-12 rounded-xl bg-purple-500/10 text-purple-500 flex items-center justify-center">
-            <i class="pi pi-bolt text-xl"></i>
+        <div class="flex items-center justify-between mb-6">
+          <span class="w-16 h-16 rounded-2xl bg-purple-500/10 text-purple-500 flex items-center justify-center shadow-inner">
+            <i class="pi pi-bolt text-2xl"></i>
           </span>
-          <p-tag severity="warn" value="Advanced"></p-tag>
+          <p-tag severity="warn" value="Advanced Level" class="text-sm px-3 py-1"></p-tag>
         </div>
-        <h3 class="text-2xl font-bold text-surface-900 dark:text-surface-0 mb-3">Advanced Level</h3>
-        <p class="text-muted-color text-base mb-6 leading-relaxed">
-          More advanced irregular verbs for higher fluency levels (e.g. <i>arise, cling, creep, flee</i>).
+
+        <h3 class="text-2xl sm:text-3xl font-extrabold text-surface-900 dark:text-surface-0 mb-4">Advanced Irregular Verbs</h3>
+        
+        <p class="text-muted-color text-base sm:text-lg mb-8 leading-relaxed">
+          Expand your vocabulary with advanced, nuanced irregular verbs designed for B2/C1/C2 language mastery.
         </p>
+
+        <!-- Feature List -->
+        <ul class="space-y-3 mb-8 text-surface-700 dark:text-surface-300 font-medium text-sm sm:text-base">
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-purple-500 text-lg"></i>
+            <span>73 advanced & literary verbs</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-purple-500 text-lg"></i>
+            <span>Advanced forms (e.g. <i>arise, cling, flee, seek</i>)</span>
+          </li>
+          <li class="flex items-center gap-3">
+            <i class="pi pi-check-circle text-purple-500 text-lg"></i>
+            <span>Smart Spaced Repetition (SRS)</span>
+          </li>
+        </ul>
       </div>
 
       <button
@@ -56,10 +96,16 @@
         label="Start Advanced Review"
         icon="pi pi-arrow-right"
         iconPos="right"
-        class="w-full p-button-help p-button-lg"
+        class="w-full p-button-help p-button-lg py-4 text-lg font-bold rounded-2xl shadow-md hover:shadow-lg transition-all"
         [routerLink]="['/irregular-verbs/study']"
         [queryParams]="{ level: 'Advanced' }">
       </button>
     </div>
+
   </div>
+
+  <div class="mt-8 text-center text-xs text-muted-color opacity-60">
+    Gmitrzak English Academy &bull; Irregular Verbs Module
+  </div>
+
 </div>
