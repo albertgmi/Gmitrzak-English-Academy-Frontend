@@ -2,66 +2,64 @@
 <p-confirmDialog />
 
 <!-- LIST VIEW -->
-<div *ngIf="viewMode() === 'list'" class="card">
+<div *ngIf="viewMode() === 'list'" class="card p-3 sm:p-6">
   <!-- Top Header & Banner -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
-    <div>
-      <div class="flex items-center gap-3">
-        <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-950/60 text-primary flex items-center justify-center font-bold text-xl shadow-sm">
-          <i class="pi pi-book text-xl"></i>
-        </div>
-        <div>
-          <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Wordfinder Catalogues</h2>
-          <p class="text-muted-color mt-0.5 m-0 text-sm">
-            Create custom vocabulary lists, leverage real-time AI translation & spellcheck, and submit for Teacher review.
-          </p>
-        </div>
+  <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-4 mb-6">
+    <div class="flex items-center gap-3">
+      <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-950/60 text-primary flex items-center justify-center font-bold text-xl shadow-sm shrink-0">
+        <i class="pi pi-book text-xl"></i>
+      </div>
+      <div>
+        <h2 class="text-xl sm:text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Wordfinder Catalogues</h2>
+        <p class="text-muted-color mt-0.5 m-0 text-xs sm:text-sm">
+          Create custom vocabulary lists, leverage real-time AI translation & spellcheck, and submit for Teacher review.
+        </p>
       </div>
     </div>
-    <div class="flex items-center gap-2">
-      <p-button label="Create Catalogue" icon="pi pi-plus" severity="primary" (onClick)="openCreateDialog()" />
+    <div class="flex items-center gap-2 w-full sm:w-auto">
+      <p-button label="Create Catalogue" icon="pi pi-plus" severity="primary" class="w-full sm:w-auto" (onClick)="openCreateDialog()" />
     </div>
   </div>
 
-  <!-- KPI Summary Cards -->
-  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
-    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
-      <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
-        <i class="pi pi-folder text-xl"></i>
+  <!-- KPI Summary Cards (2x2 on Mobile, 4x1 on Desktop) -->
+  <div class="grid grid-cols-2 lg:grid-cols-4 gap-3 sm:gap-4 mb-6">
+    <div class="p-3 sm:p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-3 sm:gap-4 shadow-xs">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+        <i class="pi pi-folder text-lg sm:text-xl"></i>
       </div>
-      <div>
-        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Total Sets</span>
-        <span class="text-2xl font-extrabold text-surface-900 dark:text-surface-0">{{ totalCount() }}</span>
-      </div>
-    </div>
-
-    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
-      <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
-        <i class="pi pi-pencil text-xl"></i>
-      </div>
-      <div>
-        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Drafts</span>
-        <span class="text-2xl font-extrabold text-surface-900 dark:text-surface-0">{{ draftCount() }}</span>
+      <div class="min-w-0">
+        <span class="text-[10px] sm:text-xs text-muted-color font-semibold uppercase tracking-wider block truncate">Total Sets</span>
+        <span class="text-xl sm:text-2xl font-extrabold text-surface-900 dark:text-surface-0">{{ totalCount() }}</span>
       </div>
     </div>
 
-    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
-      <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
-        <i class="pi pi-clock text-xl"></i>
+    <div class="p-3 sm:p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-3 sm:gap-4 shadow-xs">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
+        <i class="pi pi-pencil text-lg sm:text-xl"></i>
       </div>
-      <div>
-        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Pending Review</span>
-        <span class="text-2xl font-extrabold text-amber-600 dark:text-amber-400">{{ pendingCount() }}</span>
+      <div class="min-w-0">
+        <span class="text-[10px] sm:text-xs text-muted-color font-semibold uppercase tracking-wider block truncate">Drafts</span>
+        <span class="text-xl sm:text-2xl font-extrabold text-surface-900 dark:text-surface-0">{{ draftCount() }}</span>
       </div>
     </div>
 
-    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
-      <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
-        <i class="pi pi-check-circle text-xl"></i>
+    <div class="p-3 sm:p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-3 sm:gap-4 shadow-xs">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+        <i class="pi pi-clock text-lg sm:text-xl"></i>
       </div>
-      <div>
-        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Approved Sets</span>
-        <span class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ approvedCount() }}</span>
+      <div class="min-w-0">
+        <span class="text-[10px] sm:text-xs text-muted-color font-semibold uppercase tracking-wider block truncate">Pending Review</span>
+        <span class="text-xl sm:text-2xl font-extrabold text-amber-600 dark:text-amber-400">{{ pendingCount() }}</span>
+      </div>
+    </div>
+
+    <div class="p-3 sm:p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-3 sm:gap-4 shadow-xs">
+      <div class="w-10 h-10 sm:w-12 sm:h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+        <i class="pi pi-check-circle text-lg sm:text-xl"></i>
+      </div>
+      <div class="min-w-0">
+        <span class="text-[10px] sm:text-xs text-muted-color font-semibold uppercase tracking-wider block truncate">Approved Sets</span>
+        <span class="text-xl sm:text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ approvedCount() }}</span>
       </div>
     </div>
   </div>
@@ -69,16 +67,16 @@
   <!-- Catalogues Table -->
   <p-table #dt [value]="catalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
     responsiveLayout="scroll" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
-    [showCurrentPageReport]="true" [globalFilterFields]="['name', 'status']" [tableStyle]="{ 'min-width': '55rem' }">
+    [showCurrentPageReport]="true" [globalFilterFields]="['name', 'status']" [tableStyle]="{ 'min-width': '50rem' }">
     
     <ng-template #caption>
-      <div class="flex items-center justify-between gap-4 flex-wrap pb-2">
-        <span class="text-sm font-medium text-muted-color">
+      <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full pb-2">
+        <span class="text-xs sm:text-sm font-medium text-muted-color">
           Manage your personal vocabulary lists
         </span>
-        <p-iconfield>
+        <p-iconfield class="w-full sm:w-auto">
           <p-inputicon styleClass="pi pi-search" />
-          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search catalogues..." class="w-64" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search catalogues..." class="w-full sm:w-64" />
         </p-iconfield>
       </div>
     </ng-template>
@@ -88,19 +86,31 @@
         <th style="width: 26%" pSortableColumn="name">
           Catalogue Name <p-sortIcon field="name" />
         </th>
-        <th style="width: 14%" class="text-center" pSortableColumn="entryCount">
-          Entries <p-sortIcon field="entryCount" />
+        <th style="width: 14%; text-align: center !important;" pSortableColumn="entryCount">
+          <div class="flex items-center justify-center gap-1 w-full">
+            Entries <p-sortIcon field="entryCount" />
+          </div>
         </th>
-        <th style="width: 16%" class="text-center" pSortableColumn="status">
-          Status <p-sortIcon field="status" />
+        <th style="width: 16%; text-align: center !important;" pSortableColumn="status">
+          <div class="flex items-center justify-center gap-1 w-full">
+            Status <p-sortIcon field="status" />
+          </div>
         </th>
-        <th style="width: 15%" class="text-center" pSortableColumn="createdAt">
-          Created Date <p-sortIcon field="createdAt" />
+        <th style="width: 15%; text-align: center !important;" pSortableColumn="createdAt">
+          <div class="flex items-center justify-center gap-1 w-full">
+            Created Date <p-sortIcon field="createdAt" />
+          </div>
         </th>
-        <th style="width: 15%" class="text-center" pSortableColumn="submittedAt">
-          Submitted Date <p-sortIcon field="submittedAt" />
+        <th style="width: 15%; text-align: center !important;" pSortableColumn="submittedAt">
+          <div class="flex items-center justify-center gap-1 w-full">
+            Submitted Date <p-sortIcon field="submittedAt" />
+          </div>
         </th>
-        <th style="width: 14%" class="text-center">Actions</th>
+        <th style="width: 14%; text-align: center !important;">
+          <div class="flex items-center justify-center w-full text-center">
+            Actions
+          </div>
+        </th>
       </tr>
     </ng-template>
 
@@ -153,16 +163,16 @@
 </div>
 
 <!-- EDITOR VIEW -->
-<div *ngIf="viewMode() === 'editor' && activeCatalogue() as cat" class="card">
+<div *ngIf="viewMode() === 'editor' && activeCatalogue() as cat" class="card p-3 sm:p-6">
   <!-- Top Navigation & Action Header -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-surface-200 dark:border-surface-700">
+  <div class="flex flex-col lg:flex-row lg:items-center justify-between gap-4 mb-6 pb-4 border-b border-surface-200 dark:border-surface-700">
     <div class="flex items-center gap-3">
-      <p-button icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="backToList()" pTooltip="Back to list" />
+      <p-button icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="backToList()" pTooltip="Back to list" class="shrink-0" />
       <div>
         <div class="flex items-center gap-3 flex-wrap">
           <input *ngIf="isEditable(cat)" pInputText type="text" [ngModel]="catalogueName()" (ngModelChange)="catalogueName.set($event)"
-            placeholder="Catalogue Name (e.g. Yellowstone)..." class="text-xl font-bold p-2 w-64 md:w-80" />
-          <h2 *ngIf="!isEditable(cat)" class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ cat.name }}</h2>
+            placeholder="Catalogue Name (e.g. Yellowstone)..." class="text-lg sm:text-xl font-bold p-2 w-full sm:w-80" />
+          <h2 *ngIf="!isEditable(cat)" class="text-xl sm:text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ cat.name }}</h2>
           <p-tag [value]="getStatusLabel(cat.status)" [severity]="getStatusSeverity(cat.status)" />
         </div>
         <p class="text-xs text-muted-color mt-1 m-0">
@@ -172,18 +182,18 @@
       </div>
     </div>
 
-    <!-- Action Buttons -->
-    <div class="flex items-center gap-2">
+    <!-- Action Buttons (Responsive on Mobile) -->
+    <div class="flex items-center gap-2 w-full lg:w-auto justify-end flex-wrap">
       <p-button *ngIf="isEditable(cat)" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="confirmDelete(cat)" pTooltip="Delete Catalogue" />
-      <p-button *ngIf="isEditable(cat)" label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" (onClick)="saveDraft()" />
-      <p-button *ngIf="isEditable(cat)" label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" (onClick)="submitForApproval()" />
+      <p-button *ngIf="isEditable(cat)" label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" class="flex-1 sm:flex-initial" (onClick)="saveDraft()" />
+      <p-button *ngIf="isEditable(cat)" label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" class="flex-1 sm:flex-initial" (onClick)="submitForApproval()" />
     </div>
   </div>
 
   <!-- Rejection Banner -->
   <div *ngIf="cat.status === WordfinderCatalogueStatus.Rejected" class="p-4 mb-6 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 dark:border-red-800/50 text-red-900 dark:text-red-200">
     <div class="flex items-start gap-3">
-      <i class="pi pi-exclamation-circle text-2xl text-red-600 dark:text-red-400 mt-0.5"></i>
+      <i class="pi pi-exclamation-circle text-2xl text-red-600 dark:text-red-400 mt-0.5 shrink-0"></i>
       <div>
         <h4 class="font-bold text-base m-0 text-red-900 dark:text-red-200">Catalogue Rejected by Teacher</h4>
         <p class="text-sm mt-1 m-0 text-red-800 dark:text-red-300">
@@ -199,7 +209,7 @@
   <!-- Read-Only Banner for Pending or Approved -->
   <div *ngIf="!isEditable(cat)" class="p-4 mb-6 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-800/50 text-blue-900 dark:text-blue-200">
     <div class="flex items-center gap-3">
-      <i class="pi pi-info-circle text-xl text-blue-600 dark:text-blue-400"></i>
+      <i class="pi pi-info-circle text-xl text-blue-600 dark:text-blue-400 shrink-0"></i>
       <div>
         <h4 class="font-bold text-sm m-0">Catalogue Status: {{ getStatusLabel(cat.status) }}</h4>
         <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300" *ngIf="cat.status === WordfinderCatalogueStatus.PendingApproval">
@@ -216,7 +226,7 @@
   <div class="mb-4">
     <div class="flex items-center justify-between mb-3">
       <div class="flex items-center gap-2">
-        <h3 class="font-bold text-lg m-0">Vocabulary Items</h3>
+        <h3 class="font-bold text-base sm:text-lg m-0">Vocabulary Items</h3>
         <span class="inline-flex items-center justify-center text-xs font-bold px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-200">
           {{ entries().length }} words
         </span>
@@ -226,13 +236,17 @@
 
     <!-- Table -->
     <div class="overflow-x-auto border border-surface-200 dark:border-surface-700 rounded-xl shadow-2xs">
-      <table class="w-full text-left border-collapse">
+      <table class="w-full text-left border-collapse min-w-[500px]">
         <thead>
           <tr class="border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/60 text-xs font-semibold uppercase tracking-wider text-muted-color">
-            <th class="p-3.5 w-12 text-center">#</th>
+            <th class="p-3.5 w-12 text-center" style="text-align: center !important;">
+              <div class="flex items-center justify-center w-full">#</div>
+            </th>
             <th class="p-3.5">English Word / Phrase (Front)</th>
             <th class="p-3.5">Polish Translation (Back)</th>
-            <th *ngIf="isEditable(cat)" class="p-3.5 w-28 text-center">Actions</th>
+            <th *ngIf="isEditable(cat)" class="p-3.5 w-20 text-center" style="text-align: center !important;">
+              <div class="flex items-center justify-center w-full">Actions</div>
+            </th>
           </tr>
         </thead>
         <tbody>
@@ -243,21 +257,21 @@
                 <div class="flex items-center gap-2">
                   <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.front" [ngModelOptions]="{standalone: true}"
                     (ngModelChange)="onFrontInputChange(i)" (blur)="onFrontBlur(i)"
-                    placeholder="e.g. mountain, legal agreement..." class="w-full" />
-                  <span *ngIf="!isEditable(cat)" class="font-semibold text-surface-900 dark:text-surface-0">{{ entry.front }}</span>
+                    placeholder="e.g. mountain, legal agreement..." class="w-full text-sm" />
+                  <span *ngIf="!isEditable(cat)" class="font-semibold text-surface-900 dark:text-surface-0 text-sm">{{ entry.front }}</span>
                 </div>
 
                 <!-- Inline AI Spellcheck Suggestion Alert -->
                 <div *ngIf="entry.spellCheckResult as check"
-                  class="flex items-center justify-between gap-3 p-2.5 mt-2 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg text-xs">
+                  class="flex flex-col sm:flex-row sm:items-center justify-between gap-2 p-2.5 mt-2 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg text-xs">
                   <div class="flex items-center gap-2">
-                    <i class="pi pi-sparkles text-blue-500 text-sm"></i>
+                    <i class="pi pi-sparkles text-blue-500 text-sm shrink-0"></i>
                     <span class="text-blue-800 dark:text-blue-200">
                       Did you mean: <strong class="font-bold text-blue-900 dark:text-blue-100 underline decoration-blue-400 decoration-2">{{ check.corrected }}</strong>?
                       <span class="text-xs text-muted-color ml-1" *ngIf="check.reason">({{ check.reason }})</span>
                     </span>
                   </div>
-                  <div class="flex gap-1 shrink-0">
+                  <div class="flex gap-1 shrink-0 justify-end">
                     <p-button icon="pi pi-check" severity="success" size="small" [text]="true"
                       pTooltip="Accept correction" (onClick)="acceptSpellCorrection(i)" />
                     <p-button icon="pi pi-times" severity="secondary" size="small" [text]="true"
@@ -269,18 +283,14 @@
             <td class="p-3">
               <div class="relative flex items-center gap-2">
                 <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.back" [ngModelOptions]="{standalone: true}"
-                  placeholder="Polish translation (auto-fills via AI)..." class="w-full" />
-                <span *ngIf="!isEditable(cat)" class="text-surface-700 dark:text-surface-200">{{ entry.back }}</span>
-                <i *ngIf="entry.translating" class="pi pi-spin pi-spinner text-muted-color"></i>
+                  placeholder="Polish translation (auto-fills via AI)..." class="w-full text-sm" />
+                <span *ngIf="!isEditable(cat)" class="text-surface-700 dark:text-surface-200 text-sm">{{ entry.back }}</span>
+                <i *ngIf="entry.translating" class="pi pi-spin pi-spinner text-muted-color shrink-0"></i>
               </div>
             </td>
             <td *ngIf="isEditable(cat)" class="p-3 text-center">
-              <div class="flex items-center justify-center gap-1">
-                <p-button icon="pi pi-sparkles" severity="help" [text]="true" size="small"
-                  (onClick)="manualTranslate(i)" [loading]="entry.translating" pTooltip="Translate via AI" tooltipPosition="top" />
-                <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
-                  (onClick)="removeEntry(i)" pTooltip="Remove word" tooltipPosition="top" />
-              </div>
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
+                (onClick)="removeEntry(i)" pTooltip="Remove word" tooltipPosition="top" />
             </td>
           </tr>
         </tbody>
@@ -289,20 +299,20 @@
   </div>
 
   <!-- Bottom Action Bar -->
-  <div *ngIf="isEditable(cat)" class="flex items-center justify-between pt-4 border-t border-surface-200 dark:border-surface-700">
-    <p-button label="Add Word" icon="pi pi-plus" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
-    <div class="flex items-center gap-2">
-      <p-button label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" (onClick)="saveDraft()" />
-      <p-button label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" (onClick)="submitForApproval()" />
+  <div *ngIf="isEditable(cat)" class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 pt-4 border-t border-surface-200 dark:border-surface-700">
+    <p-button label="Add Word" icon="pi pi-plus" severity="secondary" [outlined]="true" class="w-full sm:w-auto" (onClick)="addEntry()" />
+    <div class="flex items-center gap-2 w-full sm:w-auto justify-end">
+      <p-button label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" class="flex-1 sm:flex-initial" (onClick)="saveDraft()" />
+      <p-button label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" class="flex-1 sm:flex-initial" (onClick)="submitForApproval()" />
     </div>
   </div>
 </div>
 
 <!-- CREATE CATALOGUE DIALOG -->
-<p-dialog [(visible)]="createDialogVisible" header="Create Wordfinder Catalogue" [modal]="true" [style]="{ width: '450px' }">
+<p-dialog [(visible)]="createDialogVisible" header="Create Wordfinder Catalogue" [modal]="true" [style]="{ width: '90vw', 'max-width': '450px' }">
   <div class="flex flex-col gap-4 py-2">
     <div class="flex items-center gap-3 p-3 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
-      <i class="pi pi-folder-plus text-2xl text-primary"></i>
+      <i class="pi pi-folder-plus text-2xl text-primary shrink-0"></i>
       <p class="text-xs text-muted-color m-0">
         Give your new vocabulary list a descriptive topic name. You can add words and auto-translate them in the editor.
       </p>

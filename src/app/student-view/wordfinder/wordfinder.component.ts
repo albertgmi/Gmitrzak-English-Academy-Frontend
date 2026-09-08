@@ -176,34 +176,6 @@ export class WordfinderComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  manualTranslate(index: number) {
-    const list = [...this.entries()];
-    const entry = list[index];
-    if (!entry || !entry.front.trim() || entry.translating) return;
-
-    entry.translating = true;
-    this.entries.set(list);
-
-    this.wordfinderService.translateEntry(entry.front.trim()).subscribe({
-      next: (res) => {
-        const current = [...this.entries()];
-        if (current[index]) {
-          current[index] = { ...current[index], back: res.translatedText ?? '', translating: false };
-          this.entries.set(current);
-          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: `Translated "${entry.front}"` });
-        }
-      },
-      error: () => {
-        const current = [...this.entries()];
-        if (current[index]) {
-          current[index] = { ...current[index], translating: false };
-          this.entries.set(current);
-          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Translation failed' });
-        }
-      }
-    });
-  }
-
   onFrontInputChange(index: number) {
     if (this.debounceTimers[index]) {
       clearTimeout(this.debounceTimers[index]);

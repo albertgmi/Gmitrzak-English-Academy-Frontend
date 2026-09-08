@@ -99,26 +99,6 @@ export class WordfinderQueueComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
 
-  manualTranslateEntry(index: number) {
-    const list = [...this.editableEntries()];
-    const entry = list[index];
-    if (!entry || !entry.front.trim()) return;
-
-    this.wordfinderService.translateEntry(entry.front.trim()).subscribe({
-      next: (res) => {
-        const current = [...this.editableEntries()];
-        if (current[index]) {
-          current[index] = { ...current[index], back: res.translatedText ?? '' };
-          this.editableEntries.set(current);
-          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: `Translated "${entry.front}"` });
-        }
-      },
-      error: () => {
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Translation failed' });
-      }
-    });
-  }
-
   ngOnInit() {
     this.loadCatalogues();
   }
