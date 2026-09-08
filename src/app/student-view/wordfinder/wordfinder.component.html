@@ -206,16 +206,26 @@
     </div>
   </div>
 
-  <!-- Read-Only Banner for Pending or Approved -->
+  <!-- Pending Approval Banner -->
+  <div *ngIf="isPendingApproval(cat)" class="p-4 mb-6 rounded-xl border border-amber-200 bg-amber-50 dark:bg-amber-950/40 dark:border-amber-800/50 text-amber-900 dark:text-amber-200">
+    <div class="flex items-start gap-3">
+      <i class="pi pi-clock text-2xl text-amber-600 dark:text-amber-400 mt-0.5 shrink-0"></i>
+      <div>
+        <h4 class="font-bold text-base m-0 text-amber-900 dark:text-amber-200">Catalogue Pending Teacher Approval</h4>
+        <p class="text-xs mt-1 m-0 text-amber-800 dark:text-amber-300">
+          This catalogue has been submitted and is awaiting review by your teacher. You can still edit, add, or remove words before it gets approved!
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Read-Only Banner for Approved -->
   <div *ngIf="!isEditable(cat)" class="p-4 mb-6 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-800/50 text-blue-900 dark:text-blue-200">
     <div class="flex items-center gap-3">
       <i class="pi pi-info-circle text-xl text-blue-600 dark:text-blue-400 shrink-0"></i>
       <div>
-        <h4 class="font-bold text-sm m-0">Catalogue Status: {{ getStatusLabel(cat.status) }}</h4>
-        <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300" *ngIf="cat.status === WordfinderCatalogueStatus.PendingApproval">
-          This catalogue is currently locked while being reviewed by your Teacher.
-        </p>
-        <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300" *ngIf="cat.status === WordfinderCatalogueStatus.Approved">
+        <h4 class="font-bold text-sm m-0">Catalogue Status: Approved</h4>
+        <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300">
           This catalogue has been approved! It is now saved as a system catalogue (<code>{{ cat.studentInitials }}_{{ cat.name }}</code>) and assigned to your learning deck.
         </p>
       </div>

@@ -396,6 +396,12 @@ export class WordfinderComponent implements OnInit {
   isEditable(cat: WordfinderCatalogueDto | WordfinderCatalogueListDto | null): boolean {
     if (!cat) return false;
     const s = String(cat.status).toLowerCase();
-    return s === '0' || s === 'draft' || s === '3' || s === 'rejected';
+    return s !== '2' && s !== 'approved';
+  }
+
+  isPendingApproval(cat: WordfinderCatalogueDto | WordfinderCatalogueListDto | null): boolean {
+    if (!cat) return false;
+    const s = String(cat.status).toLowerCase();
+    return s === '1' || s === 'pendingapproval';
   }
 }
