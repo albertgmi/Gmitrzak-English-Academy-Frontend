@@ -76,14 +76,14 @@ export class WordfinderQueueComponent implements OnInit {
   }).length);
 
   // Status Filter State
-  selectedStatus = signal<WordfinderCatalogueStatus | null>(WordfinderCatalogueStatus.PendingApproval);
+  selectedStatus = signal<WordfinderCatalogueStatus | null>(null);
 
   statusOptions = [
-    { label: 'Pending Approval (Default)', value: WordfinderCatalogueStatus.PendingApproval },
+    { label: 'All Statuses (Default)', value: null },
+    { label: 'Pending Approval', value: WordfinderCatalogueStatus.PendingApproval },
     { label: 'Drafts (In Progress)', value: WordfinderCatalogueStatus.Draft },
     { label: 'Approved', value: WordfinderCatalogueStatus.Approved },
-    { label: 'Rejected', value: WordfinderCatalogueStatus.Rejected },
-    { label: 'All Statuses', value: null }
+    { label: 'Rejected', value: WordfinderCatalogueStatus.Rejected }
   ];
 
   // Review Dialog State
