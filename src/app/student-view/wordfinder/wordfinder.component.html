@@ -54,7 +54,7 @@
           <div class="flex items-center justify-end gap-2">
             <p-button [icon]="isEditable(cat) ? 'pi pi-pencil' : 'pi pi-eye'" severity="secondary" [outlined]="true"
               (onClick)="openEditor(cat)" [pTooltip]="isEditable(cat) ? 'Edit Draft' : 'View Catalogue'" tooltipPosition="top" />
-            <p-button *ngIf="isEditable(cat)" icon="pi pi-trash" severity="danger" [outlined]="true"
+            <p-button icon="pi pi-trash" severity="danger" [outlined]="true"
               (onClick)="confirmDelete(cat)" pTooltip="Delete Catalogue" tooltipPosition="top" />
           </div>
         </td>

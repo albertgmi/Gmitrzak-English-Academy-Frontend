@@ -4,10 +4,10 @@ import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 
 export enum WordfinderCatalogueStatus {
-  Draft = 0,
-  PendingApproval = 1,
-  Approved = 2,
-  Rejected = 3
+  Draft = 'Draft',
+  PendingApproval = 'PendingApproval',
+  Approved = 'Approved',
+  Rejected = 'Rejected'
 }
 
 export interface WordfinderCatalogueEntryDto {

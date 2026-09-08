@@ -320,28 +320,29 @@ export class WordfinderComponent implements OnInit {
     });
   }
 
-  getStatusSeverity(status: WordfinderCatalogueStatus): 'info' | 'warn' | 'success' | 'danger' {
-    switch (status) {
-      case WordfinderCatalogueStatus.Draft: return 'info';
-      case WordfinderCatalogueStatus.PendingApproval: return 'warn';
-      case WordfinderCatalogueStatus.Approved: return 'success';
-      case WordfinderCatalogueStatus.Rejected: return 'danger';
-      default: return 'info';
-    }
+  getStatusSeverity(status: any): 'info' | 'warn' | 'success' | 'danger' {
+    if (status === null || status === undefined) return 'info';
+    const s = String(status).toLowerCase();
+    if (s === '0' || s === 'draft') return 'info';
+    if (s === '1' || s === 'pendingapproval') return 'warn';
+    if (s === '2' || s === 'approved') return 'success';
+    if (s === '3' || s === 'rejected') return 'danger';
+    return 'info';
   }
 
-  getStatusLabel(status: WordfinderCatalogueStatus): string {
-    switch (status) {
-      case WordfinderCatalogueStatus.Draft: return 'Draft';
-      case WordfinderCatalogueStatus.PendingApproval: return 'Pending Approval';
-      case WordfinderCatalogueStatus.Approved: return 'Approved';
-      case WordfinderCatalogueStatus.Rejected: return 'Rejected';
-      default: return 'Draft';
-    }
+  getStatusLabel(status: any): string {
+    if (status === null || status === undefined) return 'Draft';
+    const s = String(status).toLowerCase();
+    if (s === '0' || s === 'draft') return 'Draft';
+    if (s === '1' || s === 'pendingapproval') return 'Pending Approval';
+    if (s === '2' || s === 'approved') return 'Approved';
+    if (s === '3' || s === 'rejected') return 'Rejected';
+    return String(status);
   }
 
-  isEditable(cat: WordfinderCatalogueDto | null): boolean {
+  isEditable(cat: WordfinderCatalogueDto | WordfinderCatalogueListDto | null): boolean {
     if (!cat) return false;
-    return cat.status === WordfinderCatalogueStatus.Draft || cat.status === WordfinderCatalogueStatus.Rejected;
+    const s = String(cat.status).toLowerCase();
+    return s === '0' || s === 'draft' || s === '3' || s === 'rejected';
   }
 }
