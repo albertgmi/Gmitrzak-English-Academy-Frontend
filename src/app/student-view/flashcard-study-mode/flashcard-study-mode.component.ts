@@ -207,11 +207,11 @@ export class FlashcardStudyModeComponent implements OnInit {
 
         this.savePendingQueue(restoredPending);
 
-        const priorityOrder = this.flashcardService.categoryPriorityOrder();
+        const priorityOrder = this.flashcardService.categoryPriorityOrder().map(p => p.trim().toLowerCase());
         if (priorityOrder.length > 0) {
             toReview.sort((a, b) => {
-                const catA = a.category ?? '';
-                const catB = b.category ?? '';
+                const catA = (a.category ?? '').trim().toLowerCase();
+                const catB = (b.category ?? '').trim().toLowerCase();
 
                 const idxA = priorityOrder.indexOf(catA);
                 const idxB = priorityOrder.indexOf(catB);
