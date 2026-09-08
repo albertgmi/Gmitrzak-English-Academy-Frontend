@@ -67,7 +67,7 @@
   <!-- Catalogues Table -->
   <p-table #dt [value]="catalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
     responsiveLayout="scroll" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
-    [showCurrentPageReport]="true" [globalFilterFields]="['name', 'status']" [tableStyle]="{ 'min-width': '50rem' }">
+    [showCurrentPageReport]="true" [globalFilterFields]="['name', 'status']" [tableStyle]="{ 'min-width': '52rem', 'table-layout': 'fixed' }">
     
     <ng-template #caption>
       <div class="flex flex-col sm:flex-row items-stretch sm:items-center justify-between gap-3 w-full pb-2">
@@ -83,30 +83,30 @@
 
     <ng-template #header>
       <tr>
-        <th style="width: 26%" pSortableColumn="name">
+        <th style="width: 28%; text-align: left;" pSortableColumn="name">
           Catalogue Name <p-sortIcon field="name" />
         </th>
-        <th style="width: 14%; text-align: center !important;" pSortableColumn="entryCount">
+        <th style="width: 12%; text-align: center;" pSortableColumn="entryCount">
           <div class="flex items-center justify-center gap-1 w-full">
             Entries <p-sortIcon field="entryCount" />
           </div>
         </th>
-        <th style="width: 16%; text-align: center !important;" pSortableColumn="status">
+        <th style="width: 14%; text-align: center;" pSortableColumn="status">
           <div class="flex items-center justify-center gap-1 w-full">
             Status <p-sortIcon field="status" />
           </div>
         </th>
-        <th style="width: 15%; text-align: center !important;" pSortableColumn="createdAt">
+        <th style="width: 18%; text-align: center;" pSortableColumn="createdAt">
           <div class="flex items-center justify-center gap-1 w-full">
             Created Date <p-sortIcon field="createdAt" />
           </div>
         </th>
-        <th style="width: 15%; text-align: center !important;" pSortableColumn="submittedAt">
+        <th style="width: 18%; text-align: center;" pSortableColumn="submittedAt">
           <div class="flex items-center justify-center gap-1 w-full">
             Submitted Date <p-sortIcon field="submittedAt" />
           </div>
         </th>
-        <th style="width: 14%; text-align: center !important;">
+        <th style="width: 10%; text-align: center;">
           <div class="flex items-center justify-center w-full text-center">
             Actions
           </div>
@@ -116,30 +116,30 @@
 
     <ng-template #body let-cat>
       <tr>
-        <td>
-          <div class="flex items-center gap-2.5">
+        <td style="width: 28%; text-align: left;">
+          <div class="flex items-center gap-2.5 min-w-0">
             <i class="pi pi-folder text-primary text-base shrink-0"></i>
-            <span class="font-bold text-surface-900 dark:text-surface-0 cursor-pointer hover:text-primary transition-colors" (click)="openEditor(cat)">
+            <span class="font-bold text-surface-900 dark:text-surface-0 cursor-pointer hover:text-primary transition-colors truncate" [title]="cat.name" (click)="openEditor(cat)">
               {{ cat.name }}
             </span>
           </div>
         </td>
-        <td class="text-center">
+        <td style="width: 12%; text-align: center;">
           <span class="inline-flex items-center gap-1 font-semibold text-xs px-2.5 py-1 rounded-full bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300">
             <i class="pi pi-list text-[10px]"></i>
             {{ cat.entryCount }} words
           </span>
         </td>
-        <td class="text-center">
+        <td style="width: 14%; text-align: center;">
           <p-tag [value]="getStatusLabel(cat.status)" [severity]="getStatusSeverity(cat.status)" />
         </td>
-        <td class="text-center text-sm text-muted-color">
+        <td style="width: 18%; text-align: center;" class="text-sm text-muted-color">
           {{ cat.createdAt | date:'d MMM yyyy, HH:mm':'UTC' }}
         </td>
-        <td class="text-center text-sm text-muted-color">
+        <td style="width: 18%; text-align: center;" class="text-sm text-muted-color">
           {{ cat.submittedAt ? (cat.submittedAt | date:'d MMM yyyy, HH:mm':'UTC') : '-' }}
         </td>
-        <td class="text-center">
+        <td style="width: 10%; text-align: center;">
           <div class="flex items-center justify-center gap-1.5">
             <p-button [icon]="isEditable(cat) ? 'pi pi-pencil' : 'pi pi-eye'" severity="secondary" [outlined]="true"
               (onClick)="openEditor(cat)" [pTooltip]="isEditable(cat) ? 'Edit Draft' : 'View Catalogue'" tooltipPosition="top" />
