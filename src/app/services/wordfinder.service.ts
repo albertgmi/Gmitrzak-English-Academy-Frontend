@@ -82,7 +82,7 @@ export class WordfinderService {
     return this.http.get<WordfinderCatalogueDto>(`${this.apiUrl}/${id}`);
   }
 
-  createDraft(dto: { name: string }): Observable<WordfinderCatalogueDto> {
+  createDraft(dto: { name: string; entries?: WordfinderCatalogueEntryDto[] }): Observable<WordfinderCatalogueDto> {
     return this.http.post<WordfinderCatalogueDto>(this.apiUrl, dto);
   }
 

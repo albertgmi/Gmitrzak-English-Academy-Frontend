@@ -57,9 +57,16 @@ export class WordfinderComponent implements OnInit {
   translatingIndex = signal<number | null>(null);
   spellCheckingIndex = signal<number | null>(null);
 
-  // New Catalogue Dialog
+  // New Catalogue Dialog Signals
   createDialogVisible = signal(false);
   newCatalogueName = signal('');
+  newCatalogueEntries = signal<WordfinderCatalogueEntryDto[]>([
+    { front: '', back: '' },
+    { front: '', back: '' },
+    { front: '', back: '' }
+  ]);
+  dialogTranslatingIndex = signal<number | null>(null);
+  dialogSpellCheckingIndex = signal<number | null>(null);
 
   ngOnInit() {
     this.loadCatalogues();
@@ -81,7 +88,80 @@ export class WordfinderComponent implements OnInit {
 
   openCreateDialog() {
     this.newCatalogueName.set('');
+    this.newCatalogueEntries.set([
+      { front: '', back: '' },
+      { front: '', back: '' },
+      { front: '', back: '' }
+    ]);
     this.createDialogVisible.set(true);
+  }
+
+  addDialogEntry() {
+    this.newCatalogueEntries.update(list => [...list, { front: '', back: '' }]);
+  }
+
+  removeDialogEntry(index: number) {
+    this.newCatalogueEntries.update(list => list.filter((_, i) => i !== index));
+    if (this.newCatalogueEntries().length === 0) {
+      this.addDialogEntry();
+    }
+  }
+
+  onDialogFrontBlur(index: number) {
+    const entry = this.newCatalogueEntries()[index];
+    if (entry.front.trim() && !entry.back.trim()) {
+      this.translateDialogRow(index);
+    }
+  }
+
+  translateDialogRow(index: number) {
+    const entry = this.newCatalogueEntries()[index];
+    if (!entry.front.trim()) {
+      this.messageService.add({ severity: 'warn', summary: 'Translate', detail: 'Please enter English text first' });
+      return;
+    }
+
+    this.dialogTranslatingIndex.set(index);
+    this.wordfinderService.translateEntry(entry.front).subscribe({
+      next: (res) => {
+        this.dialogTranslatingIndex.set(null);
+        if (res.translatedText) {
+          const updated = [...this.newCatalogueEntries()];
+          updated[index] = { ...updated[index], back: res.translatedText };
+          this.newCatalogueEntries.set(updated);
+          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: 'Polish translation generated!' });
+        }
+      },
+      error: () => {
+        this.dialogTranslatingIndex.set(null);
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'AI Translation failed' });
+      }
+    });
+  }
+
+  spellCheckDialogRow(index: number) {
+    const entry = this.newCatalogueEntries()[index];
+    if (!entry.front.trim()) return;
+
+    this.dialogSpellCheckingIndex.set(index);
+    this.wordfinderService.spellCheckEntry(entry.front).subscribe({
+      next: (res) => {
+        this.dialogSpellCheckingIndex.set(null);
+        if (res.hasError && res.corrected) {
+          this.messageService.add({
+            severity: 'warn',
+            summary: 'AI SpellCheck Suggestion',
+            detail: `Found typo: "${entry.front}" -> Suggestion: "${res.corrected}" (${res.reason ?? 'Correction'})`,
+            life: 6000
+          });
+        } else {
+          this.messageService.add({ severity: 'success', summary: 'AI SpellCheck', detail: 'No spelling errors found!' });
+        }
+      },
+      error: () => {
+        this.dialogSpellCheckingIndex.set(null);
+      }
+    });
   }
 
   createCatalogue() {
@@ -91,12 +171,14 @@ export class WordfinderComponent implements OnInit {
       return;
     }
 
+    const validEntries = this.newCatalogueEntries().filter(e => e.front.trim().length > 0);
+
     this.saving.set(true);
-    this.wordfinderService.createDraft({ name }).subscribe({
+    this.wordfinderService.createDraft({ name, entries: validEntries }).subscribe({
       next: (created) => {
         this.saving.set(false);
         this.createDialogVisible.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Catalogue "${created.name}" created!` });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Catalogue "${created.name}" created with ${created.entries?.length || 0} words!` });
         this.openEditor(created);
         this.loadCatalogues();
       },
@@ -113,10 +195,9 @@ export class WordfinderComponent implements OnInit {
       next: (full) => {
         this.activeCatalogue.set(full);
         this.catalogueName.set(full.name);
-        // Copy entries or initialize with empty row if none exist
         const initialEntries = full.entries && full.entries.length > 0
           ? full.entries.map(e => ({ ...e }))
-          : [{ front: '', back: '' }];
+          : [{ front: '', back: '' }, { front: '', back: '' }];
         this.entries.set(initialEntries);
         this.viewMode.set('editor');
         this.loading.set(false);
@@ -147,7 +228,6 @@ export class WordfinderComponent implements OnInit {
 
   onFrontBlur(index: number) {
     const entry = this.entries()[index];
-    // Auto-translate if Front has text and Back is empty
     if (entry.front.trim() && !entry.back.trim()) {
       this.translateRow(index);
     }
@@ -176,6 +256,20 @@ export class WordfinderComponent implements OnInit {
         this.messageService.add({ severity: 'error', summary: 'Error', detail: 'AI Translation failed' });
       }
     });
+  }
+
+  autoTranslateAll() {
+    const currentEntries = this.entries();
+    const untranslatedIndices = currentEntries
+      .map((e, idx) => (e.front.trim() && !e.back.trim() ? idx : -1))
+      .filter(idx => idx !== -1);
+
+    if (untranslatedIndices.length === 0) {
+      this.messageService.add({ severity: 'info', summary: 'Auto-Translate', detail: 'No empty Polish translations found' });
+      return;
+    }
+
+    untranslatedIndices.forEach(idx => this.translateRow(idx));
   }
 
   spellCheckRow(index: number) {
@@ -266,18 +360,22 @@ export class WordfinderComponent implements OnInit {
     });
   }
 
-  confirmDelete(catListDto: WordfinderCatalogueListDto) {
+  confirmDelete(catListDto: WordfinderCatalogueListDto | WordfinderCatalogueDto) {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete "${catListDto.name}"?`,
-      header: 'Confirm Delete',
+      message: `Are you sure you want to delete "${catListDto.name}" and all its words? This action cannot be undone.`,
+      header: 'Confirm Delete Catalogue',
       icon: 'pi pi-exclamation-triangle',
-      acceptButtonProps: { severity: 'danger', label: 'Delete' },
+      acceptButtonProps: { severity: 'danger', label: 'Delete Catalogue' },
       rejectButtonProps: { severity: 'secondary', label: 'Cancel' },
       accept: () => {
         this.wordfinderService.deleteDraft(catListDto.id).subscribe({
           next: () => {
             this.messageService.add({ severity: 'success', summary: 'Deleted', detail: 'Catalogue deleted' });
-            this.loadCatalogues();
+            if (this.viewMode() === 'editor') {
+              this.backToList();
+            } else {
+              this.loadCatalogues();
+            }
           },
           error: (err) => {
             this.messageService.add({ severity: 'error', summary: 'Error', detail: err?.error?.message || 'Delete failed' });

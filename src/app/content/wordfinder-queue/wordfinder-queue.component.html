@@ -24,16 +24,16 @@
   <!-- Pending / Catalogues Table -->
   <p-table [value]="pendingCatalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
     responsiveLayout="scroll" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
-    [showCurrentPageReport]="true">
+    [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '60rem' }">
     <ng-template #header>
       <tr>
-        <th>Student</th>
-        <th>Initials</th>
-        <th>Requested Name</th>
-        <th>Word Count</th>
-        <th>Status</th>
-        <th>Submitted / Created Date</th>
-        <th class="text-right">Actions</th>
+        <th style="width: 22%">Student</th>
+        <th style="width: 10%">Initials</th>
+        <th style="width: 20%">Requested Name</th>
+        <th style="width: 12%">Word Count</th>
+        <th style="width: 13%">Status</th>
+        <th style="width: 13%">Submitted / Created Date</th>
+        <th style="width: 10%" class="text-right">Actions</th>
       </tr>
     </ng-template>
 
@@ -70,10 +70,12 @@
           {{ (item.submittedAt || item.createdAt) | date:'d MMM yyyy, HH:mm' }}
         </td>
         <td class="text-right">
-          <p-button *ngIf="item.status === WordfinderCatalogueStatus.PendingApproval" label="Review & Approve" icon="pi pi-check-square" severity="primary" size="small"
-            (onClick)="openReview(item)" />
-          <p-button *ngIf="item.status !== WordfinderCatalogueStatus.PendingApproval" label="Inspect" icon="pi pi-eye" severity="secondary" [outlined]="true" size="small"
-            (onClick)="openReview(item)" />
+          <div class="flex items-center justify-end">
+            <p-button *ngIf="item.status === WordfinderCatalogueStatus.PendingApproval" label="Review & Approve" icon="pi pi-check-square" severity="primary" size="small"
+              (onClick)="openReview(item)" />
+            <p-button *ngIf="item.status !== WordfinderCatalogueStatus.PendingApproval" label="Inspect" icon="pi pi-eye" severity="secondary" [outlined]="true" size="small"
+              (onClick)="openReview(item)" />
+          </div>
         </td>
       </tr>
     </ng-template>

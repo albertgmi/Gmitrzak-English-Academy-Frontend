@@ -168,11 +168,6 @@ export class AppMenu implements OnInit {
             icon: 'pi pi-list', 
             routerLink: ['/flashcards'] 
           },
-          {
-            label: 'Wordfinder',
-            icon: 'pi pi-compass',
-            routerLink: ['/wordfinder']
-          },
           { 
             label: 'Irregular Verbs Session', 
             icon: 'pi pi-bolt', 
@@ -187,6 +182,11 @@ export class AppMenu implements OnInit {
           { label: 'Sentences', icon: 'pi pi-align-left', routerLink: ['/sentences'] },
           { label: 'Memories', icon: 'pi pi-lightbulb', routerLink: ['/memories'] },
           { label: 'Pronunciation', icon: 'pi pi-microphone', routerLink: ['/pronunciation'] },
+          {
+            label: 'Wordfinder',
+            icon: 'pi pi-compass',
+            routerLink: ['/wordfinder']
+          },
           { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/alphabet-test'] },
           { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] },
           { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },

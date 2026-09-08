@@ -17,15 +17,15 @@
 
   <p-table [value]="catalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
     responsiveLayout="scroll" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
-    [showCurrentPageReport]="true">
+    [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }">
     <ng-template #header>
       <tr>
-        <th>Catalogue Name</th>
-        <th>Entries</th>
-        <th>Status</th>
-        <th>Created Date</th>
-        <th>Submitted Date</th>
-        <th class="text-right">Actions</th>
+        <th style="width: 25%">Catalogue Name</th>
+        <th style="width: 15%">Entries</th>
+        <th style="width: 15%">Status</th>
+        <th style="width: 18%">Created Date</th>
+        <th style="width: 17%">Submitted Date</th>
+        <th style="width: 10%" class="text-right">Actions</th>
       </tr>
     </ng-template>
     <ng-template #body let-cat>
@@ -53,9 +53,9 @@
         <td class="text-right">
           <div class="flex items-center justify-end gap-2">
             <p-button [icon]="isEditable(cat) ? 'pi pi-pencil' : 'pi pi-eye'" severity="secondary" [outlined]="true"
-              (onClick)="openEditor(cat)" [pTooltip]="isEditable(cat) ? 'Edit Draft' : 'View Catalogue'" />
+              (onClick)="openEditor(cat)" [pTooltip]="isEditable(cat) ? 'Edit Draft' : 'View Catalogue'" tooltipPosition="top" />
             <p-button *ngIf="isEditable(cat)" icon="pi pi-trash" severity="danger" [outlined]="true"
-              (onClick)="confirmDelete(cat)" pTooltip="Delete Draft" />
+              (onClick)="confirmDelete(cat)" pTooltip="Delete Catalogue" tooltipPosition="top" />
           </div>
         </td>
       </tr>
@@ -94,9 +94,10 @@
     </div>
 
     <!-- Action Buttons -->
-    <div *ngIf="isEditable(cat)" class="flex items-center gap-2">
-      <p-button label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" (onClick)="saveDraft()" />
-      <p-button label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" (onClick)="submitForApproval()" />
+    <div class="flex items-center gap-2">
+      <p-button *ngIf="isEditable(cat)" icon="pi pi-trash" severity="danger" [outlined]="true" (onClick)="confirmDelete(cat)" pTooltip="Delete Catalogue" />
+      <p-button *ngIf="isEditable(cat)" label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" (onClick)="saveDraft()" />
+      <p-button *ngIf="isEditable(cat)" label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" (onClick)="submitForApproval()" />
     </div>
   </div>
 
@@ -136,10 +137,13 @@
   <div class="mb-4">
     <div class="flex items-center justify-between mb-3">
       <h3 class="font-bold text-lg m-0">Vocabulary Items ({{ entries().length }})</h3>
-      <p-button *ngIf="isEditable(cat)" label="Add Word" icon="pi pi-plus" size="small" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
+      <div *ngIf="isEditable(cat)" class="flex items-center gap-2">
+        <p-button label="Auto-Translate Empty" icon="pi pi-sparkles" size="small" severity="help" [outlined]="true" (onClick)="autoTranslateAll()" pTooltip="Auto-fill empty Polish translations using AI" />
+        <p-button label="Add Word" icon="pi pi-plus" size="small" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
+      </div>
     </div>
 
-    <div class="overflow-x-auto">
+    <div class="overflow-x-auto border border-surface-200 dark:border-surface-700 rounded-xl">
       <table class="w-full text-left border-collapse">
         <thead>
           <tr class="border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/50 text-sm text-muted-color">
@@ -154,7 +158,7 @@
             <td class="p-3 text-center text-sm text-muted-color font-mono">{{ i + 1 }}</td>
             <td class="p-3">
               <div class="flex items-center gap-2">
-                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.front" (blur)="onFrontBlur(i)"
+                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.front" [ngModelOptions]="{standalone: true}" (blur)="onFrontBlur(i)"
                   placeholder="e.g. mountain, legal agreement..." class="w-full" />
                 <span *ngIf="!isEditable(cat)" class="font-semibold text-surface-900 dark:text-surface-0">{{ entry.front }}</span>
 
@@ -164,7 +168,7 @@
             </td>
             <td class="p-3">
               <div class="flex items-center gap-2">
-                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.back"
+                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.back" [ngModelOptions]="{standalone: true}"
                   placeholder="Polish translation (auto-fills via AI)..." class="w-full" />
                 <span *ngIf="!isEditable(cat)" class="text-surface-700 dark:text-surface-200">{{ entry.back }}</span>
 
@@ -173,7 +177,7 @@
               </div>
             </td>
             <td *ngIf="isEditable(cat)" class="p-3 text-center">
-              <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeEntry(i)" pTooltip="Remove entry" />
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeEntry(i)" pTooltip="Remove word" />
             </td>
           </tr>
         </tbody>
@@ -191,19 +195,71 @@
   </div>
 </div>
 
-<!-- CREATE DIALOG -->
-<p-dialog [(visible)]="createDialogVisible" header="Create Wordfinder Catalogue" [modal]="true" [style]="{ width: '400px' }">
-  <div class="flex flex-col gap-4 py-2">
+<!-- CREATE CATALOGUE DIALOG -->
+<p-dialog [(visible)]="createDialogVisible" header="Create Wordfinder Catalogue" [modal]="true"
+  [style]="{ width: '800px', 'max-width': '95vw' }" [maximizable]="true">
+
+  <div class="flex flex-col gap-5 py-2">
     <div>
-      <label class="block text-sm font-bold mb-2">Catalogue Name</label>
+      <label class="block text-sm font-bold mb-1.5 text-surface-900 dark:text-surface-0">Catalogue Name</label>
       <input pInputText type="text" [ngModel]="newCatalogueName()" (ngModelChange)="newCatalogueName.set($event)"
-        placeholder="e.g. Yellowstone, Legal Terms..." class="w-full" (keyup.enter)="createCatalogue()" />
+        placeholder="e.g. Yellowstone, Friends & Work, Legal Vocabulary..." class="w-full text-lg p-3 font-semibold" />
+    </div>
+
+    <!-- Initial Vocabulary Items in Dialog -->
+    <div>
+      <div class="flex items-center justify-between mb-2">
+        <div>
+          <h4 class="font-bold text-base m-0 text-surface-900 dark:text-surface-0">Add Initial Vocabulary Words</h4>
+          <p class="text-xs text-muted-color m-0">Type English words. AI will automatically suggest Polish translations on blur or click.</p>
+        </div>
+        <p-button label="Add Row" icon="pi pi-plus" size="small" severity="secondary" [outlined]="true" (onClick)="addDialogEntry()" />
+      </div>
+
+      <div class="overflow-x-auto border border-surface-200 dark:border-surface-700 rounded-xl">
+        <table class="w-full text-left border-collapse">
+          <thead>
+            <tr class="border-b border-surface-200 dark:border-surface-700 bg-surface-100/60 dark:bg-surface-800 text-xs text-muted-color uppercase">
+              <th class="p-2.5 w-10 text-center">#</th>
+              <th class="p-2.5">English Word / Phrase</th>
+              <th class="p-2.5">Polish Translation</th>
+              <th class="p-2.5 w-16 text-center">Action</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr *ngFor="let entry of newCatalogueEntries(); let i = index" class="border-b border-surface-100 dark:border-surface-800">
+              <td class="p-2 text-center text-xs font-mono text-muted-color">{{ i + 1 }}</td>
+              <td class="p-2">
+                <div class="flex items-center gap-1.5">
+                  <input pInputText type="text" [(ngModel)]="entry.front" [ngModelOptions]="{standalone: true}" (blur)="onDialogFrontBlur(i)"
+                    placeholder="e.g. negotiation, acquaintance..." class="w-full text-sm p-2" />
+                  <p-button *ngIf="entry.front.trim()" icon="pi pi-check-circle" severity="secondary" [text]="true" size="small"
+                    [loading]="dialogSpellCheckingIndex() === i" (onClick)="spellCheckDialogRow(i)" pTooltip="AI SpellCheck" />
+                </div>
+              </td>
+              <td class="p-2">
+                <div class="flex items-center gap-1.5">
+                  <input pInputText type="text" [(ngModel)]="entry.back" [ngModelOptions]="{standalone: true}"
+                    placeholder="Polish translation..." class="w-full text-sm p-2" />
+                  <p-button icon="pi pi-sparkles" severity="help" [text]="true" size="small"
+                    [loading]="dialogTranslatingIndex() === i" (onClick)="translateDialogRow(i)" pTooltip="Auto-Translate AI" />
+                </div>
+              </td>
+              <td class="p-2 text-center">
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small" (onClick)="removeDialogEntry(i)" pTooltip="Remove word" />
+              </td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
+
   <ng-template #footer>
-    <div class="flex justify-end gap-2">
+    <div class="flex items-center justify-between pt-2">
       <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="createDialogVisible.set(false)" />
-      <p-button label="Create & Add Words" icon="pi pi-check" [loading]="saving()" (onClick)="createCatalogue()" />
+      <p-button label="Create Catalogue & Save Words" icon="pi pi-check" severity="primary" [loading]="saving()" (onClick)="createCatalogue()" />
     </div>
   </ng-template>
 </p-dialog>
+
