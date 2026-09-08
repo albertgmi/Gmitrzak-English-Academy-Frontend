@@ -14,11 +14,20 @@ import {
   WordfinderService,
   WordfinderCatalogueListDto,
   WordfinderCatalogueDto,
-  WordfinderCatalogueEntryDto,
-  WordfinderCatalogueStatus
+  WordfinderCatalogueStatus,
+  SpellCheckResult
 } from '../../services/wordfinder.service';
 
 type ViewMode = 'list' | 'editor';
+
+export interface EditableEntry {
+  id?: number;
+  front: string;
+  back: string;
+  spellCheckResult?: SpellCheckResult | null;
+  checkingSpell?: boolean;
+  translating?: boolean;
+}
 
 @Component({
   selector: 'app-wordfinder',
@@ -53,20 +62,11 @@ export class WordfinderComponent implements OnInit {
   activeCatalogue = signal<WordfinderCatalogueDto | null>(null);
 
   catalogueName = signal('');
-  entries = signal<WordfinderCatalogueEntryDto[]>([]);
-  translatingIndex = signal<number | null>(null);
-  spellCheckingIndex = signal<number | null>(null);
+  entries = signal<EditableEntry[]>([]);
 
-  // New Catalogue Dialog Signals
+  // Create Catalogue Modal
   createDialogVisible = signal(false);
   newCatalogueName = signal('');
-  newCatalogueEntries = signal<WordfinderCatalogueEntryDto[]>([
-    { front: '', back: '' },
-    { front: '', back: '' },
-    { front: '', back: '' }
-  ]);
-  dialogTranslatingIndex = signal<number | null>(null);
-  dialogSpellCheckingIndex = signal<number | null>(null);
 
   ngOnInit() {
     this.loadCatalogues();
@@ -88,80 +88,7 @@ export class WordfinderComponent implements OnInit {
 
   openCreateDialog() {
     this.newCatalogueName.set('');
-    this.newCatalogueEntries.set([
-      { front: '', back: '' },
-      { front: '', back: '' },
-      { front: '', back: '' }
-    ]);
     this.createDialogVisible.set(true);
-  }
-
-  addDialogEntry() {
-    this.newCatalogueEntries.update(list => [...list, { front: '', back: '' }]);
-  }
-
-  removeDialogEntry(index: number) {
-    this.newCatalogueEntries.update(list => list.filter((_, i) => i !== index));
-    if (this.newCatalogueEntries().length === 0) {
-      this.addDialogEntry();
-    }
-  }
-
-  onDialogFrontBlur(index: number) {
-    const entry = this.newCatalogueEntries()[index];
-    if (entry.front.trim() && !entry.back.trim()) {
-      this.translateDialogRow(index);
-    }
-  }
-
-  translateDialogRow(index: number) {
-    const entry = this.newCatalogueEntries()[index];
-    if (!entry.front.trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Translate', detail: 'Please enter English text first' });
-      return;
-    }
-
-    this.dialogTranslatingIndex.set(index);
-    this.wordfinderService.translateEntry(entry.front).subscribe({
-      next: (res) => {
-        this.dialogTranslatingIndex.set(null);
-        if (res.translatedText) {
-          const updated = [...this.newCatalogueEntries()];
-          updated[index] = { ...updated[index], back: res.translatedText };
-          this.newCatalogueEntries.set(updated);
-          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: 'Polish translation generated!' });
-        }
-      },
-      error: () => {
-        this.dialogTranslatingIndex.set(null);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'AI Translation failed' });
-      }
-    });
-  }
-
-  spellCheckDialogRow(index: number) {
-    const entry = this.newCatalogueEntries()[index];
-    if (!entry.front.trim()) return;
-
-    this.dialogSpellCheckingIndex.set(index);
-    this.wordfinderService.spellCheckEntry(entry.front).subscribe({
-      next: (res) => {
-        this.dialogSpellCheckingIndex.set(null);
-        if (res.hasError && res.corrected) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'AI SpellCheck Suggestion',
-            detail: `Found typo: "${entry.front}" -> Suggestion: "${res.corrected}" (${res.reason ?? 'Correction'})`,
-            life: 6000
-          });
-        } else {
-          this.messageService.add({ severity: 'success', summary: 'AI SpellCheck', detail: 'No spelling errors found!' });
-        }
-      },
-      error: () => {
-        this.dialogSpellCheckingIndex.set(null);
-      }
-    });
   }
 
   createCatalogue() {
@@ -171,14 +98,12 @@ export class WordfinderComponent implements OnInit {
       return;
     }
 
-    const validEntries = this.newCatalogueEntries().filter(e => e.front.trim().length > 0);
-
     this.saving.set(true);
-    this.wordfinderService.createDraft({ name, entries: validEntries }).subscribe({
+    this.wordfinderService.createDraft({ name }).subscribe({
       next: (created) => {
         this.saving.set(false);
         this.createDialogVisible.set(false);
-        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Catalogue "${created.name}" created with ${created.entries?.length || 0} words!` });
+        this.messageService.add({ severity: 'success', summary: 'Success', detail: `Catalogue "${created.name}" created!` });
         this.openEditor(created);
         this.loadCatalogues();
       },
@@ -195,10 +120,10 @@ export class WordfinderComponent implements OnInit {
       next: (full) => {
         this.activeCatalogue.set(full);
         this.catalogueName.set(full.name);
-        const initialEntries = full.entries && full.entries.length > 0
-          ? full.entries.map(e => ({ ...e }))
+        const mappedEntries: EditableEntry[] = full.entries && full.entries.length > 0
+          ? full.entries.map(e => ({ id: e.id, front: e.front, back: e.back, spellCheckResult: null }))
           : [{ front: '', back: '' }, { front: '', back: '' }];
-        this.entries.set(initialEntries);
+        this.entries.set(mappedEntries);
         this.viewMode.set('editor');
         this.loading.set(false);
       },
@@ -227,74 +152,82 @@ export class WordfinderComponent implements OnInit {
   }
 
   onFrontBlur(index: number) {
-    const entry = this.entries()[index];
-    if (entry.front.trim() && !entry.back.trim()) {
-      this.translateRow(index);
-    }
-  }
+    const list = [...this.entries()];
+    const entry = list[index];
+    if (!entry || !entry.front.trim()) return;
 
-  translateRow(index: number) {
-    const entry = this.entries()[index];
-    if (!entry.front.trim()) {
-      this.messageService.add({ severity: 'warn', summary: 'Translate', detail: 'Please enter English text first' });
-      return;
-    }
+    const trimmedFront = entry.front.trim();
 
-    this.translatingIndex.set(index);
-    this.wordfinderService.translateEntry(entry.front).subscribe({
-      next: (res) => {
-        this.translatingIndex.set(null);
-        if (res.translatedText) {
-          const updated = [...this.entries()];
-          updated[index] = { ...updated[index], back: res.translatedText };
-          this.entries.set(updated);
-          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: 'Polish translation generated!' });
+    // 1. Auto-Translate Polish if Back is empty
+    if (!entry.back.trim() && !entry.translating) {
+      entry.translating = true;
+      this.entries.set(list);
+
+      this.wordfinderService.translateEntry(trimmedFront).subscribe({
+        next: (res) => {
+          const current = [...this.entries()];
+          if (current[index]) {
+            current[index] = { ...current[index], back: res.translatedText ?? '', translating: false };
+            this.entries.set(current);
+          }
+        },
+        error: () => {
+          const current = [...this.entries()];
+          if (current[index]) {
+            current[index] = { ...current[index], translating: false };
+            this.entries.set(current);
+          }
         }
-      },
-      error: () => {
-        this.translatingIndex.set(null);
-        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'AI Translation failed' });
-      }
-    });
-  }
-
-  autoTranslateAll() {
-    const currentEntries = this.entries();
-    const untranslatedIndices = currentEntries
-      .map((e, idx) => (e.front.trim() && !e.back.trim() ? idx : -1))
-      .filter(idx => idx !== -1);
-
-    if (untranslatedIndices.length === 0) {
-      this.messageService.add({ severity: 'info', summary: 'Auto-Translate', detail: 'No empty Polish translations found' });
-      return;
+      });
     }
 
-    untranslatedIndices.forEach(idx => this.translateRow(idx));
+    // 2. Auto-SpellCheck English front
+    if (trimmedFront.length >= 2 && !entry.checkingSpell) {
+      entry.checkingSpell = true;
+      this.entries.set(list);
+
+      this.wordfinderService.spellCheckEntry(trimmedFront).subscribe({
+        next: (res) => {
+          const current = [...this.entries()];
+          if (current[index]) {
+            current[index] = {
+              ...current[index],
+              checkingSpell: false,
+              spellCheckResult: (res && res.hasError && res.corrected) ? res : null
+            };
+            this.entries.set(current);
+          }
+        },
+        error: () => {
+          const current = [...this.entries()];
+          if (current[index]) {
+            current[index] = { ...current[index], checkingSpell: false };
+            this.entries.set(current);
+          }
+        }
+      });
+    }
   }
 
-  spellCheckRow(index: number) {
-    const entry = this.entries()[index];
-    if (!entry.front.trim()) return;
+  acceptSpellCorrection(index: number) {
+    const list = [...this.entries()];
+    const entry = list[index];
+    if (entry && entry.spellCheckResult?.corrected) {
+      entry.front = entry.spellCheckResult.corrected;
+      entry.spellCheckResult = null;
+      this.entries.set(list);
+      // Re-trigger translation for the corrected word
+      this.onFrontBlur(index);
+    }
+  }
 
-    this.spellCheckingIndex.set(index);
-    this.wordfinderService.spellCheckEntry(entry.front).subscribe({
-      next: (res) => {
-        this.spellCheckingIndex.set(null);
-        if (res.hasError && res.corrected) {
-          this.messageService.add({
-            severity: 'warn',
-            summary: 'AI SpellCheck Suggestion',
-            detail: `Found typo: "${entry.front}" -> Suggestion: "${res.corrected}" (${res.reason ?? 'Correction'})`,
-            life: 6000
-          });
-        } else {
-          this.messageService.add({ severity: 'success', summary: 'AI SpellCheck', detail: 'No spelling errors found!' });
-        }
-      },
-      error: () => {
-        this.spellCheckingIndex.set(null);
-      }
-    });
+  rejectSpellCorrection(index: number) {
+    const list = [...this.entries()];
+    const entry = list[index];
+    if (entry) {
+      entry.spellCheckResult = null;
+      this.entries.set(list);
+    }
   }
 
   saveDraft(silent = false): Promise<boolean> {
@@ -307,7 +240,9 @@ export class WordfinderComponent implements OnInit {
       return Promise.resolve(false);
     }
 
-    const validEntries = this.entries().filter(e => e.front.trim().length > 0);
+    const validEntries = this.entries()
+      .filter(e => e.front.trim().length > 0)
+      .map(e => ({ front: e.front.trim(), back: e.back.trim() }));
 
     this.saving.set(true);
     return new Promise((resolve) => {
@@ -362,7 +297,7 @@ export class WordfinderComponent implements OnInit {
 
   confirmDelete(catListDto: WordfinderCatalogueListDto | WordfinderCatalogueDto) {
     this.confirmationService.confirm({
-      message: `Are you sure you want to delete "${catListDto.name}" and all its words? This action cannot be undone.`,
+      message: `Are you sure you want to delete catalogue "${catListDto.name}" and all its words? This action cannot be undone.`,
       header: 'Confirm Delete Catalogue',
       icon: 'pi pi-exclamation-triangle',
       acceptButtonProps: { severity: 'danger', label: 'Delete Catalogue' },
