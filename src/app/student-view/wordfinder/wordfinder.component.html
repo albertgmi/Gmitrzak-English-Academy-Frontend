@@ -3,55 +3,134 @@
 
 <!-- LIST VIEW -->
 <div *ngIf="viewMode() === 'list'" class="card">
+  <!-- Top Header & Banner -->
   <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
     <div>
-      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Wordfinder Catalogues</h2>
-      <p class="text-muted-color mt-1 m-0">
-        Build custom vocabulary lists, auto-translate with AI, and submit them for Teacher review & approval.
-      </p>
+      <div class="flex items-center gap-3">
+        <div class="w-10 h-10 rounded-xl bg-primary-100 dark:bg-primary-950/60 text-primary flex items-center justify-center font-bold text-xl shadow-sm">
+          <i class="pi pi-book text-xl"></i>
+        </div>
+        <div>
+          <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Wordfinder Catalogues</h2>
+          <p class="text-muted-color mt-0.5 m-0 text-sm">
+            Create custom vocabulary lists, leverage real-time AI translation & spellcheck, and submit for Teacher review.
+          </p>
+        </div>
+      </div>
     </div>
-    <div>
-      <p-button label="Create Catalogue" icon="pi pi-plus" (onClick)="openCreateDialog()" />
+    <div class="flex items-center gap-2">
+      <p-button label="Create Catalogue" icon="pi pi-plus" severity="primary" (onClick)="openCreateDialog()" />
     </div>
   </div>
 
-  <p-table [value]="catalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
+  <!-- KPI Summary Cards -->
+  <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 mb-6">
+    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
+      <div class="w-12 h-12 rounded-xl bg-blue-50 dark:bg-blue-950/50 text-blue-600 dark:text-blue-400 flex items-center justify-center shrink-0">
+        <i class="pi pi-folder text-xl"></i>
+      </div>
+      <div>
+        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Total Sets</span>
+        <span class="text-2xl font-extrabold text-surface-900 dark:text-surface-0">{{ totalCount() }}</span>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
+      <div class="w-12 h-12 rounded-xl bg-slate-100 dark:bg-slate-800 text-slate-600 dark:text-slate-300 flex items-center justify-center shrink-0">
+        <i class="pi pi-pencil text-xl"></i>
+      </div>
+      <div>
+        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Drafts</span>
+        <span class="text-2xl font-extrabold text-surface-900 dark:text-surface-0">{{ draftCount() }}</span>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
+      <div class="w-12 h-12 rounded-xl bg-amber-50 dark:bg-amber-950/50 text-amber-600 dark:text-amber-400 flex items-center justify-center shrink-0">
+        <i class="pi pi-clock text-xl"></i>
+      </div>
+      <div>
+        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Pending Review</span>
+        <span class="text-2xl font-extrabold text-amber-600 dark:text-amber-400">{{ pendingCount() }}</span>
+      </div>
+    </div>
+
+    <div class="p-4 rounded-xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-800 flex items-center gap-4 shadow-xs">
+      <div class="w-12 h-12 rounded-xl bg-emerald-50 dark:bg-emerald-950/50 text-emerald-600 dark:text-emerald-400 flex items-center justify-center shrink-0">
+        <i class="pi pi-check-circle text-xl"></i>
+      </div>
+      <div>
+        <span class="text-xs text-muted-color font-semibold uppercase tracking-wider block">Approved Sets</span>
+        <span class="text-2xl font-extrabold text-emerald-600 dark:text-emerald-400">{{ approvedCount() }}</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- Catalogues Table -->
+  <p-table #dt [value]="catalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
     responsiveLayout="scroll" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
-    [showCurrentPageReport]="true" [tableStyle]="{ 'min-width': '50rem' }">
+    [showCurrentPageReport]="true" [globalFilterFields]="['name', 'status']" [tableStyle]="{ 'min-width': '55rem' }">
+    
+    <ng-template #caption>
+      <div class="flex items-center justify-between gap-4 flex-wrap pb-2">
+        <span class="text-sm font-medium text-muted-color">
+          Manage your personal vocabulary lists
+        </span>
+        <p-iconfield>
+          <p-inputicon styleClass="pi pi-search" />
+          <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search catalogues..." class="w-64" />
+        </p-iconfield>
+      </div>
+    </ng-template>
+
     <ng-template #header>
       <tr>
-        <th style="width: 25%">Catalogue Name</th>
-        <th style="width: 15%">Entries</th>
-        <th style="width: 15%">Status</th>
-        <th style="width: 18%">Created Date</th>
-        <th style="width: 17%">Submitted Date</th>
-        <th style="width: 10%" class="text-right">Actions</th>
+        <th style="width: 26%" pSortableColumn="name">
+          Catalogue Name <p-sortIcon field="name" />
+        </th>
+        <th style="width: 14%" class="text-center" pSortableColumn="entryCount">
+          Entries <p-sortIcon field="entryCount" />
+        </th>
+        <th style="width: 16%" class="text-center" pSortableColumn="status">
+          Status <p-sortIcon field="status" />
+        </th>
+        <th style="width: 15%" class="text-center" pSortableColumn="createdAt">
+          Created Date <p-sortIcon field="createdAt" />
+        </th>
+        <th style="width: 15%" class="text-center" pSortableColumn="submittedAt">
+          Submitted Date <p-sortIcon field="submittedAt" />
+        </th>
+        <th style="width: 14%" class="text-center">Actions</th>
       </tr>
     </ng-template>
+
     <ng-template #body let-cat>
       <tr>
         <td>
-          <span class="font-bold text-surface-900 dark:text-surface-0 cursor-pointer hover:underline" (click)="openEditor(cat)">
-            {{ cat.name }}
-          </span>
+          <div class="flex items-center gap-2.5">
+            <i class="pi pi-folder text-primary text-base shrink-0"></i>
+            <span class="font-bold text-surface-900 dark:text-surface-0 cursor-pointer hover:text-primary transition-colors" (click)="openEditor(cat)">
+              {{ cat.name }}
+            </span>
+          </div>
         </td>
-        <td>
-          <span class="inline-flex items-center gap-1 font-semibold px-2.5 py-0.5 rounded-md bg-surface-100 dark:bg-surface-800">
-            <i class="pi pi-book text-xs"></i>
+        <td class="text-center">
+          <span class="inline-flex items-center gap-1 font-semibold text-xs px-2.5 py-1 rounded-full bg-surface-100 dark:bg-surface-800 text-surface-700 dark:text-surface-300">
+            <i class="pi pi-list text-[10px]"></i>
             {{ cat.entryCount }} words
           </span>
         </td>
-        <td>
+        <td class="text-center">
           <p-tag [value]="getStatusLabel(cat.status)" [severity]="getStatusSeverity(cat.status)" />
         </td>
-        <td class="text-sm text-muted-color">
-          {{ cat.createdAt | date:'d MMM yyyy, HH:mm' }}
+        <td class="text-center text-sm text-muted-color">
+          {{ cat.createdAt | date:'d MMM yyyy, HH:mm':'UTC' }}
         </td>
-        <td class="text-sm text-muted-color">
-          {{ cat.submittedAt ? (cat.submittedAt | date:'d MMM yyyy, HH:mm') : '-' }}
+        <td class="text-center text-sm text-muted-color">
+          {{ cat.submittedAt ? (cat.submittedAt | date:'d MMM yyyy, HH:mm':'UTC') : '-' }}
         </td>
-        <td class="text-right">
-          <div class="flex items-center justify-end gap-2">
+        <td class="text-center">
+          <div class="flex items-center justify-center gap-1.5">
             <p-button [icon]="isEditable(cat) ? 'pi pi-pencil' : 'pi pi-eye'" severity="secondary" [outlined]="true"
               (onClick)="openEditor(cat)" [pTooltip]="isEditable(cat) ? 'Edit Draft' : 'View Catalogue'" tooltipPosition="top" />
             <p-button icon="pi pi-trash" severity="danger" [outlined]="true"
@@ -63,9 +142,9 @@
 
     <ng-template #empty>
       <tr>
-        <td colspan="6" class="text-center p-6 text-muted-color">
-          <i class="pi pi-folder-open text-4xl mb-3 block"></i>
-          <p class="m-0 font-medium">No Wordfinder catalogues found yet.</p>
+        <td colspan="6" class="text-center p-8 text-muted-color">
+          <i class="pi pi-folder-open text-4xl mb-3 block text-surface-400"></i>
+          <p class="m-0 font-medium text-base">No Wordfinder catalogues found.</p>
           <p class="text-sm mt-1 m-0">Click <strong>"Create Catalogue"</strong> above to start building your own vocabulary set!</p>
         </td>
       </tr>
@@ -75,20 +154,20 @@
 
 <!-- EDITOR VIEW -->
 <div *ngIf="viewMode() === 'editor' && activeCatalogue() as cat" class="card">
-  <!-- Top Navigation & Info -->
-  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+  <!-- Top Navigation & Action Header -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6 pb-4 border-b border-surface-200 dark:border-surface-700">
     <div class="flex items-center gap-3">
       <p-button icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="backToList()" pTooltip="Back to list" />
       <div>
-        <div class="flex items-center gap-2">
+        <div class="flex items-center gap-3 flex-wrap">
           <input *ngIf="isEditable(cat)" pInputText type="text" [ngModel]="catalogueName()" (ngModelChange)="catalogueName.set($event)"
-            placeholder="Catalogue Name (e.g. Yellowstone)..." class="text-xl font-bold p-2" />
+            placeholder="Catalogue Name (e.g. Yellowstone)..." class="text-xl font-bold p-2 w-64 md:w-80" />
           <h2 *ngIf="!isEditable(cat)" class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ cat.name }}</h2>
           <p-tag [value]="getStatusLabel(cat.status)" [severity]="getStatusSeverity(cat.status)" />
         </div>
-        <p class="text-sm text-muted-color mt-1 m-0">
-          Created: {{ cat.createdAt | date:'d MMM yyyy' }}
-          <span *ngIf="cat.submittedAt"> · Submitted: {{ cat.submittedAt | date:'d MMM yyyy, HH:mm' }}</span>
+        <p class="text-xs text-muted-color mt-1 m-0">
+          Created: {{ cat.createdAt | date:'d MMM yyyy, HH:mm':'UTC' }}
+          <span *ngIf="cat.submittedAt"> · Submitted: {{ cat.submittedAt | date:'d MMM yyyy, HH:mm':'UTC' }}</span>
         </p>
       </div>
     </div>
@@ -101,17 +180,17 @@
     </div>
   </div>
 
-  <!-- Rejection Banner if Status === Rejected -->
+  <!-- Rejection Banner -->
   <div *ngIf="cat.status === WordfinderCatalogueStatus.Rejected" class="p-4 mb-6 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 dark:border-red-800/50 text-red-900 dark:text-red-200">
     <div class="flex items-start gap-3">
-      <i class="pi pi-exclamation-circle text-xl text-red-600 dark:text-red-400 mt-0.5"></i>
+      <i class="pi pi-exclamation-circle text-2xl text-red-600 dark:text-red-400 mt-0.5"></i>
       <div>
-        <h4 class="font-bold text-base m-0 text-red-900 dark:text-red-200">Catalogue Rejected by Admin</h4>
+        <h4 class="font-bold text-base m-0 text-red-900 dark:text-red-200">Catalogue Rejected by Teacher</h4>
         <p class="text-sm mt-1 m-0 text-red-800 dark:text-red-300">
           <strong>Feedback:</strong> {{ cat.rejectionReason || 'No reason provided.' }}
         </p>
         <p class="text-xs mt-2 m-0 text-red-700 dark:text-red-400">
-          You can edit the entries below to address the teacher's feedback and click <strong>"Submit for Approval"</strong> again.
+          Edit the words below to address teacher feedback and click <strong>"Submit for Approval"</strong> again.
         </p>
       </div>
     </div>
@@ -127,45 +206,54 @@
           This catalogue is currently locked while being reviewed by your Teacher.
         </p>
         <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300" *ngIf="cat.status === WordfinderCatalogueStatus.Approved">
-          This catalogue has been approved! It is now saved as a system catalogue (e.g. <code>{{ cat.studentInitials }}_{{ cat.name }}</code>) and assigned to your learning deck.
+          This catalogue has been approved! It is now saved as a system catalogue (<code>{{ cat.studentInitials }}_{{ cat.name }}</code>) and assigned to your learning deck.
         </p>
       </div>
     </div>
   </div>
 
-  <!-- Entries Table -->
+  <!-- Entries Table Header Bar -->
   <div class="mb-4">
     <div class="flex items-center justify-between mb-3">
-      <h3 class="font-bold text-lg m-0">Vocabulary Items ({{ entries().length }})</h3>
+      <div class="flex items-center gap-2">
+        <h3 class="font-bold text-lg m-0">Vocabulary Items</h3>
+        <span class="inline-flex items-center justify-center text-xs font-bold px-2.5 py-0.5 rounded-full bg-primary-100 text-primary-800 dark:bg-primary-950 dark:text-primary-200">
+          {{ entries().length }} words
+        </span>
+      </div>
       <p-button *ngIf="isEditable(cat)" label="Add Word" icon="pi pi-plus" size="small" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
     </div>
 
-    <div class="overflow-x-auto border border-surface-200 dark:border-surface-700 rounded-xl">
+    <!-- Table -->
+    <div class="overflow-x-auto border border-surface-200 dark:border-surface-700 rounded-xl shadow-2xs">
       <table class="w-full text-left border-collapse">
         <thead>
-          <tr class="border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/50 text-sm text-muted-color">
-            <th class="p-3 w-12 text-center">#</th>
-            <th class="p-3">English Word / Phrase (Front)</th>
-            <th class="p-3">Polish Translation (Back)</th>
-            <th *ngIf="isEditable(cat)" class="p-3 w-20 text-center">Actions</th>
+          <tr class="border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/60 text-xs font-semibold uppercase tracking-wider text-muted-color">
+            <th class="p-3.5 w-12 text-center">#</th>
+            <th class="p-3.5">English Word / Phrase (Front)</th>
+            <th class="p-3.5">Polish Translation (Back)</th>
+            <th *ngIf="isEditable(cat)" class="p-3.5 w-28 text-center">Actions</th>
           </tr>
         </thead>
         <tbody>
-          <tr *ngFor="let entry of entries(); let i = index" class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50/50 dark:hover:bg-surface-800/30">
+          <tr *ngFor="let entry of entries(); let i = index" class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50/50 dark:hover:bg-surface-800/30 transition-colors">
             <td class="p-3 text-center text-sm text-muted-color font-mono">{{ i + 1 }}</td>
             <td class="p-3">
               <div>
-                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.front" [ngModelOptions]="{standalone: true}" (blur)="onFrontBlur(i)"
-                  placeholder="e.g. mountain, legal agreement..." class="w-full" />
-                <span *ngIf="!isEditable(cat)" class="font-semibold text-surface-900 dark:text-surface-0">{{ entry.front }}</span>
+                <div class="flex items-center gap-2">
+                  <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.front" [ngModelOptions]="{standalone: true}"
+                    (ngModelChange)="onFrontInputChange(i)" (blur)="onFrontBlur(i)"
+                    placeholder="e.g. mountain, legal agreement..." class="w-full" />
+                  <span *ngIf="!isEditable(cat)" class="font-semibold text-surface-900 dark:text-surface-0">{{ entry.front }}</span>
+                </div>
 
-                <!-- Inline AI Spellcheck Alert (Lesson Mode Style) -->
+                <!-- Inline AI Spellcheck Suggestion Alert -->
                 <div *ngIf="entry.spellCheckResult as check"
-                  class="flex items-center justify-between gap-3 p-2 mt-1.5 bg-blue-50 dark:bg-blue-900/20 border border-blue-200 dark:border-blue-800 rounded-lg text-xs">
+                  class="flex items-center justify-between gap-3 p-2.5 mt-2 bg-blue-50/80 dark:bg-blue-950/40 border border-blue-200 dark:border-blue-800 rounded-lg text-xs">
                   <div class="flex items-center gap-2">
-                    <i class="pi pi-sparkles text-blue-500"></i>
-                    <span class="text-blue-700 dark:text-blue-300">
-                      Did you mean: <strong>{{ check.corrected }}</strong>?
+                    <i class="pi pi-sparkles text-blue-500 text-sm"></i>
+                    <span class="text-blue-800 dark:text-blue-200">
+                      Did you mean: <strong class="font-bold text-blue-900 dark:text-blue-100 underline decoration-blue-400 decoration-2">{{ check.corrected }}</strong>?
                       <span class="text-xs text-muted-color ml-1" *ngIf="check.reason">({{ check.reason }})</span>
                     </span>
                   </div>
@@ -179,15 +267,20 @@
               </div>
             </td>
             <td class="p-3">
-              <div class="relative flex items-center">
+              <div class="relative flex items-center gap-2">
                 <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.back" [ngModelOptions]="{standalone: true}"
                   placeholder="Polish translation (auto-fills via AI)..." class="w-full" />
                 <span *ngIf="!isEditable(cat)" class="text-surface-700 dark:text-surface-200">{{ entry.back }}</span>
-                <i *ngIf="entry.translating" class="pi pi-spin pi-spinner absolute right-3 text-muted-color"></i>
+                <i *ngIf="entry.translating" class="pi pi-spin pi-spinner text-muted-color"></i>
               </div>
             </td>
             <td *ngIf="isEditable(cat)" class="p-3 text-center">
-              <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeEntry(i)" pTooltip="Remove word" />
+              <div class="flex items-center justify-center gap-1">
+                <p-button icon="pi pi-sparkles" severity="help" [text]="true" size="small"
+                  (onClick)="manualTranslate(i)" [loading]="entry.translating" pTooltip="Translate via AI" tooltipPosition="top" />
+                <p-button icon="pi pi-trash" severity="danger" [text]="true" size="small"
+                  (onClick)="removeEntry(i)" pTooltip="Remove word" tooltipPosition="top" />
+              </div>
             </td>
           </tr>
         </tbody>
@@ -195,7 +288,7 @@
     </div>
   </div>
 
-  <!-- Bottom Action Buttons -->
+  <!-- Bottom Action Bar -->
   <div *ngIf="isEditable(cat)" class="flex items-center justify-between pt-4 border-t border-surface-200 dark:border-surface-700">
     <p-button label="Add Word" icon="pi pi-plus" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
     <div class="flex items-center gap-2">
@@ -208,6 +301,12 @@
 <!-- CREATE CATALOGUE DIALOG -->
 <p-dialog [(visible)]="createDialogVisible" header="Create Wordfinder Catalogue" [modal]="true" [style]="{ width: '450px' }">
   <div class="flex flex-col gap-4 py-2">
+    <div class="flex items-center gap-3 p-3 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
+      <i class="pi pi-folder-plus text-2xl text-primary"></i>
+      <p class="text-xs text-muted-color m-0">
+        Give your new vocabulary list a descriptive topic name. You can add words and auto-translate them in the editor.
+      </p>
+    </div>
     <div>
       <label class="block text-sm font-bold mb-2">Catalogue Name</label>
       <input pInputText type="text" [ngModel]="newCatalogueName()" (ngModelChange)="newCatalogueName.set($event)"
@@ -221,5 +320,3 @@
     </div>
   </ng-template>
 </p-dialog>
-
-

@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
@@ -9,6 +9,8 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import {
   WordfinderService,
@@ -42,7 +44,9 @@ export interface EditableEntry {
     ToastModule,
     ConfirmDialogModule,
     DialogModule,
-    TooltipModule
+    TooltipModule,
+    IconFieldModule,
+    InputIconModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './wordfinder.component.html'
@@ -58,6 +62,21 @@ export class WordfinderComponent implements OnInit {
   loading = signal(false);
   saving = signal(false);
 
+  // Computed Stats for KPI cards
+  totalCount = computed(() => this.catalogues().length);
+  draftCount = computed(() => this.catalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'draft' || s === '0';
+  }).length);
+  pendingCount = computed(() => this.catalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'pendingapproval' || s === '1';
+  }).length);
+  approvedCount = computed(() => this.catalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'approved' || s === '2';
+  }).length);
+
   viewMode = signal<ViewMode>('list');
   activeCatalogue = signal<WordfinderCatalogueDto | null>(null);
 
@@ -67,6 +86,8 @@ export class WordfinderComponent implements OnInit {
   // Create Catalogue Modal
   createDialogVisible = signal(false);
   newCatalogueName = signal('');
+
+  private debounceTimers: { [index: number]: any } = {};
 
   ngOnInit() {
     this.loadCatalogues();
@@ -151,7 +172,67 @@ export class WordfinderComponent implements OnInit {
     }
   }
 
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  manualTranslate(index: number) {
+    const list = [...this.entries()];
+    const entry = list[index];
+    if (!entry || !entry.front.trim() || entry.translating) return;
+
+    entry.translating = true;
+    this.entries.set(list);
+
+    this.wordfinderService.translateEntry(entry.front.trim()).subscribe({
+      next: (res) => {
+        const current = [...this.entries()];
+        if (current[index]) {
+          current[index] = { ...current[index], back: res.translatedText ?? '', translating: false };
+          this.entries.set(current);
+          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: `Translated "${entry.front}"` });
+        }
+      },
+      error: () => {
+        const current = [...this.entries()];
+        if (current[index]) {
+          current[index] = { ...current[index], translating: false };
+          this.entries.set(current);
+          this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Translation failed' });
+        }
+      }
+    });
+  }
+
+  onFrontInputChange(index: number) {
+    if (this.debounceTimers[index]) {
+      clearTimeout(this.debounceTimers[index]);
+    }
+
+    const list = [...this.entries()];
+    const entry = list[index];
+    if (!entry || !entry.front.trim()) {
+      if (entry && entry.spellCheckResult) {
+        entry.spellCheckResult = null;
+        this.entries.set(list);
+      }
+      return;
+    }
+
+    // Trigger AI check 400ms after user stops typing
+    this.debounceTimers[index] = setTimeout(() => {
+      this.runAiAssistance(index);
+    }, 400);
+  }
+
   onFrontBlur(index: number) {
+    if (this.debounceTimers[index]) {
+      clearTimeout(this.debounceTimers[index]);
+    }
+    this.runAiAssistance(index);
+  }
+
+  runAiAssistance(index: number) {
     const list = [...this.entries()];
     const entry = list[index];
     if (!entry || !entry.front.trim()) return;
@@ -189,11 +270,11 @@ export class WordfinderComponent implements OnInit {
       this.wordfinderService.spellCheckEntry(trimmedFront).subscribe({
         next: (res) => {
           const current = [...this.entries()];
-          if (current[index]) {
+          if (current[index] && current[index].front.trim().toLowerCase() === trimmedFront.toLowerCase()) {
             current[index] = {
               ...current[index],
               checkingSpell: false,
-              spellCheckResult: (res && res.hasError && res.corrected) ? res : null
+              spellCheckResult: (res && res.hasError && res.corrected && res.corrected.trim().toLowerCase() !== trimmedFront.toLowerCase()) ? res : null
             };
             this.entries.set(current);
           }
@@ -216,8 +297,8 @@ export class WordfinderComponent implements OnInit {
       entry.front = entry.spellCheckResult.corrected;
       entry.spellCheckResult = null;
       this.entries.set(list);
-      // Re-trigger translation for the corrected word
-      this.onFrontBlur(index);
+      // Re-trigger AI assistance immediately for the corrected word
+      this.runAiAssistance(index);
     }
   }
 

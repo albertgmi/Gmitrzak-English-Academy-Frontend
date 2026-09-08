@@ -1,7 +1,7 @@
-import { Component, inject, OnInit, signal } from '@angular/core';
+import { Component, computed, inject, OnInit, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { Table, TableModule } from 'primeng/table';
 import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { TagModule } from 'primeng/tag';
@@ -11,6 +11,8 @@ import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { TextareaModule } from 'primeng/textarea';
 import { SelectModule } from 'primeng/select';
+import { IconFieldModule } from 'primeng/iconfield';
+import { InputIconModule } from 'primeng/inputicon';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 import {
@@ -37,6 +39,8 @@ import {
     TooltipModule,
     TextareaModule,
     SelectModule,
+    IconFieldModule,
+    InputIconModule,
     AvatarComponent
   ],
   providers: [MessageService, ConfirmationService],
@@ -52,6 +56,24 @@ export class WordfinderQueueComponent implements OnInit {
   pendingCatalogues = signal<WordfinderCatalogueListDto[]>([]);
   loading = signal(false);
   processing = signal(false);
+
+  // Computed Stats for Admin KPI Cards
+  pendingCount = computed(() => this.pendingCatalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'pendingapproval' || s === '1';
+  }).length);
+  draftCount = computed(() => this.pendingCatalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'draft' || s === '0';
+  }).length);
+  approvedCount = computed(() => this.pendingCatalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'approved' || s === '2';
+  }).length);
+  rejectedCount = computed(() => this.pendingCatalogues().filter(c => {
+    const s = String(c.status).toLowerCase();
+    return s === 'rejected' || s === '3';
+  }).length);
 
   // Status Filter State
   selectedStatus = signal<WordfinderCatalogueStatus | null>(WordfinderCatalogueStatus.PendingApproval);
@@ -72,6 +94,30 @@ export class WordfinderQueueComponent implements OnInit {
   // Reject Dialog State
   rejectDialogVisible = signal(false);
   rejectionReason = signal('');
+
+  onGlobalFilter(table: Table, event: Event) {
+    table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
+  }
+
+  manualTranslateEntry(index: number) {
+    const list = [...this.editableEntries()];
+    const entry = list[index];
+    if (!entry || !entry.front.trim()) return;
+
+    this.wordfinderService.translateEntry(entry.front.trim()).subscribe({
+      next: (res) => {
+        const current = [...this.editableEntries()];
+        if (current[index]) {
+          current[index] = { ...current[index], back: res.translatedText ?? '' };
+          this.editableEntries.set(current);
+          this.messageService.add({ severity: 'info', summary: 'AI Translation', detail: `Translated "${entry.front}"` });
+        }
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Translation failed' });
+      }
+    });
+  }
 
   ngOnInit() {
     this.loadCatalogues();
