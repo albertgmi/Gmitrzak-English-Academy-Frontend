@@ -118,6 +118,7 @@ export class AppMenu implements OnInit {
             icon: 'pi pi-folder',
             items: [
               { label: 'Catalogues', icon: 'pi pi-folder-open', routerLink: ['/system/catalogues'] },
+              { label: 'Wordfinder Queue', icon: 'pi pi-inbox', routerLink: ['/system/wordfinder-queue'] },
               { label: 'Global Vocabulary', icon: 'pi pi-book', routerLink: ['/system/global-vocabulary'] },
               { label: 'Alphabet Pool', icon: 'pi pi-language', routerLink: ['/system/alphabet-pool'] },
               { label: 'Assign Global Vocabulary', icon: 'pi pi-user-plus', routerLink: ['/system/global-vocabulary/assign'] },
@@ -166,6 +167,11 @@ export class AppMenu implements OnInit {
             label: 'Flashcard List', 
             icon: 'pi pi-list', 
             routerLink: ['/flashcards'] 
+          },
+          {
+            label: 'Wordfinder',
+            icon: 'pi pi-compass',
+            routerLink: ['/wordfinder']
           },
           { 
             label: 'Irregular Verbs Session', 

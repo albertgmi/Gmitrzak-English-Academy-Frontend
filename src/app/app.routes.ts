@@ -51,6 +51,8 @@ import {LessonLastWeekComponent} from './lesson/lesson-last-week/lesson-last-wee
 import {LessonStatsComponent} from './lesson/lesson-stats/lesson-stats.component';
 import {LoginComponent} from './auth/login/login.component';
 import {CataloguesComponent} from './content/catalogues/catalogues.component';
+import { WordfinderComponent } from './student-view/wordfinder/wordfinder.component';
+import { WordfinderQueueComponent } from './content/wordfinder-queue/wordfinder-queue.component';
 import {TheaterComponent} from './other/theater/theater.component';
 import {RepertoireComponent} from './other/repertoire/repertoire.component';
 import { GlobalVocabularyComponent } from './vocabulary/global-vocabulary/global-vocabulary.component';
@@ -129,6 +131,7 @@ export const appRoutes: Routes = [
       { path: 'grades', component: GradesComponent, canActivate: [AuthGuard] },
       { path: 'stats', component: StatsComponent, canActivate: [AuthGuard] },
       { path: 'vocabulary', component: VocabularyComponent, canActivate: [AuthGuard] },
+      { path: 'wordfinder', component: WordfinderComponent, canActivate: [AuthGuard] },
       { path: 'sentences', component: SentencesComponent, canActivate: [AuthGuard] },
       { path: 'memories', component: MemoriesComponent, canActivate: [AuthGuard] },
       { path: 'pronunciation', component: PronunciationComponent, canActivate: [AuthGuard] },
@@ -160,6 +163,7 @@ export const appRoutes: Routes = [
       { path: 'profiles/:userId', component: ProfileDetailComponent, canActivate: [AuthGuard] },
       { path: 'onboard', component: OnboardClientComponent, canActivate: [AuthGuard] },
       { path: 'system/catalogues', component: CataloguesComponent, canActivate: [AuthGuard] },
+      { path: 'system/wordfinder-queue', component: WordfinderQueueComponent, canActivate: [AuthGuard] },
       { path: 'system/global-vocabulary', component: GlobalVocabularyComponent, canActivate: [AuthGuard] },
       { path: 'system/global-vocabulary/assign', component: AssignGlobalVocabularyComponent, canActivate: [AuthGuard] },
       { path: 'system/theater', component: TheaterComponent, canActivate: [AuthGuard] },

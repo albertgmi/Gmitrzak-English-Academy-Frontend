@@ -1,0 +1,209 @@
+<p-toast />
+<p-confirmDialog />
+
+<!-- LIST VIEW -->
+<div *ngIf="viewMode() === 'list'" class="card">
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div>
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Wordfinder Catalogues</h2>
+      <p class="text-muted-color mt-1 m-0">
+        Build custom vocabulary lists, auto-translate with AI, and submit them for Teacher review & approval.
+      </p>
+    </div>
+    <div>
+      <p-button label="Create Catalogue" icon="pi pi-plus" (onClick)="openCreateDialog()" />
+    </div>
+  </div>
+
+  <p-table [value]="catalogues()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
+    responsiveLayout="scroll" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} catalogues"
+    [showCurrentPageReport]="true">
+    <ng-template #header>
+      <tr>
+        <th>Catalogue Name</th>
+        <th>Entries</th>
+        <th>Status</th>
+        <th>Created Date</th>
+        <th>Submitted Date</th>
+        <th class="text-right">Actions</th>
+      </tr>
+    </ng-template>
+    <ng-template #body let-cat>
+      <tr>
+        <td>
+          <span class="font-bold text-surface-900 dark:text-surface-0 cursor-pointer hover:underline" (click)="openEditor(cat)">
+            {{ cat.name }}
+          </span>
+        </td>
+        <td>
+          <span class="inline-flex items-center gap-1 font-semibold px-2.5 py-0.5 rounded-md bg-surface-100 dark:bg-surface-800">
+            <i class="pi pi-book text-xs"></i>
+            {{ cat.entryCount }} words
+          </span>
+        </td>
+        <td>
+          <p-tag [value]="getStatusLabel(cat.status)" [severity]="getStatusSeverity(cat.status)" />
+        </td>
+        <td class="text-sm text-muted-color">
+          {{ cat.createdAt | date:'d MMM yyyy, HH:mm' }}
+        </td>
+        <td class="text-sm text-muted-color">
+          {{ cat.submittedAt ? (cat.submittedAt | date:'d MMM yyyy, HH:mm') : '-' }}
+        </td>
+        <td class="text-right">
+          <div class="flex items-center justify-end gap-2">
+            <p-button [icon]="isEditable(cat) ? 'pi pi-pencil' : 'pi pi-eye'" severity="secondary" [outlined]="true"
+              (onClick)="openEditor(cat)" [pTooltip]="isEditable(cat) ? 'Edit Draft' : 'View Catalogue'" />
+            <p-button *ngIf="isEditable(cat)" icon="pi pi-trash" severity="danger" [outlined]="true"
+              (onClick)="confirmDelete(cat)" pTooltip="Delete Draft" />
+          </div>
+        </td>
+      </tr>
+    </ng-template>
+
+    <ng-template #empty>
+      <tr>
+        <td colspan="6" class="text-center p-6 text-muted-color">
+          <i class="pi pi-folder-open text-4xl mb-3 block"></i>
+          <p class="m-0 font-medium">No Wordfinder catalogues found yet.</p>
+          <p class="text-sm mt-1 m-0">Click <strong>"Create Catalogue"</strong> above to start building your own vocabulary set!</p>
+        </td>
+      </tr>
+    </ng-template>
+  </p-table>
+</div>
+
+<!-- EDITOR VIEW -->
+<div *ngIf="viewMode() === 'editor' && activeCatalogue() as cat" class="card">
+  <!-- Top Navigation & Info -->
+  <div class="flex flex-col md:flex-row md:items-center justify-between gap-4 mb-6">
+    <div class="flex items-center gap-3">
+      <p-button icon="pi pi-arrow-left" severity="secondary" [outlined]="true" (onClick)="backToList()" pTooltip="Back to list" />
+      <div>
+        <div class="flex items-center gap-2">
+          <input *ngIf="isEditable(cat)" pInputText type="text" [ngModel]="catalogueName()" (ngModelChange)="catalogueName.set($event)"
+            placeholder="Catalogue Name (e.g. Yellowstone)..." class="text-xl font-bold p-2" />
+          <h2 *ngIf="!isEditable(cat)" class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">{{ cat.name }}</h2>
+          <p-tag [value]="getStatusLabel(cat.status)" [severity]="getStatusSeverity(cat.status)" />
+        </div>
+        <p class="text-sm text-muted-color mt-1 m-0">
+          Created: {{ cat.createdAt | date:'d MMM yyyy' }}
+          <span *ngIf="cat.submittedAt"> · Submitted: {{ cat.submittedAt | date:'d MMM yyyy, HH:mm' }}</span>
+        </p>
+      </div>
+    </div>
+
+    <!-- Action Buttons -->
+    <div *ngIf="isEditable(cat)" class="flex items-center gap-2">
+      <p-button label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" (onClick)="saveDraft()" />
+      <p-button label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" (onClick)="submitForApproval()" />
+    </div>
+  </div>
+
+  <!-- Rejection Banner if Status === Rejected -->
+  <div *ngIf="cat.status === WordfinderCatalogueStatus.Rejected" class="p-4 mb-6 rounded-xl border border-red-200 bg-red-50 dark:bg-red-950/40 dark:border-red-800/50 text-red-900 dark:text-red-200">
+    <div class="flex items-start gap-3">
+      <i class="pi pi-exclamation-circle text-xl text-red-600 dark:text-red-400 mt-0.5"></i>
+      <div>
+        <h4 class="font-bold text-base m-0 text-red-900 dark:text-red-200">Catalogue Rejected by Admin</h4>
+        <p class="text-sm mt-1 m-0 text-red-800 dark:text-red-300">
+          <strong>Feedback:</strong> {{ cat.rejectionReason || 'No reason provided.' }}
+        </p>
+        <p class="text-xs mt-2 m-0 text-red-700 dark:text-red-400">
+          You can edit the entries below to address the teacher's feedback and click <strong>"Submit for Approval"</strong> again.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Read-Only Banner for Pending or Approved -->
+  <div *ngIf="!isEditable(cat)" class="p-4 mb-6 rounded-xl border border-blue-200 bg-blue-50 dark:bg-blue-950/40 dark:border-blue-800/50 text-blue-900 dark:text-blue-200">
+    <div class="flex items-center gap-3">
+      <i class="pi pi-info-circle text-xl text-blue-600 dark:text-blue-400"></i>
+      <div>
+        <h4 class="font-bold text-sm m-0">Catalogue Status: {{ getStatusLabel(cat.status) }}</h4>
+        <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300" *ngIf="cat.status === WordfinderCatalogueStatus.PendingApproval">
+          This catalogue is currently locked while being reviewed by your Teacher.
+        </p>
+        <p class="text-xs mt-0.5 m-0 text-blue-800 dark:text-blue-300" *ngIf="cat.status === WordfinderCatalogueStatus.Approved">
+          This catalogue has been approved! It is now saved as a system catalogue (e.g. <code>{{ cat.studentInitials }}_{{ cat.name }}</code>) and assigned to your learning deck.
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Entries Table -->
+  <div class="mb-4">
+    <div class="flex items-center justify-between mb-3">
+      <h3 class="font-bold text-lg m-0">Vocabulary Items ({{ entries().length }})</h3>
+      <p-button *ngIf="isEditable(cat)" label="Add Word" icon="pi pi-plus" size="small" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
+    </div>
+
+    <div class="overflow-x-auto">
+      <table class="w-full text-left border-collapse">
+        <thead>
+          <tr class="border-b border-surface-200 dark:border-surface-700 bg-surface-50 dark:bg-surface-800/50 text-sm text-muted-color">
+            <th class="p-3 w-12 text-center">#</th>
+            <th class="p-3">English Word / Phrase (Front)</th>
+            <th class="p-3">Polish Translation (Back)</th>
+            <th *ngIf="isEditable(cat)" class="p-3 w-20 text-center">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr *ngFor="let entry of entries(); let i = index" class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50/50 dark:hover:bg-surface-800/30">
+            <td class="p-3 text-center text-sm text-muted-color font-mono">{{ i + 1 }}</td>
+            <td class="p-3">
+              <div class="flex items-center gap-2">
+                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.front" (blur)="onFrontBlur(i)"
+                  placeholder="e.g. mountain, legal agreement..." class="w-full" />
+                <span *ngIf="!isEditable(cat)" class="font-semibold text-surface-900 dark:text-surface-0">{{ entry.front }}</span>
+
+                <p-button *ngIf="isEditable(cat) && entry.front.trim()" icon="pi pi-check-circle" severity="secondary" [text]="true"
+                  [loading]="spellCheckingIndex() === i" (onClick)="spellCheckRow(i)" pTooltip="AI SpellCheck" />
+              </div>
+            </td>
+            <td class="p-3">
+              <div class="flex items-center gap-2">
+                <input *ngIf="isEditable(cat)" pInputText type="text" [(ngModel)]="entry.back"
+                  placeholder="Polish translation (auto-fills via AI)..." class="w-full" />
+                <span *ngIf="!isEditable(cat)" class="text-surface-700 dark:text-surface-200">{{ entry.back }}</span>
+
+                <p-button *ngIf="isEditable(cat)" icon="pi pi-sparkles" severity="help" [text]="true"
+                  [loading]="translatingIndex() === i" (onClick)="translateRow(i)" pTooltip="Auto-Translate via AI" />
+              </div>
+            </td>
+            <td *ngIf="isEditable(cat)" class="p-3 text-center">
+              <p-button icon="pi pi-trash" severity="danger" [text]="true" (onClick)="removeEntry(i)" pTooltip="Remove entry" />
+            </td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- Bottom Action Buttons -->
+  <div *ngIf="isEditable(cat)" class="flex items-center justify-between pt-4 border-t border-surface-200 dark:border-surface-700">
+    <p-button label="Add Word" icon="pi pi-plus" severity="secondary" [outlined]="true" (onClick)="addEntry()" />
+    <div class="flex items-center gap-2">
+      <p-button label="Save Draft" icon="pi pi-save" severity="secondary" [outlined]="true" [loading]="saving()" (onClick)="saveDraft()" />
+      <p-button label="Submit for Approval" icon="pi pi-send" severity="primary" [loading]="saving()" (onClick)="submitForApproval()" />
+    </div>
+  </div>
+</div>
+
+<!-- CREATE DIALOG -->
+<p-dialog [(visible)]="createDialogVisible" header="Create Wordfinder Catalogue" [modal]="true" [style]="{ width: '400px' }">
+  <div class="flex flex-col gap-4 py-2">
+    <div>
+      <label class="block text-sm font-bold mb-2">Catalogue Name</label>
+      <input pInputText type="text" [ngModel]="newCatalogueName()" (ngModelChange)="newCatalogueName.set($event)"
+        placeholder="e.g. Yellowstone, Legal Terms..." class="w-full" (keyup.enter)="createCatalogue()" />
+    </div>
+  </div>
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="createDialogVisible.set(false)" />
+      <p-button label="Create & Add Words" icon="pi pi-check" [loading]="saving()" (onClick)="createCatalogue()" />
+    </div>
+  </ng-template>
+</p-dialog>
