@@ -1,17 +1,20 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, computed, OnInit } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
 import { TableModule } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
-import { MessageService } from 'primeng/api';
+import { ConfirmDialogModule } from 'primeng/confirmdialog';
+import { MessageService, ConfirmationService } from 'primeng/api';
 import { ButtonModule } from 'primeng/button';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
+import { SelectModule } from 'primeng/select';
+import { TooltipModule } from 'primeng/tooltip';
 import { LessonPanelService, LessonFlashcardSummaryDto, LessonFlashcardDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
@@ -20,11 +23,11 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
   selector: 'app-lesson-flashcards',
   standalone: true,
   imports: [
-    CommonModule, TableModule, TagModule, ToastModule, ButtonModule,
+    CommonModule, TableModule, TagModule, ToastModule, ConfirmDialogModule, ButtonModule,
     AvatarComponent, IconFieldModule, InputIconModule, InputTextModule,
-    DialogModule, InputNumberModule, FormsModule
+    DialogModule, InputNumberModule, FormsModule, SelectModule, TooltipModule
   ],
-  providers: [MessageService],
+  providers: [MessageService, ConfirmationService],
   templateUrl: './lesson-flashcards.component.html'
 })
 export class LessonFlashcardsComponent implements OnInit {
@@ -32,6 +35,7 @@ export class LessonFlashcardsComponent implements OnInit {
   private lessonContext = inject(LessonContextService);
   private router = inject(Router);
   private messageService = inject(MessageService);
+  private confirmationService = inject(ConfirmationService);
 
   activeStudent = this.lessonContext.activeStudent;
   data = signal<LessonFlashcardSummaryDto | null>(null);
@@ -40,6 +44,10 @@ export class LessonFlashcardsComponent implements OnInit {
   allFlashcards = signal<LessonFlashcardDto[]>([]);
   loadingAll = signal(true);
 
+  selectedCards = signal<LessonFlashcardDto[]>([]);
+  selectedCategoryToSelect = signal<string>('');
+  deletingBulk = signal<boolean>(false);
+
   editDialogVisible = signal(false);
   selectedCard = signal<LessonFlashcardDto | null>(null);
   newInterval = signal<number>(0);
@@ -47,6 +55,24 @@ export class LessonFlashcardsComponent implements OnInit {
 
   exportingPdf = signal(false);
   exportingExcel = signal(false);
+
+  categories = computed(() => {
+    const set = new Set<string>();
+    this.allFlashcards().forEach(c => {
+      if (c.category && c.category.trim()) {
+        set.add(c.category.trim());
+      }
+    });
+    return Array.from(set).sort();
+  });
+
+  categoryOptions = computed(() => {
+    const cats = this.categories();
+    return [
+      { label: 'Auto-select category...', value: '' },
+      ...cats.map(c => ({ label: c, value: c }))
+    ];
+  });
 
   ngOnInit() {
     const id = this.lessonContext.studentId;
@@ -60,6 +86,71 @@ export class LessonFlashcardsComponent implements OnInit {
     this.service.getAllFlashcards(id).subscribe({
       next: (cards) => { this.allFlashcards.set(cards); this.loadingAll.set(false); },
       error: () => this.loadingAll.set(false)
+    });
+  }
+
+  onCategorySelect(categoryName: string) {
+    if (!categoryName) return;
+    const matchingCards = this.allFlashcards().filter(c => c.category === categoryName);
+    const currentMap = new Map(this.selectedCards().map(c => [c.id, c]));
+    matchingCards.forEach(c => currentMap.set(c.id, c));
+    this.selectedCards.set(Array.from(currentMap.values()));
+  }
+
+  clearSelection() {
+    this.selectedCards.set([]);
+    this.selectedCategoryToSelect.set('');
+  }
+
+  confirmDeleteBulk() {
+    const selected = this.selectedCards();
+    if (!selected.length) return;
+    const student = this.activeStudent();
+
+    this.confirmationService.confirm({
+      message: `Are you sure you want to remove ${selected.length} selected flashcard(s) from ${student?.username || 'this student'}'s deck?`,
+      header: 'Confirm Flashcard Deletion',
+      icon: 'pi pi-exclamation-triangle',
+      acceptButtonProps: { label: 'Remove', severity: 'danger' },
+      rejectButtonProps: { label: 'Cancel', severity: 'secondary', outlined: true },
+      accept: () => {
+        this.executeDeleteBulk();
+      }
+    });
+  }
+
+  executeDeleteBulk() {
+    const studentId = this.lessonContext.studentId;
+    const ids = this.selectedCards().map(c => c.id);
+    if (!studentId || !ids.length) return;
+
+    this.deletingBulk.set(true);
+    this.service.deleteFlashcardsBulk(studentId, ids).subscribe({
+      next: () => {
+        this.allFlashcards.update(cards => cards.filter(c => !ids.includes(c.id)));
+        this.selectedCards.set([]);
+        this.selectedCategoryToSelect.set('');
+        this.deletingBulk.set(false);
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Removed',
+          detail: `Successfully removed ${ids.length} flashcard(s).`,
+          life: 3000
+        });
+
+        this.service.getFlashcards(studentId).subscribe({
+          next: (d) => this.data.set(d)
+        });
+      },
+      error: () => {
+        this.deletingBulk.set(false);
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to remove flashcards.',
+          life: 3000
+        });
+      }
     });
   }
 

@@ -194,4 +194,8 @@ export class LessonPanelService {
             responseType: 'blob'
         });
     }
+
+    deleteFlashcardsBulk(studentUserId: number, flashcardIds: number[]) {
+        return this.http.post<void>(`${this.apiUrl}/flashcards/${studentUserId}/delete-bulk`, { flashcardIds });
+    }
 }
