@@ -107,7 +107,7 @@
 
         <!-- Footer Info -->
         <div class="pt-3 border-t border-surface-100 dark:border-surface-700 flex items-center justify-between text-xs text-muted-color mt-3">
-          <span>Modified: {{ note.lastModifiedAt ? (note.lastModifiedAt | date:'short') : 'Just now' }}</span>
+          <span>Modified: {{ note.lastModifiedAt ? (note.lastModifiedAt | date:'dd/MM/yyyy, HH:mm') : 'Just now' }}</span>
           <span class="text-primary font-bold group-hover:translate-x-1 transition-transform inline-flex items-center gap-1">
             Open Note <i class="pi pi-arrow-right text-xs"></i>
           </span>
