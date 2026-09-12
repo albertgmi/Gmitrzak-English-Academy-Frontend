@@ -56,6 +56,12 @@ export class LessonFlashcardsComponent implements OnInit {
   exportingPdf = signal(false);
   exportingExcel = signal(false);
 
+  leechesExpanded = signal(false);
+
+  toggleLeeches() {
+    this.leechesExpanded.update(v => !v);
+  }
+
   categories = computed(() => {
     const set = new Set<string>();
     this.allFlashcards().forEach(c => {

@@ -47,16 +47,30 @@
       </div>
     </div>
 
-    <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6">
-      <div class="text-sm font-semibold text-red-500 mb-2 uppercase tracking-wider flex items-center gap-1">
-        <i class="pi pi-exclamation-triangle"></i> Attention Required (Leeches)
+    <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6 border border-red-200 dark:border-red-900/50 rounded-xl overflow-hidden bg-red-50/40 dark:bg-red-950/20">
+      <div 
+        (click)="toggleLeeches()" 
+        class="p-4 flex items-center justify-between cursor-pointer select-none hover:bg-red-100/50 dark:hover:bg-red-900/30 transition-colors">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-exclamation-triangle text-red-500 text-lg"></i>
+          <span class="font-bold text-red-700 dark:text-red-300 text-sm">
+            Attention Required ({{ d.leeches.length }} Leeches)
+          </span>
+          <span class="text-xs text-red-500 bg-red-100 dark:bg-red-900/50 px-2 py-0.5 rounded-full font-medium ml-1">
+            {{ leechesExpanded() ? 'Click to collapse' : 'Click to expand' }}
+          </span>
+        </div>
+        <i [class]="leechesExpanded() ? 'pi pi-chevron-up text-red-500 font-bold' : 'pi pi-chevron-down text-red-500 font-bold'"></i>
       </div>
-      <div class="flex flex-wrap gap-2">
-        <span *ngFor="let c of d.leeches" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/20 text-red-700 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800/50">
-          <span class="font-bold">{{ c.front }}</span> 
-          <span class="opacity-70">&mdash; {{ c.back }}</span>
-          <span class="text-xs bg-red-100 dark:bg-red-800/50 px-1.5 py-0.5 rounded ml-1">{{ c.interval }}d</span>
-        </span>
+
+      <div *ngIf="leechesExpanded()" class="p-4 pt-0 border-t border-red-200/60 dark:border-red-900/40 max-h-72 overflow-y-auto">
+        <div class="flex flex-wrap gap-2 pt-3">
+          <span *ngFor="let c of d.leeches" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800/50">
+            <span class="font-bold">{{ c.front }}</span> 
+            <span class="opacity-70">&mdash; {{ c.back }}</span>
+            <span class="text-xs bg-red-100 dark:bg-red-800/50 px-1.5 py-0.5 rounded ml-1">{{ c.interval }}d</span>
+          </span>
+        </div>
       </div>
     </div>
 
