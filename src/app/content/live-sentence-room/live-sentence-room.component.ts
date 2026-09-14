@@ -115,6 +115,12 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             const textA = (a.selectedText || '').trim().toLowerCase();
             const textB = (b.selectedText || '').trim().toLowerCase();
 
+            if (textA && textA === textB) {
+                const timeA = new Date(a.timestamp || 0).getTime();
+                const timeB = new Date(b.timestamp || 0).getTime();
+                return timeA - timeB;
+            }
+
             const posA = textA ? plainText.indexOf(textA) : -1;
             const posB = textB ? plainText.indexOf(textB) : -1;
 
