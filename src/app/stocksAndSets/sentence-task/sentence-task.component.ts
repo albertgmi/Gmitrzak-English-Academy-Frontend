@@ -14,16 +14,13 @@ import {
     AnswerResultDto
 } from '../../services/sentence.service';
 import confetti from 'canvas-confetti';
-
 interface SentenceState extends ModuleSentenceItemDto {
     userAnswer: string;
     result: AnswerResultDto | null;
     loading: boolean;
     isRestored: boolean;
 }
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-sentence-task',
     standalone: true,
@@ -39,36 +36,29 @@ export class SentenceTaskComponent implements OnInit {
     private route           = inject(ActivatedRoute);
     private sentenceService = inject(SentenceService);
     private messageService  = inject(MessageService);
-
     session       = signal<ModuleSentenceSessionDto | null>(null);
     sentences     = signal<SentenceState[]>([]);
     loading       = signal(true);
     currentIndex = signal(0);
     isFinished   = signal(false);
-
     correctCount  = computed(() =>
         this.sentences().filter(s => s.result?.aiResult === 'Correct').length);
     partialCount  = computed(() =>
         this.sentences().filter(s => s.result?.aiResult === 'Partial').length);
     incorrectCount = computed(() =>
         this.sentences().filter(s => s.result?.aiResult === 'Incorrect').length);
-
     current = computed(() => this.sentences()[this.currentIndex()] ?? null);
-
     progress = computed(() => {
         const total = this.sentences().length;
         if (!total) return 0;
         const done = this.sentences().filter(s => s.result !== null).length;
         return Math.round((done / total) * 100);
     });
-
     answeredCount = computed(() =>
         this.sentences().filter(s => s.result !== null).length
     );
-
     ngOnInit() {
         const moduleId = Number(this.route.snapshot.paramMap.get('moduleId'));
-
         this.sentenceService.getModuleSentences(moduleId).subscribe({
             next: (session) => {
                 this.session.set(session);
@@ -83,7 +73,6 @@ export class SentenceTaskComponent implements OnInit {
                         aiExplanation:       s.previousExplanation ?? '',
                         teacherReviewed:     false
                     } : null;
-
                     return {
                         ...s,
                         userAnswer: s.previousAnswer ?? '',
@@ -93,13 +82,11 @@ export class SentenceTaskComponent implements OnInit {
                     };
                 }));
                 this.loading.set(false);
-
                 const firstUnanswered = this.sentences()
                     .findIndex(s => !s.result);
                 this.currentIndex.set(
                     firstUnanswered !== -1 ? firstUnanswered : 0
                 );
-
                 if (session.sentences.length === 0 ||
                     this.sentences().every(s => s.result !== null)) {
                     this.isFinished.set(true);
@@ -108,24 +95,20 @@ export class SentenceTaskComponent implements OnInit {
             error: () => this.loading.set(false)
         });
     }
-
     handleTextAreaKeyDown(event: KeyboardEvent) {
         if (event.key === 'Enter' && !event.shiftKey) {
             event.preventDefault();
             this.submit();
         }
     }
-
     submit() {
         const s       = this.current();
         const session = this.session();
         const idx     = this.currentIndex();
         if (!s || !s.userAnswer.trim() || !session || s.loading) return;
-
         this.sentences.update(list =>
             list.map((x, i) => i === idx ? { ...x, loading: true } : x)
         );
-
         this.sentenceService.submitAnswer(
             session.moduleId,
             s.sentenceStockId,
@@ -148,7 +131,6 @@ export class SentenceTaskComponent implements OnInit {
             }
         });
     }
-
     next() {
         if (this.currentIndex() < this.sentences().length - 1) {
             this.currentIndex.update(n => n + 1);
@@ -160,23 +142,19 @@ export class SentenceTaskComponent implements OnInit {
             }
         }
     }
-
     prev() {
         if (this.currentIndex() > 0) {
             this.currentIndex.update(n => n - 1);
         }
     }
-
     resultSeverity(result: string): SeverityType {
         if (result === 'Correct')  return 'success';
         if (result === 'Partial')  return 'warn';
         return 'danger';
     }
-
     finalResult(s: SentenceState): string {
         return s.result?.teacherOverride ?? s.result?.aiResult ?? '';
     }
-
     private triggerConfetti() {
         const duration    = 3000;
         const animEnd     = Date.now() + duration;
@@ -186,7 +164,6 @@ export class SentenceTaskComponent implements OnInit {
         const rand        = (a: number, b: number) => Math.random() * (b - a) + a;
         const defaults    = { spread: 360, ticks: 70, gravity: 0.8,
             startVelocity: 30, shapes: [star, check], scalar };
-
         const interval = setInterval(() => {
             const timeLeft = animEnd - Date.now();
             if (timeLeft <= 0) return clearInterval(interval);

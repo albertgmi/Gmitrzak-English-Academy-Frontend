@@ -1,13 +1,10 @@
 <p-toast />
-
 <div *ngIf="!activeStudent()" class="card text-center py-16">
   <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
   <h3 class="text-xl font-semibold mb-2">No student selected</h3>
   <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
 </div>
-
 <div *ngIf="activeStudent() as student" class="card">
-
   <div class="flex items-center gap-3 mb-6">
     <app-avatar [username]="student.username" [avatarUrl]="student.avatarUrl"
       customClass="w-12 h-12 text-lg" fallbackBgClass="bg-primary text-white" />
@@ -16,13 +13,12 @@
         Onboard Client
       </h2>
       <p class="text-muted-color mt-0.5 m-0">
-        {{ student.username }} — assign starting vocabulary, matrices and modules
+        {{ student.username }} - assign starting vocabulary, matrices and modules
       </p>
     </div>
     <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary"
       outlined size="small" (onClick)="goToSwitchClient()" />
   </div>
-
   <div class="flex gap-1 mb-6 bg-surface-50 dark:bg-surface-800 rounded-xl p-1">
     <button *ngFor="let step of steps"
       class="flex-1 flex items-center justify-center gap-2 px-3 py-2.5 rounded-lg
@@ -47,16 +43,12 @@
       </span>
     </button>
   </div>
-
   <div *ngIf="loading()" class="text-center py-16 text-muted-color">
     <i class="pi pi-spin pi-spinner text-4xl block mb-4"></i>
     <p>Loading data...</p>
   </div>
-
   <div *ngIf="!loading()">
-
     <div *ngIf="activeStep() === 'vocabulary'">
-
       <div class="flex flex-col sm:flex-row gap-3 mb-4">
         <input pInputText type="text" placeholder="Search vocabulary..."
           [ngModel]="vocabSearch()" (ngModelChange)="vocabSearch.set($event)"
@@ -68,11 +60,9 @@
           severity="secondary" outlined size="small"
           (onClick)="selectAllVocab()" />
       </div>
-
       <div class="text-xs text-muted-color mb-3">
         {{ filteredVocabulary().length }} shown · {{ selectedVocabCount() }} selected
       </div>
-
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-2 max-h-[500px] overflow-y-auto pr-1">
         <div *ngFor="let v of filteredVocabulary()"
           class="flex items-center gap-3 p-3 rounded-xl border cursor-pointer transition-all"
@@ -98,26 +88,21 @@
         </div>
       </div>
     </div>
-
     <div *ngIf="activeStep() === 'matrices'">
-
       <div class="flex gap-3 mb-4">
         <input pInputText type="text" placeholder="Search matrices..."
           [ngModel]="matrixSearch()" (ngModelChange)="matrixSearch.set($event)"
           class="flex-1" />
       </div>
-
       <div class="text-xs text-muted-color mb-3">
         {{ filteredMatrices().length }} available · {{ selectedMatrixCount() }} selected
       </div>
-
       <div class="flex flex-col gap-3 max-h-[500px] overflow-y-auto pr-1">
         <div *ngFor="let m of filteredMatrices()"
           class="p-4 rounded-xl border transition-all"
           [ngClass]="m.selected
             ? 'bg-primary/10 border-primary/40'
             : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700'">
-
           <div class="flex items-start gap-3">
             <div class="flex-shrink-0 mt-0.5">
               <div class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all"
@@ -128,14 +113,12 @@
                 <i *ngIf="m.selected" class="pi pi-check text-white" style="font-size:0.6rem"></i>
               </div>
             </div>
-
             <div class="flex-1 cursor-pointer" (click)="toggleMatrix(m)">
               <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
               <div class="text-xs text-muted-color mt-0.5">
                 Refresh every {{ m.refreshIntervalDays }} days
               </div>
             </div>
-
             <div *ngIf="m.selected" class="flex-shrink-0" (click)="$event.stopPropagation()">
               <label class="block text-xs text-muted-color mb-1">Start date</label>
               <input type="date" [ngModel]="m.startDate"
@@ -144,13 +127,10 @@
                   text-sm bg-white dark:bg-surface-900 text-surface-900 dark:text-surface-0" />
             </div>
           </div>
-
         </div>
       </div>
     </div>
-
     <div *ngIf="activeStep() === 'modules'">
-
       <div class="flex flex-col sm:flex-row gap-3 mb-4">
         <input pInputText type="text" placeholder="Search modules..."
           [ngModel]="moduleSearch()" (ngModelChange)="moduleSearch.set($event)"
@@ -162,18 +142,15 @@
           severity="secondary" outlined size="small"
           (onClick)="selectAllModules()" />
       </div>
-
       <div class="text-xs text-muted-color mb-3">
         {{ filteredModules().length }} shown · {{ selectedModuleCount() }} selected
       </div>
-
       <div class="flex flex-col gap-2 max-h-[500px] overflow-y-auto pr-1">
         <div *ngFor="let m of filteredModules()"
           class="p-4 rounded-xl border transition-all"
           [ngClass]="m.selected
             ? 'bg-primary/10 border-primary/40'
             : 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700'">
-
           <div class="flex items-center gap-3">
             <div class="flex-shrink-0">
               <div class="w-5 h-5 rounded border-2 flex items-center justify-center cursor-pointer transition-all"
@@ -184,16 +161,13 @@
                 <i *ngIf="m.selected" class="pi pi-check text-white" style="font-size:0.6rem"></i>
               </div>
             </div>
-
             <div class="flex-1 cursor-pointer" (click)="toggleModule(m)">
               <div class="font-semibold text-surface-900 dark:text-surface-0">{{ m.name }}</div>
               <div class="text-xs text-muted-color mt-0.5">
-                {{ m.description || '—' }}
+                {{ m.description || '-' }}
               </div>
             </div>
-
             <p-tag *ngIf="m.category" [value]="m.category" severity="info" />
-
             <div *ngIf="m.selected" class="flex-shrink-0" (click)="$event.stopPropagation()">
               <label class="block text-xs text-muted-color mb-1">Due date</label>
               <input type="date" [ngModel]="m.dueDate"
@@ -205,18 +179,14 @@
         </div>
       </div>
     </div>
-
     <div *ngIf="activeStep() === 'summary'">
-
       <div *ngIf="totalSelected() === 0"
         class="text-center py-12 text-muted-color">
         <i class="pi pi-inbox text-5xl block mb-4"></i>
         <p class="text-lg">Nothing selected yet.</p>
         <p class="text-sm">Go back and select vocabulary, matrices or modules to assign.</p>
       </div>
-
       <div *ngIf="totalSelected() > 0" class="flex flex-col gap-6">
-
         <div class="grid grid-cols-3 gap-4">
           <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
             <div class="text-2xl font-bold text-primary">{{ selectedVocabCount() }}</div>
@@ -231,7 +201,6 @@
             <div class="text-xs text-muted-color mt-1">Modules</div>
           </div>
         </div>
-
         <div *ngIf="selectedVocabulary().length">
           <h3 class="font-semibold mb-2 flex items-center gap-2">
             <i class="pi pi-clone text-primary"></i> Vocabulary
@@ -246,7 +215,6 @@
             </div>
           </div>
         </div>
-
         <div *ngIf="selectedMatrices().length">
           <h3 class="font-semibold mb-2 flex items-center gap-2">
             <i class="pi pi-sitemap text-primary"></i> Matrices
@@ -262,7 +230,6 @@
             </div>
           </div>
         </div>
-
         <div *ngIf="selectedModules().length">
           <h3 class="font-semibold mb-2 flex items-center gap-2">
             <i class="pi pi-book text-primary"></i> Modules
@@ -282,13 +249,11 @@
             </div>
           </div>
         </div>
-
         <div *ngIf="saving()" class="mt-2">
           <p class="text-sm text-muted-color mb-2">Assigning... {{ saveProgress() }}%</p>
           <p-progressBar [value]="saveProgress()" [showValue]="false"
             [style]="{ height: '8px' }" />
         </div>
-
         <div class="flex gap-3 pt-2 border-t border-surface-100 dark:border-surface-700">
           <p-button label="Back" icon="pi pi-arrow-left"
             severity="secondary" outlined (onClick)="prevStep()" />
@@ -301,7 +266,6 @@
         </div>
       </div>
     </div>
-
     <div *ngIf="activeStep() !== 'summary'"
       class="flex justify-between mt-6 pt-4
         border-t border-surface-100 dark:border-surface-700">
@@ -312,6 +276,5 @@
       <p-button label="Next" icon="pi pi-arrow-right" iconPos="right"
         (onClick)="nextStep()" />
     </div>
-
   </div>
 </div>

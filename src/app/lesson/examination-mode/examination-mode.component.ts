@@ -9,9 +9,7 @@ import { MessageService } from 'primeng/api';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ExaminationService, ExaminationDto } from '../../services/examination.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 type ExamTab = 'flashcards' | 'sentences' | 'memories';
-
 @Component({
     selector: 'app-examination-mode',
     standalone: true,
@@ -27,29 +25,22 @@ export class ExaminationModeComponent implements OnInit {
     private examinationService = inject(ExaminationService);
     private messageService    = inject(MessageService);
     private router            = inject(Router);
-
     activeStudent = this.lessonContext.activeStudent;
     activeTab     = signal<ExamTab>('flashcards');
     loading       = signal(false);
     examination   = signal<ExaminationDto | null>(null);
-
     flashcards = computed(() => this.examination()?.flashcards ?? []);
     sentences  = computed(() => this.examination()?.sentences ?? []);
     memories   = computed(() => this.examination()?.memories ?? []);
-
     ngOnInit() {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
-        
         this.loadExamination();
     }
-
     loadExamination() {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
-
         this.loading.set(true);
-
         this.examinationService.getExamination(studentId).subscribe({
             next: (data) => {
                 this.examination.set(data);
@@ -64,25 +55,21 @@ export class ExaminationModeComponent implements OnInit {
             }
         });
     }
-
     intervalLabel(interval: number): string {
         if (interval === 0) return 'New';
         if (interval === 1) return '1 day';
         return `${interval} days`;
     }
-
     easeLabel(easeFactor: number): string {
         if (easeFactor >= 250) return 'Easy';
         if (easeFactor >= 180) return 'Medium';
         return 'Hard';
     }
-
     easeSeverity(easeFactor: number): "success" | "info" | "warn" | "danger" | undefined {
         if (easeFactor >= 250) return 'success';
         if (easeFactor >= 180) return 'warn';
         return 'danger';
     }
-
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
     }

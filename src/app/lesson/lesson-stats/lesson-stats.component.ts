@@ -8,7 +8,6 @@ import { MessageService } from 'primeng/api';
 import { LessonPanelService, LessonStatsDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
   selector: 'app-lesson-stats',
   standalone: true,
@@ -20,11 +19,9 @@ export class LessonStatsComponent implements OnInit {
   private service = inject(LessonPanelService);
   private lessonContext = inject(LessonContextService);
   private router = inject(Router);
-
   activeStudent = this.lessonContext.activeStudent;
   data = signal<LessonStatsDto | null>(null);
   loading = signal(true);
-
   ngOnInit() {
     const id = this.lessonContext.studentId;
     if (!id) return;
@@ -33,13 +30,11 @@ export class LessonStatsComponent implements OnInit {
       error: () => this.loading.set(false)
     });
   }
-
   get totalActivityPoints(): number {
     const d = this.data();
     if (!d?.dailyActivity) return 0;
     return d.dailyActivity.reduce((a, x) => a + (x.points || 0), 0);
   }
-
   get activityChart() {
     const d = this.data();
     if (!d?.dailyActivity.length) return null;
@@ -56,7 +51,6 @@ export class LessonStatsComponent implements OnInit {
       }]
     };
   }
-
   get flashcardsChart() {
     const d = this.data();
     if (!d?.dailyFlashcards.length) return null;
@@ -70,7 +64,6 @@ export class LessonStatsComponent implements OnInit {
       }]
     };
   }
-
   get categoryChart() {
     const d = this.data();
     if (!d?.gradeHistory.length) return null;
@@ -84,7 +77,6 @@ export class LessonStatsComponent implements OnInit {
       }]
     };
   }
-
   get lineOptions() {
     return { 
       responsive: true, 
@@ -93,7 +85,6 @@ export class LessonStatsComponent implements OnInit {
       scales: { x: { grid: { display: false } }, y: { beginAtZero: true } } 
     };
   }
-
   get doughnutOptions() {
     return { 
       responsive: true, 
@@ -101,12 +92,10 @@ export class LessonStatsComponent implements OnInit {
       plugins: { legend: { position: 'bottom' as const } } 
     };
   }
-
   get avgGrade(): string {
     const grades = this.data()?.gradeHistory;
-    if (!grades?.length) return '—';
+    if (!grades?.length) return '-';
     return (grades.reduce((a, x) => a + x.percentage, 0) / grades.length).toFixed(1);
   }
-
   goToSwitchClient() { this.router.navigate(['/lesson/switch-client']); }
 }

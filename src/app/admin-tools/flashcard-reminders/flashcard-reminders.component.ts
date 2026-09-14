@@ -15,12 +15,9 @@ import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { EmailReminderService, FlashcardInactiveUser } from '../../services/email-reminder.service';
-
-const DEFAULT_SUBJECT = 'Gmitrzak English Academy – Time for your flashcards review! 📇';
+const DEFAULT_SUBJECT = 'Gmitrzak English Academy: Time for your flashcards review!';
 const DEFAULT_BODY = `We noticed that you haven't reviewed your flashcards for at least 3 days.
-
 Consistency is key to mastering the English language! Log in to the platform and complete your daily review session.`;
-
 @Component({
   selector: 'app-flashcard-reminders',
   standalone: true,
@@ -47,45 +44,29 @@ export class FlashcardRemindersComponent implements OnInit {
   private reminderService = inject(EmailReminderService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
-
   allStudents = signal<FlashcardInactiveUser[]>([]);
   selectedStudents = signal<FlashcardInactiveUser[]>([]);
   loading = signal(true);
   sending = signal(false);
-
-  // Toggle for custom selection mode (disabled/locked by default)
   allowCustomSelection = signal(false);
-
-  // Customizable email subject and body (plain text)
   customSubject = signal<string>(DEFAULT_SUBJECT);
   customBody = signal<string>(DEFAULT_BODY);
-
-  // Preview Dialog visibility
   showPreview = signal(false);
-
-  // Inactive students (>= 3 days)
   inactiveStudents = computed(() =>
     this.allStudents().filter(s => s.isInactiveForThreeDays)
   );
-
-  // Displayed students based on selection mode
   displayedStudents = computed(() => {
     return this.allowCustomSelection()
       ? this.allStudents()
       : this.inactiveStudents();
   });
-
-  // Dynamic username for preview (uses first selected student from table or fallback)
   previewUsername = computed(() => {
     const selected = this.selectedStudents();
     return selected.length > 0 ? selected[0].username : 'Student Username';
   });
-
   previewSubject = computed(() => {
     return this.customSubject().replace('{username}', this.previewUsername());
   });
-
-  // Generated Live Email Preview HTML
   previewHtml = computed(() => {
     const username = this.previewUsername();
     const text = this.customBody().replace('{username}', username);
@@ -93,7 +74,6 @@ export class FlashcardRemindersComponent implements OnInit {
       .split('\n')
       .map(p => p.trim() ? `<p style="margin: 0 0 12px 0; line-height: 1.6;">${p}</p>` : '<br/>')
       .join('');
-
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; color: #1e293b;">
         <div style="text-align: center; padding-bottom: 16px; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px;">
@@ -115,17 +95,14 @@ export class FlashcardRemindersComponent implements OnInit {
         </p>
       </div>`;
   });
-
   ngOnInit() {
     this.loadStudents();
   }
-
   loadStudents() {
     this.loading.set(true);
     this.reminderService.getStudentsForReminder().subscribe({
       next: (data) => {
         this.allStudents.set(data);
-        // By default, pre-select all inactive students (>= 3 days)
         this.selectedStudents.set(data.filter(s => s.isInactiveForThreeDays));
         this.loading.set(false);
       },
@@ -140,14 +117,11 @@ export class FlashcardRemindersComponent implements OnInit {
       }
     });
   }
-
   onCustomSelectionToggle() {
     if (!this.allowCustomSelection()) {
-      // Reverting to default mode: pre-select all inactive students
       this.selectedStudents.set(this.inactiveStudents());
     }
   }
-
   resetTemplateToDefault() {
     this.customSubject.set(DEFAULT_SUBJECT);
     this.customBody.set(DEFAULT_BODY);
@@ -157,7 +131,6 @@ export class FlashcardRemindersComponent implements OnInit {
       detail: 'Restored default email text template.'
     });
   }
-
   confirmSendReminders() {
     const selected = this.selectedStudents();
     if (selected.length === 0) {
@@ -168,7 +141,6 @@ export class FlashcardRemindersComponent implements OnInit {
       });
       return;
     }
-
     this.confirmationService.confirm({
       message: `Are you sure you want to send flashcard reminder emails to ${selected.length} student(s)?`,
       header: 'Confirm Email Reminders',
@@ -178,11 +150,9 @@ export class FlashcardRemindersComponent implements OnInit {
       }
     });
   }
-
   sendReminders() {
     this.sending.set(true);
     const userIds = this.selectedStudents().map(s => s.id);
-
     this.reminderService.sendFlashcardReminders(userIds, this.customSubject(), this.customBody()).subscribe({
       next: (res) => {
         this.sending.set(false);
@@ -216,7 +186,6 @@ export class FlashcardRemindersComponent implements OnInit {
       }
     });
   }
-
   getDaysTagSeverity(days: number): 'danger' | 'warn' | 'info' | 'secondary' {
     if (days >= 7) return 'danger';
     if (days >= 3) return 'warn';

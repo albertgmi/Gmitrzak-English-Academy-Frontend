@@ -19,18 +19,15 @@ import { InputIconModule } from 'primeng/inputicon';
 import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { Product, ProductService } from '../service/product.service';
-
 interface Column {
     field: string;
     header: string;
     customExportHeader?: string;
 }
-
 interface ExportColumn {
     title: string;
     dataKey: string;
 }
-
 @Component({
     selector: 'app-crud',
     standalone: true,
@@ -59,12 +56,10 @@ interface ExportColumn {
             <ng-template #start>
                 <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedProducts()" [disabled]="!selectedProducts || !selectedProducts.length" />
             </ng-template>
-
             <ng-template #end>
                 <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
             </ng-template>
         </p-toolbar>
-
         <p-table
             #dt
             [value]="products()"
@@ -144,7 +139,6 @@ interface ExportColumn {
                 </tr>
             </ng-template>
         </p-table>
-
         <p-dialog [(visible)]="productDialog" [style]="{ width: '450px' }" header="Update user" [modal]="true">
             <ng-template #content>
                 <div class="flex flex-col gap-6">
@@ -158,12 +152,10 @@ interface ExportColumn {
                         <label for="description" class="block font-bold mb-3">Description</label>
                         <textarea id="description" pTextarea [(ngModel)]="product.description" required rows="3" cols="20" fluid></textarea>
                     </div>
-
                     <div>
                         <label for="inventoryStatus" class="block font-bold mb-3">Inventory Status</label>
                         <p-select [(ngModel)]="product.inventoryStatus" inputId="inventoryStatus" [options]="statuses" optionLabel="label" optionValue="label" placeholder="Select a Status" fluid />
                     </div>
-
                     <div>
                         <span class="block font-bold mb-4">Category</span>
                         <div class="grid grid-cols-12 gap-4">
@@ -185,7 +177,6 @@ interface ExportColumn {
                             </div>
                         </div>
                     </div>
-
                     <div class="grid grid-cols-12 gap-4">
                         <div class="col-span-6">
                             <label for="price" class="block font-bold mb-3">Price</label>
@@ -198,61 +189,45 @@ interface ExportColumn {
                     </div>
                 </div>
             </ng-template>
-
             <ng-template #footer>
                 <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
                 <p-button label="Save" icon="pi pi-check" (click)="saveProduct()" />
             </ng-template>
         </p-dialog>
-
         <p-confirmdialog [style]="{ width: '450px' }" />
     `,
     providers: [MessageService, ProductService, ConfirmationService]
 })
 export class Crud implements OnInit {
     productDialog: boolean = false;
-
     products = signal<Product[]>([]);
-
     product!: Product;
-
     selectedProducts!: Product[] | null;
-
     submitted: boolean = false;
-
     statuses!: any[];
-
     @ViewChild('dt') dt!: Table;
-
     exportColumns!: ExportColumn[];
-
     cols!: Column[];
-
     constructor(
         private productService: ProductService,
         private messageService: MessageService,
         private confirmationService: ConfirmationService
     ) {}
-
     exportCSV() {
         this.dt.exportCSV();
     }
-
     ngOnInit() {
         this.loadDemoData();
     }
-
     loadDemoData() {
         this.productService.getProducts().then((data) => {
             this.products.set(data);
         });
-
         this.statuses = [
             { label: 'INSTOCK', value: 'instock' },
             { label: 'LOWSTOCK', value: 'lowstock' },
             { label: 'OUTOFSTOCK', value: 'outofstock' }
         ];
-
         this.cols = [
             { field: 'code', header: 'Code', customExportHeader: 'Product Code' },
             { field: 'name', header: 'Name' },
@@ -260,25 +235,20 @@ export class Crud implements OnInit {
             { field: 'price', header: 'Price' },
             { field: 'category', header: 'Category' }
         ];
-
         this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
     }
-
     onGlobalFilter(table: Table, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     openNew() {
         this.product = {};
         this.submitted = false;
         this.productDialog = true;
     }
-
     editProduct(product: Product) {
         this.product = { ...product };
         this.productDialog = true;
     }
-
     deleteSelectedProducts() {
         this.confirmationService.confirm({
             message: 'Are you sure you want to delete the selected products?',
@@ -296,12 +266,10 @@ export class Crud implements OnInit {
             }
         });
     }
-
     hideDialog() {
         this.productDialog = false;
         this.submitted = false;
     }
-
     deleteProduct(product: Product) {
         this.confirmationService.confirm({
             message: 'Are you sure you want to delete ' + product.name + '?',
@@ -319,7 +287,6 @@ export class Crud implements OnInit {
             }
         });
     }
-
     findIndexById(id: string): number {
         let index = -1;
         for (let i = 0; i < this.products().length; i++) {
@@ -328,10 +295,8 @@ export class Crud implements OnInit {
                 break;
             }
         }
-
         return index;
     }
-
     createId(): string {
         let id = '';
         var chars = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -340,7 +305,6 @@ export class Crud implements OnInit {
         }
         return id;
     }
-
     getSeverity(status: string) {
         switch (status) {
             case 'INSTOCK':
@@ -353,7 +317,6 @@ export class Crud implements OnInit {
                 return 'info';
         }
     }
-
     saveProduct() {
         this.submitted = true;
         let _products = this.products();
@@ -378,7 +341,6 @@ export class Crud implements OnInit {
                 });
                 this.products.set([..._products, this.product]);
             }
-
             this.productDialog = false;
             this.product = {};
         }

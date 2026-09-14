@@ -1,5 +1,4 @@
 <p-toast />
-
 <div class="coin-rain" *ngIf="showCoinRain()">
   <span *ngFor="let c of coinRainItems()" class="coin"
         [style.left.%]="c.left"
@@ -8,15 +7,11 @@
     {{ c.emoji }}
   </span>
 </div>
-
 <div class="card">
-
   <div *ngIf="loading()" class="text-center py-16 text-muted-color">
     <i class="pi pi-spin pi-spinner text-4xl block mb-4"></i>
   </div>
-
   <div *ngIf="!loading() && summary() as s">
-
     <div class="flex items-center justify-between mb-6">
       <div>
         <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Credits</h2>
@@ -27,7 +22,6 @@
         <div class="text-xs text-muted-color">available credits</div>
       </div>
     </div>
-
     <div class="grid grid-cols-3 gap-4 mb-6">
       <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
         <div class="text-2xl font-bold text-green-600">{{ s.creditsEarned }}</div>
@@ -42,7 +36,6 @@
         <div class="text-xs text-muted-color mt-1">Spent</div>
       </div>
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
       <div class="p-4 rounded-xl border"
         [ngClass]="dailyChallengeToday()
@@ -61,7 +54,6 @@
           </div>
         </div>
       </div>
-
       <div class="p-4 rounded-xl border"
         [ngClass]="weeklyChallengeThisWeek()
           ? 'bg-green-50 dark:bg-green-900/20 border-green-200'
@@ -80,7 +72,6 @@
         </div>
       </div>
     </div>
-
     <div class="flex gap-1 mb-6 bg-surface-50 dark:bg-surface-800 rounded-xl p-1">
       <button *ngFor="let t of tabs"
         class="flex-1 px-4 py-2.5 rounded-lg text-sm font-medium transition-all cursor-pointer border-0"
@@ -91,7 +82,6 @@
         {{ t.label }}
       </button>
     </div>
-
     <div *ngIf="activeTab() === 'shop'">
       <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
         <div *ngFor="let item of shop()"
@@ -99,11 +89,9 @@
           [ngClass]="item.canAfford
             ? 'bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700 hover:border-primary/50 hover:shadow-sm'
             : 'bg-surface-50 dark:bg-surface-800 border-surface-100 dark:border-surface-800 opacity-70'">
-
           <div class="text-4xl mb-3">{{ item.iconEmoji }}</div>
           <div class="font-bold text-surface-900 dark:text-surface-0 mb-1">{{ item.name }}</div>
           <div class="text-xs text-muted-color mb-4 leading-relaxed">{{ item.description }}</div>
-
           <div class="flex items-center justify-between">
             <div class="font-bold text-primary text-lg">{{ item.creditCost }} credits</div>
             <p-button
@@ -119,43 +107,36 @@
         </div>
       </div>
     </div>
-
     <div *ngIf="activeTab() === 'history'">
       <div *ngIf="!s.history.length" class="text-center py-12 text-muted-color">
         <i class="pi pi-history text-4xl block mb-3"></i>
         <p>No credit history yet.</p>
       </div>
-
       <div class="flex flex-col gap-2">
         <div *ngFor="let h of s.history"
           class="flex items-center gap-4 p-3 rounded-xl border"
           [ngClass]="h.type === 'earned'
             ? 'bg-green-50 dark:bg-green-900/10 border-green-100 dark:border-green-900'
             : 'bg-red-50 dark:bg-red-900/10 border-red-100 dark:border-red-900'">
-
           <div class="w-8 h-8 rounded-full flex items-center justify-center flex-shrink-0"
             [ngClass]="h.type === 'earned' ? 'bg-green-500' : 'bg-red-400'">
             <i class="pi text-white text-xs" [ngClass]="h.type === 'earned' ? 'pi-plus' : 'pi-minus'"></i>
           </div>
-
           <div class="flex-1">
             <div class="text-sm font-medium text-surface-900 dark:text-surface-0">{{ h.reason }}</div>
             <div class="text-xs text-muted-color">{{ h.date | date:'dd.MM.yyyy' }}</div>
           </div>
-
           <div class="font-bold text-lg" [ngClass]="h.type === 'earned' ? 'text-green-600' : 'text-red-500'">
             {{ h.type === 'earned' ? '+' : '' }}{{ h.amount }}
           </div>
         </div>
       </div>
     </div>
-
     <div *ngIf="activeTab() === 'purchases'">
       <div *ngIf="!s.purchases.length" class="text-center py-12 text-muted-color">
         <i class="pi pi-shopping-bag text-4xl block mb-3"></i>
         <p>No purchases yet.</p>
       </div>
-
       <div class="flex flex-col gap-3">
         <div *ngFor="let p of s.purchases"
           class="flex items-center gap-4 p-4 rounded-xl border bg-white dark:bg-surface-900 border-surface-200 dark:border-surface-700">
@@ -170,33 +151,27 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>
-
 <p-dialog 
     header="Skip Homework" 
     [(visible)]="skipDialogVisible" 
     [modal]="true" 
     [draggable]="false"
     [style]="{ width: '400px', maxWidth: '90vw' }">
-    
     <div *ngIf="selectedSkipItem() as item" class="flex flex-col gap-4 pt-2">
         <div class="text-center p-4 bg-surface-50 dark:bg-surface-800 rounded-xl mb-2">
             <div class="text-4xl mb-2">{{ item.iconEmoji }}</div>
             <div class="font-bold text-lg text-surface-900 dark:text-surface-0">{{ item.name }}</div>
             <div class="text-primary font-bold mt-1">- {{ item.creditCost }} credits</div>
         </div>
-
         <p class="m-0 text-sm text-muted-color">
             Select the active homework assignment you want to skip.
         </p>
-
         <div class="flex flex-col gap-2">
             <label class="font-semibold text-sm text-surface-900 dark:text-surface-0">
                 Select assignment
             </label>
-            
             <p-dropdown 
                 [options]="pendingAssignments()" 
                 [ngModel]="selectedAssignmentId()"
@@ -210,7 +185,6 @@
                 [panelStyle]="{'margin-top': '4px'}"
                 [loading]="loadingAssignments()"
                 scrollHeight="200px">
-                
                 <ng-template pTemplate="empty">
                     <div class="p-2 text-muted-color text-sm">
                         {{ loadingAssignments() ? 'Loading assignments...' : 'You have no pending assignments! 🎉' }}
@@ -219,7 +193,6 @@
             </p-dropdown>
         </div>
     </div>
-
     <ng-template pTemplate="footer">
         <p-button 
             label="Cancel" 
@@ -227,7 +200,6 @@
             severity="secondary" 
             [text]="true" 
             (onClick)="skipDialogVisible.set(false)" />
-            
         <p-button 
             label="Skip homework" 
             icon="pi pi-check" 
@@ -237,30 +209,25 @@
             (onClick)="confirmHomeworkSkip()" />
     </ng-template>
 </p-dialog>
-
 <p-dialog 
     header="Extend Homework Deadline" 
     [(visible)]="extendDialogVisible" 
     [modal]="true" 
     [draggable]="false"
     [style]="{ width: '420px', maxWidth: '90vw' }">
-
     <div *ngIf="selectedExtendItem() as item" class="flex flex-col gap-4 pt-2">
         <div class="text-center p-4 bg-surface-50 dark:bg-surface-800 rounded-xl mb-2">
             <div class="text-4xl mb-2">{{ item.iconEmoji }}</div>
             <div class="font-bold text-lg text-surface-900 dark:text-surface-0">{{ item.name }}</div>
             <div class="text-primary font-bold mt-1">- {{ item.creditCost }} credits</div>
         </div>
-
         <p class="m-0 text-sm text-muted-color">
             Select the assignment whose deadline you want to extend (max 7 days).
         </p>
-
         <div class="flex flex-col gap-2">
             <label class="font-semibold text-sm text-surface-900 dark:text-surface-0">
                 Select assignment
             </label>
-
             <p-dropdown 
                 [options]="extendableAssignments()" 
                 [ngModel]="selectedExtendAssignmentId()"
@@ -274,7 +241,6 @@
                 [panelStyle]="{'margin-top': '4px'}"
                 [loading]="loadingExtendable()"
                 scrollHeight="200px">
-
                 <ng-template pTemplate="empty">
                     <div class="p-2 text-muted-color text-sm">
                         {{ loadingExtendable() ? 'Loading assignments...' : 'You have no extendable assignments. 🎉' }}
@@ -282,7 +248,6 @@
                 </ng-template>
             </p-dropdown>
         </div>
-
         <div class="flex flex-col gap-2" *ngIf="selectedExtendAssignmentId() !== null">
             <label class="font-semibold text-sm text-surface-900 dark:text-surface-0">
                 New due date
@@ -302,7 +267,6 @@
             </p>
         </div>
     </div>
-
     <ng-template pTemplate="footer">
         <p-button 
             label="Cancel" 
@@ -310,7 +274,6 @@
             severity="secondary" 
             [text]="true" 
             (onClick)="extendDialogVisible.set(false)" />
-
         <p-button 
             label="Extend deadline" 
             icon="pi pi-check" 

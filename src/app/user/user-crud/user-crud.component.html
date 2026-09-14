@@ -1,15 +1,12 @@
 <p-toast />
-
 <p-toolbar styleClass="mb-6">
   <ng-template #start>
     <p-button severity="secondary" label="Delete" icon="pi pi-trash" outlined (onClick)="deleteSelectedUsers()" [disabled]="!selectedUsers || !selectedUsers.length" />
   </ng-template>
-
   <ng-template #end>
     <p-button label="Export" icon="pi pi-upload" severity="secondary" (onClick)="exportCSV()" />
   </ng-template>
 </p-toolbar>
-
 <p-table
   #dt
   [value]="displayUsers()"
@@ -34,7 +31,6 @@
       </p-iconfield>
     </div>
   </ng-template>
-
   <ng-template #header>
     <tr>
       <th style="width: 3rem">
@@ -57,7 +53,6 @@
       <th style="min-width: 10rem">Actions</th>
     </tr>
   </ng-template>
-
   <ng-template #body let-user>
     <tr>
       <td>
@@ -82,7 +77,6 @@
     </tr>
   </ng-template>
 </p-table>
-
 <p-dialog [(visible)]="userDialog" [style]="{ width: '450px' }" [header]="user?.id ? 'Update User' : 'New User'" [modal]="true">
   <ng-template #content>
     <div class="flex flex-col gap-6">
@@ -96,23 +90,19 @@
         <input type="text" pInputText id="username" [(ngModel)]="user.username" required fluid />
         <small class="text-red-500" *ngIf="submitted && !user.username">Username is required.</small>
       </div>
-
       <div>
         <label for="role" class="block font-bold mb-3">Role</label>
         <p-select [(ngModel)]="user.role" inputId="role" [options]="roles" optionLabel="label" optionValue="value" placeholder="Select a Role" fluid />
       </div>
-
       <div>
         <label for="streakOverride" class="block font-bold mb-3">Streak (Days)</label>
         <p-inputnumber id="streakOverride" [(ngModel)]="user.streakOverride" [min]="0" [showButtons]="true" fluid />
         <small class="text-muted-color">Override active streak days for this student.</small>
       </div>
-
       <div>
         <label for="password" class="block font-bold mb-3">Password (optional)</label>
         <input type="password" pInputText id="password" [(ngModel)]="user.password" fluid />
       </div>
-
       <div class="flex items-center gap-2">
         <p-checkbox 
           [(ngModel)]="user.isActive" 
@@ -122,11 +112,9 @@
       </div>
     </div>
   </ng-template>
-
   <ng-template #footer>
     <p-button label="Cancel" icon="pi pi-times" text (click)="hideDialog()" />
     <p-button label="Save" icon="pi pi-check" (click)="saveUser()" />
   </ng-template>
 </p-dialog>
-
 <p-confirmdialog [style]="{ width: '450px' }" />

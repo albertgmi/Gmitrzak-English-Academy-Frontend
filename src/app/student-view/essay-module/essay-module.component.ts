@@ -17,7 +17,6 @@ import { ChipModule } from 'primeng/chip';
 import { TooltipModule } from 'primeng/tooltip';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { DividerModule } from 'primeng/divider';
-
 @Component({
     selector: 'app-essay-module',
     standalone: true,
@@ -48,20 +47,16 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
     private essayDetectorService = inject(EssayDetectorService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     moduleData   = signal<EssayModuleDto | null>(null);
     content      = signal('');
     loading      = signal(true);
     submitting   = signal(false);
     submitted    = signal(false);
-
-    // Telemetry signals
     pastedWordCount = signal(0);
     isPasteDetected = signal(false);
     activeWritingTimeSeconds = signal(0);
     private timerInterval: any = null;
     private startTime: number | null = null;
-
     wordCount = computed(() => {
         const raw = this.content();
         if (!raw) return 0;
@@ -69,42 +64,33 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         if (!text) return 0;
         return text.split(/\s+/).filter(w => w.length > 0).length;
     });
-
     pastePercentage = computed(() => {
         const total = this.wordCount();
         if (total === 0) return 0;
         return Math.min(100, Math.round((this.pastedWordCount() / total) * 100));
     });
-
     targetWordRange = computed(() => {
         const prompt = this.moduleData()?.essayPrompt;
         if (!prompt) return null;
-
-        // Match range e.g. "200-300 words" or "200 - 300 words"
-        const rangeMatch = prompt.match(/(\d+)\s*[-–—\s]+\s*(\d+)\s*words?/i);
+        const rangeMatch = prompt.match(/(\d+)\s*[---\s]+\s*(\d+)\s*words?/i);
         if (rangeMatch) {
             const min = parseInt(rangeMatch[1], 10);
             const max = parseInt(rangeMatch[2], 10);
             return { min, max, text: `${min}-${max} words` };
         }
-
-        // Match single target e.g. "250 words"
         const singleMatch = prompt.match(/(\d+)\s*words?/i);
         if (singleMatch) {
             const target = parseInt(singleMatch[1], 10);
             return { min: Math.round(target * 0.8), max: target, text: `~${target} words` };
         }
-
         return null;
     });
-
     wordProgressPercentage = computed(() => {
         const target = this.targetWordRange();
         if (!target) return 0;
         const current = this.wordCount();
         return Math.min(100, Math.round((current / target.max) * 100));
     });
-
     formattedWritingTime = computed(() => {
         const totalSeconds = this.activeWritingTimeSeconds();
         const mins = Math.floor(totalSeconds / 60);
@@ -114,7 +100,6 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         }
         return `${mins}m ${secs}s`;
     });
-
     aiAnalysis = computed(() => {
         const raw = this.content();
         const telemetry: Partial<EssayTelemetry> = {
@@ -126,13 +111,11 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         };
         return this.essayDetectorService.analyzeEssay(raw, telemetry);
     });
-
     showAiWarning = computed(() => {
         if (this.wordCount() === 0) return false;
         const analysis = this.aiAnalysis();
         return analysis.riskLevel === 'high' || analysis.riskLevel === 'medium' || this.pastePercentage() >= 40;
     });
-
     quillModules = {
         toolbar: [
             ['bold', 'italic', 'underline', 'strike'],
@@ -143,7 +126,6 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             ['clean']
         ]
     };
-
     ngOnInit() {
         const moduleId = Number(this.route.snapshot.paramMap.get('moduleId'));
         this.essayService.getModule(moduleId).subscribe({
@@ -160,16 +142,13 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             },
             error: () => this.loading.set(false)
         });
-
         this.startTimer();
     }
-
     ngOnDestroy() {
         if (this.timerInterval) {
             clearInterval(this.timerInterval);
         }
     }
-
     private startTimer() {
         this.startTime = Date.now();
         this.timerInterval = setInterval(() => {
@@ -179,7 +158,6 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             }
         }, 1000);
     }
-
     onContentChange(newVal: string) {
         this.content.set(newVal);
         const currentWords = this.wordCount();
@@ -190,7 +168,6 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             this.pastedWordCount.set(currentWords);
         }
     }
-
     onEditorCreated(quill: any) {
         if (!quill || !quill.root) return;
         quill.root.addEventListener('paste', (e: ClipboardEvent) => {
@@ -202,11 +179,9 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     goBack() {
         this.router.navigate(['/assignments']);
     }
-
     confirmSubmit() {
         this.confirmationService.confirm({
             message: 'Are you sure you want to submit your essay? You will not be able to edit it after submission.',
@@ -221,11 +196,9 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     submit() {
         const data = this.moduleData();
         if (!data || !this.content().trim()) return;
-
         const totalWords = this.wordCount();
         const telemetry: EssayTelemetry = {
             pastedWords: this.pastedWordCount(),
@@ -234,9 +207,7 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
             isPasteDetected: this.isPasteDetected(),
             pastePercentage: this.pastePercentage()
         };
-
         const contentWithTelemetry = this.essayDetectorService.embedTelemetry(this.content(), telemetry);
-
         this.submitting.set(true);
         this.essayService.submit(data.moduleId, contentWithTelemetry).subscribe({
             next: () => {

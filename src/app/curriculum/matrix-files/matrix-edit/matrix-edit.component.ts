@@ -13,7 +13,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Matrix, MatrixService, UpdateMatrixRequest, CourseSimple } from '../../../services/matrix.service';
 import { CourseService } from '../../../services/course.service';
-
 @Component({
     selector: 'app-matrix-edit',
     standalone: true,
@@ -32,25 +31,21 @@ export class MatrixEditComponent implements OnInit {
     private matrixService = inject(MatrixService);
     private courseService = inject(CourseService);
     private messageService = inject(MessageService);
-
     matrixId!: number;
     editedMatrix = signal<Matrix | null>(null);
     submitted = false;
     selectedCourseToAdd = signal<CourseSimple | null>(null);
-
     intervalPresets = [
         { label: 'Daily',     value: 1  },
         { label: 'Weekly',    value: 7  },
         { label: 'Bi-weekly', value: 14 },
         { label: 'Monthly',   value: 30 },
     ];
-
     availableCourses = computed(() => {
         const all = this.courseService.courses.value() ?? [];
         const assigned = this.editedMatrix()?.courses ?? [];
         return all.filter(c => !assigned.some(a => a.id === c.id));
     });
-
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
@@ -58,7 +53,6 @@ export class MatrixEditComponent implements OnInit {
             this.loadMatrix();
         }
     }
-
     loadMatrix() {
         const matrix = this.matrixService.matrices.value()?.find(m => m.id === this.matrixId);
         if (matrix) {
@@ -67,21 +61,18 @@ export class MatrixEditComponent implements OnInit {
             this.router.navigate(['/curriculum/matrices']);
         }
     }
-
     save() {
         const current = this.editedMatrix();
         if (!current?.name?.trim()) {
             this.submitted = true;
             return;
         }
-
         const request: UpdateMatrixRequest = {
             name: current.name,
             description: current.description,
             refreshIntervalDays: current.refreshIntervalDays,
             isHidden: current.isHidden
         };
-
         this.matrixService.updateMatrix(this.matrixId, request).subscribe({
             next: () => {
                 this.matrixService.reloadMatrices();
@@ -97,12 +88,10 @@ export class MatrixEditComponent implements OnInit {
             })
         });
     }
-
     assignCourse() {
         const course = this.selectedCourseToAdd();
         const current = this.editedMatrix();
         if (!course || !current) return;
-
         this.matrixService.assignCourse(this.matrixId, course.id).subscribe({
             next: () => {
                 this.editedMatrix.set({ ...current, courses: [...current.courses, course] });
@@ -115,11 +104,9 @@ export class MatrixEditComponent implements OnInit {
             })
         });
     }
-
     removeCourse(course: CourseSimple) {
         const current = this.editedMatrix();
         if (!current) return;
-
         this.matrixService.removeCourse(this.matrixId, course.id).subscribe({
             next: () => {
                 this.editedMatrix.set({
@@ -134,7 +121,6 @@ export class MatrixEditComponent implements OnInit {
             })
         });
     }
-
     goBack() {
         this.router.navigate(['/curriculum/matrices']);
     }

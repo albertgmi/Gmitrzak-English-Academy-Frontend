@@ -84,10 +84,6 @@ import { LessonMemoriesComponent } from './lesson/lesson-memories/lesson-memorie
 import { LessonPronunciationComponent } from './lesson/lesson-pronunciation/lesson-pronunciation.component';
 import { FlashcardRemindersComponent } from './admin-tools/flashcard-reminders/flashcard-reminders.component';
 import { AttendanceListComponent } from './admin-tools/attendance-list/attendance-list.component';
-
-
-
-
 import { StudentEssaysComponent } from './student-view/student-essays/student-essays.component';
 import { LiveEssayRoomComponent } from './content/live-essay-room/live-essay-room.component';
 import { LiveSentenceRoomComponent } from './content/live-sentence-room/live-sentence-room.component';
@@ -96,7 +92,6 @@ import { IrregularVerbsSelectionComponent } from './student-view/irregular-verbs
 import { IrregularVerbsStudyComponent } from './student-view/irregular-verbs-study/irregular-verbs-study.component';
 import {IrregularVerbsPanelComponent} from './student-view/irregular-verbs-panel/irregular-verbs-panel.component';
 import {LessonIrregularVerbsComponent} from './lesson/lesson-irregular-verbs/lesson-irregular-verbs.component';
-
 export const appRoutes: Routes = [
   {
     path: '',
@@ -196,7 +191,6 @@ export const appRoutes: Routes = [
       { path: 'system/alphabet-pool', component: AlphabetPoolComponent, canActivate: [AuthGuard] },
       { path: 'lesson/memories', component: LessonMemoriesComponent, canActivate: [AuthGuard] },
       { path: 'lesson/pronunciation-entries', component: LessonPronunciationComponent, canActivate: [AuthGuard] },
-
     ]
   },
   { path: 'auth', loadChildren: () => import('./auth/auth.routes') },

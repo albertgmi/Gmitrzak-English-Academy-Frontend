@@ -6,7 +6,6 @@ import { ProgressBarModule } from 'primeng/progressbar';
 import { TableModule } from 'primeng/table';
 import { MessageService } from 'primeng/api';
 import { StudentService, LastWeekDto } from '../../services/student-services/student.service';
-
 @Component({
     selector: 'app-last-week',
     standalone: true,
@@ -17,10 +16,8 @@ import { StudentService, LastWeekDto } from '../../services/student-services/stu
 export class LastWeekComponent implements OnInit {
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
-
     data = signal<LastWeekDto | null>(null);
     loading = signal(true);
-
     ngOnInit() {
         this.studentService.getLastWeek().subscribe({
             next: (d) => { this.data.set(d); this.loading.set(false); },
@@ -30,7 +27,6 @@ export class LastWeekComponent implements OnInit {
             }
         });
     }
-
     formatTime(seconds: number): string {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);

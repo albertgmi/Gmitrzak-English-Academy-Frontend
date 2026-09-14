@@ -18,7 +18,6 @@ import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { UserService, User } from '../../services/user.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-live-notepad',
     standalone: true,
@@ -48,16 +47,12 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     private profileService = inject(ProfileService);
     private userService = inject(UserService);
     private messageService = inject(MessageService);
-
     @ViewChild('quillEditor') editorComponent!: QuillEditorComponent;
-
     currentView = signal<'grid' | 'editor'>('grid');
     notes = signal<LiveNoteSummaryDto[]>([]);
     selectedNote = signal<LiveNoteDetailDto | null>(null);
     searchQuery = signal<string>('');
     selectedStudentFilter = signal<number | null>(null);
-
-    // State
     loading = signal<boolean>(false);
     saving = signal<boolean>(false);
     activeUsers = signal<LiveNoteCollaborativeUser[]>([]);
@@ -65,24 +60,19 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
     isRemoteTyping = signal<boolean>(false);
     remoteTypingUser = signal<string>('');
     remoteSelection = signal<{ username: string; index: number; length: number } | null>(null);
-
-    // Modal Create Note State
     showCreateModal = signal<boolean>(false);
     newNoteTitle = signal<string>('');
     selectedStudentId = signal<number | null>(null);
     studentsList = signal<User[]>([]);
-
     currentUser = computed(() => ({
         id: this.authService.getUserId(),
         username: this.authService.getUsername() || 'User',
         role: this.authService.getRole() || 'User'
     }));
-
     isAdmin = computed(() => {
         const role = (this.currentUser().role || '').toLowerCase();
         return role === 'admin' || role === 'teacher';
     });
-
     studentFilterOptions = computed(() => {
         const list = this.studentsList();
         const options = list.map(u => ({
@@ -91,7 +81,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         }));
         return [{ label: 'All Students', value: null }, ...options];
     });
-
     quillModules = {
         toolbar: [
             ['bold', 'italic', 'underline', 'strike'],
@@ -104,20 +93,15 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         ],
         table: true
     };
-
     private quillInstance: any = null;
     private typingTimeout: any = null;
     private autoSaveTimeout: any = null;
-
     constructor() {
-        // SignalR Remote Content Sync Effect (Real-time Quill Delta Apply)
         effect(() => {
             const change = this.collaborationService.contentChange();
             if (!change) return;
-
             const note = this.selectedNote();
             if (!note || change.noteId !== note.id) return;
-
             if (change.senderUsername !== this.currentUser().username && this.quillInstance) {
                 if (change.deltaJson) {
                     try {
@@ -139,12 +123,9 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
                 }
             }
         });
-
-        // SignalR Remote Selection Sync Effect
         effect(() => {
             const sel = this.collaborationService.selectionChange();
             if (!sel) return;
-
             if (sel.username !== this.currentUser().username) {
                 this.remoteSelection.set({
                     username: sel.username,
@@ -153,25 +134,19 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
                 });
             }
         });
-
-        // SignalR Active Users Sync Effect
         effect(() => {
             const users = this.collaborationService.activeUsers();
             this.activeUsers.set(users);
         });
-
-        // SignalR Typing Status Sync Effect
         effect(() => {
             const typing = this.collaborationService.typingUser();
             if (!typing) return;
-
             if (typing.senderUsername !== this.currentUser().username) {
                 this.isRemoteTyping.set(typing.isTyping);
                 this.remoteTypingUser.set(typing.senderUsername);
             }
         });
     }
-
     ngOnInit(): void {
         this.loadNotes();
         const userId = this.currentUser().id;
@@ -185,7 +160,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
                 error: () => {}
             });
         }
-
         if (this.isAdmin()) {
             this.userService.getAllUsers().subscribe({
                 next: (users: User[]) => {
@@ -195,13 +169,11 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             });
         }
     }
-
     ngOnDestroy(): void {
         this.collaborationService.stopConnection();
         if (this.autoSaveTimeout) clearTimeout(this.autoSaveTimeout);
         if (this.typingTimeout) clearTimeout(this.typingTimeout);
     }
-
     onEditorCreated(editor: any): void {
         this.quillInstance = editor;
         const note = this.selectedNote();
@@ -209,7 +181,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             this.quillInstance.root.innerHTML = note.content;
         }
     }
-
     loadNotes(): void {
         this.loading.set(true);
         this.noteService.getNotes().subscribe({
@@ -220,25 +191,20 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             error: () => this.loading.set(false)
         });
     }
-
     filteredNotes(): LiveNoteSummaryDto[] {
         let result = this.notes();
-
         const studentFilter = this.selectedStudentFilter();
         if (this.isAdmin() && studentFilter !== null) {
             result = result.filter(n => n.studentId === studentFilter);
         }
-
         const query = this.searchQuery().toLowerCase().trim();
         if (!query) return result;
-
         return result.filter(n =>
             n.title.toLowerCase().includes(query) ||
             n.studentUsername.toLowerCase().includes(query) ||
             n.previewText.toLowerCase().includes(query)
         );
     }
-
     openCreateModal(): void {
         this.newNoteTitle.set('');
         this.selectedStudentId.set(null);
@@ -251,7 +217,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         }
         this.showCreateModal.set(true);
     }
-
     createNewNote(): void {
         const title = this.newNoteTitle().trim();
         if (!title) {
@@ -262,7 +227,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             });
             return;
         }
-
         if (this.isAdmin() && !this.selectedStudentId()) {
             this.messageService.add({
                 severity: 'warn',
@@ -271,7 +235,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             });
             return;
         }
-
         this.loading.set(true);
         this.noteService.createNote({
             title,
@@ -297,7 +260,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     openNoteEditor(noteId: number): void {
         this.loading.set(true);
         this.noteService.getNoteById(noteId).subscribe({
@@ -305,14 +267,11 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
                 this.selectedNote.set(note);
                 this.currentView.set('editor');
                 this.loading.set(false);
-
                 if (this.quillInstance) {
                     this.quillInstance.root.innerHTML = note.content || '';
                 }
-
                 const avatarToUse = this.currentUserAvatarUrl() ||
                     (note.studentUsername === this.currentUser().username ? note.studentAvatarUrl : undefined);
-
                 this.collaborationService.startConnection(
                     note.id,
                     this.currentUser().username,
@@ -330,7 +289,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     backToGrid(): void {
         if (this.autoSaveTimeout) clearTimeout(this.autoSaveTimeout);
         this.collaborationService.stopConnection();
@@ -339,17 +297,12 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
         this.quillInstance = null;
         this.loadNotes();
     }
-
     onContentChange(event: any): void {
-        // Only process user-initiated keystrokes / edits
         if (!event || (event.source && event.source !== 'user')) return;
-
         const note = this.selectedNote();
         if (!note) return;
-
         const newHtml = this.quillInstance ? this.quillInstance.root.innerHTML : (event.html || '');
         const deltaJson = event.delta ? JSON.stringify(event.delta) : undefined;
-
         this.collaborationService.sendContentChange(
             note.id,
             newHtml,
@@ -357,19 +310,15 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             deltaJson
         );
         this.notifyTyping();
-
-        // Auto-save debounce (4 seconds)
         if (this.autoSaveTimeout) clearTimeout(this.autoSaveTimeout);
         this.autoSaveTimeout = setTimeout(() => {
             this.saveNoteSilent();
         }, 4000);
     }
-
     onSelectionChanged(event: any): void {
         if (!event || !event.range) return;
         const note = this.selectedNote();
         if (!note) return;
-
         this.collaborationService.sendSelectionChange(
             note.id,
             event.range.index,
@@ -378,14 +327,11 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             this.currentUser().role
         );
     }
-
     saveNoteManual(): void {
         const note = this.selectedNote();
         if (!note) return;
-
         this.saving.set(true);
         const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : '';
-
         this.noteService.saveNote(note.id, {
             title: note.title,
             content: contentToSave
@@ -402,22 +348,17 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             error: () => this.saving.set(false)
         });
     }
-
     private saveNoteSilent(): void {
         const note = this.selectedNote();
         if (!note) return;
-
         const contentToSave = this.quillInstance ? this.quillInstance.root.innerHTML : '';
-
         this.noteService.saveNote(note.id, {
             title: note.title,
             content: contentToSave
         }).subscribe();
     }
-
     deleteNote(event: Event, note: LiveNoteSummaryDto): void {
         event.stopPropagation();
-
         if (!this.isAdmin()) {
             this.messageService.add({
                 severity: 'warn',
@@ -426,7 +367,6 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             });
             return;
         }
-
         if (confirm(`Are you sure you want to delete "${note.title}"?`)) {
             this.noteService.deleteNote(note.id).subscribe({
                 next: () => {
@@ -447,15 +387,11 @@ export class LiveNotepadComponent implements OnInit, OnDestroy {
             });
         }
     }
-
     private notifyTyping(): void {
         const note = this.selectedNote();
         if (!note) return;
-
         this.collaborationService.sendTypingStatus(note.id, true, this.currentUser().username);
-
         if (this.typingTimeout) clearTimeout(this.typingTimeout);
-
         this.typingTimeout = setTimeout(() => {
             this.collaborationService.sendTypingStatus(note.id, false, this.currentUser().username);
         }, 2000);

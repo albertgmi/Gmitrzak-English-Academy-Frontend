@@ -19,7 +19,6 @@ import { LiveSentenceCollaborationService, SentenceTeacherNoteEvent } from '../.
 import { AuthService } from '../../services/auth.service';
 import { ProfileService } from '../../services/profile.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-live-sentence-room',
     standalone: true,
@@ -36,125 +35,92 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
 export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
     @ViewChild('userEditor') userEditor!: QuillEditorComponent;
     @ViewChild('adminEditor') adminEditor!: QuillEditorComponent;
-
     private sentenceService = inject(SentenceService);
     private profileService = inject(ProfileService);
     public collaborationService = inject(LiveSentenceCollaborationService);
     private authService = inject(AuthService);
     private messageService = inject(MessageService);
-
     currentUser = computed(() => ({
         id: this.authService.getUserId(),
         username: this.authService.getUsername() || 'User',
         role: this.authService.getRole() || 'User'
     }));
-
     currentUserAvatarUrl = signal<string | null>(null);
     isAdmin = computed(() => {
         const role = (this.currentUser().role || '').toLowerCase();
         return role === 'admin' || role === 'teacher';
     });
-
-    // Navigation State: 'modules' | 'sentences' | 'live'
     currentView = signal<'modules' | 'sentences' | 'live'>('modules');
-
-    // Module Selection Level
     modules = signal<SentenceModuleLiveDto[]>([]);
     selectedModule = signal<SentenceModuleLiveDto | null>(null);
-
-    // Sentence List Level
     sentencesInModule = signal<SentenceAnswerLiveDto[]>([]);
     selectedAnswer = signal<SentenceAnswerLiveDto | null>(null);
-
     loading = signal(true);
     saving = signal(false);
-
-    // Filtering & Searching Modules
     searchQuery = signal('');
     selectedStudentFilter = signal<string | null>(null);
     selectedStatusFilter = signal<string | null>(null);
-
     statusFilterOptions = [
         { label: 'All Statuses', value: null },
         { label: 'Pending Only', value: 'pending' },
         { label: 'Reviewed Only', value: 'reviewed' }
     ];
-
     studentFilterOptions = computed(() => {
         const set = new Set<string>();
         this.modules().forEach(m => {
             if (m.studentUsername) set.add(m.studentUsername);
         });
-
         const options = Array.from(set).sort().map(username => ({
             label: username,
             value: username
         }));
-
         return [{ label: 'All Students', value: null }, ...options];
     });
-
     filteredModules = computed(() => {
         let list = this.modules();
         const query = this.searchQuery().trim().toLowerCase();
         const studentFilter = this.selectedStudentFilter();
         const statusFilter = this.selectedStatusFilter();
-
         if (studentFilter) {
             list = list.filter(m => m.studentUsername === studentFilter);
         }
-
         if (statusFilter === 'pending') {
             list = list.filter(m => !m.isReviewed);
         } else if (statusFilter === 'reviewed') {
             list = list.filter(m => m.isReviewed);
         }
-
         if (query) {
             list = list.filter(m =>
                 (m.studentUsername && m.studentUsername.toLowerCase().includes(query)) ||
                 (m.moduleName && m.moduleName.toLowerCase().includes(query))
             );
         }
-
         return list;
     });
-
-    // Live Room Content Fields
     userContent = signal('');
     adminContent = signal('');
     activeTab = signal<'admin' | 'user'>('admin');
     selectedOverride = signal<string | null>(null);
-
-    // Live Selection Sharing
     remoteSelection = signal<{ username: string; role: string; index: number; length: number } | null>(null);
     selectedTextSnippet = signal<string>('');
     selectedRangeIndex = signal<number>(0);
     selectedRangeLength = signal<number>(0);
-
-    // Teacher Notes & Annotations
     teacherNotes = signal<SentenceTeacherNoteEvent[]>([]);
     showNoteModal = signal(false);
     newNoteText = signal('');
     newNoteCategory = signal<'Grammar' | 'Vocabulary' | 'Structure' | 'General'>('Grammar');
-
     categoryOptions = [
         { label: 'Grammar', value: 'Grammar' },
         { label: 'Vocabulary', value: 'Vocabulary' },
         { label: 'Structure', value: 'Structure' },
         { label: 'General Feedback', value: 'General' }
     ];
-
-    // Typing debounce
     private typingTimeout: any = null;
     isRemoteTyping = signal(false);
     remoteTypingUser = signal<string>('');
-
     activeUsers = this.collaborationService.activeUsers;
     connectionState = this.collaborationService.connectionState;
-
     quillReadOnlyModules = { toolbar: false };
-
     quillModules = {
         toolbar: [
             ['bold', 'italic', 'underline', 'strike'],
@@ -164,12 +130,10 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             ['clean']
         ]
     };
-
     constructor() {
         effect(() => {
             const change = this.collaborationService.incomingContentChange();
             if (!change) return;
-
             if (change.senderUsername !== this.currentUser().username) {
                 this.lastRemoteSelection = null;
                 if (change.field === 'userAnswer') {
@@ -179,11 +143,9 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                 }
             }
         });
-
         effect(() => {
             const sel = this.collaborationService.incomingSelectionChange();
             if (!sel) return;
-
             if (sel.senderUsername !== this.currentUser().username) {
                 this.remoteSelection.set({
                     username: sel.senderUsername,
@@ -194,17 +156,14 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                 this.updateRemoteSelectionHighlight(sel.index, sel.length, sel.senderRole);
             }
         });
-
         effect(() => {
             const note = this.collaborationService.incomingTeacherNote();
             if (!note) return;
-
             this.teacherNotes.update(notes => {
                 const id = note.noteId || (note as any).id;
                 if (notes.some(n => (n.noteId || (n as any).id) === id)) return notes;
                 return [note, ...notes];
             });
-
             this.messageService.add({
                 severity: 'info',
                 summary: 'New Teacher Note',
@@ -212,18 +171,15 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                 life: 3000
             });
         });
-
         effect(() => {
             const typing = this.collaborationService.typingUser();
             if (!typing) return;
-
             if (typing.senderUsername !== this.currentUser().username) {
                 this.isRemoteTyping.set(typing.isTyping);
                 this.remoteTypingUser.set(typing.senderUsername);
             }
         });
     }
-
     ngOnInit(): void {
         this.loadModules();
         const userId = this.currentUser().id;
@@ -238,11 +194,9 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             });
         }
     }
-
     ngOnDestroy(): void {
         this.collaborationService.stopConnection();
     }
-
     loadModules(): void {
         this.loading.set(true);
         this.sentenceService.getLiveRoomModules().subscribe({
@@ -253,7 +207,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             error: () => this.loading.set(false)
         });
     }
-
     selectModule(moduleDto: SentenceModuleLiveDto): void {
         this.selectedModule.set(moduleDto);
         this.loading.set(true);
@@ -266,13 +219,11 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             error: () => this.loading.set(false)
         });
     }
-
     backToModules(): void {
         this.currentView.set('modules');
         this.selectedModule.set(null);
         this.sentencesInModule.set([]);
     }
-
     enterLiveRoom(answer: SentenceAnswerLiveDto): void {
         this.selectedAnswer.set(answer);
         this.userContent.set(answer.userAnswer || '');
@@ -280,7 +231,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
         this.selectedOverride.set(answer.teacherOverride || null);
         this.activeTab.set('admin');
         this.remoteSelection.set(null);
-
         this.sentenceService.getSentenceComments(answer.id).subscribe({
             next: (comments) => {
                 this.teacherNotes.set(comments.map(c => ({
@@ -295,20 +245,16 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             },
             error: () => this.teacherNotes.set([])
         });
-
         const avatarToUse = this.currentUserAvatarUrl() ||
             (answer.studentUsername === this.currentUser().username ? answer.studentAvatarUrl : undefined);
-
         this.collaborationService.joinRoom(
             answer.id,
             this.currentUser().username,
             this.currentUser().role,
             avatarToUse
         );
-
         this.currentView.set('live');
     }
-
     backToSentenceList(): void {
         if (this.selectedAnswer()) {
             this.collaborationService.leaveRoom(this.selectedAnswer()!.id);
@@ -316,7 +262,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
         this.selectedAnswer.set(null);
         this.currentView.set('sentences');
     }
-
     onUserContentChange(newContent: string): void {
         this.userContent.set(newContent);
         const ansId = this.selectedAnswer()?.id;
@@ -330,7 +275,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             this.notifyTyping();
         }
     }
-
     onAdminContentChange(newContent: string): void {
         this.adminContent.set(newContent);
         const ansId = this.selectedAnswer()?.id;
@@ -344,13 +288,11 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             this.notifyTyping();
         }
     }
-
     onSelectionChanged(event: any): void {
         if (!event || !event.range) return;
         const range = event.range;
         const ansId = this.selectedAnswer()?.id;
         if (!ansId) return;
-
         if (range.length > 0 && event.editor) {
             const selectedText = event.editor.getText(range.index, range.length).trim();
             this.selectedTextSnippet.set(selectedText);
@@ -359,7 +301,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
         } else {
             this.selectedTextSnippet.set('');
         }
-
         this.collaborationService.sendSelectionChange(
             ansId,
             range.index,
@@ -368,7 +309,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             this.currentUser().role
         );
     }
-
     openNoteModal(): void {
         if (!this.selectedTextSnippet()) {
             this.messageService.add({
@@ -382,15 +322,12 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
         this.newNoteText.set('');
         this.showNoteModal.set(true);
     }
-
     addTeacherNote(): void {
         const text = this.newNoteText().trim();
         const snippet = this.selectedTextSnippet();
         const ans = this.selectedAnswer();
         if (!text || !snippet || !ans) return;
-
         const category = this.newNoteCategory();
-
         this.sentenceService.addSentenceComment(ans.id, {
             selectedText: snippet,
             noteContent: text,
@@ -406,7 +343,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                     timestamp: createdComment.timestamp,
                     isArchived: createdComment.isArchived
                 };
-
                 const editor = this.adminEditor?.quillEditor;
                 if (editor) {
                     editor.formatText(this.selectedRangeIndex(), this.selectedRangeLength(), {
@@ -414,9 +350,7 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                         'color': '#92400E'
                     });
                 }
-
                 this.teacherNotes.update(notes => [noteObj, ...notes]);
-
                 this.collaborationService.sendTeacherNote(
                     ans.id,
                     createdComment.noteId,
@@ -425,10 +359,8 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                     category,
                     createdComment.author
                 );
-
                 this.showNoteModal.set(false);
                 this.newNoteText.set('');
-
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Comment Attached',
@@ -437,41 +369,34 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     archiveNote(noteId: string): void {
         const numericId = parseInt(noteId.replace('note_', ''), 10);
         if (!isNaN(numericId)) {
             this.sentenceService.archiveSentenceComment(numericId).subscribe();
         }
-
         this.teacherNotes.update(notes =>
             notes.map(n => n.noteId === noteId ? { ...n, isArchived: true } : n)
         );
-
         this.messageService.add({
             severity: 'info',
             summary: 'Comment Resolved',
             detail: 'Comment has been archived.'
         });
     }
-
     focusNoteText(snippet: string): void {
         this.activeTab.set('admin');
         const editor = this.adminEditor?.quillEditor;
         if (!editor) return;
-
         const fullText = editor.getText();
         const index = fullText.indexOf(snippet);
         if (index >= 0) {
             editor.setSelection(index, snippet.length);
         }
     }
-
     applyHighlight(bgColor: string, textColor: string): void {
         this.activeTab.set('admin');
         const editor = this.adminEditor?.quillEditor;
         if (!editor) return;
-
         const sel = editor.getSelection();
         if (!sel || sel.length === 0) {
             this.messageService.add({
@@ -482,12 +407,10 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             });
             return;
         }
-
         editor.formatText(sel.index, sel.length, {
             'background': bgColor,
             'color': textColor
         });
-
         const ansId = this.selectedAnswer()?.id;
         if (ansId) {
             this.collaborationService.sendSelectionChange(
@@ -498,24 +421,19 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                 this.currentUser().role
             );
         }
-
         setTimeout(() => {
             const freshHtml = editor.root.innerHTML;
             this.adminContent.set(freshHtml);
             this.onAdminContentChange(freshHtml);
         }, 10);
     }
-
     setOverride(result: 'Correct' | 'Partial' | 'Incorrect'): void {
         this.selectedOverride.set(result);
     }
-
     private lastRemoteSelection: { index: number; length: number; originalBg?: any; originalColor?: any } | null = null;
-
     private updateRemoteSelectionHighlight(index: number, length: number, role: string): void {
         const editor = this.adminEditor?.quillEditor || this.userEditor?.quillEditor;
         if (!editor) return;
-
         if (this.lastRemoteSelection) {
             editor.formatText(this.lastRemoteSelection.index, this.lastRemoteSelection.length, {
                 'background': this.lastRemoteSelection.originalBg || false,
@@ -523,46 +441,35 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             });
             this.lastRemoteSelection = null;
         }
-
         if (length > 0) {
             const currentFormat = editor.getFormat(index, length);
             const highlightBg = role === 'Admin' ? '#C7D2FE' : '#A7F3D0';
-
             this.lastRemoteSelection = {
                 index,
                 length,
                 originalBg: currentFormat['background'],
                 originalColor: currentFormat['color']
             };
-
             editor.formatText(index, length, {
                 'background': highlightBg
             });
         }
     }
-
     private notifyTyping(): void {
         const ansId = this.selectedAnswer()?.id;
         if (!ansId) return;
-
         this.collaborationService.sendTypingStatus(ansId, true, this.currentUser().username);
-
         if (this.typingTimeout) clearTimeout(this.typingTimeout);
-
         this.typingTimeout = setTimeout(() => {
             this.collaborationService.sendTypingStatus(ansId, false, this.currentUser().username);
         }, 2000);
     }
-
     saveSentenceReview(): void {
         const ans = this.selectedAnswer();
         if (!ans) return;
-
         this.saving.set(true);
-
         const editor = this.adminEditor?.quillEditor;
         const correctionToSave = editor ? editor.root.innerHTML : this.adminContent();
-
         this.sentenceService.saveSentenceReview(ans.id, {
             adminCorrection: correctionToSave,
             teacherOverride: this.selectedOverride() || undefined
@@ -570,16 +477,11 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             next: (updated) => {
                 this.saving.set(false);
                 this.selectedAnswer.set(updated);
-
-                // Update sentence item in module list table
                 this.sentencesInModule.update(list =>
                     list.map(item => item.id === updated.id ? updated : item)
                 );
-
-                // Update module list summary if all sentences are reviewed
                 const currentSentences = this.sentencesInModule();
                 const allReviewed = currentSentences.length > 0 && currentSentences.every(s => s.teacherReviewed);
-
                 this.modules.update(mods =>
                     mods.map(m => {
                         if (m.moduleId === updated.moduleId && m.studentUsername === updated.studentUsername) {
@@ -588,7 +490,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                         return m;
                     })
                 );
-
                 this.messageService.add({
                     severity: 'success',
                     summary: 'Review Saved',
@@ -605,7 +506,6 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     resultSeverity(res: string): 'success' | 'warn' | 'danger' | 'secondary' {
         if (res === 'Correct') return 'success';
         if (res === 'Partial') return 'warn';

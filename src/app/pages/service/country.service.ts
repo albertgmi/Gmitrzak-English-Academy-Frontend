@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-
 @Injectable()
 export class CountryService {
     getData() {
@@ -248,7 +247,6 @@ export class CountryService {
             { name: 'Zimbabwe', code: 'ZW' }
         ];
     }
-
     getCountries() {
         return Promise.resolve(this.getData());
     }

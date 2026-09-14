@@ -15,9 +15,7 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TextareaModule } from 'primeng/textarea';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService, ConfirmationService } from 'primeng/api';
-
 import { Program, ProgramService, UpdateProgramRequest } from '../../../services/program.service';
-
 @Component({
     selector: 'app-program',
     standalone: true,
@@ -45,48 +43,37 @@ export class ProgramComponent {
     private programService = inject(ProgramService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     programs = this.programService.programs;
-
     selectedProgram = signal<Program | null>(null);
-
     editDialog = false;
     editedProgram!: Program;
     submitted = false;
-
     ngOnInit() {
         this.programService.reloadPrograms();
     }
-
     selectProgram(program: Program): void {
         this.selectedProgram.set(program);
     }
-
     backToList(): void {
         this.selectedProgram.set(null);
     }
-
     openEditDialog(program: Program): void {
         this.editedProgram = { ...program };
         this.submitted = false;
         this.editDialog = true;
     }
-
     hideEditDialog(): void {
         this.editDialog = false;
         this.submitted = false;
     }
-
     saveProgram(): void {
         this.submitted = true;
         if (!this.editedProgram.name?.trim()) return;
-
         const request: UpdateProgramRequest = {
             name: this.editedProgram.name,
             description: this.editedProgram.description,
             isHidden: this.editedProgram.isHidden
         };
-
         this.programService.updateProgram(this.editedProgram.id, request).subscribe({
             next: () => {
                 this.programService.reloadPrograms();
@@ -112,7 +99,6 @@ export class ProgramComponent {
             }
         });
     }
-
     confirmDelete(program: Program): void {
         this.confirmationService.confirm({
             message: `Are you sure you want to delete the program "${program.name}"?`,
@@ -144,11 +130,9 @@ export class ProgramComponent {
             }
         });
     }
-
     onGlobalFilter(table: any, event: Event): void {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload(): void {
         this.programService.reloadPrograms();
     }

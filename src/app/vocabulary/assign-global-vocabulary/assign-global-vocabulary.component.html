@@ -1,5 +1,4 @@
 <p-toast />
-
 <div class="card">
     <div class="flex items-center justify-between mb-6">
         <div>
@@ -7,10 +6,8 @@
             <p class="text-muted-color mt-1 m-0">Select a student and choose vocabulary items to assign to their profile</p>
         </div>
     </div>
-
     <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
         <div class="grid grid-cols-1 gap-5">
-            
             <div class="w-full md:w-1/2">
                 <label class="block font-bold mb-2">Target Student <span class="text-red-500">*</span></label>
                 <p-select 
@@ -27,7 +24,6 @@
                     Student selection is required.
                 </small>
             </div>
-
             <div class="mt-4">
                 <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3">
                     <label class="block font-bold">
@@ -36,17 +32,14 @@
                             ({{ selectedVocabulary().length }} selected)
                         </span>
                     </label>
-                    
                     <p-iconfield class="w-full md:w-auto">
                         <p-inputicon styleClass="pi pi-search" />
                         <input pInputText type="text" (input)="onGlobalFilter(dt, $event)" placeholder="Search vocabulary..." class="w-full md:w-64" />
                     </p-iconfield>
                 </div>
-
                 <small class="text-red-500 block mb-2" *ngIf="submitted && selectedVocabulary().length === 0">
                     You must select at least one item from the table below.
                 </small>
-
                 <p-table #dt 
                     [value]="vocabularyItems()" 
                     [(selection)]="selectedVocabulary" 
@@ -61,7 +54,6 @@
                     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} available vocabulary items"
                     [showCurrentPageReport]="true" 
                     [rowsPerPageOptions]="[10, 20, 50]">
-
                     <ng-template #header>
                         <tr>
                             <th style="width: 4rem">
@@ -74,7 +66,6 @@
                             <th style="width: 8rem" class="text-center font-bold">Quick Action</th>
                         </tr>
                     </ng-template>
-
                     <ng-template #body let-item>
                         <tr [pSelectableRow]="item">
                             <td>
@@ -102,7 +93,6 @@
                             </td>
                         </tr>
                     </ng-template>
-
                     <ng-template #emptymessage>
                         <tr>
                             <td colspan="6" class="text-center text-muted-color py-8">
@@ -113,9 +103,7 @@
                     </ng-template>
                 </p-table>
             </div>
-
         </div>
-
         <div class="flex gap-3 mt-6 border-t border-surface-200 dark:border-surface-700 pt-4">
             <p-button 
                 label="Assign Selected" 

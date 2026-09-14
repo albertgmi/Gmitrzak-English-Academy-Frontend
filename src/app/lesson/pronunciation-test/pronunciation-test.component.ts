@@ -7,7 +7,6 @@ import { MessageService } from 'primeng/api';
 import { LessonService, LessonPronunciationTestItemDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-pronunciation-test',
     standalone: true,
@@ -20,34 +19,28 @@ export class PronunciationTestComponent implements OnInit {
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
     private messageService = inject(MessageService);
-
     activeStudent = this.lessonContext.activeStudent;
     entries = signal<LessonPronunciationTestItemDto[]>([]);
     loading = signal(true);
-
     unchecked = computed(() =>
         this.entries().filter(
             e => e.status === 'Pending' || e.status === 'Incorrect'
         )
     );
-    
     checked = computed(() =>
         this.entries().filter(e => e.status === 'Correct')
     );
-
     ngOnInit() {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
         this.load(studentId);
     }
-
     load(studentId: number) {
         this.lessonService.getPronunciationTest(studentId).subscribe({
             next: (d) => { this.entries.set(d); this.loading.set(false); },
             error: () => this.loading.set(false)
         });
     }
-
     markCorrect(entry: LessonPronunciationTestItemDto) {
         this.lessonService.checkWord(entry.id).subscribe({
             next: () => {
@@ -58,14 +51,12 @@ export class PronunciationTestComponent implements OnInit {
             })
         });
     }
-
     markIncorrect(entry: LessonPronunciationTestItemDto) {
         this.entries.update(list => {
             const rest = list.filter(e => e.id !== entry.id);
             return [entry, ...rest];
         });
     }
-
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
     }

@@ -6,7 +6,6 @@ import {FormsModule, ReactiveFormsModule} from '@angular/forms';
 import {PasswordModule} from 'primeng/password';
 import {DropdownModule} from 'primeng/dropdown';
 import {ToastModule} from 'primeng/toast';
-
 @Component({
   selector: 'app-verify-email',
   templateUrl: './verify-email.component.html',
@@ -21,7 +20,6 @@ export class VerifyEmailComponent implements OnInit {
     private router: Router,
     private messageService: MessageService
   ) {}
-
   ngOnInit(): void {
     const token = this.route.snapshot.queryParamMap.get('token');
     if (token) {

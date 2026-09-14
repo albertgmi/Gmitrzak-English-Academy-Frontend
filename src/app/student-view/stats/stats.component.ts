@@ -4,7 +4,6 @@ import { ToastModule } from 'primeng/toast';
 import { ChartModule } from 'primeng/chart';
 import { MessageService } from 'primeng/api';
 import { StudentService, StatsDto } from '../../services/student-services/student.service';
-
 @Component({
     selector: 'app-stats',
     standalone: true,
@@ -15,29 +14,24 @@ import { StudentService, StatsDto } from '../../services/student-services/studen
 export class StatsComponent implements OnInit {
     private studentService = inject(StudentService);
     private messageService = inject(MessageService);
-
     data = signal<StatsDto | null>(null);
     loading = signal(true);
-
     totalPoints = computed(() => {
         const d = this.data();
         if (!d) return 0;
         return d.dailyActivity.reduce((acc: number, x) => acc + x.points, 0);
     });
-
     totalCards = computed(() => {
         const d = this.data();
         if (!d) return 0;
         return d.dailyFlashcards.reduce((acc: number, x) => acc + x.cardsStudied, 0);
     });
-
     avgGrade = computed(() => {
         const grades = this.data()?.gradeHistory;
-        if (!grades || grades.length === 0) return '—';
+        if (!grades || grades.length === 0) return '-';
         const sum = grades.reduce((acc: number, x) => acc + x.percentage, 0);
         return (sum / grades.length).toFixed(1);
     });
-
     activityChartData = computed(() => {
         const d = this.data();
         if (!d?.dailyActivity.length) return null;
@@ -54,7 +48,6 @@ export class StatsComponent implements OnInit {
             }]
         };
     });
-
     flashcardsChartData = computed(() => {
         const d = this.data();
         if (!d?.dailyFlashcards.length) return null;
@@ -68,7 +61,6 @@ export class StatsComponent implements OnInit {
             }]
         };
     });
-
     gradesChartData = computed(() => {
         const d = this.data();
         if (!d?.gradeHistory.length) return null;
@@ -85,7 +77,6 @@ export class StatsComponent implements OnInit {
             }]
         };
     });
-
     categoryChartData = computed(() => {
         const d = this.data();
         if (!d?.gradeHistory.length) return null;
@@ -105,7 +96,6 @@ export class StatsComponent implements OnInit {
             }]
         };
     });
-
     get chartOptions() {
         return {
             responsive: true,
@@ -119,7 +109,6 @@ export class StatsComponent implements OnInit {
             }
         };
     }
-
     get doughnutOptions() {
         return {
             responsive: true,
@@ -132,7 +121,6 @@ export class StatsComponent implements OnInit {
             }
         };
     }
-
     ngOnInit() {
         this.studentService.getStats().subscribe({
             next: (d) => { 

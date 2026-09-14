@@ -1,8 +1,6 @@
 <p-toast />
 <p-confirmDialog />
-
 <div class="card">
-
   <p-toolbar styleClass="mb-6">
     <ng-template #start>
       <span class="text-xl font-semibold">Theater</span>
@@ -17,14 +15,12 @@
         (onClick)="reload()" pTooltip="Refresh" />
     </ng-template>
   </p-toolbar>
-
   <p-table #dt [value]="items.value() || []" [loading]="items.isLoading()"
     [rows]="10" [paginator]="true" [rowHover]="true"
     [globalFilterFields]="['title', 'description', 'mediaType', 'level']"
     [tableStyle]="{'min-width': '55rem'}"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} items"
     [showCurrentPageReport]="true">
-
     <ng-template #header>
       <tr>
         <th style="width: 5rem"></th>
@@ -36,7 +32,6 @@
         <th style="width: 9rem">Actions</th>
       </tr>
     </ng-template>
-
     <ng-template #body let-item>
       <tr>
         <td>
@@ -51,7 +46,7 @@
         <td>
           <div class="font-semibold text-surface-900 dark:text-surface-0">{{ item.title }}</div>
           <div class="text-xs text-muted-color mt-0.5 truncate max-w-xs">
-            {{ item.description || '—' }}
+            {{ item.description || '-' }}
           </div>
           <a *ngIf="item.url" [href]="item.url" target="_blank"
             class="text-xs text-primary hover:underline mt-0.5 block truncate max-w-xs">
@@ -63,10 +58,10 @@
         </td>
         <td>
           <span class="text-sm font-mono" *ngIf="item.level">{{ item.level }}</span>
-          <span class="text-muted-color text-sm" *ngIf="!item.level">—</span>
+          <span class="text-muted-color text-sm" *ngIf="!item.level">-</span>
         </td>
         <td class="text-sm text-muted-color">
-          {{ item.durationMinutes ? item.durationMinutes + ' min' : '—' }}
+          {{ item.durationMinutes ? item.durationMinutes + ' min' : '-' }}
         </td>
         <td>
           <p-tag [severity]="item.isActive ? 'success' : 'secondary'"
@@ -81,7 +76,6 @@
         </td>
       </tr>
     </ng-template>
-
     <ng-template #emptymessage>
       <tr>
         <td colspan="7" class="text-center text-muted-color py-10">
@@ -92,27 +86,22 @@
     </ng-template>
   </p-table>
 </div>
-
-<!-- Add/Edit dialog -->
 <p-dialog [(visible)]="showDialog" [style]="{width: '560px', height: '550px'}"
   [header]="isEdit() ? 'Edit Item' : 'Add Theater Item'"
   [modal]="true">
   <ng-template #content>
     <div class="flex flex-col gap-4" *ngIf="form() as f">
-
       <div>
         <label class="block font-bold mb-2">Title <span class="text-red-500">*</span></label>
         <input pInputText type="text" [(ngModel)]="f.title" placeholder="e.g. Breaking Bad S01" fluid />
         <small class="text-red-500" *ngIf="submitted && !f.title?.trim()">Required.</small>
       </div>
-
       <div>
         <label class="block font-bold mb-2">URL <span class="text-red-500">*</span></label>
         <input pInputText type="text" [(ngModel)]="f.url"
           placeholder="https://youtube.com/..." fluid />
         <small class="text-red-500" *ngIf="submitted && !f.url?.trim()">Required.</small>
       </div>
-
       <div class="grid grid-cols-3 gap-4">
         <div>
           <label class="block font-bold mb-2">Type</label>
@@ -129,24 +118,20 @@
           <p-inputNumber [(ngModel)]="f.durationMinutes" [min]="0" fluid />
         </div>
       </div>
-
       <div>
         <label class="block font-bold mb-2">Thumbnail URL</label>
         <input pInputText type="text" [(ngModel)]="f.thumbnailUrl"
           placeholder="https://..." fluid />
       </div>
-
       <div *ngIf="isEdit()" class="flex items-center gap-3">
         <p-checkbox [(ngModel)]="f.isActive" [binary]="true" inputId="active" />
         <label for="active" class="font-bold">Active (visible in repertoire)</label>
       </div>
-
       <div>
         <label class="block font-bold mb-2">Description</label>
         <textarea pTextarea [(ngModel)]="f.description"
           placeholder="Brief description..." rows="3" fluid></textarea>
       </div>
-
     </div>
   </ng-template>
   <ng-template #footer>

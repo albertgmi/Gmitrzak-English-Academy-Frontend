@@ -11,7 +11,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ModuleItemService, CreateModuleRequest } from '../../../services/module.service';
 import { TheaterService } from '../../../services/theater.service';
-
 @Component({
     selector: 'app-module-adding',
     standalone: true,
@@ -27,12 +26,9 @@ export class ModuleAddingComponent implements OnInit {
     private messageService = inject(MessageService);
     private router         = inject(Router);
     private theaterService = inject(TheaterService);
-
     private rawSentenceSets = signal<any[]>([]);
-
     submitted              = false;
     selectedSentenceSetId: number | null = null;
-
     newModule: CreateModuleRequest = {
         name: '',
         description: '',
@@ -43,7 +39,6 @@ export class ModuleAddingComponent implements OnInit {
         presentationText: null,
         essayPrompt: null
     };
-
     categories = [
         { label: 'General', value: 'General'},
         { label: 'Sentences', value: 'Sentences'},
@@ -56,13 +51,11 @@ export class ModuleAddingComponent implements OnInit {
         { label: 'Essay', value: 'Essay'},
         { label: 'Other', value: 'Other'}
     ];
-
     theaterItemsOptions = computed(() =>
         (this.theaterService.items.value() ?? [])
             .filter(i => i.isActive)
             .map(i => ({ label: `[${i.level}] ${i.title}`, value: i.id }))
     );
-
     sentenceSetsOptions = computed(() =>
         this.rawSentenceSets().flatMap(group =>
             (group.sets || []).map((set: any) => ({
@@ -71,7 +64,6 @@ export class ModuleAddingComponent implements OnInit {
             }))
         )
     );
-
     ngOnInit() {
         this.theaterService.items.reload();
         this.moduleService.getAllSentenceSetsGrouped().subscribe({
@@ -79,7 +71,6 @@ export class ModuleAddingComponent implements OnInit {
             error: () => console.error('Failed to load sentence sets')
         });
     }
-
     onCategoryChange() {
         this.newModule.theaterItemId    = null;
         this.newModule.presentationUrl  = null;
@@ -87,26 +78,21 @@ export class ModuleAddingComponent implements OnInit {
         this.newModule.essayPrompt      = null;
         this.selectedSentenceSetId      = null;
     }
-
     save() {
         this.submitted = true;
         if (!this.newModule.name.trim()) return;
-
         if (this.newModule.category === 'Watching' && !this.newModule.theaterItemId) {
             this.showError('Please select a video for the Watching category.');
             return;
         }
-
         if (this.newModule.category === 'Sentences' && !this.selectedSentenceSetId) {
             this.showError('Please select a sentence set for the Sentences category.');
             return;
         }
-
         if (this.newModule.category === 'Essay' && !this.newModule.essayPrompt?.trim()) {
             this.showError('Please enter an essay prompt.');
             return;
         }
-
         this.moduleService.createModule(this.newModule).subscribe({
             next: (createdModule) => {
                 if (this.newModule.category === 'Sentences' && this.selectedSentenceSetId) {
@@ -123,7 +109,6 @@ export class ModuleAddingComponent implements OnInit {
             error: () => this.showError('Failed to create module.')
         });
     }
-
     private handleSuccess(name: string) {
         this.messageService.add({
             severity: 'success', summary: 'Created',
@@ -132,12 +117,10 @@ export class ModuleAddingComponent implements OnInit {
         this.moduleService.reloadModules();
         this.router.navigate(['/curriculum/modules']);
     }
-
     private showError(msg: string) {
         this.messageService.add({
             severity: 'error', summary: 'Error', detail: msg, life: 3000
         });
     }
-
     cancel() { this.router.navigate(['/curriculum/modules']); }
 }

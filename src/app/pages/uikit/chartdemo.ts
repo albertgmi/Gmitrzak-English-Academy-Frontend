@@ -4,7 +4,6 @@ import { ChartModule } from 'primeng/chart';
 import { FluidModule } from 'primeng/fluid';
 import { debounceTime, Subscription } from 'rxjs';
 import { LayoutService } from '../../layout/service/layout.service';
-
 @Component({
     selector: 'app-chart-demo',
     standalone: true,
@@ -52,42 +51,29 @@ import { LayoutService } from '../../layout/service/layout.service';
 })
 export class ChartDemo {
     lineData: any;
-
     barData: any;
-
     pieData: any;
-
     polarData: any;
-
     radarData: any;
-
     lineOptions: any;
-
     barOptions: any;
-
     pieOptions: any;
-
     polarOptions: any;
-
     radarOptions: any;
-
     subscription: Subscription;
     constructor(private layoutService: LayoutService) {
         this.subscription = this.layoutService.configUpdate$.pipe(debounceTime(25)).subscribe(() => {
             this.initCharts();
         });
     }
-
     ngOnInit() {
         this.initCharts();
     }
-
     initCharts() {
         const documentStyle = getComputedStyle(document.documentElement);
         const textColor = documentStyle.getPropertyValue('--text-color');
         const textColorSecondary = documentStyle.getPropertyValue('--text-color-secondary');
         const surfaceBorder = documentStyle.getPropertyValue('--surface-border');
-
         this.barData = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [
@@ -105,7 +91,6 @@ export class ChartDemo {
                 }
             ]
         };
-
         this.barOptions = {
             maintainAspectRatio: false,
             aspectRatio: 0.8,
@@ -140,7 +125,6 @@ export class ChartDemo {
                 }
             }
         };
-
         this.pieData = {
             labels: ['A', 'B', 'C'],
             datasets: [
@@ -151,7 +135,6 @@ export class ChartDemo {
                 }
             ]
         };
-
         this.pieOptions = {
             plugins: {
                 legend: {
@@ -162,7 +145,6 @@ export class ChartDemo {
                 }
             }
         };
-
         this.lineData = {
             labels: ['January', 'February', 'March', 'April', 'May', 'June', 'July'],
             datasets: [
@@ -184,7 +166,6 @@ export class ChartDemo {
                 }
             ]
         };
-
         this.lineOptions = {
             maintainAspectRatio: false,
             aspectRatio: 0.8,
@@ -216,7 +197,6 @@ export class ChartDemo {
                 }
             }
         };
-
         this.polarData = {
             datasets: [
                 {
@@ -227,7 +207,6 @@ export class ChartDemo {
             ],
             labels: ['Indigo', 'Purple', 'Teal', 'Orange']
         };
-
         this.polarOptions = {
             plugins: {
                 legend: {
@@ -248,7 +227,6 @@ export class ChartDemo {
                 },
             },
         };
-
         this.radarData = {
             labels: ['Eating', 'Drinking', 'Sleeping', 'Designing', 'Coding', 'Cycling', 'Running'],
             datasets: [
@@ -272,7 +250,6 @@ export class ChartDemo {
                 }
             ]
         };
-
         this.radarOptions = {
             plugins: {
                 legend: {
@@ -293,7 +270,6 @@ export class ChartDemo {
             }
         };
     }
-
     ngOnDestroy() {
         if (this.subscription) {
             this.subscription.unsubscribe();

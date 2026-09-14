@@ -13,7 +13,6 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { SentenceService, AnswerResultDto, CompletedSentenceModuleDto } from '../../services/sentence.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-lesson-sentence-answers',
     standalone: true,
@@ -30,59 +29,45 @@ export class LessonSentenceAnswersComponent implements OnInit {
     private sentenceService = inject(SentenceService);
     private messageService  = inject(MessageService);
     private router          = inject(Router);
-
     activeStudent = this.lessonContext.activeStudent;
-
     dateFrom = signal<Date | null>(null);
     dateTo   = signal<Date | null>(null);
-
     completedModules  = signal<CompletedSentenceModuleDto[]>([]);
     loadingModules    = signal(false);
-
     selectedModule    = signal<CompletedSentenceModuleDto | null>(null);
     answers           = signal<AnswerResultDto[]>([]);
     loadingAnswers    = signal(false);
-
     overriding   = signal<number | null>(null);
     overrideForm = signal<{ answerId: number; result: string; explanation: string } | null>(null);
-
     downloadingPdf  = signal(false);
     downloadingDocx = signal(false);
-
     correctCount  = computed(() =>
         this.answers().filter(a => (a.teacherOverride || a.aiResult) === 'Correct').length);
     partialCount  = computed(() =>
         this.answers().filter(a => (a.teacherOverride || a.aiResult) === 'Partial').length);
     incorrectCount = computed(() =>
         this.answers().filter(a => (a.teacherOverride || a.aiResult) === 'Incorrect').length);
-
     ngOnInit() {}
-
     loadModules() {
         const studentId = this.lessonContext.studentId;
         const from      = this.dateFrom();
         const to        = this.dateTo();
         if (!studentId || !from || !to) return;
-
         this.loadingModules.set(true);
         this.completedModules.set([]);
         this.selectedModule.set(null);
         this.answers.set([]);
-
         const fromStr = this.toDateStr(from);
         const toStr   = this.toDateStr(to);
-
         this.sentenceService.getCompletedModules(studentId, fromStr, toStr).subscribe({
             next: (d) => { this.completedModules.set(d); this.loadingModules.set(false); },
             error: () => this.loadingModules.set(false)
         });
     }
-
     selectModule(m: CompletedSentenceModuleDto) {
         this.selectedModule.set(m);
         this.loadAnswers(m.moduleId);
     }
-
     loadAnswers(moduleId: number) {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
@@ -93,7 +78,6 @@ export class LessonSentenceAnswersComponent implements OnInit {
             error: () => this.loadingAnswers.set(false)
         });
     }
-
     openOverride(answer: AnswerResultDto) {
         this.overrideForm.set({
             answerId:    answer.id,
@@ -101,15 +85,12 @@ export class LessonSentenceAnswersComponent implements OnInit {
             explanation: answer.teacherExplanation ?? ''
         });
     }
-
     updateFormResult(r: string) {
         this.overrideForm.update(x => x ? { ...x, result: r } : x);
     }
-
     updateFormExplanation(v: string) {
         this.overrideForm.update(x => x ? { ...x, explanation: v } : x);
     }
-
     saveOverride() {
         const form = this.overrideForm();
         if (!form) return;
@@ -132,13 +113,11 @@ export class LessonSentenceAnswersComponent implements OnInit {
                 error: () => this.overriding.set(null)
             });
     }
-
     downloadRangePdf() {
         const studentId = this.lessonContext.studentId;
         const from = this.dateFrom();
         const to   = this.dateTo();
         if (!studentId || !from || !to) return;
-
         this.downloadingPdf.set(true);
         this.sentenceService.downloadRangeReportPdf(
             studentId, this.toDateStr(from), this.toDateStr(to)
@@ -151,13 +130,11 @@ export class LessonSentenceAnswersComponent implements OnInit {
             error: () => this.downloadingPdf.set(false)
         });
     }
-
     downloadRangeDocx() {
         const studentId = this.lessonContext.studentId;
         const from = this.dateFrom();
         const to   = this.dateTo();
         if (!studentId || !from || !to) return;
-
         this.downloadingDocx.set(true);
         this.sentenceService.downloadRangeReportDocx(
             studentId, this.toDateStr(from), this.toDateStr(to)
@@ -170,19 +147,15 @@ export class LessonSentenceAnswersComponent implements OnInit {
             error: () => this.downloadingDocx.set(false)
         });
     }
-
     resultSeverity(result: string): 'success' | 'warn' | 'danger' {
         if (result === 'Correct') return 'success';
         if (result === 'Partial') return 'warn';
         return 'danger';
     }
-
     goToSwitchClient() { this.router.navigate(['/lesson/switch-client']); }
-
     private toDateStr(d: Date): string {
         return d.toLocaleDateString('sv-SE');
     }
-
     private triggerDownload(blob: Blob, filename: string) {
         const url = URL.createObjectURL(blob);
         const a   = document.createElement('a');

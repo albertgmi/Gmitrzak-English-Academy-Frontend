@@ -1,9 +1,6 @@
 <p-toast />
 <p-confirmDialog />
-
-<!-- DETAIL VIEW -->
 <div *ngIf="selectedMatrix() as matrix; else listView" class="card">
-
   <div class="flex items-center gap-3 mb-6">
     <p-button icon="pi pi-arrow-left" severity="secondary" outlined
       (onClick)="backToList()" pTooltip="Back to list" />
@@ -18,8 +15,6 @@
     <p-button icon="pi pi-trash" label="Delete" severity="danger" outlined
       (onClick)="confirmDelete(matrix)" />
   </div>
-
-  <!-- Stats row -->
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
       <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">ID</span>
@@ -39,15 +34,11 @@
       <span class="text-2xl font-bold text-surface-900 dark:text-surface-0">{{ matrix.courses?.length || 0 }}</span>
     </div>
   </div>
-
   <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 mb-6">
     <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Description</span>
-    <span class="text-surface-900 dark:text-surface-0">{{ matrix.description || '—' }}</span>
+    <span class="text-surface-900 dark:text-surface-0">{{ matrix.description || '-' }}</span>
   </div>
-
   <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
-    <!-- Modules -->
     <div>
       <div class="flex items-center justify-between mb-3">
         <h3 class="text-lg font-semibold m-0 text-surface-900 dark:text-surface-0">
@@ -56,7 +47,6 @@
         </h3>
         <span class="text-xs text-muted-color italic">Managed from Modules section</span>
       </div>
-
       <div class="flex flex-col gap-2" *ngIf="matrix.modules?.length; else noModules">
         <div *ngFor="let m of matrix.modules"
           class="flex items-center gap-3 bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-lg p-3">
@@ -65,12 +55,11 @@
           </div>
           <div class="flex-1 min-w-0">
             <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">{{ m.name }}</div>
-            <div class="text-xs text-muted-color truncate">{{ m.description || '—' }}</div>
+            <div class="text-xs text-muted-color truncate">{{ m.description || '-' }}</div>
           </div>
           <p-tag *ngIf="m.isHidden" severity="warn" value="Hidden" styleClass="text-xs" />
         </div>
       </div>
-
       <ng-template #noModules>
         <div class="text-center text-muted-color py-8 bg-surface-50 dark:bg-surface-800 rounded-xl">
           <i class="pi pi-box text-3xl block mb-2"></i>
@@ -78,18 +67,14 @@
         </div>
       </ng-template>
     </div>
-
-    <!-- Courses -->
     <div>
       <h3 class="text-lg font-semibold mb-3 m-0 text-surface-900 dark:text-surface-0">
         Assigned to Courses
         <span class="ml-2 text-sm font-normal text-muted-color">({{ matrix.courses?.length || 0 }})</span>
       </h3>
-
       <div class="flex flex-wrap gap-2" *ngIf="matrix.courses?.length; else noCourses">
         <p-chip *ngFor="let c of matrix.courses" [label]="c.name" icon="pi pi-book" />
       </div>
-
       <ng-template #noCourses>
         <div class="text-center text-muted-color py-8 bg-surface-50 dark:bg-surface-800 rounded-xl">
           <i class="pi pi-book text-3xl block mb-2"></i>
@@ -97,11 +82,8 @@
         </div>
       </ng-template>
     </div>
-
   </div>
 </div>
-
-<!-- LIST VIEW -->
 <ng-template #listView>
   <div class="card">
     <p-toolbar styleClass="mb-6">
@@ -117,14 +99,12 @@
           (onClick)="reload()" pTooltip="Refresh" />
       </ng-template>
     </p-toolbar>
-
     <p-table #dt [value]="matrices.value() || []" dataKey="id"
       [loading]="matrices.isLoading()" [rows]="10" [paginator]="true"
       [globalFilterFields]="['name', 'description']"
       [tableStyle]="{ 'min-width': '55rem' }" [rowHover]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} matrices"
       [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
-
       <ng-template #header>
         <tr>
           <th style="width: 4rem">ID</th>
@@ -139,7 +119,6 @@
           <th style="width: 8rem">Actions</th>
         </tr>
       </ng-template>
-
       <ng-template #body let-matrix>
         <tr>
           <td class="text-muted-color">{{ matrix.id }}</td>
@@ -151,7 +130,7 @@
             <span *ngIf="matrix.description; else noDesc">
               {{ matrix.description.length > 55 ? (matrix.description | slice:0:55) + '…' : matrix.description }}
             </span>
-            <ng-template #noDesc><span>—</span></ng-template>
+            <ng-template #noDesc><span>-</span></ng-template>
           </td>
           <td>
             <span class="inline-flex items-center gap-2">
@@ -184,7 +163,6 @@
           </td>
         </tr>
       </ng-template>
-
       <ng-template #emptymessage>
         <tr>
           <td colspan="8" class="text-center text-muted-color py-8">

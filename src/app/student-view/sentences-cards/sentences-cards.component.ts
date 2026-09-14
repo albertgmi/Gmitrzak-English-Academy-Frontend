@@ -7,12 +7,10 @@ import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { ContentService, SentenceDto } from '../../services/student-services/content.service';
 import { SectionActivityService } from '../../services/section-activity.service';
-
 interface SessionCard extends SentenceDto {
     incorrectStep: number;
     availableAt: number;
 }
-
 @Component({
     selector: 'app-sentences-cards',
     standalone: true,
@@ -24,7 +22,6 @@ export class SentencesCardsComponent implements OnInit {
     private contentService = inject(ContentService);
     private destroyRef = inject(DestroyRef);
     private activityService = inject(SectionActivityService);
-
     queue = signal<SessionCard[]>([]);
     pendingQueue = signal<SessionCard[]>([]);
     currentCard = signal<SessionCard | null>(null);
@@ -33,7 +30,6 @@ export class SentencesCardsComponent implements OnInit {
     loading = signal(true);
     streak = signal<number>(0);
     studiedToday = signal<boolean>(false);
-
     streakInfo = computed(() => {
         const s = this.streak();
         if (s === 0) {
@@ -95,35 +91,28 @@ export class SentencesCardsComponent implements OnInit {
             iconClass: 'text-cyan-500'
         };
     });
-
     private cardStartTime = 0;
     private activeTimeout: any = null;
-
     private readonly INCORRECT_DELAYS_MS = [
         3 * 60 * 1000,
         6 * 60 * 1000,
         10 * 60 * 1000,
         15 * 60 * 1000
     ];
-
     nextEasyInterval = computed(() => {
         const card = this.currentCard();
         if (!card) return 2;
         return card.interval === 0 ? 2 : card.interval * 2;
     });
-
     currentIncorrectLabel = computed(() => {
         const card = this.currentCard();
         if (!card) return '3 min';
-
         const step = Math.min(
             card.incorrectStep,
             this.INCORRECT_DELAYS_MS.length - 1
         );
-
         return `${this.INCORRECT_DELAYS_MS[step] / 60000} min`;
     });
-
     totalInSession = computed(() => {
         return (
             this.queue().length +
@@ -131,12 +120,10 @@ export class SentencesCardsComponent implements OnInit {
             (this.currentCard() ? 1 : 0)
         );
     });
-
     ngOnInit() {
         this.loadStreak();
         this.loadCards();
     }
-
     loadStreak() {
         this.contentService.getSentenceStreak().subscribe({
             next: (res) => {
@@ -146,15 +133,11 @@ export class SentencesCardsComponent implements OnInit {
             error: (err) => console.error('Failed to load sentence streak:', err)
         });
     }
-
     loadCards() {
         this.loading.set(true);
-
         this.contentService.sentences.reload();
-
         const interval = setInterval(() => {
             const cards = this.contentService.sentences.value();
-
             if (cards !== undefined) {
                 clearInterval(interval);
                 this.initializeSession(cards);
@@ -162,9 +145,7 @@ export class SentencesCardsComponent implements OnInit {
             }
         }, 100);
     }
-
     private readonly STORAGE_KEY = 'sentences_pending_queue';
-
     private savePendingQueue(cards: SessionCard[]) {
         try {
             if (cards.length === 0) {
@@ -181,11 +162,9 @@ export class SentencesCardsComponent implements OnInit {
             console.error('Failed to save pending queue to sessionStorage:', e);
         }
     }
-
     private initializeSession(allCards: SentenceDto[]) {
         const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
         const now = Date.now();
-
         let storedPendingMap = new Map<number, { incorrectStep: number; availableAt: number }>();
         try {
             const raw = sessionStorage.getItem(this.STORAGE_KEY);
@@ -200,10 +179,8 @@ export class SentencesCardsComponent implements OnInit {
         } catch (e) {
             console.error('Failed to restore pending queue:', e);
         }
-
         let restoredPending: SessionCard[] = [];
         let toReview: SessionCard[] = [];
-
         for (const c of allCards) {
             if (c.nextReviewDate <= today) {
                 const pendingInfo = storedPendingMap.get(c.id);
@@ -222,10 +199,8 @@ export class SentencesCardsComponent implements OnInit {
                 }
             }
         }
-
         this.savePendingQueue(restoredPending);
         this.pendingQueue.set(restoredPending);
-
         if (toReview.length > 0 || restoredPending.length > 0) {
             this.queue.set(toReview);
             this.isFinished.set(false);
@@ -236,45 +211,34 @@ export class SentencesCardsComponent implements OnInit {
             this.isFinished.set(true);
         }
     }
-
     nextCard() {
         if (this.activeTimeout) {
             clearTimeout(this.activeTimeout);
         }
-
         this.showBack.set(false);
-
         const now = Date.now();
-
         const ready = this.pendingQueue().filter(
             c => c.availableAt <= now
         );
-
         const stillWaiting = this.pendingQueue().filter(
             c => c.availableAt > now
         );
-
         if (ready.length > 0) {
             this.pendingQueue.set(stillWaiting);
             this.savePendingQueue(stillWaiting);
             this.queue.update(q => [...ready, ...q]);
         }
-
         const current = this.queue();
-
         if (current.length > 0) {
             this.currentCard.set(current[0]);
             this.queue.set(current.slice(1));
             this.cardStartTime = Date.now();
         } else if (stillWaiting.length > 0) {
             this.currentCard.set(null);
-
             const nextAvailableAt = Math.min(
                 ...stillWaiting.map(c => c.availableAt)
             );
-
             const delay = Math.max(nextAvailableAt - now, 1000);
-
             this.activeTimeout = setTimeout(() => {
                 this.nextCard();
             }, delay);
@@ -284,19 +248,14 @@ export class SentencesCardsComponent implements OnInit {
             this.savePendingQueue([]);
         }
     }
-
     handleReview(type: 'again_1m' | 'incorrect' | 'hard' | 'easy') {
         const card = this.currentCard();
-
         if (!card) return;
-
         if (!this.studiedToday()) {
             this.studiedToday.set(true);
             this.streak.update(s => s + 1);
         }
-
         this.activityService.logActivity('sentenceflashcards' as any).subscribe();
-
         if (type === 'again_1m') {
             const updatedCard: SessionCard = {
                 ...card,
@@ -312,24 +271,19 @@ export class SentencesCardsComponent implements OnInit {
                 card.incorrectStep,
                 this.INCORRECT_DELAYS_MS.length - 1
             );
-
             const delayMs = this.INCORRECT_DELAYS_MS[step];
-
             const updatedCard: SessionCard = {
                 ...card,
                 incorrectStep: card.incorrectStep + 1,
                 availableAt: Date.now() + delayMs
             };
-
             this.pendingQueue.update(q => {
                 const nextQ = [...q, updatedCard];
                 this.savePendingQueue(nextQ);
                 return nextQ;
             });
         }
-
         const backendType = type === 'again_1m' ? 'incorrect' : type;
-
         this.contentService.reviewSentence(card.id, backendType)
             .pipe(
                 take(1),
@@ -340,35 +294,27 @@ export class SentencesCardsComponent implements OnInit {
                     console.error('Failed to save sentence review:', err);
                 }
             });
-
         this.showBack.set(false);
-
         setTimeout(() => {
             this.nextCard();
         }, 200);
     }
-
     toggleCard() {
         this.showBack.set(!this.showBack());
     }
-
     speak(text: string) {
         speechSynthesis.cancel();
-
         const processedWord = text
             .replace(/\bsb\b/gi, 'somebody')
             .replace(/\bsth\b/gi, 'something');
-
         const u = new SpeechSynthesisUtterance(processedWord);
         u.lang = 'en-US';
         u.rate = 0.9;
         u.pitch = 1;
         speechSynthesis.speak(u);
     }
-
     getFontSizeClass(text: string | undefined | null): string {
         const len = text?.length ?? 0;
-        
         if (len <= 20) return 'text-3xl md:text-4xl';
         if (len <= 40) return 'text-2xl md:text-3xl';
         if (len <= 60) return 'text-xl md:text-2xl';

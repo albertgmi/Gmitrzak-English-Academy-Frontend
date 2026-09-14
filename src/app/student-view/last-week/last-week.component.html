@@ -4,7 +4,7 @@
     <div class="min-w-0">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Last Week</h2>
       <p class="text-muted-color mt-1 m-0" *ngIf="data()">
-        {{ data()!.weekStart | date:'d MMM' }} — {{ data()!.weekEnd | date:'d MMM yyyy' }}
+        {{ data()!.weekStart | date:'d MMM' }} - {{ data()!.weekEnd | date:'d MMM yyyy' }}
       </p>
     </div>
     <p-tag
@@ -13,14 +13,10 @@
       [value]="data()!.rankingCriteriaMet ? '✓ Criteria met' : '✗ Criteria not met'"
       styleClass="text-sm px-3 py-1 flex-shrink-0" />
   </div>
-
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
     <i class="pi pi-spin pi-spinner text-3xl"></i>
   </div>
-
   <div *ngIf="!loading() && data() as d">
-
-    <!-- Stats grid -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <div class="bg-primary/10 rounded-xl p-4 text-center">
         <div class="text-3xl font-bold text-primary">{{ d.totalActivityPoints }}</div>
@@ -39,8 +35,6 @@
         <div class="text-xs text-muted-color mt-1">Episodes Watched</div>
       </div>
     </div>
-
-    <!-- Grades this week -->
     <div *ngIf="d.gradesThisWeek.length">
       <h3 class="text-lg font-semibold mb-3">Grades this week</h3>
       <p-table [value]="d.gradesThisWeek" [tableStyle]="{'min-width': '30rem'}">
@@ -66,12 +60,11 @@
                 {{ g.percentage }}%
               </span>
             </td>
-            <td class="text-muted-color">{{ g.notes || '—' }}</td>
+            <td class="text-muted-color">{{ g.notes || '-' }}</td>
           </tr>
         </ng-template>
       </p-table>
     </div>
-
     <div *ngIf="!d.gradesThisWeek.length" class="text-center py-6 text-muted-color">
       <i class="pi pi-star text-3xl block mb-2"></i>
       No grades this week.

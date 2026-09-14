@@ -13,7 +13,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { StepperModule } from 'primeng/stepper';
 import { IconField, IconFieldModule } from 'primeng/iconfield';
 import { InputIcon, InputIconModule } from 'primeng/inputicon';
-
 @Component({
     selector: 'app-menu-demo',
     standalone: true,
@@ -49,12 +48,10 @@ import { InputIcon, InputIconModule } from 'primeng/inputicon';
                 </ng-template>
             </p-menubar>
         </div>
-
         <div class="card">
             <div class="font-semibold text-xl mb-4">Breadcrumb</div>
             <p-breadcrumb [model]="breadcrumbItems" [home]="breadcrumbHome"></p-breadcrumb>
         </div>
-
         <div class="flex flex-col md:flex-row gap-8">
             <div class="md:w-1/2">
                 <div class="card">
@@ -81,7 +78,6 @@ import { InputIcon, InputIconModule } from 'primeng/inputicon';
                 </div>
             </div>
         </div>
-
         <div class="flex flex-col md:flex-row gap-8 mt-6">
             <div class="md:w-1/3">
                 <div class="card">
@@ -101,7 +97,6 @@ import { InputIcon, InputIconModule } from 'primeng/inputicon';
                     <p-menu #menu [popup]="true" [model]="overlayMenuItems"></p-menu>
                     <button type="button" pButton icon="pi pi-chevron-down" label="Options" (click)="menu.toggle($event)" style="width:auto"></button>
                 </div>
-
                 <div class="card" #anchor>
                     <div class="font-semibold text-xl mb-4">Context Menu</div>
                     Right click to display.
@@ -109,13 +104,11 @@ import { InputIcon, InputIconModule } from 'primeng/inputicon';
                 </div>
             </div>
         </div>
-
         <div class="flex flex-col md:flex-row gap-8 mt-8">
             <div class="md:w-1/2">
                 <div class="card">
                     <div class="font-semibold text-xl mb-4">MegaMenu | Horizontal</div>
                     <p-megamenu [model]="megaMenuItems" />
-
                     <div class="font-semibold text-xl mb-4 mt-8">MegaMenu | Vertical</div>
                     <p-megamenu [model]="megaMenuItems" orientation="vertical" />
                 </div>

@@ -12,7 +12,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { Course, CourseService, UpdateCourseRequest, ProgramSimple } from '../../../services/course.service';
 import { ProgramService } from '../../../services/program.service';
-
 @Component({
     selector: 'app-course-edit',
     standalone: true,
@@ -29,18 +28,15 @@ export class CourseEditComponent implements OnInit {
     private courseService = inject(CourseService);
     private programService = inject(ProgramService);
     private messageService = inject(MessageService);
-
     courseId!: number;
     editedCourse = signal<Course | null>(null);
     submitted = false;
     selectedProgramToAdd = signal<ProgramSimple | null>(null);
-
     availablePrograms = computed(() => {
         const all = this.programService.programs.value() ?? [];
         const assigned = this.editedCourse()?.programs ?? [];
         return all.filter(p => !assigned.some(a => a.id === p.id));
     });
-
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
@@ -48,7 +44,6 @@ export class CourseEditComponent implements OnInit {
             this.loadCourse();
         }
     }
-
     loadCourse() {
         const course = this.courseService.courses.value()?.find(c => c.id === this.courseId);
         if (course) {
@@ -57,20 +52,17 @@ export class CourseEditComponent implements OnInit {
             this.router.navigate(['/curriculum/courses']);
         }
     }
-
     saveCourse() {
         const current = this.editedCourse();
         if (!current || !current.name?.trim()) {
             this.submitted = true;
             return;
         }
-
         const request: UpdateCourseRequest = {
             name: current.name,
             description: current.description,
             isHidden: current.isHidden
         };
-
         this.courseService.updateCourse(this.courseId, request).subscribe({
             next: () => {
                 this.courseService.reloadCourses();
@@ -80,16 +72,13 @@ export class CourseEditComponent implements OnInit {
             error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Update failed' })
         });
     }
-
     goBack() {
         this.router.navigate(['/curriculum/courses']);
     }
-
     assignProgram() {
         const program = this.selectedProgramToAdd();
         const current = this.editedCourse();
         if (!program || !current) return;
-
         this.courseService.assignProgram(this.courseId, program.id).subscribe({
             next: () => {
                 this.editedCourse.set({ ...current, programs: [...current.programs, program] });
@@ -98,11 +87,9 @@ export class CourseEditComponent implements OnInit {
             }
         });
     }
-
     removeProgram(program: ProgramSimple) {
         const current = this.editedCourse();
         if (!current) return;
-
         this.courseService.removeProgram(this.courseId, program.id).subscribe({
             next: () => {
                 this.editedCourse.set({

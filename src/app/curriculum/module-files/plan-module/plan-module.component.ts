@@ -17,9 +17,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { AssignmentService, ModuleAssignmentDto, CreateModuleAssignmentRequest } from '../../../services/assignment.service';
 import { UserService } from '../../../services/user.service';
 import { ModuleItemService } from '../../../services/module.service';
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-plan-module',
     standalone: true,
@@ -39,47 +37,39 @@ export class PlanModuleComponent implements OnInit {
     private moduleService = inject(ModuleItemService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     moduleAssignments = this.assignmentService.moduleAssignments;
     showAddForm = signal(false);
     submitted = false;
     loadingSubmit = false;
-
     selectedUserId = signal<number | null>(null);
     selectedModuleId = signal<number | null>(null);
     selectedDueDate = signal<Date | null>(null);
     filterUserId = signal<number | null>(null);
-
     users = computed(() =>
         (this.userService.users.value() ?? [])
             .filter(u => u.role === 'User')
             .map(u => ({ id: u.id, label: `${u.username} (${u.email})` }))
     );
-
     allUsers = computed(() =>
         (this.userService.users.value() ?? [])
             .filter(u => u.role === 'User')
             .map(u => ({ id: u.id, label: u.username }))
     );
-
     availableModules = computed(() =>
         (this.moduleService.modules.value() ?? [])
             .filter(m => !m.isHidden)
             .map(m => ({ id: m.id, label: m.name, description: m.description }))
     );
-
     filteredAssignments = computed(() => {
         const all = this.moduleAssignments.value() ?? [];
         const uid = this.filterUserId();
         return uid ? all.filter(a => a.userId === uid) : all;
     });
-
     ngOnInit() {
         this.assignmentService.reloadModuleAssignments();
         this.userService.users.reload();
         this.moduleService.reloadModules();
     }
-
     openAddForm() {
         this.selectedUserId.set(null);
         this.selectedModuleId.set(null);
@@ -87,28 +77,22 @@ export class PlanModuleComponent implements OnInit {
         this.submitted = false;
         this.showAddForm.set(true);
     }
-
     closeAddForm() {
         this.showAddForm.set(false);
         this.submitted = false;
     }
-
     submitAssignment() {
         this.submitted = true;
         const userId = this.selectedUserId();
         const moduleId = this.selectedModuleId();
         const date = this.selectedDueDate();
-
         if (!userId || !moduleId || !date) return;
-
         this.loadingSubmit = true;
-
         const request: CreateModuleAssignmentRequest = {
             userId,
             moduleId,
             dueDate: this.formatDate(date)
         };
-
         this.assignmentService.createModuleAssignment(request).subscribe({
             next: () => {
                 this.assignmentService.reloadModuleAssignments();
@@ -128,12 +112,10 @@ export class PlanModuleComponent implements OnInit {
             }
         });
     }
-
     toggleComplete(assignment: ModuleAssignmentDto) {
         const action = assignment.isCompleted
             ? this.assignmentService.uncompleteModuleAssignment(assignment.id)
             : this.assignmentService.completeModuleAssignment(assignment.id);
-
         action.subscribe({
             next: () => {
                 this.assignmentService.reloadModuleAssignments();
@@ -144,7 +126,6 @@ export class PlanModuleComponent implements OnInit {
             })
         });
     }
-
     confirmDelete(assignment: ModuleAssignmentDto) {
         this.confirmationService.confirm({
             message: `Remove assignment "${assignment.moduleName}" from ${assignment.username}?`,
@@ -167,31 +148,25 @@ export class PlanModuleComponent implements OnInit {
             }
         });
     }
-
     dueDateSeverity(a: ModuleAssignmentDto): SeverityType {
         if (a.isCompleted) return 'success';
         if (a.isOverdue) return 'danger';
         return 'info';
     }
-
     dueDateLabel(a: ModuleAssignmentDto): string {
         if (a.isCompleted) return 'Done';
         if (a.isOverdue) return 'Overdue';
         return a.dueDate;
     }
-
     formatDate(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
-
         return `${year}-${month}-${day}`;
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload() {
         this.assignmentService.reloadModuleAssignments();
     }

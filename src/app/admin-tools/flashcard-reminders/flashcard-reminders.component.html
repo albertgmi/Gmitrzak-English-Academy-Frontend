@@ -1,8 +1,6 @@
 <p-toast />
 <p-confirmDialog />
-
 <div class="card p-4">
-  <!-- Header & Main Actions -->
   <div class="flex flex-col md:flex-row justify-between items-start md:items-center mb-6 gap-4 border-b border-surface-200 dark:border-surface-800 pb-5">
     <div>
       <h2 class="text-2xl font-bold text-surface-900 dark:text-surface-0 m-0">Flashcard Inactivity Email Reminders</h2>
@@ -26,8 +24,6 @@
         [disabled]="selectedStudents().length === 0 || sending()" />
     </div>
   </div>
-
-  <!-- Plain Text Email Editor Section -->
   <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl shadow-sm p-6 mb-8">
     <div class="flex items-center justify-between border-b border-surface-100 dark:border-surface-800 pb-4 mb-5">
       <div class="flex items-center gap-2">
@@ -51,9 +47,7 @@
           (onClick)="resetTemplateToDefault()" />
       </div>
     </div>
-
     <div class="flex flex-col gap-5">
-      <!-- Subject Field -->
       <div>
         <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">
           Email Subject Line *
@@ -66,8 +60,6 @@
           placeholder="Enter subject line..."
           class="w-full rounded-lg font-medium" />
       </div>
-
-      <!-- Body Field (Plain Text) -->
       <div>
         <div class="flex justify-between items-center mb-2">
           <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400">
@@ -87,8 +79,6 @@
       </div>
     </div>
   </div>
-
-  <!-- Mode Toggle Box -->
   <div class="bg-surface-50 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-xl p-4 mb-6 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4">
     <div class="flex items-center gap-3">
       <p-checkbox
@@ -109,8 +99,6 @@
       </span>
     </div>
   </div>
-
-  <!-- Students Table -->
   <p-table
     [value]="displayedStudents()"
     [(selection)]="selectedStudents"
@@ -120,7 +108,6 @@
     [rows]="15"
     [rowsPerPageOptions]="[10, 15, 25, 50]"
     styleClass="p-datatable-striped p-datatable-gridlines">
-    
     <ng-template #header>
       <tr>
         <th style="width: 4rem">
@@ -133,7 +120,6 @@
         <th>Last App Activity</th>
       </tr>
     </ng-template>
-
     <ng-template #body let-student>
       <tr [ngClass]="{ 'bg-amber-500/10': student.isInactiveForThreeDays }">
         <td>
@@ -158,7 +144,6 @@
         </td>
       </tr>
     </ng-template>
-
     <ng-template #emptymessage>
       <tr>
         <td colspan="6" class="text-center py-6 text-surface-500">
@@ -168,20 +153,16 @@
     </ng-template>
   </p-table>
 </div>
-
-<!-- Live Email Preview Dialog -->
 <p-dialog
   header="Live Email Preview"
   [modal]="true"
   [visible]="showPreview()"
   (visibleChange)="showPreview.set($event)"
   [style]="{ width: '45rem', maxWidth: '95vw' }">
-
   <div class="mb-4 pb-3 border-b border-surface-200 dark:border-surface-800">
     <div class="text-xs uppercase font-bold text-surface-500 mb-1">Subject</div>
     <div class="text-base font-semibold text-surface-900 dark:text-surface-0">{{ previewSubject() }}</div>
   </div>
-
   <div class="bg-gray-100 dark:bg-gray-950 p-4 rounded-xl">
     <div [innerHTML]="previewHtml()"></div>
   </div>

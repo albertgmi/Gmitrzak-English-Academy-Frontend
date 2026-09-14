@@ -1,5 +1,4 @@
 <div class="grid grid-cols-12 gap-6">
-
   <div class="col-span-12 lg:col-span-6 xl:col-span-3">
     <div class="card mb-0">
       <div class="flex justify-between mb-4">
@@ -17,7 +16,6 @@
       <span class="text-muted-color">registered accounts</span>
     </div>
   </div>
-
   <div class="col-span-12 lg:col-span-6 xl:col-span-3">
     <div class="card mb-0">
       <div class="flex justify-between mb-4">
@@ -36,7 +34,6 @@
       <span class="text-muted-color"> · updates every 30s</span>
     </div>
   </div>
-
   <div class="col-span-12">
     <div class="card mb-0">
       <div class="flex items-center justify-between mb-6 flex-wrap gap-3">
@@ -51,7 +48,6 @@
             (ngModelChange)="searchTerm.set($event)" />
         </span>
       </div>
-
       <div *ngIf="loading()" class="flex flex-col gap-3">
         <div *ngFor="let i of [1,2,3,4,5]" class="flex items-center gap-3 p-3 rounded-xl">
           <p-skeleton shape="circle" size="2.5rem" />
@@ -61,11 +57,9 @@
           </div>
         </div>
       </div>
-
       <div *ngIf="!loading()" class="flex flex-col gap-2">
         <div *ngFor="let s of filteredStudents()"
           class="flex items-center gap-3 p-3 rounded-xl bg-surface-50 dark:bg-surface-800 hover:bg-surface-100 dark:hover:bg-surface-700 transition-colors">
-
           <div class="relative flex-shrink-0">
             <app-avatar
               [username]="s.username"
@@ -76,7 +70,6 @@
               [ngClass]="s.isOnline ? 'bg-green-500' : 'bg-surface-300 dark:bg-surface-600'">
             </span>
           </div>
-
           <div class="flex-1 min-w-0">
             <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
               {{ s.username }}
@@ -85,13 +78,11 @@
               Last login: {{ lastLoginLabel(s) }}
             </div>
           </div>
-
           <p-tag
             [severity]="s.isOnline ? 'success' : 'secondary'"
             [value]="lastActiveLabel(s)"
             styleClass="text-xs flex-shrink-0" />
         </div>
-
         <div *ngIf="!filteredStudents().length" class="text-center py-10 text-muted-color text-sm">
           <i class="pi pi-search text-2xl block mb-2 opacity-50"></i>
           No students found.
@@ -99,5 +90,4 @@
       </div>
     </div>
   </div>
-
 </div>

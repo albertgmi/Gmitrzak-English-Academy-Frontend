@@ -8,7 +8,6 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { StudentService, StudentModuleDto } from '../../services/student-services/student.service';
-
 @Component({
     selector: 'app-presentation',
     standalone: true,
@@ -23,20 +22,16 @@ export class PresentationComponent implements OnInit {
     private route          = inject(ActivatedRoute);
     private studentService  = inject(StudentService);
     private messageService = inject(MessageService);
-
     module      = signal<StudentModuleDto | null>(null);
     loading     = signal(true);
     markingDone = signal(false);
     completed   = signal(false);
-
     private isMatrix = true;
     private entityId = 0;
-
     ngOnInit() {
         const matrixModuleId = this.route.snapshot.paramMap.get('matrixModuleId');
         const singleId = this.route.snapshot.paramMap.get('id');
         const legacyModuleId = this.route.snapshot.paramMap.get('moduleId');
-
         if (matrixModuleId && !isNaN(Number(matrixModuleId))) {
             this.isMatrix = true;
             this.entityId = Number(matrixModuleId);
@@ -69,13 +64,11 @@ export class PresentationComponent implements OnInit {
             });
         }
     }
-
     private load() {
         this.loading.set(true);
         const request$ = this.isMatrix
             ? this.studentService.getStudentMatrixModule(this.entityId)
             : this.studentService.getSingleModuleById(this.entityId);
-
         request$.subscribe({
             next: (m) => {
                 this.module.set(m);
@@ -91,16 +84,12 @@ export class PresentationComponent implements OnInit {
             }
         });
     }
-
     markAsDone() {
         if (this.markingDone() || this.completed()) return;
-
         this.markingDone.set(true);
-
         const request$ = this.isMatrix
             ? this.studentService.completeModule(this.entityId)
             : this.studentService.completeSingleModule(this.entityId);
-
         request$.subscribe({
             next: () => {
                 this.completed.set(true);

@@ -2,7 +2,6 @@ import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
 import { IrregularVerbDto } from './student-services/irregular-verbs.service';
-
 export interface AgendaDto {
     id: number;
     activityPointTarget: number;
@@ -10,21 +9,18 @@ export interface AgendaDto {
     listeningEpisodeTarget: number;
     notes: string;
 }
-
 export interface ActivityPointLessonDto {
     id: number;
     pointDate: string;
     points: number;
     reason: string;
 }
-
 export interface ActivityPointsLessonSummaryDto {
     totalAllTime: number;
     totalThisWeek: number;
     totalLastWeek: number;
     history: ActivityPointLessonDto[];
 }
-
 export interface LessonFlashcardDto {
     id: number;
     front: string;
@@ -34,7 +30,6 @@ export interface LessonFlashcardDto {
     isLeech: boolean;
     nextReviewDate: string;
 }
-
 export interface LessonStudyLogDto {
     studyDate: string;
     easyCount: number;
@@ -42,7 +37,6 @@ export interface LessonStudyLogDto {
     incorrectCount: number;
     timeSpentSeconds: number;
 }
-
 export interface LessonFlashcardSummaryDto {
     totalCards: number;
     leechCount: number;
@@ -52,7 +46,6 @@ export interface LessonFlashcardSummaryDto {
     studiedToday: LessonFlashcardDto[];
     recentLogs: LessonStudyLogDto[];
 }
-
 export interface LessonIrregularVerbSummaryDto {
     totalCards: number;
     dueCount: number;
@@ -60,14 +53,12 @@ export interface LessonIrregularVerbSummaryDto {
     leechCount: number;
     leeches: IrregularVerbDto[];
 }
-
 export interface StreamEntryDto {
     id: number;
     command: string;
     payload: string;
     executedAt: string;
 }
-
 export interface DailyStudyTimeDto {
     studyDate: string;
     timeSpentSeconds: number;
@@ -76,7 +67,6 @@ export interface DailyStudyTimeDto {
     hardCount: number;
     incorrectCount: number;
 }
-
 export interface StudentStudyTimeDto {
     totalTimeSpentSeconds: number;
     totalFlashcardsDone: number;
@@ -85,7 +75,6 @@ export interface StudentStudyTimeDto {
     incorrectCount: number;
     dailyBreakdown: DailyStudyTimeDto[];
 }
-
 export interface LessonGradeDto {
     id: number;
     gradeDate: string;
@@ -93,7 +82,6 @@ export interface LessonGradeDto {
     category: string;
     notes?: string;
 }
-
 export interface LessonLastWeekDto {
     weekStart: string;
     weekEnd: string;
@@ -107,7 +95,6 @@ export interface LessonLastWeekDto {
     flashcardTarget: number;
     listeningEpisodeTarget: number;
 }
-
 export interface LessonStatsDto {
     dailyActivity: { date: string; points: number }[];
     dailyFlashcards: { date: string; cardsStudied: number; timeSpentSeconds: number }[];
@@ -120,81 +107,62 @@ export interface LessonStatsDto {
         avgAlphabet: number;
     };
 }
-
 @Injectable({ providedIn: 'root' })
 export class LessonPanelService {
     private apiUrl = `${environment.apiUrl}/api/lesson-panel`;
     http = inject(HttpClient);
-
     getAgenda(studentUserId: number) {
         return this.http.get<AgendaDto>(`${this.apiUrl}/agenda/${studentUserId}`);
     }
-
     updateAgenda(studentUserId: number, data: Partial<AgendaDto>) {
         return this.http.put(`${this.apiUrl}/agenda/${studentUserId}`, data);
     }
-
     getGrades(studentUserId: number) {
         return this.http.get<LessonGradeDto[]>(`${this.apiUrl}/grades/${studentUserId}`);
     }
-
     getActivityPoints(studentUserId: number) {
         return this.http.get<ActivityPointsLessonSummaryDto>(`${this.apiUrl}/activity-points/${studentUserId}`);
     }
-
     addActivityPoints(studentUserId: number, points: number, reason: string) {
         return this.http.post(`${this.apiUrl}/activity-points/${studentUserId}`, { points, reason });
     }
-
     getFlashcards(studentUserId: number) {
         return this.http.get<LessonFlashcardSummaryDto>(`${this.apiUrl}/flashcards/${studentUserId}`);
     }
-
     getAllFlashcards(studentUserId: number) {
         return this.http.get<LessonFlashcardDto[]>(`${this.apiUrl}/flashcards/all/${studentUserId}`);
     }
-
     getStudyTime(studentUserId: number) {
         return this.http.get<StudentStudyTimeDto>(`${this.apiUrl}/study-time/${studentUserId}`);
     }
-
     getLastWeek(studentUserId: number) {
         return this.http.get<LessonLastWeekDto>(`${this.apiUrl}/last-week/${studentUserId}`);
     }
-
     getStats(studentUserId: number) {
         return this.http.get<LessonStatsDto>(`${this.apiUrl}/stats/${studentUserId}`);
     }
-
-
     updateInterval(studentUserId: number, flashcardId: number, interval: number) {
         return this.http.put(`${this.apiUrl}/flashcards/${studentUserId}/${flashcardId}/interval`, interval);
     }
-
     getIrregularVerbs(studentUserId: number) {
         return this.http.get<LessonIrregularVerbSummaryDto>(`${this.apiUrl}/irregular-verbs/${studentUserId}`);
     }
-
     getAllIrregularVerbs(studentUserId: number) {
         return this.http.get<IrregularVerbDto[]>(`${this.apiUrl}/irregular-verbs/all/${studentUserId}`);
     }
-
     updateIrregularVerbInterval(studentUserId: number, verbId: number, interval: number) {
         return this.http.put(`${this.apiUrl}/irregular-verbs/${studentUserId}/${verbId}/interval`, interval);
     }
-
     exportFlashcardsPdf(studentUserId: number) {
         return this.http.get(`${this.apiUrl}/flashcards/${studentUserId}/pdf`, {
             responseType: 'blob'
         });
     }
-
     exportFlashcardsExcel(studentUserId: number) {
         return this.http.get(`${this.apiUrl}/flashcards/${studentUserId}/excel`, {
             responseType: 'blob'
         });
     }
-
     deleteFlashcardsBulk(studentUserId: number, flashcardIds: number[]) {
         return this.http.post<void>(`${this.apiUrl}/flashcards/${studentUserId}/delete-bulk`, { flashcardIds });
     }

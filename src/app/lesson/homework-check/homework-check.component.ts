@@ -9,9 +9,7 @@ import { MessageService } from 'primeng/api';
 import { LessonService, HomeworkItemDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-homework-check',
     standalone: true,
@@ -24,32 +22,25 @@ export class HomeworkCheckComponent implements OnInit {
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
     private messageService = inject(MessageService);
-
     activeStudent = this.lessonContext.activeStudent;
     homework = signal<HomeworkItemDto[]>([]);
     loading = signal(true);
-
     pending = computed(() => this.homework().filter(h => !h.isCompleted));
     completed = computed(() => this.homework().filter(h => h.isCompleted));
-
     ngOnInit() {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
-
         this.lessonService.getHomework(studentId).subscribe({
             next: (d) => { this.homework.set(d); this.loading.set(false); },
             error: () => this.loading.set(false)
         });
     }
-
     toggle(item: HomeworkItemDto) {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
-
         const action = item.isCompleted
             ? this.lessonService.uncheckHomework(studentId, item.id)
             : this.lessonService.checkHomework(studentId, item.id);
-
         action.subscribe({
             next: () => {
                 this.homework.update(list =>
@@ -65,19 +56,16 @@ export class HomeworkCheckComponent implements OnInit {
             })
         });
     }
-
     dueSeverity(item: HomeworkItemDto): SeverityType {
         if (item.isCompleted) return 'success';
         if (item.isOverdue) return 'danger';
         return 'info';
     }
-
     dueLabel(item: HomeworkItemDto): string {
         if (item.isCompleted) return 'Done';
         if (item.isOverdue) return 'Overdue';
         return 'Pending';
     }
-
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
     }

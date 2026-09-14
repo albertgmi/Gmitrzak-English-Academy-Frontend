@@ -6,14 +6,12 @@
       <p class="text-muted-color mt-1 m-0">Your personal sentence collection and flashcards</p>
     </div>
   </div>
-
   <p-table #dt [value]="currentData" [loading]="isLoading"
     [rows]="15" [paginator]="true" [rowHover]="true"
     [globalFilterFields]="['content', 'translation', 'notes']"
     [tableStyle]="{'min-width': '40rem'}"
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} sentences"
     [showCurrentPageReport]="true">
-
     <ng-template #caption>
       <div class="flex items-center justify-between flex-wrap gap-3">
         <span class="text-sm text-muted-color flex-shrink-0">{{ currentData.length }} sentences</span>
@@ -23,7 +21,6 @@
         </p-iconfield>
       </div>
     </ng-template>
-
     <ng-template #header>
       <tr>
         <th pSortableColumn="content">Sentence <p-sortIcon field="content" /></th>
@@ -31,17 +28,15 @@
         <th pSortableColumn="notes" style="width: 14rem">Notes <p-sortIcon field="notes" /></th>
       </tr>
     </ng-template>
-
     <ng-template #body let-s>
       <tr>
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ s.content }}</td>
         <td class="text-muted-color">{{ s.translation }}</td>
         <td>
-          <span class="text-muted-color text-sm">{{ s.notes || '—' }}</span>
+          <span class="text-muted-color text-sm">{{ s.notes || '-' }}</span>
         </td>
       </tr>
     </ng-template>
-
     <ng-template #emptymessage>
       <tr>
         <td colspan="3" class="text-center text-muted-color py-8">

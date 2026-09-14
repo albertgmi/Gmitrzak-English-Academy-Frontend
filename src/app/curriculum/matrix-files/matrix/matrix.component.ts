@@ -16,7 +16,6 @@ import { ChipModule } from 'primeng/chip';
 import { BadgeModule } from 'primeng/badge';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Matrix, MatrixService } from '../../../services/matrix.service';
-
 @Component({
     selector: 'app-matrix',
     standalone: true,
@@ -34,22 +33,17 @@ export class MatrixComponent {
     private matrixService = inject(MatrixService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     matrices = this.matrixService.matrices;
     selectedMatrix = signal<Matrix | null>(null);
-
     ngOnInit() {
         this.matrixService.reloadMatrices();
     }
-
     selectMatrix(matrix: Matrix) {
         this.selectedMatrix.set(matrix);
     }
-
     backToList() {
         this.selectedMatrix.set(null);
     }
-
     confirmDelete(matrix: Matrix) {
         this.confirmationService.confirm({
             message: `Are you sure you want to delete "${matrix.name}"?`,
@@ -77,7 +71,6 @@ export class MatrixComponent {
             }
         });
     }
-
     intervalLabel(days: number): string {
         if (days === 1) return 'Daily';
         if (days === 7) return 'Weekly';
@@ -85,11 +78,9 @@ export class MatrixComponent {
         if (days === 30) return 'Monthly';
         return `Every ${days} days`;
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload() {
         this.matrixService.reloadMatrices();
     }

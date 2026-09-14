@@ -7,7 +7,6 @@ import { AppSidebar } from './app.sidebar';
 import { AppFooter } from './app.footer';
 import { LayoutService } from '../service/layout.service';
 import { ToastModule } from 'primeng/toast';
-
 @Component({
     selector: 'app-layout',
     standalone: true,
@@ -29,13 +28,9 @@ import { ToastModule } from 'primeng/toast';
 })
 export class AppLayout {
     overlayMenuOpenSubscription: Subscription;
-
     menuOutsideClickListener: any;
-
     @ViewChild(AppSidebar) appSidebar!: AppSidebar;
-
     @ViewChild(AppTopbar) appTopBar!: AppTopbar;
-
     constructor(
         public layoutService: LayoutService,
         public renderer: Renderer2,
@@ -49,25 +44,20 @@ export class AppLayout {
                     }
                 });
             }
-
             if (this.layoutService.layoutState().staticMenuMobileActive) {
                 this.blockBodyScroll();
             }
         });
-
         this.router.events.pipe(filter((event) => event instanceof NavigationEnd)).subscribe(() => {
             this.hideMenu();
         });
     }
-
     isOutsideClicked(event: MouseEvent) {
         const sidebarEl = document.querySelector('.layout-sidebar');
         const topbarEl = document.querySelector('.layout-menu-button');
         const eventTarget = event.target as Node;
-
         return !(sidebarEl?.isSameNode(eventTarget) || sidebarEl?.contains(eventTarget) || topbarEl?.isSameNode(eventTarget) || topbarEl?.contains(eventTarget));
     }
-
     hideMenu() {
         this.layoutService.layoutState.update((prev) => ({ ...prev, overlayMenuActive: false, staticMenuMobileActive: false, menuHoverActive: false }));
         if (this.menuOutsideClickListener) {
@@ -76,7 +66,6 @@ export class AppLayout {
         }
         this.unblockBodyScroll();
     }
-
     blockBodyScroll(): void {
         if (document.body.classList) {
             document.body.classList.add('blocked-scroll');
@@ -84,7 +73,6 @@ export class AppLayout {
             document.body.className += ' blocked-scroll';
         }
     }
-
     unblockBodyScroll(): void {
         if (document.body.classList) {
             document.body.classList.remove('blocked-scroll');
@@ -92,7 +80,6 @@ export class AppLayout {
             document.body.className = document.body.className.replace(new RegExp('(^|\\b)' + 'blocked-scroll'.split(' ').join('|') + '(\\b|$)', 'gi'), ' ');
         }
     }
-
     get containerClass() {
         return {
             'layout-overlay': this.layoutService.layoutConfig().menuMode === 'overlay',
@@ -102,12 +89,10 @@ export class AppLayout {
             'layout-mobile-active': this.layoutService.layoutState().staticMenuMobileActive
         };
     }
-
     ngOnDestroy() {
         if (this.overlayMenuOpenSubscription) {
             this.overlayMenuOpenSubscription.unsubscribe();
         }
-
         if (this.menuOutsideClickListener) {
             this.menuOutsideClickListener();
         }

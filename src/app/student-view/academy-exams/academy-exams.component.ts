@@ -16,7 +16,6 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { AcademyExamService, AcademyExamDto, ExamLevel, ExamSignupStatus, CreateAcademyExamDto, ExamMaterialDto } from '../../services/academy-exam.service';
 import { AuthService } from '../../services/auth.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
   selector: 'app-academy-exams',
   standalone: true,
@@ -45,18 +44,13 @@ export class AcademyExamsComponent implements OnInit {
   private authService = inject(AuthService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
-
   activeTab = signal<ExamLevel>('Junior');
   exams = signal<AcademyExamDto[]>([]);
   loading = signal<boolean>(true);
-
   isAdmin = computed(() => this.authService.getRole() === 'Admin');
-
-  // Form state
   showForm = signal<boolean>(false);
   editingExam = signal<AcademyExamDto | null>(null);
   saving = signal<boolean>(false);
-
   formTitle = signal<string>('');
   formDescription = signal<string>('');
   formLevel = signal<ExamLevel>('Junior');
@@ -65,37 +59,29 @@ export class AcademyExamsComponent implements OnInit {
   formPassingThreshold = signal<string>('80%');
   formSignupDeadline = signal<Date | null>(null);
   formIsActive = signal<boolean>(true);
-
-  // Takers modal state
   selectedExamForTakers = signal<AcademyExamDto | null>(null);
   showTakersDialog = signal<boolean>(false);
-
   levelOptions = [
     { label: 'Junior', value: 'Junior' },
     { label: 'Senior', value: 'Senior' }
   ];
-
   levelTabs: { id: ExamLevel; label: string; icon: string }[] = [
     { id: 'Junior', label: 'Junior Exams', icon: 'pi pi-user' },
     { id: 'Senior', label: 'Senior Exams', icon: 'pi pi-star' }
   ];
-
   statusOptions = [
     { label: 'Registered', value: 'Registered' },
     { label: 'Passed (Awards Credits)', value: 'Passed' },
     { label: 'Failed', value: 'Failed' },
     { label: 'Cancelled', value: 'Cancelled' }
   ];
-
   ngOnInit() {
     this.loadExams();
   }
-
   setTab(level: ExamLevel) {
     this.activeTab.set(level);
     this.loadExams();
   }
-
   loadExams() {
     this.loading.set(true);
     this.examService.getExams(this.activeTab()).subscribe({
@@ -114,7 +100,6 @@ export class AcademyExamsComponent implements OnInit {
       }
     });
   }
-
   signUp(exam: AcademyExamDto) {
     this.examService.signUp(exam.id).subscribe({
       next: (res) => {
@@ -136,7 +121,6 @@ export class AcademyExamsComponent implements OnInit {
       }
     });
   }
-
   unsign(exam: AcademyExamDto) {
     this.confirmationService.confirm({
       message: `Are you sure you want to cancel your registration for "${exam.title}"?`,
@@ -165,7 +149,6 @@ export class AcademyExamsComponent implements OnInit {
       }
     });
   }
-
   openCreateDialog() {
     this.editingExam.set(null);
     this.formTitle.set('');
@@ -174,42 +157,33 @@ export class AcademyExamsComponent implements OnInit {
     this.formMaterials.set([{ title: 'Study Resource 1', url: '' }]);
     this.formRewardCredits.set(50);
     this.formPassingThreshold.set('80%');
-
-    // Default deadline: 7 days from now
     const defaultDate = new Date();
     defaultDate.setDate(defaultDate.getDate() + 7);
     this.formSignupDeadline.set(defaultDate);
-
     this.formIsActive.set(true);
     this.showForm.set(true);
   }
-
   openEditDialog(exam: AcademyExamDto) {
     this.editingExam.set(exam);
     this.formTitle.set(exam.title);
     this.formDescription.set(exam.description);
     this.formLevel.set(exam.level);
-
     const materials = exam.materials && exam.materials.length
       ? exam.materials.map(m => ({ ...m }))
       : (exam.materialsUrl ? [{ title: 'Study Materials', url: exam.materialsUrl }] : []);
     this.formMaterials.set(materials);
-
     this.formRewardCredits.set(exam.rewardCredits);
     this.formPassingThreshold.set(exam.passingThreshold);
     this.formSignupDeadline.set(exam.signupDeadline ? new Date(exam.signupDeadline) : new Date());
     this.formIsActive.set(exam.isActive);
     this.showForm.set(true);
   }
-
   addMaterial() {
     this.formMaterials.update(list => [...list, { title: '', url: '' }]);
   }
-
   removeMaterial(index: number) {
     this.formMaterials.update(list => list.filter((_, i) => i !== index));
   }
-
   formatDateTimeLocal(date: Date): string {
     const year = date.getFullYear();
     const month = String(date.getMonth() + 1).padStart(2, '0');
@@ -219,7 +193,6 @@ export class AcademyExamsComponent implements OnInit {
     const seconds = String(date.getSeconds()).padStart(2, '0');
     return `${year}-${month}-${day}T${hours}:${minutes}:${seconds}`;
   }
-
   saveExam() {
     const deadline = this.formSignupDeadline();
     if (!this.formTitle().trim() || !this.formDescription().trim() || !deadline) {
@@ -231,13 +204,10 @@ export class AcademyExamsComponent implements OnInit {
       });
       return;
     }
-
     this.saving.set(true);
-
     const validMaterials = this.formMaterials()
       .filter(m => m.url && m.url.trim().length > 0)
       .map(m => ({ title: m.title.trim() || 'Study Resource', url: m.url.trim() }));
-
     const payload: CreateAcademyExamDto = {
       title: this.formTitle().trim(),
       description: this.formDescription().trim(),
@@ -249,7 +219,6 @@ export class AcademyExamsComponent implements OnInit {
       signupDeadline: this.formatDateTimeLocal(deadline),
       isActive: this.formIsActive()
     };
-
     const currentEditing = this.editingExam();
     if (currentEditing) {
       this.examService.updateExam(currentEditing.id, payload).subscribe({
@@ -279,7 +248,6 @@ export class AcademyExamsComponent implements OnInit {
       });
     }
   }
-
   confirmDelete(exam: AcademyExamDto) {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete exam "${exam.title}"?`,
@@ -295,12 +263,10 @@ export class AcademyExamsComponent implements OnInit {
       }
     });
   }
-
   openTakersDialog(exam: AcademyExamDto) {
     this.selectedExamForTakers.set(exam);
     this.showTakersDialog.set(true);
   }
-
   markTakerStatus(examId: number, userId: number, status: ExamSignupStatus) {
     this.examService.markTakerStatus(examId, userId, status).subscribe({
       next: (res) => {
@@ -310,7 +276,6 @@ export class AcademyExamsComponent implements OnInit {
           detail: res.message || `Status changed to ${status}.`,
           life: 3000
         });
-        // Refresh exam details
         this.examService.getExamById(examId).subscribe(updated => {
           this.selectedExamForTakers.set(updated);
           this.loadExams();
@@ -326,7 +291,6 @@ export class AcademyExamsComponent implements OnInit {
       }
     });
   }
-
   getStatusSeverity(status: ExamSignupStatus): 'success' | 'info' | 'warn' | 'danger' | 'secondary' {
     switch (status) {
       case 'Passed': return 'success';

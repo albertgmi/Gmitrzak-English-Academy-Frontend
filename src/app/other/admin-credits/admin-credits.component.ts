@@ -6,7 +6,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { HttpClient } from '@angular/common/http';
 import { AvatarComponent } from '../avatar/avatar.component';
-
 interface StudentCreditSummary {
     userId: number;
     username: string;
@@ -16,7 +15,6 @@ interface StudentCreditSummary {
     creditsSpent: number;
     purchaseCount: number;
 }
-
 interface AdminCreditDetailDto {
     userId: number;
     username: string;
@@ -28,9 +26,7 @@ interface AdminCreditDetailDto {
     purchases: { id: number; itemName: string; iconEmoji?: string;
                  creditCost: number; purchaseDate: string; status: string }[];
 }
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-admin-credits',
     standalone: true,
@@ -41,13 +37,11 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
 export class AdminCreditsComponent implements OnInit {
     private http = inject(HttpClient);
     private messageService = inject(MessageService);
-
     students = signal<StudentCreditSummary[]>([]);
     selected = signal<AdminCreditDetailDto | null>(null);
     loading = signal(true);
     loadingDetail = signal(false);
     updatingStatus = signal<number | null>(null);
-
     ngOnInit() {
         this.http.get<StudentCreditSummary[]>('/api/admin/credits/summary')
             .subscribe({
@@ -55,7 +49,6 @@ export class AdminCreditsComponent implements OnInit {
                 error: () => this.loading.set(false)
             });
     }
-
     openStudent(s: StudentCreditSummary) {
         this.loadingDetail.set(true);
         this.http.get<AdminCreditDetailDto>(`/api/admin/credits/student/${s.userId}`)
@@ -67,7 +60,6 @@ export class AdminCreditsComponent implements OnInit {
                 error: () => this.loadingDetail.set(false)
             });
     }
-
     updatePurchaseStatus(purchaseId: number, status: string) {
         this.updatingStatus.set(purchaseId);
         this.http.patch(`/api/admin/credits/purchase/${purchaseId}/status`,
@@ -85,7 +77,6 @@ export class AdminCreditsComponent implements OnInit {
             error: () => this.updatingStatus.set(null)
         });
     }
-
     statusSeverity(s: string): SeverityType {
         if (s === 'Fulfilled') return 'success';
         if (s === 'Cancelled') return 'danger';

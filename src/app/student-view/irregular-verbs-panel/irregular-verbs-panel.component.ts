@@ -12,9 +12,7 @@ import { ToastModule } from 'primeng/toast';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService } from 'primeng/api';
 import { IrregularVerbsService, IrregularVerbDto } from '../../services/student-services/irregular-verbs.service';
-
 type Tab = 'all' | 'today' | 'leeches' | 'search';
-
 @Component({
   selector: 'app-irregular-verbs-panel',
   standalone: true,
@@ -30,27 +28,21 @@ export class IrregularVerbsPanelComponent implements OnInit {
   private irregularVerbsService = inject(IrregularVerbsService);
   private messageService = inject(MessageService);
   private route = inject(ActivatedRoute);
-
   activeTab = signal<Tab>('all');
-
   allVerbs = this.irregularVerbsService.allIrregularVerbsResource;
   studiedToday = signal<IrregularVerbDto[]>([]);
   leeches = signal<IrregularVerbDto[]>([]);
   searchResults = signal<IrregularVerbDto[]>([]);
-
   searchQuery = signal('');
   loadingTab = signal(false);
-
   tabs = [
     { id: 'all', label: 'All Verbs', icon: 'pi pi-list-check' },
     { id: 'today', label: 'Studied today', icon: 'pi pi-calendar' },
     { id: 'leeches', label: 'Leeches', icon: 'pi pi-exclamation-triangle' },
     { id: 'search', label: 'Search', icon: 'pi pi-search' }
   ];
-
   ngOnInit() {
     this.irregularVerbsService.allIrregularVerbsResource.reload();
-
     this.route.queryParams.subscribe(params => {
       const tabParam = params['tab'];
       if (tabParam && ['all', 'today', 'leeches', 'search'].includes(tabParam)) {
@@ -58,7 +50,6 @@ export class IrregularVerbsPanelComponent implements OnInit {
       }
     });
   }
-
   setTab(tabId: Tab) {
     this.activeTab.set(tabId);
     if (tabId === 'today' && !this.studiedToday().length) {
@@ -68,7 +59,6 @@ export class IrregularVerbsPanelComponent implements OnInit {
       this.fetchTabData(this.irregularVerbsService.getLeeches(), this.leeches, 'leeches');
     }
   }
-
   private fetchTabData(observable: any, targetSignal: any, label: string) {
     this.loadingTab.set(true);
     observable.subscribe({
@@ -82,7 +72,6 @@ export class IrregularVerbsPanelComponent implements OnInit {
       }
     });
   }
-
   search() {
     const q = this.searchQuery().trim();
     if (!q) return;
@@ -98,15 +87,12 @@ export class IrregularVerbsPanelComponent implements OnInit {
       }
     });
   }
-
   onGlobalFilter(table: any, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
-
   speak(text: string, event?: Event) {
     event?.stopPropagation();
     if (typeof speechSynthesis === 'undefined') return;
-
     speechSynthesis.cancel();
     const utterance = new SpeechSynthesisUtterance(text);
     utterance.lang = 'en-US';

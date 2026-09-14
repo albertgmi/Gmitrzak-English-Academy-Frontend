@@ -1,6 +1,5 @@
 <p-toast />
 <p-confirmDialog />
-
 <div *ngIf="selectedModule() as module; else listView" class="card">
   <div class="flex items-center gap-3 mb-6">
     <p-button icon="pi pi-arrow-left" severity="secondary" outlined
@@ -16,7 +15,6 @@
     <p-button icon="pi pi-trash" label="Delete" severity="danger" outlined
       (onClick)="confirmDelete(module)" />
   </div>
-
   <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
     <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
       <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">ID</span>
@@ -32,15 +30,13 @@
     </div>
     <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 flex flex-col gap-1">
       <span class="text-xs font-semibold uppercase tracking-wider text-muted-color">Last Update</span>
-      <span class="text-2xl font-bold text-surface-900 dark:text-surface-0">—</span>
+      <span class="text-2xl font-bold text-surface-900 dark:text-surface-0">-</span>
     </div>
   </div>
-
   <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 mb-6">
     <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">Description</span>
-    <span class="text-surface-900 dark:text-surface-0 leading-relaxed">{{ module.description || '—' }}</span>
+    <span class="text-surface-900 dark:text-surface-0 leading-relaxed">{{ module.description || '-' }}</span>
   </div>
-
   <div class="grid grid-cols-1 gap-6">
     <div>
       <div class="flex items-center justify-between mb-3">
@@ -49,11 +45,9 @@
           <span class="ml-2 text-sm font-normal text-muted-color">({{ module.matrices?.length || 0 }})</span>
         </h3>
       </div>
-
       <div class="flex flex-wrap gap-2" *ngIf="module.matrices?.length; else noMatrices">
         <p-chip *ngFor="let m of module.matrices" [label]="m.name" icon="pi pi-th-large" />
       </div>
-
       <ng-template #noMatrices>
         <div class="text-center text-muted-color py-8 bg-surface-50 dark:bg-surface-800 rounded-xl border border-dashed border-surface-200 dark:border-surface-700">
           <i class="pi pi-th-large text-3xl block mb-2 opacity-50"></i>
@@ -63,7 +57,6 @@
     </div>
   </div>
 </div>
-
 <ng-template #listView>
   <div class="card">
     <p-toolbar styleClass="mb-6">
@@ -79,14 +72,12 @@
           (onClick)="reload()" pTooltip="Refresh data" />
       </ng-template>
     </p-toolbar>
-
     <p-table #dt [value]="modules.value() || []" dataKey="id"
       [loading]="modules.isLoading()" [rows]="10" [paginator]="true"
       [globalFilterFields]="['name', 'description']" 
       [tableStyle]="{ 'min-width': '60rem' }" [rowHover]="true"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} modules"
       [showCurrentPageReport]="true" [rowsPerPageOptions]="[10, 20, 30]">
-
       <ng-template #header>
         <tr>
           <th style="width: 4rem">ID</th>
@@ -97,7 +88,6 @@
           <th style="width: 8rem">Actions</th>
         </tr>
       </ng-template>
-
       <ng-template #body let-module>
         <tr>
           <td class="text-muted-color font-mono text-sm">{{ module.id }}</td>
@@ -110,7 +100,7 @@
             <span *ngIf="module.description; else noDesc">
               {{ module.description.length > 55 ? (module.description | slice:0:55) + '…' : module.description }}
             </span>
-            <ng-template #noDesc><span>—</span></ng-template>
+            <ng-template #noDesc><span>-</span></ng-template>
           </td>
           <td>
             <div *ngIf="module.matrices && module.matrices.length > 0; else noMatrix" class="flex flex-wrap gap-1">
@@ -137,7 +127,6 @@
           </td>
         </tr>
       </ng-template>
-
       <ng-template #emptymessage>
         <tr>
           <td colspan="6" class="text-center text-muted-color py-12">

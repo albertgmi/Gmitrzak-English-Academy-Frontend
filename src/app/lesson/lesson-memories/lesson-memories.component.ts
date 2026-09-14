@@ -14,7 +14,6 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AdminMemoriesService, AdminMemoryDto, UpdateMemoryRequest } from '../../services/admin-memories.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
   selector: 'app-lesson-memories',
   standalone: true,
@@ -40,11 +39,9 @@ export class LessonMemoriesComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
-
   activeStudent = this.lessonContext.activeStudent;
   memories = signal<AdminMemoryDto[]>([]);
   loading = signal<boolean>(false);
-
   editingMemory = signal<AdminMemoryDto | null>(null);
   editForm = signal<UpdateMemoryRequest>({
     content: '',
@@ -55,20 +52,16 @@ export class LessonMemoriesComponent implements OnInit {
   });
   saving = signal<boolean>(false);
   importing = signal<boolean>(false);
-
   onFileSelected(event: Event): void {
     const input = event.target as HTMLInputElement;
     if (!input.files || input.files.length === 0) return;
-
     const student = this.activeStudent();
     if (!student) {
       this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select a student first.' });
       return;
     }
-
     const file = input.files[0];
     this.importing.set(true);
-
     this.memoriesService.importMemories(student.id, file).subscribe({
       next: (res) => {
         this.messageService.add({
@@ -91,7 +84,6 @@ export class LessonMemoriesComponent implements OnInit {
       }
     });
   }
-
   constructor() {
     effect(() => {
       const student = this.activeStudent();
@@ -102,13 +94,10 @@ export class LessonMemoriesComponent implements OnInit {
       }
     });
   }
-
   ngOnInit(): void {}
-
   goToSwitchClient(): void {
     this.router.navigate(['/lesson/switch-client']);
   }
-
   loadMemories(studentId: number): void {
     this.loading.set(true);
     this.memoriesService.getStudentMemories(studentId).subscribe({
@@ -126,7 +115,6 @@ export class LessonMemoriesComponent implements OnInit {
       }
     });
   }
-
   openEdit(item: AdminMemoryDto): void {
     this.editingMemory.set(item);
     this.editForm.set({
@@ -137,11 +125,9 @@ export class LessonMemoriesComponent implements OnInit {
       category: item.category || ''
     });
   }
-
   saveEdit(): void {
     const mem = this.editingMemory();
     if (!mem) return;
-
     const f = this.editForm();
     if (!f.content.trim() && !f.optionA.trim()) {
       this.messageService.add({
@@ -151,7 +137,6 @@ export class LessonMemoriesComponent implements OnInit {
       });
       return;
     }
-
     this.saving.set(true);
     const payload: UpdateMemoryRequest = {
       content: f.content.trim(),
@@ -160,7 +145,6 @@ export class LessonMemoriesComponent implements OnInit {
       notes: f.notes?.trim() || undefined,
       category: f.category?.trim() || undefined
     };
-
     this.memoriesService.updateMemory(mem.id, payload).subscribe({
       next: () => {
         this.messageService.add({
@@ -183,7 +167,6 @@ export class LessonMemoriesComponent implements OnInit {
       }
     });
   }
-
   confirmDelete(item: AdminMemoryDto): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete this memory?`,

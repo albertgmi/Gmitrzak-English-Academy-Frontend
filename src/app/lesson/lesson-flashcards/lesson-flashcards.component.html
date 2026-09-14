@@ -1,12 +1,10 @@
 <p-toast />
 <p-confirmDialog />
-
 <div *ngIf="!activeStudent()" class="card text-center py-16">
   <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
   <h3 class="text-xl font-semibold mb-2">No student selected</h3>
   <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
 </div>
-
 <div *ngIf="activeStudent() as student" class="card">
   <div class="flex items-center gap-3 mb-6">
     <app-avatar 
@@ -14,20 +12,16 @@
       [avatarUrl]="$any(student).avatarUrl" 
       customClass="w-10 h-10 text-base"
       fallbackBgClass="bg-primary text-white" />
-
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Flashcards</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
     </div>
     <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined size="small" (onClick)="goToSwitchClient()" />
   </div>
-
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
     <i class="pi pi-spin pi-spinner text-3xl"></i>
   </div>
-
   <div *ngIf="!loading() && data() as d">
-    
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
         <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalCards }}</div>
@@ -46,7 +40,6 @@
         <div class="text-xs text-muted-color mt-1">Leeches</div>
       </div>
     </div>
-
     <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6 border border-red-200 dark:border-red-900/50 rounded-xl overflow-hidden bg-red-50/40 dark:bg-red-950/20">
       <div 
         (click)="toggleLeeches()" 
@@ -62,7 +55,6 @@
         </div>
         <i [class]="leechesExpanded() ? 'pi pi-chevron-up text-red-500 font-bold' : 'pi pi-chevron-down text-red-500 font-bold'"></i>
       </div>
-
       <div *ngIf="leechesExpanded()" class="p-4 pt-0 border-t border-red-200/60 dark:border-red-900/40 max-h-72 overflow-y-auto">
         <div class="flex flex-wrap gap-2 pt-3">
           <span *ngFor="let c of d.leeches" class="inline-flex items-center gap-2 px-3 py-1.5 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800/50">
@@ -73,13 +65,10 @@
         </div>
       </div>
     </div>
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-
       <div>
         <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-3">
           <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">All Assigned Flashcards</h3>
-
           <div class="flex items-center gap-2">
             <p-button
               label="Excel"
@@ -99,14 +88,10 @@
               (onClick)="exportPdf()" />
           </div>
         </div>
-
         <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">
           <i class="pi pi-spin pi-spinner text-2xl"></i>
         </div>
-
         <div *ngIf="!loadingAll()">
-          
-          <!-- Control Bar for Category Auto-Select & Bulk Actions -->
           <div class="flex flex-col md:flex-row md:items-center justify-between gap-3 mb-3 p-3 bg-surface-50 dark:bg-surface-800 rounded-xl border border-surface-200 dark:border-surface-700">
             <div class="flex flex-wrap items-center gap-2">
               <p-select
@@ -118,7 +103,6 @@
                 placeholder="Auto-select category..."
                 size="small"
                 class="w-full sm:w-56" />
-
               <p-button
                 *ngIf="selectedCards().length > 0"
                 label="Clear selection"
@@ -128,7 +112,6 @@
                 size="small"
                 (onClick)="clearSelection()" />
             </div>
-
             <div class="flex items-center gap-2">
               <p-button
                 label="Remove selected ({{ selectedCards().length }})"
@@ -140,7 +123,6 @@
                 (onClick)="confirmDeleteBulk()" />
             </div>
           </div>
-
           <div class="flex flex-col sm:flex-row justify-end mb-3">
             <p-iconfield iconPosition="left">
               <p-inputicon styleClass="pi pi-search" />
@@ -152,7 +134,6 @@
                 class="w-full sm:w-auto" />
             </p-iconfield>
           </div>
-
           <p-table 
             #dt 
             [value]="allFlashcards()" 
@@ -206,7 +187,6 @@
           </p-table>
         </div>
       </div>
-
       <div>
         <h3 class="font-semibold mb-3 text-surface-900 dark:text-surface-0">Recent Study Sessions</h3>
         <p-table [value]="d.recentLogs" [tableStyle]="{'min-width': '100%'}">
@@ -235,12 +215,10 @@
           </ng-template>
         </p-table>
       </div>
-
       <p-dialog header="Edit Flashcard Interval" [modal]="true" [(visible)]="editDialogVisible" [style]="{ width: '25rem' }">
         <div class="mb-4 text-muted-color text-sm">
           Adjusting the interval will automatically calculate a new Next Review Date from today.
         </div>
-        
         <div class="flex items-center gap-4 mb-6" *ngIf="selectedCard() as card">
           <label for="interval" class="font-semibold w-24">Interval (days)</label>
           <p-inputNumber 
@@ -256,7 +234,6 @@
             decrementButtonIcon="pi pi-minus"
             class="flex-1" />
         </div>
-        
         <div class="flex justify-end gap-2">
           <p-button label="Cancel" severity="secondary" (onClick)="editDialogVisible.set(false)" />
           <p-button label="Save" (onClick)="saveInterval()" [loading]="saving()" />

@@ -6,12 +6,10 @@ import { RouterModule, ActivatedRoute } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { IrregularVerbsService, IrregularVerbDto, IrregularVerbLevel } from '../../services/student-services/irregular-verbs.service';
-
 interface SessionVerbCard extends IrregularVerbDto {
     incorrectStep: number;
     availableAt: number;
 }
-
 @Component({
     selector: 'app-irregular-verbs-study',
     standalone: true,
@@ -23,7 +21,6 @@ export class IrregularVerbsStudyComponent implements OnInit {
     private service = inject(IrregularVerbsService);
     private route = inject(ActivatedRoute);
     private destroyRef = inject(DestroyRef);
-
     level = signal<IrregularVerbLevel>('Basic');
     queue = signal<SessionVerbCard[]>([]);
     pendingQueue = signal<SessionVerbCard[]>([]);
@@ -31,34 +28,28 @@ export class IrregularVerbsStudyComponent implements OnInit {
     showBack = signal(false);
     isFinished = signal(false);
     loading = signal(true);
-
     private cardStartTime: number = 0;
     private activeTimeout: any = null;
-
     private readonly INCORRECT_DELAYS_MS = [
         3  * 60 * 1000,
         6  * 60 * 1000,
         10 * 60 * 1000,
         15 * 60 * 1000
     ];
-
     nextEasyInterval = computed(() => {
         const card = this.currentCard();
         if (!card) return 2;
         return card.interval === 0 ? 2 : card.interval * 2;
     });
-
     currentIncorrectLabel = computed(() => {
         const card = this.currentCard();
         if (!card) return '3 min';
         const step = Math.min(card.incorrectStep, this.INCORRECT_DELAYS_MS.length - 1);
         return `${this.INCORRECT_DELAYS_MS[step] / 60000} min`;
     });
-
     totalInSession = computed(() => {
         return this.queue().length + this.pendingQueue().length + (this.currentCard() ? 1 : 0);
     });
-
     ngOnInit() {
         this.route.queryParams.subscribe(params => {
             const lvl = params['level'] === 'Advanced' ? 'Advanced' : 'Basic';
@@ -66,7 +57,6 @@ export class IrregularVerbsStudyComponent implements OnInit {
             this.loadVerbs(lvl);
         });
     }
-
     private loadVerbs(lvl: IrregularVerbLevel) {
         this.loading.set(true);
         this.service.getIrregularVerbs(lvl).subscribe({
@@ -80,11 +70,9 @@ export class IrregularVerbsStudyComponent implements OnInit {
             }
         });
     }
-
     private get storageKey(): string {
         return `irregular_verbs_pending_${this.level()}`;
     }
-
     private savePendingQueue(cards: SessionVerbCard[]) {
         try {
             if (cards.length === 0) {
@@ -101,11 +89,9 @@ export class IrregularVerbsStudyComponent implements OnInit {
             console.error('Failed to save pending queue:', e);
         }
     }
-
     private initializeSession(allCards: IrregularVerbDto[]) {
         const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
         const now = Date.now();
-
         let storedPendingMap = new Map<number, { incorrectStep: number; availableAt: number }>();
         try {
             const raw = sessionStorage.getItem(this.storageKey);
@@ -120,10 +106,8 @@ export class IrregularVerbsStudyComponent implements OnInit {
         } catch (e) {
             console.error('Failed to restore pending queue:', e);
         }
-
         let restoredPending: SessionVerbCard[] = [];
         let toReview: SessionVerbCard[] = [];
-
         for (const c of allCards) {
             if (c.nextReviewDate <= today) {
                 const pendingInfo = storedPendingMap.get(c.id);
@@ -142,10 +126,8 @@ export class IrregularVerbsStudyComponent implements OnInit {
                 }
             }
         }
-
         this.savePendingQueue(restoredPending);
         this.pendingQueue.set(restoredPending);
-
         if (toReview.length > 0 || restoredPending.length > 0) {
             this.queue.set(toReview);
             this.isFinished.set(false);
@@ -156,23 +138,18 @@ export class IrregularVerbsStudyComponent implements OnInit {
             this.isFinished.set(true);
         }
     }
-
     nextCard() {
         if (this.activeTimeout) clearTimeout(this.activeTimeout);
         this.showBack.set(false);
         const now = Date.now();
-
         const ready = this.pendingQueue().filter(c => c.availableAt <= now);
         const stillWaiting = this.pendingQueue().filter(c => c.availableAt > now);
-
         if (ready.length > 0) {
             this.pendingQueue.set(stillWaiting);
             this.savePendingQueue(stillWaiting);
             this.queue.update(q => [...ready, ...q]);
         }
-
         const current = this.queue();
-
         if (current.length > 0) {
             this.currentCard.set(current[0]);
             this.queue.set(current.slice(1));
@@ -188,14 +165,11 @@ export class IrregularVerbsStudyComponent implements OnInit {
             this.savePendingQueue([]);
         }
     }
-
     handleReview(type: 'again_1m' | 'incorrect' | 'hard' | 'easy') {
         const card = this.currentCard();
         if (!card) return;
-
         const duration = Math.round((Date.now() - this.cardStartTime) / 1000);
         const timeSpentSeconds = Math.min(duration, 60);
-
         if (type === 'again_1m') {
             const updatedCard: SessionVerbCard = {
                 ...card,
@@ -220,7 +194,6 @@ export class IrregularVerbsStudyComponent implements OnInit {
                 return nextQ;
             });
         }
-
         this.service.reviewVerb(card.id, type, timeSpentSeconds)
             .pipe(
                 take(1),
@@ -229,18 +202,14 @@ export class IrregularVerbsStudyComponent implements OnInit {
             .subscribe({
                 error: (err) => console.error('Failed to save verb review:', err)
             });
-
         this.showBack.set(false);
-
         setTimeout(() => {
             this.nextCard();
         }, 200);
     }
-
     toggleCard() {
         this.showBack.set(!this.showBack());
     }
-
     speak(text: string) {
         if (typeof speechSynthesis === 'undefined') return;
         speechSynthesis.cancel();
@@ -250,7 +219,6 @@ export class IrregularVerbsStudyComponent implements OnInit {
         u.pitch = 1;
         speechSynthesis.speak(u);
     }
-
     getFontSizeClass(text: string | undefined | null): string {
         if (!text) return 'text-xl sm:text-3xl md:text-4xl';
         const len = text.length;

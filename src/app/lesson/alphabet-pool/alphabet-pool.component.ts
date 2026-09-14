@@ -13,7 +13,6 @@ import {
     AlphabetHistoryItemDto,
     StudentSimple
 } from '../../services/lesson.service';
-
 @Component({
     selector: 'app-alphabet-pool',
     standalone: true,
@@ -24,20 +23,16 @@ import {
 export class AlphabetPoolComponent implements OnInit {
     private lessonService = inject(LessonService);
     private messageService = inject(MessageService);
-
     pool = signal<AlphabetAbbreviationDto[]>([]);
     loadingPool = signal(true);
     newText = signal('');
     saving = signal(false);
     deletingId = signal<number | null>(null);
-
     students = signal<StudentSimple[]>([]);
     studentOptions = computed(() => this.students().map(s => ({ label: s.username, value: s.id })));
     selectedStudentId = signal<number | null>(null);
-
     history = signal<AlphabetHistoryItemDto[]>([]);
     loadingHistory = signal(false);
-
     ngOnInit() {
         this.loadPool();
         this.lessonService.getStudents().subscribe({
@@ -45,7 +40,6 @@ export class AlphabetPoolComponent implements OnInit {
             error: () => this.students.set([])
         });
     }
-
     loadPool() {
         this.loadingPool.set(true);
         this.lessonService.getAlphabetPool().subscribe({
@@ -53,11 +47,9 @@ export class AlphabetPoolComponent implements OnInit {
             error: () => this.loadingPool.set(false)
         });
     }
-
     addAbbreviation() {
         const text = this.newText().trim();
         if (!text) return;
-
         this.saving.set(true);
         this.lessonService.addAlphabetAbbreviation(text).subscribe({
             next: () => {
@@ -72,7 +64,6 @@ export class AlphabetPoolComponent implements OnInit {
             }
         });
     }
-
     removeAbbreviation(item: AlphabetAbbreviationDto) {
         this.deletingId.set(item.id);
         this.lessonService.deleteAlphabetAbbreviation(item.id).subscribe({
@@ -83,18 +74,15 @@ export class AlphabetPoolComponent implements OnInit {
             error: () => this.deletingId.set(null)
         });
     }
-
     onStudentChange(studentId: number | null) {
         this.selectedStudentId.set(studentId);
         if (!studentId) { this.history.set([]); return; }
-
         this.loadingHistory.set(true);
         this.lessonService.getAlphabetHistory(studentId).subscribe({
             next: (res) => { this.history.set(res ?? []); this.loadingHistory.set(false); },
             error: () => this.loadingHistory.set(false)
         });
     }
-
     problemLetterList(problemLetters: string): string[] {
         return problemLetters ? problemLetters.split(',').filter(Boolean) : [];
     }

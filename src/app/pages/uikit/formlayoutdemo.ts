@@ -5,7 +5,6 @@ import { ButtonModule } from 'primeng/button';
 import { SelectModule } from 'primeng/select';
 import { FormsModule } from '@angular/forms';
 import { TextareaModule } from 'primeng/textarea';
-
 @Component({
     selector: 'app-formlayout-demo',
     standalone: true,
@@ -28,7 +27,6 @@ import { TextareaModule } from 'primeng/textarea';
                         <input pInputText id="age1" type="text" />
                     </div>
                 </div>
-
                 <div class="card flex flex-col gap-4">
                     <div class="font-semibold text-xl">Vertical Grid</div>
                     <div class="flex flex-wrap gap-6">
@@ -59,7 +57,6 @@ import { TextareaModule } from 'primeng/textarea';
                         </div>
                     </div>
                 </div>
-
                 <div class="card flex flex-col gap-4">
                     <div class="font-semibold text-xl">Inline</div>
                     <div class="flex flex-wrap items-start gap-6">
@@ -84,7 +81,6 @@ import { TextareaModule } from 'primeng/textarea';
                 </div>
             </div>
         </div>
-
         <div class="flex mt-8">
             <div class="card flex flex-col gap-6 w-full">
                 <div class="font-semibold text-xl">Advanced</div>
@@ -98,12 +94,10 @@ import { TextareaModule } from 'primeng/textarea';
                         <input pInputText id="lastname2" type="text" />
                     </div>
                 </div>
-
                 <div class="flex flex-wrap">
                     <label for="address">Address</label>
                     <textarea pTextarea id="address" rows="4"></textarea>
                 </div>
-
                 <div class="flex flex-col md:flex-row gap-6">
                     <div class="flex flex-wrap gap-2 w-full">
                         <label for="state">State</label>
@@ -124,6 +118,5 @@ export class FormLayoutDemo {
         { name: 'Option 2', code: 'Option 2' },
         { name: 'Option 3', code: 'Option 3' }
     ];
-
     dropdownItem = null;
 }

@@ -1,14 +1,11 @@
 <p-toast />
 <p-confirmDialog />
-
 <div *ngIf="!activeStudent()" class="card text-center py-16">
   <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
   <h3 class="text-xl font-semibold mb-2">No student selected</h3>
   <p-button label="Switch Client" icon="pi pi-users" (click)="goToSwitchClient()" />
 </div>
-
 <div *ngIf="activeStudent() as student" class="card">
-  <!-- Header -->
   <div class="flex items-center gap-3 mb-6">
     <app-avatar [username]="student.username" [avatarUrl]="$any(student).avatarUrl"
       customClass="w-10 h-10 text-base" fallbackBgClass="bg-primary text-white" />
@@ -16,17 +13,14 @@
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">
         Pronunciation
       </h2>
-      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} — view and edit pronunciation entries</p>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }} - view and edit pronunciation entries</p>
     </div>
     <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
       size="small" (click)="goToSwitchClient()" />
   </div>
-
-  <!-- Table -->
   <p-table [value]="pronunciations()" [loading]="loading()" [paginator]="true" [rows]="10"
     [rowsPerPageOptions]="[10, 25, 50]" responsiveLayout="scroll"
     styleClass="p-datatable-striped">
-    
     <ng-template pTemplate="header">
       <tr>
         <th style="width: 30%">Word</th>
@@ -36,7 +30,6 @@
         <th style="width: 15%" class="text-center">Actions</th>
       </tr>
     </ng-template>
-
     <ng-template pTemplate="body" let-item>
       <tr>
         <td class="font-semibold text-surface-900 dark:text-surface-0">{{ item.word }}</td>
@@ -60,7 +53,6 @@
         </td>
       </tr>
     </ng-template>
-
     <ng-template pTemplate="emptymessage">
       <tr>
         <td colspan="5" class="text-center py-8 text-muted-color">
@@ -71,11 +63,8 @@
     </ng-template>
   </p-table>
 </div>
-
-<!-- Edit Dialog -->
 <p-dialog [visible]="!!editingEntry()" (visibleChange)="!$event ? editingEntry.set(null) : null"
   header="Edit Pronunciation Entry" [modal]="true" [style]="{ width: '440px' }">
-  
   <ng-template pTemplate="content">
     <div *ngIf="editingEntry()" class="flex flex-col gap-4 pt-2">
       <div>
@@ -84,7 +73,6 @@
           (ngModelChange)="editForm.set({ word: $event, status: editForm().status, sortOrder: editForm().sortOrder, isInCurrentSession: editForm().isInCurrentSession })"
           class="w-full" />
       </div>
-
       <div>
         <label class="block font-bold mb-1">Status</label>
         <p-select [options]="statusOptions" optionLabel="label" optionValue="value"
@@ -92,14 +80,12 @@
           (ngModelChange)="editForm.set({ word: editForm().word, status: $event, sortOrder: editForm().sortOrder, isInCurrentSession: editForm().isInCurrentSession })"
           styleClass="w-full"></p-select>
       </div>
-
       <div>
         <label class="block font-bold mb-1">Sort Order</label>
         <p-inputNumber [ngModel]="editForm().sortOrder"
           (ngModelChange)="editForm.set({ word: editForm().word, status: editForm().status, sortOrder: $event, isInCurrentSession: editForm().isInCurrentSession })"
           styleClass="w-full"></p-inputNumber>
       </div>
-
       <div class="flex items-center gap-2 pt-2">
         <p-checkbox [binary]="true" [ngModel]="editForm().isInCurrentSession"
           (ngModelChange)="editForm.set({ word: editForm().word, status: editForm().status, sortOrder: editForm().sortOrder, isInCurrentSession: $event })"
@@ -108,7 +94,6 @@
       </div>
     </div>
   </ng-template>
-
   <ng-template pTemplate="footer">
     <p-button label="Cancel" severity="secondary" outlined (click)="editingEntry.set(null)" />
     <p-button label="Save" icon="pi pi-check" [loading]="saving()" (click)="saveEdit()" />

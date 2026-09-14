@@ -21,18 +21,15 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { User, UserService } from '../../services/user.service';
-
 interface Column {
   field: string;
   header: string;
   customExportHeader?: string;
 }
-
 interface ExportColumn {
   title: string;
   dataKey: string;
 }
-
 @Component({
   selector: 'user-crud',
   templateUrl: './user-crud.component.html',
@@ -65,7 +62,6 @@ export class UserCrudComponent implements OnInit {
   userService = inject(UserService);
   public router = inject(Router);
   route = inject(ActivatedRoute);
-
   userDialog: boolean = false;
   user!: User;
   selectedUsers!: User[] | null;
@@ -73,53 +69,42 @@ export class UserCrudComponent implements OnInit {
   roles!: any[];
   exportColumns!: ExportColumn[];
   cols!: Column[];
-
   @ViewChild('dt') dt!: Table;
-
   displayUsers = computed(() => {
     return this.router.url.includes('inactive')
       ? this.userService.inactiveUsers.value() || []
       : this.userService.users.value() || [];
   });
-
   constructor(
     private messageService: MessageService,
     private confirmationService: ConfirmationService
   ) {}
-
   ngOnInit() {
     this.loadData();
   }
-
   loadData() {
     this.roles = [
       { label: 'admin', value: 'admin' },
       { label: 'user', value: 'user' }
     ];
-
     this.cols = [
       { field: 'email', header: 'Email' },
       { field: 'username', header: 'Username' },
       { field: 'role', header: 'Role' }
     ];
-
     this.exportColumns = this.cols.map((col) => ({ title: col.header, dataKey: col.field }));
   }
-
   exportCSV() {
     this.dt.exportCSV();
   }
-
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
-
   openNew() {
     this.user = { id: 0, isActive: true };
     this.submitted = false;
     this.userDialog = true;
   }
-
   editUser(user: User) {
     this.user = {
       ...user,
@@ -127,12 +112,9 @@ export class UserCrudComponent implements OnInit {
     };
     this.userDialog = true;
   }
-
   deleteSelectedUsers() {
     if (!this.selectedUsers || this.selectedUsers.length === 0) return;
-
     const ids = this.selectedUsers.map((user) => user.id);
-
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete the selected users?',
       header: 'Confirm',
@@ -152,7 +134,6 @@ export class UserCrudComponent implements OnInit {
       }
     });
   }
-
   deleteUser(user: User) {
     this.confirmationService.confirm({
       message: 'Are you sure you want to delete ' + user.username + '?',
@@ -163,16 +144,13 @@ export class UserCrudComponent implements OnInit {
       }
     });
   }
-
   hideDialog() {
     this.userDialog = false;
     this.submitted = false;
   }
-
   saveUser() {
     this.submitted = true;
     if (!this.user.email || !this.user.username) return;
-
     this.userService.updateUser(this.user.id, {
       username: this.user.username,
       email: this.user.email,
@@ -181,7 +159,6 @@ export class UserCrudComponent implements OnInit {
       isActive: this.user.isActive,
       streakOverride: this.user.streakOverride ?? 0
     });
-
     this.userDialog = false;
     this.submitted = false;
   }

@@ -4,7 +4,6 @@ import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '../../services/auth.service';
-
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -19,28 +18,23 @@ import { AuthService } from '../../services/auth.service';
 export class AppMenu implements OnInit {
   authService = inject(AuthService);
   model: MenuItem[] = [];
-
   ngOnInit() {
     const role = this.authService.getRole();
     const userId = this.authService.getUserId();
     this.model = this.buildMenu(role, userId);
   }
-
   private buildMenu(role: string | null, userId: number | null): MenuItem[] {
     const homeItems: MenuItem[] = [
       { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
       { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
     ];
-
     const base: MenuItem[] = [
       {
         label: 'Home',
         items: homeItems
       }
     ];
-
     const profileLink = userId ? ['/profiles', userId] : ['/login'];
-
     const account: MenuItem = {
       label: 'Account',
       items: [
@@ -56,15 +50,12 @@ export class AppMenu implements OnInit {
         }
       ]
     };
-
     if (role === 'Admin') {
       return [...base, ...this.adminMenu(), account];
     }
-
     if (role === 'User') {
       return [...base, ...this.studentMenu(), account];
     }
-
     return [{
       label: 'Account',
       items: [
@@ -72,7 +63,6 @@ export class AppMenu implements OnInit {
       ]
     }];
   }
-
   private adminMenu(): MenuItem[] {
     return [
       {
@@ -152,7 +142,6 @@ export class AppMenu implements OnInit {
       }
     ];
   }
-
   private studentMenu(): MenuItem[] {
     return [
       {
@@ -216,7 +205,6 @@ export class AppMenu implements OnInit {
       }
     ];
   }
-
   private liveItems(): MenuItem[] {
     return [
       { label: 'Live Essay Room', icon: 'pi pi-comments', routerLink: ['/live-essay-room'] },
@@ -224,7 +212,6 @@ export class AppMenu implements OnInit {
       { label: 'Live Notepad', icon: 'pi pi-file-edit', routerLink: ['/live-notepad'] }
     ];
   }
-
   private lessonItems(): MenuItem[] {
     return [
       { label: 'Switch Client', icon: 'pi pi-arrows-h', routerLink: ['/lesson/switch-client'] },

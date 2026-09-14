@@ -16,7 +16,6 @@ import { SplitButtonModule } from 'primeng/splitbutton';
 import { SplitterModule } from 'primeng/splitter';
 import { TabsModule } from 'primeng/tabs';
 import { ToolbarModule } from 'primeng/toolbar';
-
 @Component({
     selector: 'app-panels-demo',
     standalone: true,
@@ -48,7 +47,6 @@ import { ToolbarModule } from 'primeng/toolbar';
                         <p-button icon="pi pi-print" class="mr-2" severity="secondary" text />
                         <p-button icon="pi pi-upload" severity="secondary" text />
                     </ng-template>
-
                     <ng-template #center>
                         <p-iconfield>
                             <p-inputicon>
@@ -57,11 +55,9 @@ import { ToolbarModule } from 'primeng/toolbar';
                             <input pInputText placeholder="Search" />
                         </p-iconfield>
                     </ng-template>
-
                     <ng-template #end><p-splitbutton label="Save" [model]="items"></p-splitbutton></ng-template>
                 </p-toolbar>
             </div>
-
             <div class="flex flex-col md:flex-row gap-8">
                 <div class="md:w-1/2">
                     <div class="card">
@@ -77,7 +73,6 @@ import { ToolbarModule } from 'primeng/toolbar';
                                     </p>
                                 </p-accordion-content>
                             </p-accordion-panel>
-
                             <p-accordion-panel value="1">
                                 <p-accordion-header>Header II</p-accordion-header>
                                 <p-accordion-content>
@@ -88,7 +83,6 @@ import { ToolbarModule } from 'primeng/toolbar';
                                     </p>
                                 </p-accordion-content>
                             </p-accordion-panel>
-
                             <p-accordion-panel value="2">
                                 <p-accordion-header>Header III</p-accordion-header>
                                 <p-accordion-content>
@@ -158,7 +152,6 @@ import { ToolbarModule } from 'primeng/toolbar';
                     </div>
                 </div>
             </div>
-
             <div class="card mt-8">
                 <div class="font-semibold text-xl mb-4">Divider</div>
                 <div class="flex flex-col md:flex-row">
@@ -184,7 +177,6 @@ import { ToolbarModule } from 'primeng/toolbar';
                     </div>
                 </div>
             </div>
-
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Splitter</div>
                 <p-splitter [style]="{ height: '300px' }" [panelSizes]="[20, 80]" [minSizes]="[10, 0]" styleClass="mb-8">

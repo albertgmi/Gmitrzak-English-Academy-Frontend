@@ -2,7 +2,6 @@ import { inject, Injectable, resource, signal } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
 import { environment } from '../../../environments/environment';
-
 export interface FlashcardDto {
   id: number;
   front: string;
@@ -14,7 +13,6 @@ export interface FlashcardDto {
   nextReviewDate: string;
   isDeleted: boolean;
 }
-
 export interface FlashcardStudyLogDto {
   id: number;
   studyDate: string;
@@ -28,35 +26,27 @@ export interface ReviewCardRequest {
   quality: 'incorrect' | 'hard' | 'easy';
   timeSpentSeconds: number;
 }
-
 export interface FlashcardStreakDto {
   streak: number;
   studiedToday: boolean;
 }
-
 const STORAGE_KEY = 'flashcard_category_priority_order';
-
 @Injectable({ providedIn: 'root' })
 export class FlashcardService {
   private apiUrl = `${environment.apiUrl}/api/student-learning/flashcards`;
   private http = inject(HttpClient);
-
   categoryPriorityOrder = signal<string[]>(this.loadStoredCategoryPriorityOrder());
-
   flashcards = resource<FlashcardDto[], unknown>({
     loader: () => lastValueFrom(this.http.get<FlashcardDto[]>(this.apiUrl))
   });
-
   setCategoryPriorityOrder(order: string[]): void {
     const cleaned = order.filter(c => c && c.trim().length > 0);
     this.categoryPriorityOrder.set(cleaned);
     try {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(cleaned));
     } catch (e) {
-      // ignore storage errors
     }
   }
-
   private loadStoredCategoryPriorityOrder(): string[] {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
@@ -65,27 +55,21 @@ export class FlashcardService {
         if (Array.isArray(parsed)) return parsed.filter((c: any) => typeof c === 'string' && c.trim().length > 0);
       }
     } catch (e) {
-      // ignore storage errors
     }
     return [];
   }
-
   getLeeches(): Observable<FlashcardDto[]> {
     return this.http.get<FlashcardDto[]>(`${this.apiUrl}/leeches`);
   }
-
   getStudiedToday(): Observable<FlashcardDto[]> {
     return this.http.get<FlashcardDto[]>(`${this.apiUrl}/studied-today`);
   }
-
   getStudyLogs(): Observable<FlashcardStudyLogDto[]> {
     return this.http.get<FlashcardStudyLogDto[]>(`${this.apiUrl}/logs`);
   }
-
   searchFlashcards(query: string): Observable<FlashcardDto[]> {
     return this.http.get<FlashcardDto[]>(`${this.apiUrl}/search?q=${encodeURIComponent(query)}`);
   }
-
   reviewCard(id: number, quality: 'incorrect' | 'hard' | 'easy', timeSpentSeconds: number): Observable<void> {
     const body: ReviewCardRequest = {
       quality,
@@ -93,8 +77,7 @@ export class FlashcardService {
     };
     return this.http.patch<void>(`${this.apiUrl}/${id}/review`, body);
   }
-
   getStreak(): Observable<FlashcardStreakDto> {
     return this.http.get<FlashcardStreakDto>(`${this.apiUrl}/streak`);
   }
-}
+}

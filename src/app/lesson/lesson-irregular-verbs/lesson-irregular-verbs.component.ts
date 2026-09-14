@@ -16,7 +16,6 @@ import { LessonPanelService, LessonIrregularVerbSummaryDto } from '../../service
 import { IrregularVerbDto } from '../../services/student-services/irregular-verbs.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
   selector: 'app-lesson-irregular-verbs',
   standalone: true,
@@ -33,59 +32,46 @@ export class LessonIrregularVerbsComponent implements OnInit {
   private lessonContext = inject(LessonContextService);
   private router = inject(Router);
   private messageService = inject(MessageService);
-
   activeStudent = this.lessonContext.activeStudent;
   data = signal<LessonIrregularVerbSummaryDto | null>(null);
   loading = signal(true);
-
   allVerbs = signal<IrregularVerbDto[]>([]);
   loadingAll = signal(true);
-
   editDialogVisible = signal(false);
   selectedVerb = signal<IrregularVerbDto | null>(null);
   newInterval = signal<number>(0);
   saving = signal(false);
-
   ngOnInit() {
     const id = this.lessonContext.studentId;
     if (!id) return;
-
     this.service.getIrregularVerbs(id).subscribe({
       next: (d) => { this.data.set(d); this.loading.set(false); },
       error: () => this.loading.set(false)
     });
-
     this.service.getAllIrregularVerbs(id).subscribe({
       next: (verbs) => { this.allVerbs.set(verbs); this.loadingAll.set(false); },
       error: () => this.loadingAll.set(false)
     });
   }
-
   goToSwitchClient() {
     this.router.navigate(['/lesson/switch-client']);
   }
-
   openEditDialog(verb: IrregularVerbDto) {
     this.selectedVerb.set(verb);
     this.newInterval.set(verb.interval);
     this.editDialogVisible.set(true);
   }
-
   saveInterval() {
     const verb = this.selectedVerb();
     const studentId = this.lessonContext.studentId;
-
     if (!verb || !studentId || !verb.id) return;
-
     this.saving.set(true);
     const updatedInterval = this.newInterval();
-
     this.service.updateIrregularVerbInterval(studentId, verb.id, updatedInterval).subscribe({
       next: () => {
         this.allVerbs.update(verbs =>
           verbs.map(v => (v.id === verb.id ? { ...v, interval: updatedInterval } : v))
         );
-
         this.messageService.add({ severity: 'success', summary: 'Success', detail: 'Interval updated' });
         this.editDialogVisible.set(false);
         this.saving.set(false);

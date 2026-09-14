@@ -14,9 +14,7 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonService, GradeListDto } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-grade-student',
     standalone: true,
@@ -32,17 +30,14 @@ export class GradeStudentComponent implements OnInit {
     private router = inject(Router);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     activeStudent = this.lessonContext.activeStudent;
     grades = signal<GradeListDto[]>([]);
     loading = signal(true);
     saving = signal(false);
     submitted = false;
-
     percentage = signal<number>(0);
     category = signal('Vocabulary');
     notes = signal('');
-
     categories = [
         { label: 'Vocabulary',    value: 'Vocabulary' },
         { label: 'Sentences',     value: 'Sentences' },
@@ -50,25 +45,21 @@ export class GradeStudentComponent implements OnInit {
         { label: 'Pronunciation', value: 'Pronunciation' },
         { label: 'Alphabet',      value: 'Alphabet' }
     ];
-
     ngOnInit() {
         const studentId = this.lessonContext.studentId;
         if (!studentId) return;
         this.loadGrades(studentId);
     }
-
     loadGrades(studentId: number) {
         this.lessonService.getGrades(studentId).subscribe({
             next: (d) => { this.grades.set(d); this.loading.set(false); },
             error: () => this.loading.set(false)
         });
     }
-
     addGrade() {
         this.submitted = true;
         const studentId = this.lessonContext.studentId;
         if (!studentId || this.percentage() < 0 || this.percentage() > 100) return;
-
         this.saving.set(true);
         this.lessonService.addGrade(
             studentId, this.percentage(), this.category(), this.notes() || undefined
@@ -76,7 +67,7 @@ export class GradeStudentComponent implements OnInit {
             next: () => {
                 this.messageService.add({
                     severity: 'success', summary: 'Grade added',
-                    detail: `${this.percentage()}% — ${this.category()}`, life: 3000
+                    detail: `${this.percentage()}% - ${this.category()}`, life: 3000
                 });
                 this.percentage.set(0);
                 this.notes.set('');
@@ -87,7 +78,6 @@ export class GradeStudentComponent implements OnInit {
             error: () => this.saving.set(false)
         });
     }
-
     confirmRemove(grade: GradeListDto) {
         this.confirmationService.confirm({
             message: `Remove grade ${grade.percentage}% (${grade.category})?`,
@@ -105,13 +95,11 @@ export class GradeStudentComponent implements OnInit {
             }
         });
     }
-
     gradeSeverity(p: number): SeverityType {
         if (p >= 80) return 'success';
         if (p >= 60) return 'warn';
         return 'danger';
     }
-
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
     }

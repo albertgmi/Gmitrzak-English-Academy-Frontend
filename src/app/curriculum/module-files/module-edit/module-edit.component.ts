@@ -15,7 +15,6 @@ import {
 } from '../../../services/module.service';
 import { MatrixService } from '../../../services/matrix.service';
 import { TheaterService } from '../../../services/theater.service';
-
 @Component({
     selector: 'app-module-edit',
     standalone: true,
@@ -34,12 +33,10 @@ export class ModuleEditComponent implements OnInit {
     private matrixService  = inject(MatrixService);
     private messageService = inject(MessageService);
     private theaterService = inject(TheaterService);
-
     moduleId!: number;
     editedModule = signal<ModuleItem | null>(null);
     submitted = false;
     loading   = false;
-
     theaterItemsOptions = computed(() => {
         const rawItems = this.theaterService.items.value() ?? [];
         return rawItems.map(item => ({
@@ -47,13 +44,11 @@ export class ModuleEditComponent implements OnInit {
             value: item.id
         }));
     });
-
     selectedMatrixToAdd = signal<MatrixSimple | null>(null);
     weekNumber = signal<number>(1);
     dayOfWeek  = signal<number>(1);
     repeatWeekly = signal<boolean>(false);
     repeatWeeksCount = signal<number>(4);
-
     categories = [
         { label: 'General',       value: 'General'      },
         { label: 'Sentences',     value: 'Sentences'    },
@@ -65,7 +60,6 @@ export class ModuleEditComponent implements OnInit {
         { label: 'Presentation',  value: 'Presentation' },
         { label: 'Other',         value: 'Other'        }
     ];
-
     availableDays = computed(() => {
         const matrix   = this.selectedMatrixToAdd();
         const interval = matrix?.refreshIntervalDays || 7;
@@ -74,13 +68,11 @@ export class ModuleEditComponent implements OnInit {
             value: i + 1
         }));
     });
-
     availableMatrices = computed(() => {
         const all      = this.matrixService.matrices.value() ?? [];
         const assigned = this.editedModule()?.matrices ?? [];
         return all.filter(m => !assigned.some(a => a.id === m.id));
     });
-
     ngOnInit() {
         const id = this.route.snapshot.paramMap.get('id');
         if (id) {
@@ -88,7 +80,6 @@ export class ModuleEditComponent implements OnInit {
             this.loadModule();
         }
     }
-
     loadModule() {
         const module = this.moduleService.modules.value()?.find(m => m.id === this.moduleId);
         if (module) {
@@ -97,14 +88,11 @@ export class ModuleEditComponent implements OnInit {
             this.goBack();
         }
     }
-
     assignMatrix() {
         const matrix  = this.selectedMatrixToAdd();
         const current = this.editedModule();
         if (!matrix || !current) return;
-
         const repeatWeeks = this.repeatWeekly() ? this.repeatWeeksCount() : null;
-
         this.moduleService.assignMatrix(
             this.moduleId, matrix.id, this.weekNumber(), this.dayOfWeek(), repeatWeeks
         ).subscribe({
@@ -130,11 +118,9 @@ export class ModuleEditComponent implements OnInit {
             })
         });
     }
-
     removeMatrix(matrix: MatrixSimple) {
         const current = this.editedModule();
         if (!current) return;
-
         this.moduleService.removeMatrix(this.moduleId, matrix.id).subscribe({
             next: () => {
                 this.editedModule.set({
@@ -149,14 +135,12 @@ export class ModuleEditComponent implements OnInit {
             })
         });
     }
-
     save() {
         const current = this.editedModule();
         if (!current?.name?.trim()) {
             this.submitted = true;
             return;
         }
-
         if (current.category === 'Watching' && !current.theaterItemId) {
             this.submitted = true;
             this.messageService.add({
@@ -164,9 +148,7 @@ export class ModuleEditComponent implements OnInit {
             });
             return;
         }
-
         this.loading = true;
-
         const request: UpdateModuleRequest = {
             name:        current.name,
             description: current.description,
@@ -174,7 +156,6 @@ export class ModuleEditComponent implements OnInit {
             category:    current.category,
             theaterItemId: current.category === 'Watching' ? current.theaterItemId : null
         };
-
         this.moduleService.updateModule(this.moduleId, request).subscribe({
             next: () => {
                 this.moduleService.reloadModules();
@@ -193,11 +174,9 @@ export class ModuleEditComponent implements OnInit {
             }
         });
     }
-
     goBack() {
         this.router.navigate(['/curriculum/modules']);
     }
-
     onMatrixChange(matrix: MatrixSimple | null) {
         this.selectedMatrixToAdd.set(matrix);
         if (matrix && this.dayOfWeek() > matrix.refreshIntervalDays) {

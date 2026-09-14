@@ -1,5 +1,4 @@
 <p-toast />
-
 <div class="card">
   <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
     <div>
@@ -14,7 +13,6 @@
         [disabled]="!allVerbs.value()?.length" />
     </div>
   </div>
-
   <div class="flex gap-2 mb-6 flex-wrap">
     <p-button
       *ngFor="let tab of [
@@ -29,8 +27,6 @@
       size="small"
       (onClick)="setTab($any(tab.id))" />
   </div>
-
-  <!-- ALL -->
   <div *ngIf="activeTab() === 'all'">
     <p-table #dt [value]="allVerbs.value() || []"
       [loading]="allVerbs.isLoading()"
@@ -71,7 +67,7 @@
           </td>
           <td>
             <i *ngIf="verb.isLeech || verb.easeFactor <= 150" class="pi pi-exclamation-triangle text-red-500"
-              pTooltip="Leech — needs extra attention"></i>
+              pTooltip="Leech - needs extra attention"></i>
           </td>
         </tr>
       </ng-template>
@@ -85,8 +81,6 @@
       </ng-template>
     </p-table>
   </div>
-
-  <!-- STUDIED TODAY -->
   <div *ngIf="activeTab() === 'today'">
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
@@ -116,15 +110,13 @@
       </div>
     </div>
   </div>
-
-  <!-- LEECHES -->
   <div *ngIf="activeTab() === 'leeches'">
     <div *ngIf="loadingTab()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl"></i>
     </div>
     <div *ngIf="!loadingTab()">
       <p class="text-sm text-muted-color mb-4">
-        {{ leeches().length }} difficult verbs — these need extra attention
+        {{ leeches().length }} difficult verbs - these need extra attention
       </p>
       <div class="flex flex-col gap-2">
         <div *ngFor="let verb of leeches()"
@@ -142,13 +134,11 @@
         </div>
         <div *ngIf="!leeches().length" class="text-center py-10 text-muted-color">
           <i class="pi pi-check-circle text-green-500 text-3xl block mb-2"></i>
-          No leeches — great job!
+          No leeches - great job!
         </div>
       </div>
     </div>
   </div>
-
-  <!-- SEARCH -->
   <div *ngIf="activeTab() === 'search'">
     <div class="flex gap-3 mb-6">
       <input pInputText type="text"
@@ -183,5 +173,4 @@
       No results for "{{ searchQuery() }}".
     </div>
   </div>
-
 </div>

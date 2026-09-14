@@ -7,7 +7,6 @@ import { ImageModule } from 'primeng/image';
 import { TagModule } from 'primeng/tag';
 import { PhotoService } from '../service/photo.service';
 import { Product, ProductService } from '../service/product.service';
-
 @Component({
     selector: 'app-media-demo',
     standalone: true,
@@ -37,12 +36,10 @@ import { Product, ProductService } from '../service/product.service';
                 </ng-template>
             </p-carousel>
         </div>
-
         <div class="card">
             <div class="font-semibold text-xl mb-4">Image</div>
             <p-image src="https://primefaces.org/cdn/primeng/images/galleria/galleria10.jpg" alt="Image" width="250" />
         </div>
-
         <div class="card">
             <div class="font-semibold text-xl mb-4">Galleria</div>
             <p-galleria [value]="images" [responsiveOptions]="galleriaResponsiveOptions" [containerStyle]="{ 'max-width': '640px' }" [numVisible]="5">
@@ -58,9 +55,7 @@ import { Product, ProductService } from '../service/product.service';
 })
 export class MediaDemo implements OnInit {
     products!: Product[];
-
     images!: any[];
-
     galleriaResponsiveOptions: any[] = [
         {
             breakpoint: '1024px',
@@ -79,7 +74,6 @@ export class MediaDemo implements OnInit {
             numVisible: 1
         }
     ];
-
     carouselResponsiveOptions: any[] = [
         {
             breakpoint: '1024px',
@@ -97,22 +91,18 @@ export class MediaDemo implements OnInit {
             numScroll: 1
         }
     ];
-
     constructor(
         private productService: ProductService,
         private photoService: PhotoService
     ) {}
-
     ngOnInit() {
         this.productService.getProductsSmall().then((products) => {
             this.products = products;
         });
-
         this.photoService.getImages().then((images) => {
             this.images = images;
         });
     }
-
     getSeverity(status: string) {
         switch (status) {
             case 'INSTOCK':

@@ -3,7 +3,6 @@ import {ButtonModule} from 'primeng/button';
 import {RouterModule} from '@angular/router';
 import {RippleModule} from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
-
 @Component({
   selector: 'app-access',
   imports: [ButtonModule, RouterModule, RippleModule, AppFloatingConfigurator, ButtonModule],
@@ -11,5 +10,4 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
   styleUrl: './access.component.scss'
 })
 export class AccessComponent {
-
 }

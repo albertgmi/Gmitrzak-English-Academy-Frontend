@@ -14,7 +14,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { SelectModule } from 'primeng/select';
 import { MessageService } from 'primeng/api';
 import { VocabularyService, AssignVocabularyRequest, StudentLookup, VocabularyDto } from '../../services/vocabulary.service';
-
 @Component({
     selector: 'app-assign-global-vocabulary',
     standalone: true,
@@ -39,24 +38,18 @@ export class AssignGlobalVocabularyComponent implements OnInit {
     private vocabularyService = inject(VocabularyService);
     private router = inject(Router);
     private messageService = inject(MessageService);
-
     students = signal<StudentLookup[]>([]);
     vocabularyItems = signal<VocabularyDto[]>([]);
-    
     selectedStudent = signal<StudentLookup | null>(null);
     selectedVocabulary = signal<VocabularyDto[]>([]);
-    
     isLoading = signal<boolean>(false);
     isSubmitting = signal<boolean>(false);
     submitted = false;
-
     ngOnInit(): void {
         this.loadInitialData();
     }
-
     loadInitialData(): void {
         this.isLoading.set(true);
-
         this.vocabularyService.getStudents().subscribe({
             next: (data: StudentLookup[]) => {
                 this.students.set(data);
@@ -70,7 +63,6 @@ export class AssignGlobalVocabularyComponent implements OnInit {
                 });
             }
         });
-
         this.vocabularyService.getVocabularyList().subscribe({
             next: (data: VocabularyDto[]) => {
                 this.vocabularyItems.set(data);
@@ -88,12 +80,10 @@ export class AssignGlobalVocabularyComponent implements OnInit {
             }
         });
     }
-
     save(): void {
         this.submitted = true;
         const student = this.selectedStudent();
         const selectedCards = this.selectedVocabulary();
-
         if (!student) return;
         if (selectedCards.length === 0) {
             this.messageService.add({
@@ -104,18 +94,14 @@ export class AssignGlobalVocabularyComponent implements OnInit {
             });
             return;
         }
-
         const idsToAssign = selectedCards
             .map(f => f.id)
             .filter((id): id is number => id !== undefined);
-
         this.executeAssignment(student.id, idsToAssign, `Successfully assigned ${idsToAssign.length} items to ${student.username}.`);
     }
-
     assignSingle(item: VocabularyDto): void {
         this.submitted = true;
         const student = this.selectedStudent();
-        
         if (!student) {
             this.messageService.add({
                 severity: 'warn',
@@ -126,18 +112,14 @@ export class AssignGlobalVocabularyComponent implements OnInit {
             return;
         }
         if (!item.id) return;
-
         this.executeAssignment(student.id, [item.id], `Vocabulary "${item.front}" assigned to ${student.username}.`);
     }
-
     private executeAssignment(studentId: number, ids: number[], successMessage: string): void {
         this.isSubmitting.set(true);
-
         const payload: AssignVocabularyRequest = {
             studentUserId: studentId,
             vocabularyIds: ids
         };
-
         this.vocabularyService.assignVocabularyToStudent(payload).subscribe({
             next: () => {
                 this.messageService.add({
@@ -161,11 +143,9 @@ export class AssignGlobalVocabularyComponent implements OnInit {
             }
         });
     }
-
     cancel(): void {
         this.router.navigate(['/system/global-vocabulary']);
     }
-
     onGlobalFilter(table: any, event: Event): void {
         const element = event.target as HTMLInputElement;
         if (element) {

@@ -1,35 +1,25 @@
 <app-floating-configurator />
-
 <p-toast></p-toast>
-
 <div class="flex min-h-screen w-full bg-surface-0 dark:bg-surface-950 font-sans">
-  
   <div class="hidden lg:flex w-1/2 bg-primary-600 flex-col justify-center items-center relative overflow-hidden">
     <div class="absolute -top-32 -left-32 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
     <div class="absolute -bottom-32 -right-32 w-96 h-96 bg-black/20 rounded-full blur-3xl"></div>
-
     <div class="relative z-10 flex flex-col items-center px-16 text-center text-white">
       <i class="pi pi-graduation-cap mb-6 text-white drop-shadow-xl shrink-0" style="font-size: 90px !important;"></i>
-      
       <h1 class="text-4xl xl:text-5xl font-bold mb-4 tracking-tight">Gmitrzak English Academy</h1>
       <p class="text-primary-100 text-lg xl:text-xl font-light max-w-md">Build your confidence. Speak fluent English.</p>
     </div>
   </div>
-
   <div class="w-full lg:w-1/2 flex items-center justify-center p-6 sm:p-12 md:p-20">
     <div class="w-full max-w-[26rem] flex flex-col">
-      
       <div class="text-center lg:text-left mb-8">
         <div class="lg:hidden flex justify-center mb-6">
           <i class="pi pi-graduation-cap text-primary-600" style="font-size: 55px !important;"></i>
         </div>
-        
         <h2 class="text-surface-900 dark:text-surface-0 text-3xl font-bold mb-2 tracking-tight">Hello! 👋</h2>
         <p class="text-surface-500 dark:text-surface-400 font-medium">Sign in to access your dashboard.</p>
       </div>
-
       <form [formGroup]="loginForm" (ngSubmit)="onSubmit()" class="flex flex-col gap-5">
-        
         <div class="flex flex-col gap-2">
           <label for="username" class="text-surface-900 dark:text-surface-0 font-semibold text-sm">Username</label>
           <div class="relative w-full">
@@ -43,7 +33,6 @@
             />
           </div>
         </div>
-
         <div class="flex flex-col gap-2">
           <label for="password" class="text-surface-900 dark:text-surface-0 font-semibold text-sm">Password</label>
           <p-password 
@@ -56,7 +45,6 @@
             inputStyleClass="w-full p-3 rounded-xl border border-surface-300 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 text-surface-900 dark:text-surface-0"
           ></p-password>
         </div>
-
         <div class="flex items-center justify-between my-1">
           <div class="flex items-center gap-2">
             <p-checkbox 
@@ -73,7 +61,6 @@
             Forgot password?
           </a>
         </div>
-
         <div class="mt-2">
           <p-button 
             label="Sign in" 
@@ -83,7 +70,6 @@
           ></p-button>
         </div>
       </form>
-      
     </div>
   </div>
 </div>

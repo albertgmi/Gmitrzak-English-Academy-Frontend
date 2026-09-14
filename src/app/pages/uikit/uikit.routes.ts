@@ -14,7 +14,6 @@ import { TableDemo } from './tabledemo';
 import { OverlayDemo } from './overlaydemo';
 import { TreeDemo } from './treedemo';
 import { MenuDemo } from './menudemo';
-
 export default [
     { path: 'button', data: { breadcrumb: 'Button' }, component: ButtonDemo },
     { path: 'charts', data: { breadcrumb: 'Charts' }, component: ChartDemo },

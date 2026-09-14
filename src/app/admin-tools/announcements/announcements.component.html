@@ -1,6 +1,5 @@
 <p-toast />
 <p-confirmDialog />
-
 <div class="max-w-[95rem] mx-auto px-4 animate-fade-in">
   <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 border-b border-surface-200 dark:border-surface-800 pb-5 mb-6">
     <div>
@@ -11,40 +10,34 @@
       <p-button label="Compose Message" icon="pi pi-plus" severity="primary" styleClass="rounded-lg shadow-sm text-sm font-medium font-semibold" (onClick)="showForm.set(true)" />
     </div>
   </div>
-
   <div *ngIf="showForm()" class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl shadow-xl p-6 md:p-8 mb-8 animate-fade-in">
     <div class="flex items-center justify-between border-b border-surface-100 dark:border-surface-800 pb-4 mb-6">
       <h3 class="text-lg font-bold text-surface-900 dark:text-surface-0 m-0">Compose New Announcement</h3>
       <p-button icon="pi pi-times" severity="secondary" [text]="true" styleClass="p-0 text-surface-400 hover:text-surface-600" (onClick)="reset()" />
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
       <div class="flex flex-col gap-5">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Announcement Type</label>
           <p-select [options]="announcementTypes" optionLabel="label" optionValue="value" [ngModel]="type()" (ngModelChange)="type.set($event)" styleClass="w-full rounded-lg" fluid />
         </div>
-
         <div>
           <div class="flex items-center gap-3 mb-3">
             <p-checkbox [ngModel]="sendToAll()" (ngModelChange)="sendToAll.set($event)" [binary]="true" inputId="sendAll" />
             <label for="sendAll" class="text-sm font-semibold text-surface-700 dark:text-surface-300">Target all active students</label>
           </div>
-
           <div *ngIf="!sendToAll()" class="animate-fade-in">
             <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Targeted Recipients</label>
             <p-multiselect [options]="students()" optionLabel="label" optionValue="id" [ngModel]="selectedRecipients()" (ngModelChange)="selectedRecipients.set($event)" placeholder="Select students..." [filter]="true" styleClass="w-full rounded-lg" fluid />
           </div>
         </div>
       </div>
-
       <div class="md:col-span-2 flex flex-col gap-5">
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Subject Line *</label>
           <input pInputText type="text" [ngModel]="title()" (ngModelChange)="title.set($event)" placeholder="e.g., Final Examination Schedule - Term 2" class="w-full rounded-lg font-medium" fluid />
           <small class="text-red-500 mt-1 block" *ngIf="submitted && !title().trim()">Subject line is required.</small>
         </div>
-
         <div>
           <label class="block text-xs font-bold uppercase tracking-wider text-surface-500 dark:text-surface-400 mb-2">Message Body *</label>
           <textarea pTextarea [ngModel]="content()" (ngModelChange)="content.set($event)" placeholder="Type the announcement details here..." rows="5" class="w-full rounded-lg font-normal leading-relaxed" fluid></textarea>
@@ -52,18 +45,15 @@
         </div>
       </div>
     </div>
-
     <div class="flex gap-3 justify-end border-t border-surface-100 dark:border-surface-800 pt-5 mt-6">
       <p-button label="Cancel" severity="secondary" [outlined]="true" styleClass="rounded-lg text-sm px-4" (onClick)="reset()" />
       <p-button label="Deploy Announcement" icon="pi pi-send" [loading]="saving()" styleClass="rounded-lg text-sm px-5" (onClick)="send()" />
     </div>
   </div>
-
   <div class="bg-surface-0 dark:bg-surface-900 border border-surface-200 dark:border-surface-800 rounded-2xl shadow-sm overflow-hidden">
     <p-table #dt [value]="announcements()" [loading]="loading()" [rows]="10" [paginator]="true" [rowHover]="true"
       [globalFilterFields]="['title', 'senderUsername', 'type']" styleClass="p-datatable-sm" [tableStyle]="{'min-width': '60rem'}"
       currentPageReportTemplate="Showing {first} to {last} of {totalRecords} deployed entries" [showCurrentPageReport]="true">
-      
       <ng-template #caption>
         <div class="flex justify-end p-4 bg-surface-50/50 dark:bg-surface-950/20 border-b border-surface-100 dark:border-surface-800">
           <p-iconfield>
@@ -72,7 +62,6 @@
           </p-iconfield>
         </div>
       </ng-template>
-
       <ng-template #header>
         <tr class="bg-surface-50 dark:bg-surface-950 border-b border-surface-200 dark:border-surface-800 text-sm font-bold uppercase tracking-wider text-surface-600">
           <th pSortableColumn="title" class="p-5">Message Details <p-sortIcon field="title" /></th>
@@ -83,7 +72,6 @@
           <th style="width: 6rem" class="p-5"></th>
         </tr>
       </ng-template>
-
       <ng-template #body let-a>
         <tr class="border-b border-surface-100 dark:border-surface-800 hover:bg-surface-50/60 dark:hover:bg-surface-950/60 transition-colors">
           <td class="p-6">
@@ -97,7 +85,6 @@
               </div>
             </div>
           </td>
-        
           <td class="p-6">
             <span class="text-xs font-bold uppercase tracking-wider px-3 py-1 rounded-lg" 
                   [style.color]="getTypeColor(a.type)" 
@@ -141,14 +128,12 @@
       </ng-template>
     </p-table>
   </div>
-
   <p-dialog header="Announcement Responses" [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '70rem', maxWidth: '95vw' }" [visible]="showDetailsDialog()" (visibleChange)="showDetailsDialog.set($event === true)">
     <div *ngIf="selectedAnnouncementDetails() as details">
       <div class="mb-5">
         <h3 class="text-lg font-bold m-0">{{ details.title }}</h3>
         <div class="text-sm text-surface-500 mt-1">{{ details.recipients.length }} recipients</div>
       </div>
-      
       <div class="grid grid-cols-1 md:grid-cols-3 gap-4 mb-6">
         <div class="bg-surface-50 dark:bg-surface-900 rounded-xl p-4 border">
           <div class="text-xs uppercase font-semibold text-surface-500">Read</div>
@@ -170,7 +155,6 @@
           </div>
         </div>
       </div>
-
       <div class="border rounded-xl overflow-hidden">
         <div class="grid grid-cols-12 gap-4 px-4 py-3 bg-surface-50 dark:bg-surface-900 font-semibold text-sm border-b">
           <div class="col-span-4">Student</div>
@@ -190,13 +174,12 @@
               <div class="text-xs text-surface-500">{{ r.email }}</div>
             </div>
           </div>
-          
           <div class="col-span-2">
             <span *ngIf="r.isRead" class="text-green-600 font-medium">✓ Read</span>
             <span *ngIf="!r.isRead" class="text-surface-400">Not read</span>
           </div>
           <div class="col-span-3">
-            <ng-container *ngIf="details.type === 'Announcement'">—</ng-container>
+            <ng-container *ngIf="details.type === 'Announcement'">-</ng-container>
             <ng-container *ngIf="details.type === 'Listing'">
               <span *ngIf="r.signedUp" class="text-emerald-600 font-medium">✓ Registered</span>
               <span *ngIf="!r.signedUp" class="text-surface-400">Not registered</span>
@@ -213,14 +196,12 @@
           </div>
           <div class="col-span-3 text-sm text-surface-500">
             <span *ngIf="r.readAt">{{ r.readAt | date:'d MMM yyyy, HH:mm' }}</span>
-            <span *ngIf="!r.readAt">—</span>
+            <span *ngIf="!r.readAt">-</span>
           </div>
         </div>
       </div>
     </div>
   </p-dialog>
-
-  <!-- View Announcement Content Dialog -->
   <p-dialog header="Announcement Details" [modal]="true" [draggable]="false" [resizable]="false" [style]="{ width: '42rem', maxWidth: '90vw' }" [visible]="!!selectedAnnouncementForView()" (visibleChange)="!$event ? selectedAnnouncementForView.set(null) : null">
     <div *ngIf="selectedAnnouncementForView() as ann" class="flex flex-col gap-4">
       <div class="flex items-center justify-between border-b border-surface-200 dark:border-surface-700 pb-3">
@@ -236,11 +217,9 @@
           {{ ann.type }}
         </span>
       </div>
-
       <div class="bg-surface-50 dark:bg-surface-800 p-4 rounded-xl text-surface-800 dark:text-surface-200 text-sm leading-relaxed whitespace-pre-wrap max-h-[60vh] overflow-y-auto">
         {{ ann.content }}
       </div>
-
       <div class="flex justify-end pt-2">
         <p-button label="Close" severity="secondary" outlined (click)="selectedAnnouncementForView.set(null)" />
       </div>

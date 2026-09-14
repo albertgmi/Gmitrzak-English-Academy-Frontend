@@ -9,9 +9,7 @@ import { LessonPanelService, LessonGradeDto } from '../../services/lesson-panel.
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ButtonModule } from 'primeng/button';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-lesson-grades',
     standalone: true,
@@ -23,11 +21,9 @@ export class LessonGradesComponent implements OnInit {
     private service = inject(LessonPanelService);
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
-
     activeStudent = this.lessonContext.activeStudent;
     grades = signal<LessonGradeDto[]>([]);
     loading = signal(true);
-
     ngOnInit() {
         const id = this.lessonContext.studentId;
         if (!id) return;
@@ -36,12 +32,10 @@ export class LessonGradesComponent implements OnInit {
             error: () => this.loading.set(false)
         });
     }
-
     gradeSeverity(p: number): SeverityType {
         if (p >= 80) return 'success';
         if (p >= 60) return 'warn';
         return 'danger';
     }
-
     goToSwitchClient() { this.router.navigate(['/lesson/switch-client']); }
 }

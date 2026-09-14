@@ -11,7 +11,6 @@ import { MessageService } from 'primeng/api';
 import { LessonPanelService, AgendaDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-lesson-agenda',
     standalone: true,
@@ -25,12 +24,10 @@ export class LessonAgendaComponent implements OnInit {
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
     private messageService = inject(MessageService);
-
     activeStudent = this.lessonContext.activeStudent;
     agenda = signal<AgendaDto | null>(null);
     loading = signal(true);
     saving = signal(false);
-
     ngOnInit() {
         const id = this.lessonContext.studentId;
         if (!id) return;
@@ -39,7 +36,6 @@ export class LessonAgendaComponent implements OnInit {
             error: () => this.loading.set(false)
         });
     }
-
     save() {
         const id = this.lessonContext.studentId;
         const a = this.agenda();
@@ -56,7 +52,6 @@ export class LessonAgendaComponent implements OnInit {
             error: () => this.saving.set(false)
         });
     }
-
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
     }

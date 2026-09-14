@@ -1,11 +1,9 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
-
 interface InventoryStatus {
     label: string;
     value: string;
 }
-
 export interface Product {
     id?: string;
     code?: string;
@@ -18,7 +16,6 @@ export interface Product {
     image?: string;
     rating?: number;
 }
-
 @Injectable()
 export class ProductService {
     getProductsData() {
@@ -385,7 +382,6 @@ export class ProductService {
             }
         ];
     }
-
     getProductsWithOrdersData() {
         return [
             {
@@ -1219,9 +1215,7 @@ export class ProductService {
             }
         ];
     }
-
     status: string[] = ['OUTOFSTOCK', 'INSTOCK', 'LOWSTOCK'];
-
     productNames: string[] = [
         'Bamboo Watch',
         'Black Watch',
@@ -1254,25 +1248,19 @@ export class ProductService {
         'Yoga Mat',
         'Yoga Set'
     ];
-
     constructor(private http: HttpClient) {}
-
     getProductsMini() {
         return Promise.resolve(this.getProductsData().slice(0, 5));
     }
-
     getProductsSmall() {
         return Promise.resolve(this.getProductsData().slice(0, 10));
     }
-
     getProducts() {
         return Promise.resolve(this.getProductsData());
     }
-
     getProductsWithOrdersSmall() {
         return Promise.resolve(this.getProductsWithOrdersData().slice(0, 10));
     }
-
     generatePrduct(): Product {
         const product: Product = {
             id: this.generateId(),
@@ -1284,38 +1272,29 @@ export class ProductService {
             inventoryStatus: this.generateStatus(),
             rating: this.generateRating()
         };
-
         product.image = product.name?.toLocaleLowerCase().split(/[ ,]+/).join('-') + '.jpg';
         return product;
     }
-
     generateId() {
         let text = '';
         let possible = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
-
         for (var i = 0; i < 5; i++) {
             text += possible.charAt(Math.floor(Math.random() * possible.length));
         }
-
         return text;
     }
-
     generateName() {
         return this.productNames[Math.floor(Math.random() * Math.floor(30))];
     }
-
     generatePrice() {
         return Math.floor(Math.random() * Math.floor(299) + 1);
     }
-
     generateQuantity() {
         return Math.floor(Math.random() * Math.floor(75) + 1);
     }
-
     generateStatus() {
         return this.status[Math.floor(Math.random() * Math.floor(3))];
     }
-
     generateRating() {
         return Math.floor(Math.random() * Math.floor(5) + 1);
     }

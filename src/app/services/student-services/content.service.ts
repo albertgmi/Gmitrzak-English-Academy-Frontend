@@ -13,7 +13,6 @@ export interface FlashcardDto {
     nextReviewDate: string;
     isDeleted: boolean;
 }
-
 export interface FlashcardStudyLogDto {
     id: number;
     studyDate: string;
@@ -22,7 +21,6 @@ export interface FlashcardStudyLogDto {
     incorrectCount: number;
     timeSpentSeconds: number;
 }
-
 export interface SentenceDto {
     id: number;
     content: string;
@@ -34,13 +32,11 @@ export interface SentenceDto {
     isLeech: boolean;
     nextReviewDate: string;
 }
-
 export interface MemoryDto {
     id: number;
     content: string;
     notes?: string;
 }
-
 export interface PronunciationEntryDto {
     id: number;
     word: string;
@@ -48,7 +44,6 @@ export interface PronunciationEntryDto {
     sortOrder: number;
     isInCurrentSession: boolean;
 }
-
 export interface AssignmentStudentDto {
     id: number;
     moduleId: number;
@@ -63,19 +58,16 @@ export interface AssignmentStudentDto {
     matrixName: string;
     hasDeadline: boolean;
 }
-
 export interface CorrectPronunciationDto {
     id: number;
     word: string;
     markedCorrectAt: string;
     daysUntilRefresh: number;
 }
-
 export interface PhonemeAssessmentDto {
     phoneme: string;
     isCorrect: boolean;
 }
-
 export interface PronunciationAttemptDto {
     id: number;
     feedback: string;
@@ -84,18 +76,15 @@ export interface PronunciationAttemptDto {
     createdAt: string;
     phonemes?: PhonemeAssessmentDto[];
 }
-
 export interface PronunciationResult {
     result: string;
     feedback: string;
     score: number;
     phonemes?: PhonemeAssessmentDto[];
 }
-
 export interface AddNotesRequest {
     notes: string;
 }
-
 export interface AlphabetEntryDto {
     id: number;
     type: 'Letters' | 'Abbreviation';
@@ -104,113 +93,90 @@ export interface AlphabetEntryDto {
     sortOrder: number;
     weekStartDate: string;
 }
-
 export interface AlphabetAttemptDto {
     id: number;
     problemLetters: string;
     feedback: string;
     createdAt: string;
 }
-
 export interface AlphabetResult {
     problemLetters: string;
     feedback: string;
 }
-
 @Injectable({ providedIn: 'root' })
 export class ContentService {
     private apiUrl = `${environment.apiUrl}/api/student-learning`;
     http = inject(HttpClient);
-
     flashcards = resource<FlashcardDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<FlashcardDto[]>(`${this.apiUrl}/flashcards`))
     });
-
     sentences = resource<SentenceDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<SentenceDto[]>(`${this.apiUrl}/sentences`))
     });
-
     memories = resource<MemoryDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<MemoryDto[]>(`${this.apiUrl}/memories`))
     });
-
     pronunciation = resource<PronunciationEntryDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<PronunciationEntryDto[]>(`${this.apiUrl}/pronunciation`))
     });
-
     alphabet = resource<AlphabetEntryDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<AlphabetEntryDto[]>(`${this.apiUrl}/alphabet`))
     });
-    
     getAlphabetAttempts(entryId: number) {
         return this.http.get<AlphabetAttemptDto[]>(`${this.apiUrl}/alphabet/${entryId}/attempts`);
     }
-    
     submitAlphabetAttempt(entryId: number, formData: FormData) {
         return this.http.post<AlphabetResult>(`${this.apiUrl}/alphabet/${entryId}/attempt`, formData);
     }
-    
     generateAlphabetProgram() {
         return this.http.post<void>(`${this.apiUrl}/alphabet/generate`, {});
     }
-
     assignments = resource<AssignmentStudentDto[], unknown>({
         loader: () => lastValueFrom(this.http.get<AssignmentStudentDto[]>(`${this.apiUrl}/assignments`))
     });
-
     getLeeches() {
         return this.http.get<FlashcardDto[]>(`${this.apiUrl}/flashcards/leeches`);
     }
-
     getStudiedToday() {
         return this.http.get<FlashcardDto[]>(`${this.apiUrl}/flashcards/studied-today`);
     }
-
     getStudyLogs() {
         return this.http.get<FlashcardStudyLogDto[]>(`${this.apiUrl}/flashcards/logs`);
     }
-
     searchFlashcards(query: string) {
         return this.http.get<FlashcardDto[]>(`${this.apiUrl}/flashcards/search?q=${encodeURIComponent(query)}`);
     }
-
     getAssignmentHistory() {
         return this.http.get<AssignmentStudentDto[]>(`${this.apiUrl}/assignments/history`);
     }
-
     reviewSentence(id: number, quality: 'easy' | 'hard' | 'incorrect') {
         return this.http.patch(
             `${this.apiUrl}/sentences/${id}/review`,
             { quality }
         );
     }
-
     getCorrectPronunciation() {
         return this.http.get<CorrectPronunciationDto[]>(
             `${this.apiUrl}/pronunciation/correct`
         );
     }
-
     getAttempts(entryId: number) {
         return this.http.get<PronunciationAttemptDto[]>(
             `${this.apiUrl}/pronunciation/${entryId}/attempts`
         );
     }
-    
     submitAttempt(entryId: number, formData: FormData) {
         return this.http.post<PronunciationResult>(
             `${this.apiUrl}/pronunciation/${entryId}/attempt`,
             formData
         );
     }
-
     addNotes(memoryId: number, notes: string) {
         return this.http.put(
             `${this.apiUrl}/memories/${memoryId}/add`,
             { notes } as AddNotesRequest
         );
     }
-
     getSentenceStreak() {
         return this.http.get<{ streak: number; studiedToday: boolean }>(`${this.apiUrl}/sentences/streak`);
     }

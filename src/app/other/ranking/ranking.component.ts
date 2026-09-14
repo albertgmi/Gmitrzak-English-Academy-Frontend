@@ -11,13 +11,11 @@ import { RankingService, RankingDto, RankingEntryDto } from '../../services/rank
 import { AuthService } from '../../services/auth.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
 import confetti from 'canvas-confetti';
-
 type RankingPeriod = 'weekly' | 'monthly' | 'alltime';
 interface PeriodOption {
   label: string;
   value: RankingPeriod;
 }
-
 @Component({
     selector: 'app-ranking',
     standalone: true,
@@ -33,9 +31,7 @@ export class RankingComponent implements OnInit, OnDestroy {
     private rankingService = inject(RankingService);
     private authService    = inject(AuthService);
     private messageService = inject(MessageService);
-
     @ViewChild('particlesCanvas') particlesCanvas!: ElementRef<HTMLCanvasElement>;
-
     currentUserId = this.authService.getUserId();
     period        = signal<RankingPeriod>('weekly');
     ranking       = signal<RankingDto | null>(null);
@@ -43,16 +39,13 @@ export class RankingComponent implements OnInit, OnDestroy {
     animating     = signal(false);
     showPodium    = signal(false);
     showTable     = signal(false);
-
     private particleInterval: any = null;
     private seenPeriods = new Set<string>();
-
     periodOptions: PeriodOption[] = [
         { label: 'This Week', value: 'weekly'  },
         { label: 'This Month', value: 'monthly' },
         { label: 'All Time',  value: 'alltime'  }
     ];
-
     podiumEntries = computed(() => {
         const entries = this.ranking()?.entries ?? [];
         const p1 = entries.find(e => e.position === 1);
@@ -60,42 +53,33 @@ export class RankingComponent implements OnInit, OnDestroy {
         const p3 = entries.find(e => e.position === 3);
         return { p1, p2, p3 };
     });
-
     tableEntries = computed(() =>
         (this.ranking()?.entries ?? []).filter(e => e.position > 3)
     );
-
     currentUserEntry = computed(() =>
         this.ranking()?.entries.find(e => e.userId === this.currentUserId)
     );
-
     isCurrentUser(entry: RankingEntryDto): boolean {
         return entry.userId === this.currentUserId;
     }
-
     getReactionCount(entry: RankingEntryDto, emoji: string): number {
         return entry.reactions[emoji] ?? 0;
     }
-
     hasMyReaction(entry: RankingEntryDto, emoji: string): boolean {
         return !!(entry.reactions[emoji + '_me']);
     }
-
     ngOnInit() {
         this.loadRanking();
     }
-
     ngOnDestroy() {
         this.stopParticles();
     }
-
     loadRanking() {
         const p = this.period();
         this.loading.set(true);
         this.showPodium.set(false);
         this.showTable.set(false);
         this.animating.set(true);
-
         this.rankingService.getRanking(p).subscribe({
             next: (data) => {
                 this.ranking.set(data);
@@ -108,35 +92,28 @@ export class RankingComponent implements OnInit, OnDestroy {
             }
         });
     }
-
     setPeriod(p: RankingPeriod) {
         this.period.set(p);
         this.loadRanking();
     }
-
     private runEntryAnimation(data: RankingDto) {
         setTimeout(() => {
             this.showPodium.set(true);
         }, 300);
-
         setTimeout(() => {
             this.showTable.set(true);
             this.animating.set(false);
         }, 900);
-
         const periodKey = `ranking_seen_${this.period()}`;
         const alreadySeen = sessionStorage.getItem(periodKey);
-
         if (data.currentUserOnPodium && !alreadySeen) {
             sessionStorage.setItem(periodKey, '1');
             setTimeout(() => this.triggerConfetti(), 1200);
         }
-
         if (data.entries[0]) {
             setTimeout(() => this.startGoldParticles(), 600);
         }
     }
-
     private triggerConfetti() {
         const duration    = 4000;
         const animEnd     = Date.now() + duration;
@@ -146,7 +123,6 @@ export class RankingComponent implements OnInit, OnDestroy {
             startVelocity: 35,
             colors: ['#FFD700', '#FFA500', '#FF6347', '#00CED1', '#9370DB']
         };
-
         const interval = setInterval(() => {
             const timeLeft = animEnd - Date.now();
             if (timeLeft <= 0) return clearInterval(interval);
@@ -157,7 +133,6 @@ export class RankingComponent implements OnInit, OnDestroy {
                 origin: { x: rand(0.6, 0.9), y: Math.random() - 0.2 } });
         }, 200);
     }
-
     private startGoldParticles() {
         this.stopParticles();
         let tick = 0;
@@ -176,18 +151,15 @@ export class RankingComponent implements OnInit, OnDestroy {
             });
         }, 150);
     }
-
     private stopParticles() {
         if (this.particleInterval) {
             clearInterval(this.particleInterval);
             this.particleInterval = null;
         }
     }
-
     toggleReaction(entry: RankingEntryDto, emoji: string) {
         if (this.isCurrentUser(entry)) return;
         const period = this.period();
-
         if (this.hasMyReaction(entry, emoji)) {
             this.rankingService.removeReaction(entry.userId, emoji, period).subscribe({
                 next: () => {
@@ -204,19 +176,16 @@ export class RankingComponent implements OnInit, OnDestroy {
             });
         }
     }
-
     getMedalColor(position: number): string {
         if (position === 1) return 'gold';
         if (position === 2) return 'silver';
         return 'bronze';
     }
-
     getPositionLabel(position: number): string {
         if (position === 1) return '🥇';
         if (position === 2) return '🥈';
         return '🥉';
     }
-
     getPeriodLabel(value: string): string {
       return this.periodOptions.find(opt => opt.value === value)?.label ?? '';
     }

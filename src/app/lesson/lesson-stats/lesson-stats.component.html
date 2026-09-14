@@ -1,11 +1,9 @@
 <p-toast />
-
 <div *ngIf="!activeStudent()" class="card text-center py-16">
   <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
   <h3 class="text-xl font-semibold mb-2">No student selected</h3>
   <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
 </div>
-
 <div *ngIf="activeStudent() as student" class="card">
   <div class="flex items-center gap-3 mb-6">
     <app-avatar 
@@ -13,7 +11,6 @@
       [avatarUrl]="$any(student).avatarUrl" 
       customClass="w-10 h-10 text-base"
       fallbackBgClass="bg-primary text-white" />
-
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Stats</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }} - last 30 days</p>
@@ -21,13 +18,10 @@
     <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined
       size="small" (onClick)="goToSwitchClient()" />
   </div>
-
   <div *ngIf="loading()" class="text-center py-16 text-muted-color">
     <i class="pi pi-spin pi-spinner text-4xl block mb-3"></i>
   </div>
-
   <div *ngIf="!loading() && data() as d">
-
     <div class="grid grid-cols-3 gap-4 mb-6">
       <div class="bg-primary/10 rounded-xl p-4 text-center">
         <div class="text-2xl font-bold text-primary">
@@ -45,9 +39,7 @@
         <div class="text-xs text-muted-color mt-1">Avg grade</div>
       </div>
     </div>
-
     <div class="grid grid-cols-1 lg:grid-cols-2 gap-6 mb-6">
-
       <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
         <h3 class="font-semibold mb-4 m-0">Activity Points</h3>
         <div style="height: 200px" *ngIf="activityChart; else noData">
@@ -57,7 +49,6 @@
           <div class="h-48 flex items-center justify-center text-muted-color text-sm">No data yet.</div>
         </ng-template>
       </div>
-
       <div class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
         <h3 class="font-semibold mb-4 m-0">Flashcards per day</h3>
         <div style="height: 200px" *ngIf="flashcardsChart; else noData2">
@@ -67,9 +58,7 @@
           <div class="h-48 flex items-center justify-center text-muted-color text-sm">No data yet.</div>
         </ng-template>
       </div>
-
     </div>
-
     <div *ngIf="categoryChart"
       class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-xl p-5">
       <h3 class="font-semibold mb-4 m-0">Average by Category</h3>
@@ -101,6 +90,5 @@
         </div>
       </div>
     </div>
-
   </div>
 </div>

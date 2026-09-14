@@ -6,7 +6,6 @@ import { MessageService } from 'primeng/api';
 import {ToastModule} from 'primeng/toast';
 import {PasswordModule} from 'primeng/password';
 import {DropdownModule} from 'primeng/dropdown';
-
 @Component({
   selector: 'app-register',
   templateUrl: './register.component.html',
@@ -21,7 +20,6 @@ export class RegisterComponent {
     { label: 'Teacher', value: 'teacher' },
     { label: 'Admin', value: 'admin' }
   ];
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -36,7 +34,6 @@ export class RegisterComponent {
       role: ['', Validators.required]
     });
   }
-
   onSubmit(): void {
     if (this.registerForm.valid) {
       this.authService.register(this.registerForm.value).subscribe(

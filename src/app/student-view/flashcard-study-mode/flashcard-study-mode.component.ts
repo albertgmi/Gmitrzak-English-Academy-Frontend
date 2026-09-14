@@ -6,12 +6,10 @@ import { RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { FlashcardService, FlashcardDto } from '../../services/student-services/flashcard.service';
-
 interface SessionCard extends FlashcardDto {
     incorrectStep: number;
     availableAt: number;
 }
-
 @Component({
     selector: 'app-flashcard-study-mode',
     standalone: true,
@@ -22,7 +20,6 @@ interface SessionCard extends FlashcardDto {
 export class FlashcardStudyModeComponent implements OnInit {
     private flashcardService = inject(FlashcardService);
     private destroyRef = inject(DestroyRef);
-
     queue = signal<SessionCard[]>([]);
     pendingQueue = signal<SessionCard[]>([]);
     currentCard = signal<SessionCard | null>(null);
@@ -31,7 +28,6 @@ export class FlashcardStudyModeComponent implements OnInit {
     loading = signal(true);
     streak = signal<number>(0);
     studiedToday = signal<boolean>(false);
-
     streakInfo = computed(() => {
         const s = this.streak();
         if (s === 0) {
@@ -93,40 +89,32 @@ export class FlashcardStudyModeComponent implements OnInit {
             iconClass: 'text-cyan-500'
         };
     });
-
     private cardStartTime: number = 0; 
     private activeTimeout: any = null;
-
     private readonly INCORRECT_DELAYS_MS = [
         3  * 60 * 1000,
         6  * 60 * 1000,
         10 * 60 * 1000,
         15 * 60 * 1000
     ];
-
     nextEasyInterval = computed(() => {
         const card = this.currentCard();
         if (!card) return 2;
         return card.interval === 0 ? 2 : card.interval * 2;
     });
-
     currentIncorrectLabel = computed(() => {
         const card = this.currentCard();
         if (!card) return '3 min';
         const step = Math.min(card.incorrectStep, this.INCORRECT_DELAYS_MS.length - 1);
         return `${this.INCORRECT_DELAYS_MS[step] / 60000} min`;
     });
-
     totalInSession = computed(() => {
         return this.queue().length + this.pendingQueue().length + (this.currentCard() ? 1 : 0);
     });
-
     activeCategoryPriority = computed(() => this.flashcardService.categoryPriorityOrder());
     activeCategoryPrioritySummary = computed(() => this.flashcardService.categoryPriorityOrder().join(' > '));
-
     ngOnInit() {
         this.flashcardService.flashcards.reload();
-
         this.flashcardService.getStreak().subscribe({
             next: (res) => {
                 this.streak.set(res.streak);
@@ -134,7 +122,6 @@ export class FlashcardStudyModeComponent implements OnInit {
             },
             error: (err) => console.error('Failed to load streak:', err)
         });
-
         const interval = setInterval(() => {
             const cards = this.flashcardService.flashcards.value();
             if (cards !== undefined) {
@@ -144,9 +131,7 @@ export class FlashcardStudyModeComponent implements OnInit {
             }
         }, 100);
     }
-
     private readonly STORAGE_KEY = 'flashcards_pending_queue';
-
     private savePendingQueue(cards: SessionCard[]) {
         try {
             if (cards.length === 0) {
@@ -163,11 +148,9 @@ export class FlashcardStudyModeComponent implements OnInit {
             console.error('Failed to save pending queue to sessionStorage:', e);
         }
     }
-
     private initializeSession(allCards: FlashcardDto[]) {
         const today = new Intl.DateTimeFormat('sv-SE').format(new Date());
         const now = Date.now();
-
         let storedPendingMap = new Map<number, { incorrectStep: number; availableAt: number }>();
         try {
             const raw = sessionStorage.getItem(this.STORAGE_KEY);
@@ -182,10 +165,8 @@ export class FlashcardStudyModeComponent implements OnInit {
         } catch (e) {
             console.error('Failed to restore pending queue:', e);
         }
-
         let restoredPending: SessionCard[] = [];
         let toReview: SessionCard[] = [];
-
         for (const c of allCards) {
             if (c.nextReviewDate <= today) {
                 const pendingInfo = storedPendingMap.get(c.id);
@@ -204,27 +185,20 @@ export class FlashcardStudyModeComponent implements OnInit {
                 }
             }
         }
-
         this.savePendingQueue(restoredPending);
-
         const priorityOrder = this.flashcardService.categoryPriorityOrder().map(p => p.trim().toLowerCase());
         if (priorityOrder.length > 0) {
             toReview.sort((a, b) => {
                 const catA = (a.category ?? '').trim().toLowerCase();
                 const catB = (b.category ?? '').trim().toLowerCase();
-
                 const idxA = priorityOrder.indexOf(catA);
                 const idxB = priorityOrder.indexOf(catB);
-
                 const pA = idxA !== -1 ? idxA : 999;
                 const pB = idxB !== -1 ? idxB : 999;
-
                 return pA - pB;
             });
         }
-
         this.pendingQueue.set(restoredPending);
-
         if (toReview.length > 0 || restoredPending.length > 0) {
             this.queue.set(toReview);
             this.isFinished.set(false);
@@ -235,29 +209,22 @@ export class FlashcardStudyModeComponent implements OnInit {
             this.isFinished.set(true);
         }
     }
-
     nextCard() {
         if (this.activeTimeout) clearTimeout(this.activeTimeout);
         this.showBack.set(false);
         const now = Date.now();
-
         const ready = this.pendingQueue().filter(c => c.availableAt <= now);
         const stillWaiting = this.pendingQueue().filter(c => c.availableAt > now);
-
         if (ready.length > 0) {
             this.pendingQueue.set(stillWaiting);
             this.savePendingQueue(stillWaiting);
             this.queue.update(q => [...ready, ...q]);
         }
-
         const current = this.queue();
-
         if (current.length > 0) {
             this.currentCard.set(current[0]);
             this.queue.set(current.slice(1));
-            
             this.cardStartTime = Date.now(); 
-
         } else if (stillWaiting.length > 0) {
             this.currentCard.set(null);
             const nextAvailableAt = Math.min(...stillWaiting.map(c => c.availableAt));
@@ -269,19 +236,15 @@ export class FlashcardStudyModeComponent implements OnInit {
             this.savePendingQueue([]);
         }
     }
-
     handleReview(type: 'again_1m' | 'incorrect' | 'hard' | 'easy') {
         const card = this.currentCard();
         if (!card) return;
-
         if (!this.studiedToday()) {
             this.studiedToday.set(true);
             this.streak.update(s => s + 1);
         }
-
         const duration = Math.round((Date.now() - this.cardStartTime) / 1000);
         const timeSpentSeconds = Math.min(duration, 60); 
-
         if (type === 'again_1m') {
             const updatedCard: SessionCard = {
                 ...card,
@@ -306,9 +269,7 @@ export class FlashcardStudyModeComponent implements OnInit {
                 return nextQ;
             });
         }
-
         const backendType = type === 'again_1m' ? 'incorrect' : type;
-
         this.flashcardService.reviewCard(card.id, backendType, timeSpentSeconds)
             .pipe(
                 take(1),
@@ -317,45 +278,36 @@ export class FlashcardStudyModeComponent implements OnInit {
             .subscribe({
                 error: (err) => console.error('Failed to save review:', err)
             });
-
         this.showBack.set(false);
-                  
         setTimeout(() => {
             this.nextCard();
         }, 200);
     }
-
     toggleCard() {
         this.showBack.set(!this.showBack());
     }
-
     speak(text: string) {
         speechSynthesis.cancel();
-
         const processedWord = text
             .replace(/\bsb\b/gi, 'somebody')
             .replace(/\bsth\b/gi, 'something');
-            
         const u = new SpeechSynthesisUtterance(processedWord);
         u.lang = 'en-US';
         u.rate = 0.9;
         u.pitch = 1;
         speechSynthesis.speak(u);
     }
-
     getFontSizeClass(text: string | undefined | null): string {
         if (!text) return 'text-xl sm:text-3xl md:text-4xl';
         const len = text.length;
         const words = text.trim().split(/\s+/);
         const maxWordLen = Math.max(...words.map(w => w.length), 0);
-
         if (maxWordLen >= 13) {
             return 'text-base sm:text-2xl md:text-3xl lg:text-4xl';
         }
         if (maxWordLen >= 8) {
             return 'text-lg sm:text-3xl md:text-4xl lg:text-5xl';
         }
-
         if (len <= 15) return 'text-xl sm:text-3xl md:text-4xl lg:text-5xl';
         if (len <= 30) return 'text-lg sm:text-2xl md:text-3xl lg:text-4xl';
         if (len <= 50) return 'text-base sm:text-xl md:text-2xl lg:text-3xl';

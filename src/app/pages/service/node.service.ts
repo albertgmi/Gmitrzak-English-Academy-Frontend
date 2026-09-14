@@ -1,7 +1,6 @@
 import { HttpClient } from '@angular/common/http';
 import { Injectable } from '@angular/core';
 import { TreeNode } from 'primeng/api';
-
 @Injectable()
 export class NodeService {
     getTreeNodesData() {
@@ -72,7 +71,6 @@ export class NodeService {
             }
         ];
     }
-
     getTreeTableNodesData() {
         return [
             {
@@ -425,7 +423,6 @@ export class NodeService {
             }
         ];
     }
-
     getLazyNodesData() {
         return [
             {
@@ -451,7 +448,6 @@ export class NodeService {
             }
         ];
     }
-
     getFileSystemNodesData() {
         return [
             {
@@ -764,13 +760,10 @@ export class NodeService {
             }
         ];
     }
-
     getDynamicTreeNodes(parentCount: number, childrenCount: number): TreeNode[] {
         const nodes: TreeNode[] = [];
-
         for (let parentIndex = 0; parentIndex < parentCount; parentIndex++) {
             const children: TreeNode[] = [];
-
             for (let childIndex = 0; childIndex < childrenCount; childIndex++) {
                 children.push({
                     key: `${parentIndex}-${childIndex}`,
@@ -778,7 +771,6 @@ export class NodeService {
                     selectable: true
                 });
             }
-
             nodes.push({
                 key: parentIndex.toString(),
                 label: `Parent ${parentIndex}`,
@@ -786,30 +778,23 @@ export class NodeService {
                 children: children
             });
         }
-
         return nodes;
     }
-
     getLargeTreeNodes() {
         return Promise.resolve(this.getDynamicTreeNodes(10, 100));
     }
-
     getTreeTableNodes() {
         return Promise.resolve(this.getTreeTableNodesData());
     }
-
     getTreeNodes() {
         return Promise.resolve(this.getTreeNodesData());
     }
-
     getFiles() {
         return Promise.resolve(this.getTreeNodesData());
     }
-
     getLazyFiles() {
         return Promise.resolve(this.getLazyNodesData());
     }
-
     getFilesystem() {
         return Promise.resolve(this.getFileSystemNodesData());
     }

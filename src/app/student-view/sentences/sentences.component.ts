@@ -8,7 +8,6 @@ import { InputIconModule } from 'primeng/inputicon';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { ContentService } from '../../services/student-services/content.service';
-
 @Component({
     selector: 'app-sentences',
     standalone: true,
@@ -26,21 +25,16 @@ import { ContentService } from '../../services/student-services/content.service'
 })
 export class SentencesComponent implements OnInit {
     private contentService = inject(ContentService);
-    
     sentences = this.contentService.sentences;
-
     ngOnInit() {
         this.sentences.reload();
     }
-
     get currentData() {
         return this.sentences.value() || [];
     }
-
     get isLoading() {
         return this.sentences.isLoading();
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }

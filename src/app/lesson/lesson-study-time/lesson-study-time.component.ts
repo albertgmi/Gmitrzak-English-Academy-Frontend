@@ -9,7 +9,6 @@ import { LessonPanelService, StudentStudyTimeDto } from '../../services/lesson-p
 import { LessonContextService } from '../../services/lesson-context.service';
 import { ButtonModule } from 'primeng/button';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-lesson-study-time',
     standalone: true,
@@ -21,11 +20,9 @@ export class LessonStudyTimeComponent implements OnInit {
     private service = inject(LessonPanelService);
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
-
     activeStudent = this.lessonContext.activeStudent;
     data = signal<StudentStudyTimeDto | null>(null);
     loading = signal(true);
-
     ngOnInit() {
         const id = this.lessonContext.studentId;
         if (!id) return;
@@ -34,7 +31,6 @@ export class LessonStudyTimeComponent implements OnInit {
             error: () => this.loading.set(false)
         });
     }
-
     get chartData() {
         const d = this.data();
         if (!d?.dailyBreakdown.length) return null;
@@ -48,7 +44,6 @@ export class LessonStudyTimeComponent implements OnInit {
             }]
         };
     }
-
     get chartOptions() {
         return {
             responsive: true,
@@ -60,13 +55,11 @@ export class LessonStudyTimeComponent implements OnInit {
             }
         };
     }
-
     formatTime(seconds: number): string {
         const h = Math.floor(seconds / 3600);
         const m = Math.floor((seconds % 3600) / 60);
         if (h > 0) return `${h}h ${m}m`;
         return `${m}m`;
     }
-
     goToSwitchClient() { this.router.navigate(['/lesson/switch-client']); }
 }

@@ -8,7 +8,6 @@ import { PickListModule } from 'primeng/picklist';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { TagModule } from 'primeng/tag';
 import { Product, ProductService } from '../service/product.service';
-
 @Component({
     selector: 'app-list-demo',
     standalone: true,
@@ -26,7 +25,6 @@ import { Product, ProductService } from '../service/product.service';
                         </p-select-button>
                     </div>
                 </ng-template>
-
                 <ng-template #list let-items>
                     <div class="flex flex-col">
                         <div *ngFor="let item of items; let i = index">
@@ -70,7 +68,6 @@ import { Product, ProductService } from '../service/product.service';
                         </div>
                     </div>
                 </ng-template>
-
                 <ng-template #grid let-items>
                     <div class="grid grid-cols-12 gap-4">
                         <div *ngFor="let item of items; let i = index" class="col-span-12 sm:col-span-6 lg:col-span-4 p-2">
@@ -118,7 +115,6 @@ import { Product, ProductService } from '../service/product.service';
                 </ng-template>
             </p-dataview>
         </div>
-
         <div class="flex flex-col lg:flex-row gap-20">
             <div class="lg:w-2/3">
                 <div class="card">
@@ -130,7 +126,6 @@ import { Product, ProductService } from '../service/product.service';
                     </p-pick-list>
                 </div>
             </div>
-
             <div class="lg:w-1/3">
                 <div class="card">
                     <div class="font-semibold text-xl mb-4">OrderList</div>
@@ -154,22 +149,14 @@ import { Product, ProductService } from '../service/product.service';
 })
 export class ListDemo {
     layout: 'list' | 'grid' = 'list';
-
     options = ['list', 'grid'];
-
     products: Product[] = [];
-
     sourceCities: any[] = [];
-
     targetCities: any[] = [];
-
     orderCities: any[] = [];
-
     constructor(private productService: ProductService) {}
-
     ngOnInit() {
         this.productService.getProductsSmall().then((data) => (this.products = data.slice(0, 6)));
-
         this.sourceCities = [
             { name: 'San Francisco', code: 'SF' },
             { name: 'London', code: 'LDN' },
@@ -179,9 +166,7 @@ export class ListDemo {
             { name: 'Barcelona', code: 'BRC' },
             { name: 'Rome', code: 'RM' }
         ];
-
         this.targetCities = [];
-
         this.orderCities = [
             { name: 'San Francisco', code: 'SF' },
             { name: 'London', code: 'LDN' },
@@ -192,18 +177,14 @@ export class ListDemo {
             { name: 'Rome', code: 'RM' }
         ];
     }
-
     getSeverity(product: Product) {
         switch (product.inventoryStatus) {
             case 'INSTOCK':
                 return 'success';
-
             case 'LOWSTOCK':
                 return 'warn';
-
             case 'OUTOFSTOCK':
                 return 'danger';
-
             default:
                 return 'info';
         }

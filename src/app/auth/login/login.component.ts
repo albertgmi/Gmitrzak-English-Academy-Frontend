@@ -11,7 +11,6 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { AnnouncementService } from '../../services/announcement.service';
-
 @Component({
   standalone: true,
   selector: 'app-login',
@@ -23,7 +22,6 @@ import { AnnouncementService } from '../../services/announcement.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
-
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
@@ -37,7 +35,6 @@ export class LoginComponent {
       rememberme: [false],
     });
   }
-
   onSubmit(): void {
     if (this.loginForm.valid) {
       this.authService.login(this.loginForm.value).subscribe({

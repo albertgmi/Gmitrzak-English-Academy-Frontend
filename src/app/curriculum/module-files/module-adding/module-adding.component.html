@@ -1,5 +1,4 @@
 <p-toast />
-
 <div class="card">
   <div class="flex items-center justify-between mb-6">
     <div>
@@ -7,29 +6,22 @@
       <p class="text-muted-color mt-1 m-0">Define the details of the new task module</p>
     </div>
   </div>
-
   <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 border border-surface-200 dark:border-surface-700">
     <div class="grid grid-cols-1 md:grid-cols-2 gap-5">
-
-      <!-- Name -->
       <div>
         <label class="block font-bold mb-2">Name <span class="text-red-500">*</span></label>
         <input type="text" pInputText [(ngModel)]="newModule.name"
-          placeholder="e.g. Translate sentences 1–10" fluid />
+          placeholder="e.g. Translate sentences 1-10" fluid />
         <small class="text-red-500" *ngIf="submitted && !newModule.name?.trim()">
           Name is required.
         </small>
       </div>
-
-      <!-- Category -->
       <div>
         <label class="block font-bold mb-2">Category</label>
         <p-select [options]="categories" optionLabel="label" optionValue="value"
           [(ngModel)]="newModule.category" placeholder="Select category"
           (onChange)="onCategoryChange()" fluid />
       </div>
-
-      <!-- Watching — video selector -->
       <div class="md:col-span-2" *ngIf="newModule.category === 'Watching'">
         <label class="block font-bold mb-2">
           Video Material <span class="text-red-500">*</span>
@@ -41,8 +33,6 @@
           Required for Watching category.
         </small>
       </div>
-
-      <!-- Sentences — sentence set selector -->
       <div class="md:col-span-2" *ngIf="newModule.category === 'Sentences'">
         <label class="block font-bold mb-2">
           Sentence Set <span class="text-red-500">*</span>
@@ -54,14 +44,11 @@
           Required for Sentences category.
         </small>
       </div>
-
-      <!-- Presentation — url + text -->
       <div *ngIf="newModule.category === 'Presentation'" class="md:col-span-2">
         <label class="block font-bold mb-2">Presentation URL (optional)</label>
         <input type="url" pInputText [(ngModel)]="newModule.presentationUrl"
           placeholder="https://..." fluid />
       </div>
-
       <div class="md:col-span-2" *ngIf="newModule.category === 'Essay'">
         <label class="block font-bold mb-2">
           Essay Prompt <span class="text-red-500">*</span>
@@ -76,7 +63,6 @@
           This prompt will be shown to the student as the essay topic.
         </small>
       </div>
-      
       <div class="md:col-span-2" *ngIf="newModule.category === 'Essay'">
         <div class="flex items-start gap-2 p-3 bg-purple-50 dark:bg-purple-900/20
           border border-purple-200 dark:border-purple-800 rounded-xl">
@@ -87,8 +73,6 @@
           </p>
         </div>
       </div>
-
-      <!-- Description -->
       <div class="md:col-span-2">
         <label class="block font-bold mb-2">Description</label>
         <textarea pTextarea [(ngModel)]="newModule.description"
@@ -100,8 +84,6 @@
           This text will be shown to the student as reading material.
         </small>
       </div>
-
-      <!-- Info banners per category -->
       <div class="md:col-span-2"
         *ngIf="['Flashcards','Memories','Pronunciation'].includes(newModule.category)">
         <div class="flex items-start gap-2 p-3 bg-blue-50 dark:bg-blue-900/20
@@ -113,15 +95,11 @@
           </p>
         </div>
       </div>
-
-      <!-- Hidden -->
       <div class="flex items-center gap-2">
         <p-checkbox [(ngModel)]="newModule.isHidden" [binary]="true" inputId="add-hidden" />
         <label for="add-hidden" class="font-bold">Hidden from students</label>
       </div>
-
     </div>
-
     <div class="flex gap-3 mt-6">
       <p-button label="Create Module" icon="pi pi-check" (onClick)="save()" />
       <p-button label="Cancel" severity="secondary" outlined (onClick)="cancel()" />

@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-
 export interface ExaminationFlashcardDto {
     id: number;
     front: string;
@@ -10,14 +9,12 @@ export interface ExaminationFlashcardDto {
     easeFactor: number;
     interval: number;
 }
-
 export interface ExaminationSentenceDto {
     id: number;
     content: string;
     translation: string;
     notes?: string;
 }
-
 export interface ExaminationMemoryDto {
     id: number;
     optionA: string;
@@ -26,13 +23,11 @@ export interface ExaminationMemoryDto {
     notes?: string;
     category?: string;
 }
-
 export interface ExaminationDto {
     flashcards: ExaminationFlashcardDto[];
     sentences:  ExaminationSentenceDto[];
     memories:   ExaminationMemoryDto[];
 }
-
 @Injectable({ providedIn: 'root' })
 export class ExaminationService {
     private http = inject(HttpClient);

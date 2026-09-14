@@ -1,6 +1,4 @@
 <div class="space-y-6">
-
-  <!-- Header Banner -->
   <div class="card">
     <div class="flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
       <div>
@@ -16,7 +14,6 @@
           View your submitted essays, word counts, submission dates, and teacher reviews.
         </p>
       </div>
-
       <div class="flex items-center gap-3 flex-shrink-0">
         <p-button
           icon="pi pi-refresh"
@@ -27,14 +24,10 @@
       </div>
     </div>
   </div>
-
-  <!-- Loading State -->
   <div *ngIf="loading()" class="card text-center py-12 text-muted-color">
     <i class="pi pi-spin pi-spinner text-4xl text-primary"></i>
     <p class="mt-3 font-medium">Loading your essays...</p>
   </div>
-
-  <!-- Error Alert -->
   <div *ngIf="error()" class="card bg-red-500/10 border border-red-500/30 text-red-500 rounded-xl p-4 flex items-center justify-between">
     <div class="flex items-center gap-3">
       <i class="pi pi-exclamation-triangle text-2xl"></i>
@@ -42,12 +35,8 @@
     </div>
     <p-button label="Retry" icon="pi pi-refresh" (onClick)="loadMyEssays()" styleClass="p-button-outlined p-button-danger p-button-sm"></p-button>
   </div>
-
   <ng-container *ngIf="!loading() && !error()">
-
-    <!-- Summary Stats Grid -->
     <div class="grid grid-cols-1 sm:grid-cols-3 gap-4 md:gap-6">
-      
       <div class="card !p-5 !mb-0 h-full border-l-4 border-primary flex items-center justify-between shadow-sm">
         <div class="space-y-1">
           <span class="text-xs uppercase tracking-wider font-bold text-muted-color block">TOTAL SUBMITTED</span>
@@ -60,7 +49,6 @@
           <i class="pi pi-file"></i>
         </div>
       </div>
-
       <div class="card !p-5 !mb-0 h-full border-l-4 border-green-500 flex items-center justify-between shadow-sm">
         <div class="space-y-1">
           <span class="text-xs uppercase tracking-wider font-bold text-muted-color block">REVIEWED BY TEACHER</span>
@@ -73,7 +61,6 @@
           <i class="pi pi-check-circle"></i>
         </div>
       </div>
-
       <div class="card !p-5 !mb-0 h-full border-l-4 border-amber-500 flex items-center justify-between shadow-sm">
         <div class="space-y-1">
           <span class="text-xs uppercase tracking-wider font-bold text-muted-color block">PENDING REVIEW</span>
@@ -86,13 +73,8 @@
           <i class="pi pi-clock"></i>
         </div>
       </div>
-
     </div>
-
-    <!-- Filter & Search Toolbar -->
     <div class="card p-4 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-4">
-      
-      <!-- Filter Buttons -->
       <div class="inline-flex rounded-xl p-1 bg-surface-100 dark:bg-surface-800 border border-surface-200 dark:border-surface-700">
         <button
           pButton
@@ -118,8 +100,6 @@
           (click)="setStatusFilter('pending')">
         </button>
       </div>
-
-      <!-- Search Input -->
       <div class="w-full md:w-72">
         <p-iconfield iconPosition="left" styleClass="w-full">
           <p-inputicon styleClass="pi pi-search"></p-inputicon>
@@ -132,13 +112,8 @@
             class="w-full p-inputtext-sm rounded-xl" />
         </p-iconfield>
       </div>
-
     </div>
-
-    <!-- Main List / Table -->
     <div class="card p-4 md:p-6">
-      
-      <!-- Desktop Table -->
       <div class="hidden sm:block">
         <p-table
           *ngIf="filteredEssays().length > 0"
@@ -165,7 +140,7 @@
                 <p-tag [value]="getWordCount(essay.content) + ' words'" severity="secondary" styleClass="text-xs font-semibold px-2.5 py-1" />
               </td>
               <td class="text-center text-sm text-muted-color font-medium">
-                {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : '—' }}
+                {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : '-' }}
               </td>
               <td class="text-center">
                 <p-tag
@@ -193,13 +168,10 @@
           </ng-template>
         </p-table>
       </div>
-
-      <!-- Mobile Responsive Cards -->
       <div class="block sm:hidden space-y-4">
         <div
           *ngFor="let essay of filteredEssays()"
           class="border border-surface-200 dark:border-surface-700 rounded-2xl p-4 bg-surface-0 dark:bg-surface-900 shadow-sm space-y-3">
-          
           <div class="flex items-start justify-between gap-2">
             <div>
               <h3 class="font-bold text-surface-900 dark:text-surface-0 text-base m-0">{{ essay.moduleName }}</h3>
@@ -218,15 +190,13 @@
               icon="pi pi-clock"
               styleClass="text-xs font-semibold" />
           </div>
-
           <div class="flex items-center justify-between pt-2 border-t border-surface-100 dark:border-surface-800 text-xs text-muted-color">
             <div class="flex items-center gap-2">
               <span class="font-semibold text-primary bg-primary/10 px-2 py-0.5 rounded-md">
                 {{ getWordCount(essay.content) }} words
               </span>
-              <span>• {{ essay.submittedDate ? (essay.submittedDate | date:'shortDate') : '—' }}</span>
+              <span>• {{ essay.submittedDate ? (essay.submittedDate | date:'shortDate') : '-' }}</span>
             </div>
-
             <p-button
               icon="pi pi-eye"
               label="View"
@@ -236,8 +206,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Empty State -->
       <div *ngIf="filteredEssays().length === 0" class="text-center py-12 text-muted-color">
         <div class="w-16 h-16 rounded-full bg-primary/10 text-primary flex items-center justify-center text-3xl mx-auto mb-3">
           <i class="pi pi-file-edit"></i>
@@ -247,12 +215,8 @@
           {{ essays().length === 0 ? 'You haven\'t submitted any essays yet. Complete essay modules in your courses to get teacher feedback.' : 'No essays match your selected filters.' }}
         </p>
       </div>
-
     </div>
-
   </ng-container>
-
-  <!-- Essay Detail & Feedback Modal Dialog -->
   <p-dialog
     [(visible)]="showDialog"
     [header]="selectedEssay()?.moduleName || 'Essay Details'"
@@ -260,11 +224,8 @@
     [draggable]="false"
     [resizable]="false"
     [style]="{ width: '92vw', maxWidth: '850px' }">
-    
     <ng-container *ngIf="selectedEssay() as essay">
       <div class="space-y-5 pt-2 max-w-full overflow-hidden">
-        
-        <!-- Header Info Cell -->
         <div class="flex items-center justify-between flex-wrap gap-2 p-3.5 bg-surface-100 dark:bg-surface-800 rounded-2xl border border-surface-200 dark:border-surface-700">
           <div class="flex items-center gap-2 flex-wrap">
             <p-tag
@@ -285,13 +246,10 @@
               icon="pi pi-align-left"
               styleClass="text-xs font-semibold px-2.5 py-1" />
           </div>
-          
           <div class="text-xs text-muted-color font-semibold">
-            Submitted: {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : '—' }}
+            Submitted: {{ essay.submittedDate ? (essay.submittedDate | date:'mediumDate') : '-' }}
           </div>
         </div>
-
-        <!-- Section 1: Prompt Podłużna Komórka -->
         <div class="rounded-2xl border border-blue-200 dark:border-blue-900 bg-blue-50/60 dark:bg-blue-950/30 p-4 md:p-5">
           <div class="text-xs uppercase tracking-wider font-bold text-blue-600 dark:text-blue-400 mb-1.5 flex items-center gap-1.5">
             <i class="pi pi-info-circle text-sm"></i> Essay Prompt
@@ -300,8 +258,6 @@
             {{ essay.essayPrompt }}
           </div>
         </div>
-
-        <!-- Section 2: Student Essay Podłużna Komórka -->
         <div class="rounded-2xl border border-surface-200 dark:border-surface-700 bg-surface-0 dark:bg-surface-900 p-4 md:p-5 space-y-2">
           <div class="flex items-center justify-between pb-2 border-b border-surface-100 dark:border-surface-800">
             <h4 class="text-xs uppercase tracking-wider font-bold text-muted-color m-0 flex items-center gap-1.5">
@@ -311,31 +267,24 @@
               {{ getWordCount(essay.content) }} words
             </span>
           </div>
-
           <div
             class="essay-content-box text-surface-900 dark:text-surface-0 text-sm md:text-base leading-relaxed max-h-60 overflow-y-auto pr-1 pt-1"
             [innerHTML]="essay.content">
           </div>
         </div>
-
-        <!-- Section 3: Teacher Feedback Podłużna Komórka -->
         <div>
-          <!-- When Reviewed -->
           <div *ngIf="essay.isReviewed && essay.adminContent" class="rounded-2xl border border-emerald-300 dark:border-emerald-800 bg-emerald-50/70 dark:bg-emerald-950/30 p-4 md:p-5 space-y-2">
             <div class="flex items-center justify-between pb-2 border-b border-emerald-200 dark:border-emerald-800">
               <span class="text-xs font-bold uppercase tracking-wider text-emerald-700 dark:text-emerald-300 flex items-center gap-1.5">
                 <i class="pi pi-comment text-sm"></i> Teacher Feedback & Corrections
               </span>
-              <span class="text-xs text-muted-color font-medium">Reviewed: {{ essay.reviewedDate ? (essay.reviewedDate | date:'mediumDate') : '—' }}</span>
+              <span class="text-xs text-muted-color font-medium">Reviewed: {{ essay.reviewedDate ? (essay.reviewedDate | date:'mediumDate') : '-' }}</span>
             </div>
-
             <div
               class="essay-content-box text-surface-900 dark:text-surface-0 text-sm md:text-base leading-relaxed pt-1"
               [innerHTML]="essay.adminContent">
             </div>
           </div>
-
-          <!-- When Pending -->
           <div *ngIf="!essay.isReviewed" class="rounded-2xl border border-amber-200 dark:border-amber-900 bg-amber-50/60 dark:bg-amber-950/30 p-5 text-center">
             <i class="pi pi-clock text-amber-500 text-3xl mb-2 block"></i>
             <p class="text-base font-bold text-amber-800 dark:text-amber-300 m-0 mb-1">Pending Teacher Review</p>
@@ -344,13 +293,10 @@
             </p>
           </div>
         </div>
-
       </div>
     </ng-container>
-
     <ng-template pTemplate="footer">
       <p-button label="Close" icon="pi pi-times" styleClass="p-button-outlined" (onClick)="showDialog.set(false)"></p-button>
     </ng-template>
   </p-dialog>
-
 </div>

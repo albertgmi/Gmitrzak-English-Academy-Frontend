@@ -15,14 +15,12 @@ import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { AttendanceService, AttendanceDto } from '../../services/attendance.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 export interface AttendanceGroup {
     dateKey: string;
     dateFormatted: string;
     records: AttendanceDto[];
     totalDuration: number;
 }
-
 @Component({
     selector: 'app-attendance-list',
     standalone: true,
@@ -50,24 +48,19 @@ export class AttendanceListComponent implements OnInit {
     private attendanceService = inject(AttendanceService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     attendances = signal<AttendanceDto[]>([]);
     loading = signal(true);
-
     searchTerm = signal('');
     selectedTypeFilter = signal<'ALL' | 'SCHEDULED' | 'MAKEUP'>('ALL');
     collapsedDateKeys = signal<Set<string>>(new Set());
-
     typeFilterOptions = [
         { label: 'All', value: 'ALL' },
         { label: 'Scheduled', value: 'SCHEDULED' },
         { label: 'Makeup', value: 'MAKEUP' }
     ];
-
     ngOnInit() {
         this.loadData();
     }
-
     loadData() {
         this.loading.set(true);
         this.attendanceService.getAllAttendance().subscribe({
@@ -87,7 +80,6 @@ export class AttendanceListComponent implements OnInit {
             }
         });
     }
-
     toggleGroup(dateKey: string) {
         this.collapsedDateKeys.update(set => {
             const next = new Set(set);
@@ -99,25 +91,20 @@ export class AttendanceListComponent implements OnInit {
             return next;
         });
     }
-
     isExpanded(dateKey: string): boolean {
         return !this.collapsedDateKeys().has(dateKey);
     }
-
     expandAll() {
         this.collapsedDateKeys.set(new Set());
     }
-
     collapseAll() {
         const allKeys = this.groupedAttendance().map(g => g.dateKey);
         this.collapsedDateKeys.set(new Set(allKeys));
     }
-
     filteredAttendances = computed(() => {
         const query = this.searchTerm().trim().toLowerCase();
         const typeFilter = this.selectedTypeFilter();
         const raw = this.attendances();
-
         return raw.filter(item => {
             const matchesType = typeFilter === 'ALL' || item.type === typeFilter;
             const studentName = (item.username || `User #${item.userId}`).toLowerCase();
@@ -125,32 +112,25 @@ export class AttendanceListComponent implements OnInit {
             return matchesType && matchesSearch;
         });
     });
-
     groupedAttendance = computed<AttendanceGroup[]>(() => {
         const items = this.filteredAttendances();
         const groupMap = new Map<string, AttendanceDto[]>();
-
         items.forEach(item => {
             const dateObj = new Date(item.createdAt);
             const dateKey = !isNaN(dateObj.getTime())
                 ? dateObj.toISOString().split('T')[0]
                 : 'Other date';
-
             if (!groupMap.has(dateKey)) {
                 groupMap.set(dateKey, []);
             }
             groupMap.get(dateKey)!.push(item);
         });
-
         const result: AttendanceGroup[] = [];
         const sortedKeys = Array.from(groupMap.keys()).sort((a, b) => b.localeCompare(a));
-
         sortedKeys.forEach(dateKey => {
             const records = groupMap.get(dateKey)!;
             records.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
-
             const totalDuration = records.reduce((sum, r) => sum + (r.duration || 0), 0);
-
             result.push({
                 dateKey,
                 dateFormatted: this.formatDateHeader(dateKey),
@@ -158,24 +138,18 @@ export class AttendanceListComponent implements OnInit {
                 totalDuration
             });
         });
-
         return result;
     });
-
     totalLessonsCount = computed(() => this.filteredAttendances().length);
-
     totalMinutesCount = computed(() =>
         this.filteredAttendances().reduce((sum, r) => sum + (r.duration || 0), 0)
     );
-
     scheduledCount = computed(() =>
         this.filteredAttendances().filter(r => r.type === 'SCHEDULED').length
     );
-
     makeupCount = computed(() =>
         this.filteredAttendances().filter(r => r.type === 'MAKEUP').length
     );
-
     formatDuration(minutes: number): string {
         if (!minutes || minutes <= 0) return '0 min';
         const hrs = Math.floor(minutes / 60);
@@ -187,12 +161,10 @@ export class AttendanceListComponent implements OnInit {
         }
         return `${mins} min`;
     }
-
     formatDateHeader(dateKey: string): string {
         if (dateKey === 'Other date') return dateKey;
         const [year, month, day] = dateKey.split('-').map(Number);
         if (!year || !month || !day) return dateKey;
-
         const date = new Date(year, month - 1, day);
         return date.toLocaleDateString('en-US', {
             weekday: 'long',
@@ -201,11 +173,9 @@ export class AttendanceListComponent implements OnInit {
             day: 'numeric'
         });
     }
-
     confirmDelete(record: AttendanceDto) {
         const studentName = record.username || `User #${record.userId}`;
         const dateStr = new Date(record.createdAt).toLocaleDateString('en-US');
-
         this.confirmationService.confirm({
             message: `Are you sure you want to delete the attendance record for ${studentName} from ${dateStr}?`,
             header: 'Delete Confirmation',

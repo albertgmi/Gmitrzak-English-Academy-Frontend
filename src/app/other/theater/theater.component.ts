@@ -17,9 +17,7 @@ import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { TheaterService, TheaterItemDto } from '../../services/theater.service';
-
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
-
 @Component({
     selector: 'app-theater',
     standalone: true,
@@ -37,18 +35,15 @@ export class TheaterComponent implements OnInit {
     private theaterService = inject(TheaterService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     items = this.theaterService.items;
     showDialog = signal(false);
     isEdit = signal(false);
     saving = signal(false);
     submitted = false;
-
     form = signal<Partial<TheaterItemDto>>({
         title: '', description: '', url: '', thumbnailUrl: '',
         mediaType: 'Movie', durationMinutes: 0, level: '', isActive: true
     });
-
     mediaTypes = [
         { label: 'Movie',     value: 'Movie' },
         { label: 'TV Series', value: 'TV Series' },
@@ -59,18 +54,15 @@ export class TheaterComponent implements OnInit {
         { label: 'Article',   value: 'Article' },
         { label: 'Other',     value: 'Other' }
     ];
-
     levels = [
         { label: 'All levels', value: '' },
         { label: 'Basic', value: 'Basic' },
         { label: 'Communicative', value: 'Communicative' },
         { label: 'Advanced', value: 'Advanced' }
     ];
-
     ngOnInit() {
         this.theaterService.reloadItems();
     }
-
     openNew() {
         this.form.set({
             title: '', description: '', url: '', thumbnailUrl: '',
@@ -80,24 +72,20 @@ export class TheaterComponent implements OnInit {
         this.submitted = false;
         this.showDialog.set(true);
     }
-
     openEdit(item: TheaterItemDto) {
         this.form.set({ ...item });
         this.isEdit.set(true);
         this.submitted = false;
         this.showDialog.set(true);
     }
-
     save() {
         this.submitted = true;
         const f = this.form();
         if (!f.title?.trim() || !f.url?.trim()) return;
-
         this.saving.set(true);
         const action = this.isEdit()
             ? this.theaterService.update(f.id!, f)
             : this.theaterService.create(f);
-
         action.subscribe({
             next: () => {
                 this.theaterService.reloadItems();
@@ -116,7 +104,6 @@ export class TheaterComponent implements OnInit {
             }
         });
     }
-
     toggleActive(item: TheaterItemDto) {
         this.theaterService.toggleActive(item.id).subscribe({
             next: () => this.theaterService.reloadItems(),
@@ -125,7 +112,6 @@ export class TheaterComponent implements OnInit {
             })
         });
     }
-
     confirmDelete(item: TheaterItemDto) {
         this.confirmationService.confirm({
             message: `Delete "${item.title}"?`,
@@ -143,7 +129,6 @@ export class TheaterComponent implements OnInit {
             }
         });
     }
-
     mediaTypeSeverity(type: string): SeverityType {
         const map: Record<string, SeverityType> = {
             Movie: 'info', 'TV Series': 'info', TvSeries: 'info', YouTube: 'danger', Podcast: 'warn',
@@ -151,11 +136,9 @@ export class TheaterComponent implements OnInit {
         };
         return map[type] ?? 'info';
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload() {
         this.theaterService.reloadItems();
     }

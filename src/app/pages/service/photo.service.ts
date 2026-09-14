@@ -1,5 +1,4 @@
 import { Injectable } from '@angular/core';
-
 @Injectable()
 export class PhotoService {
     getData() {
@@ -96,7 +95,6 @@ export class PhotoService {
             }
         ];
     }
-
     getImages() {
         return Promise.resolve(this.getData());
     }

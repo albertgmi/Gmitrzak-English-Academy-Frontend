@@ -22,7 +22,6 @@ import {
   WordfinderCatalogueEntryDto,
   WordfinderCatalogueStatus
 } from '../../services/wordfinder.service';
-
 @Component({
   selector: 'app-wordfinder-queue',
   standalone: true,
@@ -50,14 +49,10 @@ export class WordfinderQueueComponent implements OnInit {
   private wordfinderService = inject(WordfinderService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
-
   WordfinderCatalogueStatus = WordfinderCatalogueStatus;
-
   pendingCatalogues = signal<WordfinderCatalogueListDto[]>([]);
   loading = signal(false);
   processing = signal(false);
-
-  // Computed Stats for Admin KPI Cards
   pendingCount = computed(() => this.pendingCatalogues().filter(c => {
     const s = String(c.status).toLowerCase();
     return s === 'pendingapproval' || s === '1';
@@ -74,10 +69,7 @@ export class WordfinderQueueComponent implements OnInit {
     const s = String(c.status).toLowerCase();
     return s === 'rejected' || s === '3';
   }).length);
-
-  // Status Filter State
   selectedStatus = signal<WordfinderCatalogueStatus | null>(null);
-
   statusOptions = [
     { label: 'All Statuses (Default)', value: null },
     { label: 'Pending Approval', value: WordfinderCatalogueStatus.PendingApproval },
@@ -85,24 +77,17 @@ export class WordfinderQueueComponent implements OnInit {
     { label: 'Approved', value: WordfinderCatalogueStatus.Approved },
     { label: 'Rejected', value: WordfinderCatalogueStatus.Rejected }
   ];
-
-  // Review Dialog State
   reviewDialogVisible = signal(false);
   selectedCatalogue = signal<WordfinderCatalogueDto | null>(null);
   editableEntries = signal<WordfinderCatalogueEntryDto[]>([]);
-
-  // Reject Dialog State
   rejectDialogVisible = signal(false);
   rejectionReason = signal('');
-
   onGlobalFilter(table: Table, event: Event) {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
-
   ngOnInit() {
     this.loadCatalogues();
   }
-
   loadCatalogues() {
     this.loading.set(true);
     const filter = this.selectedStatus();
@@ -117,12 +102,10 @@ export class WordfinderQueueComponent implements OnInit {
       }
     });
   }
-
   onStatusFilterChange(value: WordfinderCatalogueStatus | null) {
     this.selectedStatus.set(value);
     this.loadCatalogues();
   }
-
   openReview(item: WordfinderCatalogueListDto) {
     this.loading.set(true);
     this.wordfinderService.getById(item.id).subscribe({
@@ -138,32 +121,26 @@ export class WordfinderQueueComponent implements OnInit {
       }
     });
   }
-
   addEntry() {
     this.editableEntries.update(list => [...list, { front: '', back: '' }]);
   }
-
   removeEntry(index: number) {
     this.editableEntries.update(list => list.filter((_, i) => i !== index));
   }
-
   getFinalNamePreview(): string {
     const cat = this.selectedCatalogue();
     if (!cat) return '';
     const initials = cat.studentInitials || 'XX';
     return `${initials}_${cat.name}`;
   }
-
   approveCatalogue() {
     const cat = this.selectedCatalogue();
     if (!cat) return;
-
     const validEntries = this.editableEntries().filter(e => e.front.trim().length > 0);
     if (validEntries.length === 0) {
       this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Catalogue must contain at least one valid entry' });
       return;
     }
-
     this.processing.set(true);
     this.wordfinderService.approveCatalogue(cat.id, validEntries).subscribe({
       next: (approved) => {
@@ -184,22 +161,18 @@ export class WordfinderQueueComponent implements OnInit {
       }
     });
   }
-
   openRejectDialog() {
     this.rejectionReason.set('');
     this.rejectDialogVisible.set(true);
   }
-
   submitRejection() {
     const cat = this.selectedCatalogue();
     if (!cat) return;
-
     const reason = this.rejectionReason().trim();
     if (!reason) {
       this.messageService.add({ severity: 'warn', summary: 'Validation', detail: 'Please provide a rejection reason/feedback' });
       return;
     }
-
     this.processing.set(true);
     this.wordfinderService.rejectCatalogue(cat.id, reason).subscribe({
       next: () => {
@@ -215,7 +188,6 @@ export class WordfinderQueueComponent implements OnInit {
       }
     });
   }
-
   getStatusSeverity(status: any): 'info' | 'warn' | 'success' | 'danger' {
     if (status === null || status === undefined) return 'info';
     const s = String(status).toLowerCase();
@@ -225,7 +197,6 @@ export class WordfinderQueueComponent implements OnInit {
     if (s === '3' || s === 'rejected') return 'danger';
     return 'info';
   }
-
   getStatusLabel(status: any): string {
     if (status === null || status === undefined) return 'Draft';
     const s = String(status).toLowerCase();

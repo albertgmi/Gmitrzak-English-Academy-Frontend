@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { lastValueFrom, Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { map } from 'rxjs/operators';
-
 export interface ProfileDto {
   username: string;
   email: string;
@@ -33,24 +32,19 @@ export interface ProfileDto {
   semester19: boolean;
   semester20: boolean;
 }
-
 @Injectable({ providedIn: 'root' })
 export class ProfileService {
   private apiUrl = `${environment.apiUrl}/api/profile`;
   http = inject(HttpClient);
-
   getProfile(userId: number): Observable<ProfileDto> {
     return this.http.get<ProfileDto>(`${this.apiUrl}/${userId}`);
   }
-
   updateProfile(userId: number, request: Partial<ProfileDto>): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${userId}`, request);
   }
-
   uploadAvatar(userId: number, file: File): Observable<string> {
     const formData = new FormData();
     formData.append('file', file);
-    
     return this.http.post(`${this.apiUrl}/${userId}/avatar`, formData, {
       responseType: 'text'
     }).pipe(

@@ -20,16 +20,13 @@ import { CatalogueService, CatalogueDto } from '../../services/catalogue.service
 import { SentenceService as SentenceSetsService } from '../../services/sentence.service';
 import { AlphabetTestItemDto } from '../../services/lesson.service';
 import { AdminMemoriesService } from '../../services/admin-memories.service';
-
 type LessonTab = 'flashcard' | 'sentence' | 'memory' | 'pronunciation' | 'alphabet' | 'catalogues';
-
 export interface SentenceStockDto {
     id: number;
     polish: string;
     englishTranslation: string;
     category: string;
 }
-
 @Component({
     selector: 'app-lesson-mode',
     standalone: true,
@@ -47,10 +44,8 @@ export class LessonModeComponent {
     private catalogueService = inject(CatalogueService);
     private sentenceSetsService = inject(SentenceSetsService);
     private adminMemoriesService = inject(AdminMemoriesService);
-
     activeStudent = this.lessonContext.activeStudent;
     activeTab = signal<LessonTab>('flashcard');
-
     setActiveTab(tab: LessonTab) {
         this.activeTab.set(tab);
         if (tab === 'catalogues') {
@@ -61,7 +56,6 @@ export class LessonModeComponent {
             this.loadAlphabetTest();
         }
     }
-
     searchQuery = signal('');
     searchResult = signal<SearchVocabularyResult[] | null>(null);
     searching = signal(false);
@@ -71,7 +65,6 @@ export class LessonModeComponent {
     newCategory = signal('Vocabulary');
     checkingDuplicateFlashcard = signal(false);
     isFlashcardDuplicate = signal(false);
-
     sentenceContent = signal('');
     sentenceTranslation = signal('');
     sentenceNotes = signal('');
@@ -81,32 +74,24 @@ export class LessonModeComponent {
     searchingSentence = signal(false);
     checkingDuplicateSentence = signal(false);
     isSentenceDuplicate = signal(false);
-
     spellCheckFront = signal<SpellCheckResult | null>(null);
     checkingSpellFront = signal(false);
-
     spellCheckBack = signal<SpellCheckResult | null>(null);
     checkingSpellBack = signal(false);
-
     spellCheckSentence = signal<SpellCheckResult | null>(null);
     checkingSpellSentence = signal(false);
-
     spellCheckTranslation = signal<SpellCheckResult | null>(null);
     checkingSpellTranslation = signal(false);
-
     allSentenceStock = signal<SentenceStockDto[]>([]);
     loadingSentenceStock = signal(false);
-
     existingMemories = signal<any[]>([]);
     existingPronunciations = signal<any[]>([]);
-
     memoryOptionA  = signal('');
     memoryOptionB  = signal('');
     memoryNotes    = signal('');
     memoryCategory = signal<string | null>(null);
     savingMemory   = signal(false);
     importingMemory = signal(false);
-
     onMemoryFileSelected(event: Event): void {
         const input = event.target as HTMLInputElement;
         if (!input.files || input.files.length === 0) return;
@@ -114,10 +99,8 @@ export class LessonModeComponent {
             this.messageService.add({ severity: 'warn', summary: 'Warning', detail: 'Please select a student first.' });
             return;
         }
-
         const file = input.files[0];
         this.importingMemory.set(true);
-
         this.adminMemoriesService.importMemories(this.studentId, file).subscribe({
             next: (res) => {
                 this.messageService.add({
@@ -140,7 +123,6 @@ export class LessonModeComponent {
             }
         });
     }
-
     pronunciationTestList = signal<LessonPronunciationTestItemDto[]>([]);
     alphabetList = signal<AlphabetTestItemDto[]>([]);
     loadingAlphabet = signal(false);
@@ -149,9 +131,7 @@ export class LessonModeComponent {
     markingId = signal<number | null>(null);
     correctPronunciationList  = signal<LessonPronunciationTestItemDto[]>([]);
     loadingCorrectPronunciation = signal(false);
-
     readonly SESSION_SIZE = 20;
-    
     readonly TEMPLATES = [
         { key: 'blank',        label: 'Blank (Custom sentence)', template: "{A}", needsB: false },
         { key: 'difference',   label: 'Difference',   template: "What's the difference between {A} and {B}? Provide examples.",needsB: true  },
@@ -167,12 +147,9 @@ export class LessonModeComponent {
         { key: 'grammar',      label: 'Grammar rules', template: "Explain the grammar rules for using {A}. What are the most common mistakes?", needsB: false },
         { key: 'plural',       label: 'Plural forms', template: "What's the plural of the word {A}?", needsB: false }
     ];
-
     memoryCategoryOptions = this.TEMPLATES.map(t => ({ label: t.label, value: t.key }));
-
     pronunciationWord = signal('');
     savingPronunciation = signal(false);
-
     categories = [
         { label: 'Vocabulary', value: 'Vocabulary' },
         { label: 'Phrase', value: 'Phrase' },
@@ -180,7 +157,6 @@ export class LessonModeComponent {
         { label: 'Grammar', value: 'Grammar' },
         { label: 'Other', value: 'Other' }
     ];
-
     tabs: { id: LessonTab; label: string; icon: string }[] = [
         { id: 'flashcard', label: 'Flashcard', icon: 'pi pi-clone' },
         { id: 'sentence', label: 'Sentence', icon: 'pi pi-align-left' },
@@ -189,28 +165,22 @@ export class LessonModeComponent {
         { id: 'catalogues', label: 'Catalogues', icon: 'pi pi-folder' },
         { id: 'alphabet', label: 'Alphabet', icon: 'pi pi-language' },
     ];
-
     incorrectInSession = computed(() =>
         this.pronunciationTestList().filter(e => e.status === 'Incorrect').length
     );
-
     get studentId(): number | null {
         return this.lessonContext.studentId;
     }
-
     isPronunciationDuplicate = computed(() => {
         const word = this.pronunciationWord().trim().toLowerCase();
         return this.existingPronunciations().some(p => p.word?.toLowerCase() === word);
     });
-
     generatedPrompts = computed(() => {
         const a        = this.memoryOptionA().trim();
         const b        = this.memoryOptionB().trim();
         const category = this.memoryCategory();
         if (!a || !category) return [];
-
         const templates = this.TEMPLATES.filter(t => t.key === category);
-
         return templates
             .filter(t => !t.needsB || !!b)
             .map(t => t.template
@@ -218,48 +188,36 @@ export class LessonModeComponent {
                 .replace('{B}', b)
             );
     });
-
     isMemoryDuplicate = computed(() => {
         const a = this.memoryOptionA().trim().toLowerCase();
         const b = this.memoryOptionB().trim().toLowerCase();
         const currentCategory = this.memoryCategory()?.trim() || null;
-
         if (!a) return false;
-
         return this.existingMemories().some(m => {
             const sameWords = m.optionA?.toLowerCase() === a &&
                               (m.optionB?.toLowerCase() ?? '') === b;
-
             if (!sameWords) return false;
             const dbCategory = m.category?.trim() || null;
-
             return dbCategory === currentCategory;
         });
     });
-
     incorrectAlphabetInSession = computed(() =>
         this.alphabetList().filter(e => e.status === 'Incorrect').length
     );
-
     alphabetLetters = computed(() =>
         this.alphabetList().filter(e => e.type === 'Letters')
     );
-
     alphabetAbbreviations = computed(() =>
         this.alphabetList().filter(e => e.type === 'Abbreviation')
     );
-
     selectedCatalogueId = signal<number | null>(null);
     assigningCatalogue = signal(false);
-
     selectedSentenceSetId = signal<number | null>(null);
     assigningSentenceSet = signal(false);
-
     catalogueOptions = computed(() =>
         (this.catalogueService.catalogues.value() ?? [])
             .map(c => ({ label: `${c.name} (${c.entryCount} entries)`, value: c.id }))
     );
-
     sentenceSetOptions = computed(() =>
         (this.sentenceSetsService.sets.value() ?? [])
             .flatMap(g => g.sets.map(s => ({
@@ -267,7 +225,6 @@ export class LessonModeComponent {
                 value: s.id
             })))
     );
-
     constructor() {
         effect(() => {
             const studentId = this.studentId;
@@ -278,7 +235,6 @@ export class LessonModeComponent {
                 this.sentenceSetsService.reloadSets();
             }
         });
-
         toObservable(this.searchQuery)
             .pipe(
                 debounceTime(300),
@@ -311,7 +267,6 @@ export class LessonModeComponent {
                 },
                 error: () => this.searching.set(false)
             });
-
         toObservable(this.newFront)
             .pipe(
                 debounceTime(300),
@@ -332,17 +287,14 @@ export class LessonModeComponent {
             .subscribe({
                 next: (result: SearchVocabularyResult[] | null) => {
                     this.checkingDuplicateFlashcard.set(false);
-                
                     if (result && result.length > 0) {
                         const enteredWord = this.newFront().toLowerCase().trim();
                         const exactMatch = result.find(
                             r => r.existsInGlobal && r.front.toLowerCase().trim() === enteredWord
                         );
-                    
                         if (exactMatch?.back) {
                             this.newBack.set(exactMatch.back);
                         }
-                    
                         this.isFlashcardDuplicate.set(!!exactMatch);
                     } else {
                         this.isFlashcardDuplicate.set(false);
@@ -353,7 +305,6 @@ export class LessonModeComponent {
                     this.isFlashcardDuplicate.set(false);
                 }
             });
-
         toObservable(this.sentenceSearchQuery)
             .pipe(
                 debounceTime(300),
@@ -384,7 +335,6 @@ export class LessonModeComponent {
                 },
                 error: () => this.searchingSentence.set(false)
             });
-
         toObservable(this.sentenceContent)
             .pipe(
                 debounceTime(300),
@@ -405,17 +355,13 @@ export class LessonModeComponent {
             .subscribe({
                 next: (result: any) => {
                     this.checkingDuplicateSentence.set(false);
-                
                     const item = Array.isArray(result) ? result[0] : result;
-                
                     if (item) {
                         const typedSentence = this.sentenceContent().toLowerCase().trim();
                         const foundSentence = item.englishTranslation.toLowerCase().trim();
-                    
                         if (item.polish && !item.existsInGlobal) {
                             this.sentenceTranslation.set(item.polish);
                         }
-                    
                         const isDuplicate = item.existsInGlobal && (foundSentence === typedSentence);
                         this.isSentenceDuplicate.set(isDuplicate);
                     } else {
@@ -427,7 +373,6 @@ export class LessonModeComponent {
                     this.isSentenceDuplicate.set(false);
                 }
             });
-
         toObservable(this.newFront)
             .pipe(
                 debounceTime(600),
@@ -458,7 +403,6 @@ export class LessonModeComponent {
                     this.spellCheckFront.set(null);
                 }
             });
-
         toObservable(this.newBack)
             .pipe(
                 debounceTime(600),
@@ -489,7 +433,6 @@ export class LessonModeComponent {
                     this.spellCheckBack.set(null);
                 }
             });
-
         toObservable(this.sentenceContent)
             .pipe(
                 debounceTime(600),
@@ -520,7 +463,6 @@ export class LessonModeComponent {
                     this.spellCheckSentence.set(null);
                 }
             });
-
         toObservable(this.sentenceTranslation)
             .pipe(
                 debounceTime(600),
@@ -552,7 +494,6 @@ export class LessonModeComponent {
                 }
             });
     }
-
     loadStudentDataProtection(studentId: number) {
         this.lessonService.getMemories(studentId).subscribe({
             next: (res) => this.existingMemories.set(res || []),
@@ -563,7 +504,6 @@ export class LessonModeComponent {
             error: () => this.existingPronunciations.set([])
         });
     }
-
     loadGlobalSentenceStock() {
         this.loadingSentenceStock.set(true);
         this.lessonService.getAllStock().subscribe({
@@ -574,11 +514,9 @@ export class LessonModeComponent {
             error: () => this.loadingSentenceStock.set(false)
         });
     }
-
     assignExisting(vocab: SearchVocabularyResult) {
         const studentId = this.studentId;
         if (!vocab?.id || !studentId) return;
-
         this.saving.set(true);
         this.vocabularyService.assignSingleVocabularyToStudent(vocab.id, studentId).subscribe({
             next: () => {
@@ -592,11 +530,9 @@ export class LessonModeComponent {
             error: () => this.saving.set(false)
         });
     }
-
     addManualAndAssign() {
         const studentId = this.studentId;
         if (!this.newFront().trim() || !this.newBack().trim() || !studentId) return;
-
         this.saving.set(true);
         this.vocabularyService.addTranslation(
             this.newFront(),
@@ -619,7 +555,6 @@ export class LessonModeComponent {
             error: () => this.saving.set(false)
         });
     }
-
     resetFlashcardForm() {
         this.searchQuery.set('');
         this.searchResult.set(null);
@@ -630,11 +565,9 @@ export class LessonModeComponent {
         this.spellCheckFront.set(null);
         this.spellCheckBack.set(null);
     }
-
     saveSentence() {
         const studentId = this.studentId;
         if (!this.sentenceContent().trim() || !studentId || this.isSentenceDuplicate()) return;
-
         this.savingSentence.set(true);
         this.lessonService.addSentence(
             studentId, this.sentenceContent(),
@@ -652,18 +585,15 @@ export class LessonModeComponent {
             error: () => this.savingSentence.set(false)
         });
     }
-
     assignExistingSentence(sentence: any) {
         const studentId = this.studentId;
         if (!sentence?.id || !studentId) return;
-        
         this.savingSentence.set(true);
         const request = {
             userId: studentId,
             sentenceStockId: sentence.id,
             dueDate: new Intl.DateTimeFormat('sv-SE').format(new Date())
         };
-    
         this.lessonService.assignToUser(request).subscribe({
             next: () => {
                 this.messageService.add({
@@ -676,7 +606,6 @@ export class LessonModeComponent {
             error: () => this.savingSentence.set(false)
         });
     }
-
     resetSentenceForm() {
         this.sentenceSearchQuery.set('');
         this.sentenceSearchResult.set(null);
@@ -687,12 +616,10 @@ export class LessonModeComponent {
         this.spellCheckSentence.set(null);
         this.spellCheckTranslation.set(null);
     }
-
     assignCatalogue() {
         const catalogueId = this.selectedCatalogueId();
         const studentId = this.studentId;
         if (!catalogueId || !studentId) return;
-        
         this.assigningCatalogue.set(true);
         this.vocabularyService.assignCatalogueToStudent(catalogueId, studentId).subscribe({
             next: () => {
@@ -712,15 +639,12 @@ export class LessonModeComponent {
             }
         });
     }
-    
     assignSentenceSet() {
         const sentenceSetId = this.selectedSentenceSetId();
         const studentId = this.studentId;
         if (!sentenceSetId || !studentId) return;
-    
         this.assigningSentenceSet.set(true);
         const dueDate = new Intl.DateTimeFormat('sv-SE').format(new Date());
-    
         this.sentenceSetsService.assignSentenceSetToStudent(studentId, sentenceSetId, dueDate).subscribe({
             next: () => {
                 this.messageService.add({
@@ -739,13 +663,11 @@ export class LessonModeComponent {
             }
         });
     }
-
     saveMemory() {
         const studentId = this.studentId;
         const a = this.memoryOptionA().trim();
         const category = this.memoryCategory();
         if (!a || !category || studentId === null || this.isMemoryDuplicate()) return;
-
         this.savingMemory.set(true);
         this.lessonService.addMemory(
             studentId,
@@ -776,11 +698,9 @@ export class LessonModeComponent {
             error: () => this.savingMemory.set(false)
         });
     }
-
     savePronunciation() {
         const studentId = this.studentId;
         if (!this.pronunciationWord().trim() || studentId === null || this.isPronunciationDuplicate()) return;
-
         this.savingPronunciation.set(true);
         this.lessonService.addPronunciation(studentId, this.pronunciationWord()).subscribe({
             next: () => {
@@ -796,11 +716,9 @@ export class LessonModeComponent {
             error: () => this.savingPronunciation.set(false)
         });
     }
-
     goToSwitchClient() {
         this.router.navigate(['/lesson/switch-client']);
     }
-
     loadPronunciationTest() {
         const studentId = this.studentId;
         if (!studentId) return;
@@ -813,7 +731,6 @@ export class LessonModeComponent {
             error: () => this.loadingPronunciationTest.set(false)
         });
     }
-    
     markPronunciation(entryId: number, result: 'correct' | 'incorrect') {
         this.markingId.set(entryId);
         this.lessonService.markPronunciationResult(entryId, result).subscribe({
@@ -843,7 +760,6 @@ export class LessonModeComponent {
             error: () => this.markingId.set(null)
         });
     }
-
     loadCorrectPronunciation() {
         const studentId = this.studentId;
         if (!studentId) return;
@@ -856,7 +772,6 @@ export class LessonModeComponent {
             error: () => this.loadingCorrectPronunciation.set(false)
         });
     }
-
     acceptSpellCorrection(field: 'front' | 'back' | 'sentence' | 'translation') {
         switch (field) {
             case 'front':
@@ -881,7 +796,6 @@ export class LessonModeComponent {
                 break;
         }
     }
-
     rejectSpellCorrection(field: 'front' | 'back' | 'sentence' | 'translation') {
         switch (field) {
             case 'front': this.spellCheckFront.set(null); break;
@@ -890,7 +804,6 @@ export class LessonModeComponent {
             case 'translation': this.spellCheckTranslation.set(null); break;
         }
     }
-
     loadAlphabetTest() {
         const studentId = this.studentId;
         if (!studentId) return;
@@ -903,7 +816,6 @@ export class LessonModeComponent {
             error: () => this.loadingAlphabet.set(false)
         });
     }
-    
     markAlphabet(entryId: number, result: 'correct' | 'incorrect') {
         this.markingAlphabetId.set(entryId);
         this.lessonService.markAlphabetResult(entryId, result).subscribe({

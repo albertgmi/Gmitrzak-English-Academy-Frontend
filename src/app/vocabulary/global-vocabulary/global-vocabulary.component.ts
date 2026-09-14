@@ -16,7 +16,6 @@ import { ChipModule } from 'primeng/chip';
 import { DialogModule } from 'primeng/dialog'; 
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { VocabularyService, VocabularyAddingRequest, VocabularyDto } from '../../services/vocabulary.service';
-
 @Component({
     selector: 'app-global-vocabulary',
     standalone: true,
@@ -44,27 +43,21 @@ export class GlobalVocabularyComponent implements OnInit {
     private vocabularyService = inject(VocabularyService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     vocabularyItems = signal<VocabularyDto[]>([]);
     isLoading = signal<boolean>(false);
     selectedVocabulary = signal<VocabularyDto | null>(null);
-
     showDialog = signal<boolean>(false);
     saving = signal<boolean>(false);
     submitted = false;
-    
     editingVocabularyId = signal<number | null>(null);
-
     form = signal<VocabularyAddingRequest>({
         front: '',
         back: '',
         category: ''
     });
-
     ngOnInit(): void {
         this.loadVocabulary();
     }
-
     loadVocabulary(): void {
         this.isLoading.set(true);
         this.vocabularyService.getAllVocabulary().subscribe({
@@ -83,7 +76,6 @@ export class GlobalVocabularyComponent implements OnInit {
             }
         });
     }
-
     openNew(): void {
         this.editingVocabularyId.set(null);
         this.form.set({
@@ -94,10 +86,8 @@ export class GlobalVocabularyComponent implements OnInit {
         this.submitted = false;
         this.showDialog.set(true);
     }
-
     openEdit(item: VocabularyDto): void {
         if (!item.id) return;
-        
         this.editingVocabularyId.set(item.id);
         this.form.set({
             front: item.front,
@@ -107,25 +97,19 @@ export class GlobalVocabularyComponent implements OnInit {
         this.submitted = false;
         this.showDialog.set(true);
     }
-
     save(): void {
         this.submitted = true;
         const f = this.form();
-
         if (!f.front?.trim() || !f.back?.trim() || !f.category?.trim()) {
             return;
         }
-
         this.saving.set(true);
-        
         const requestPayload: VocabularyAddingRequest = {
             front: f.front.trim(),
             back: f.back.trim(),
             category: f.category.trim()
         };
-
         const currentId = this.editingVocabularyId();
-
         if (currentId !== null) {
             this.vocabularyService.updateVocabulary(requestPayload, currentId).subscribe({
                 next: () => {
@@ -174,22 +158,18 @@ export class GlobalVocabularyComponent implements OnInit {
             });
         }
     }
-
     selectVocabulary(item: VocabularyDto): void {
         this.selectedVocabulary.set(item);
     }
-
     backToList(): void {
         this.selectedVocabulary.set(null);
     }
-
     onGlobalFilter(table: any, event: Event): void {
         const element = event.target as HTMLInputElement;
         if (element) {
             table.filterGlobal(element.value, 'contains');
         }
     }
-
     reload(): void {
         this.loadVocabulary();
     }

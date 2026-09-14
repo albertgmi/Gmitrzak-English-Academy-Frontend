@@ -6,7 +6,6 @@ import { ButtonModule } from 'primeng/button';
 import { InputTextModule } from 'primeng/inputtext';
 import { MessageModule } from 'primeng/message';
 import { ToastModule } from 'primeng/toast';
-
 @Component({
     selector: 'app-messages-demo',
     standalone: true,
@@ -23,7 +22,6 @@ import { ToastModule } from 'primeng/toast';
                         <p-button (click)="showErrorViaToast()" label="Error" severity="danger" />
                         <p-toast />
                     </div>
-
                     <div class="font-semibold text-xl mt-4 mb-4">Inline</div>
                     <div class="flex flex-col mb-4 gap-1">
                         <input pInputText [(ngModel)]="username" placeholder="Username" aria-label="username" class="ng-dirty ng-invalid" />
@@ -54,25 +52,18 @@ import { ToastModule } from 'primeng/toast';
 })
 export class MessagesDemo {
     msgs: ToastMessageOptions[] | null = [];
-
     username: string | undefined;
-
     email: string | undefined;
-
     constructor(private service: MessageService) {}
-
     showInfoViaToast() {
         this.service.add({ severity: 'info', summary: 'Info Message', detail: 'PrimeNG rocks' });
     }
-
     showWarnViaToast() {
         this.service.add({ severity: 'warn', summary: 'Warn Message', detail: 'There are unsaved changes' });
     }
-
     showErrorViaToast() {
         this.service.add({ severity: 'error', summary: 'Error Message', detail: 'Validation failed' });
     }
-
     showSuccessViaToast() {
         this.service.add({ severity: 'success', summary: 'Success Message', detail: 'Message sent' });
     }

@@ -1,5 +1,4 @@
 <div class="card" *ngIf="profile">
-
   <div class="flex items-center gap-4 mb-6 flex-wrap">
     <p-button
       [icon]="isAdmin ? 'pi pi-arrow-left' : 'pi pi-home'"
@@ -7,7 +6,6 @@
       [rounded]="true"
       (click)="goBack()"
     />
-  
     <div class="relative">
       <img
         *ngIf="profile?.avatarUrl"
@@ -27,12 +25,10 @@
         class="w-16 h-16 rounded-full object-cover border-2 border-primary"
       />
     </div>
-  
     <div class="min-w-0">
       <h2 class="text-2xl font-semibold m-0 truncate">{{ profile.username }}</h2>
       <p class="text-muted-color mt-1 truncate">{{ profile.email }}</p>
     </div>
-  
     <div class="ml-auto" *ngIf="isAdmin">
       <p-button
         [label]="editMode ? 'Cancel' : 'Edit Profile'"
@@ -43,16 +39,12 @@
       />
     </div>
   </div>
-
   <div class="grid grid-cols-1 md:grid-cols-2 gap-6 mb-8">
-
     <div class="md:col-span-2 border-b border-surface-200 dark:border-surface-700 pb-6">
       <label class="block font-bold mb-3">Profile Picture</label>
-      
       <div class="flex items-center gap-4">
         <div *ngIf="isAdmin || isOwnProfile" class="flex flex-col gap-3">
           <input #fileInput type="file" accept=".jpg,.jpeg,.png" class="hidden" (change)="onFileSelected($event)" />
-          
           <div class="flex gap-2">
             <p-button
               *ngIf="!selectedFile"
@@ -62,7 +54,6 @@
               size="small"
               (click)="fileInput.click()"
             />
-            
             <ng-container *ngIf="selectedFile">
               <p-button label="Save Avatar" icon="pi pi-check" severity="success" size="small" (click)="saveAvatar()" />
               <p-button label="Discard" icon="pi pi-times" severity="secondary" [outlined]="true" size="small" (click)="clearSelectedFile()" />
@@ -73,30 +64,25 @@
         </div>
       </div>
     </div>
-
     <div>
       <label class="block font-bold mb-2">Username</label>
       <div class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.username }}</div>
     </div>
-
     <div>
       <label class="block font-bold mb-2">Email</label>
       <div class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.email }}</div>
     </div>
-
     <div>
       <label class="block font-bold mb-2">English Level</label>
       <p-select *ngIf="editMode" [(ngModel)]="profile.englishLevel" [options]="englishLevels" optionLabel="label" optionValue="value" fluid />
-      <div *ngIf="!editMode" class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.englishLevel || '—' }}</div>
+      <div *ngIf="!editMode" class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.englishLevel || '-' }}</div>
     </div>
-
     <div>
       <label class="block font-bold mb-2">Current Semester</label>
       <p-inputNumber *ngIf="editMode" [(ngModel)]="profile.currentSemester" [min]="1" [max]="20" fluid />
-      <div *ngIf="!editMode" class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.currentSemester || '—' }}</div>
+      <div *ngIf="!editMode" class="p-3 bg-surface-100 dark:bg-surface-700 rounded-md">{{ profile.currentSemester || '-' }}</div>
     </div>
   </div>
-
   <div class="mb-6">
     <label class="block font-bold mb-4">Completed Semesters</label>
     <div class="grid grid-cols-5 md:grid-cols-10 gap-2">
@@ -106,11 +92,9 @@
       </div>
     </div>
   </div>
-
   <div class="flex gap-3" *ngIf="editMode">
     <p-button label="Save Changes" icon="pi pi-check" (click)="save()" />
     <p-button label="Cancel" icon="pi pi-times" severity="secondary" outlined (click)="toggleEdit()" />
   </div>
-
 </div>
 <p-toast />

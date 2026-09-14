@@ -12,14 +12,11 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { SentenceService, SentenceSetGroupDto } from '../../services/sentence.service';
 import { ModuleItemService } from '../../services/module.service';
-
 type View = 'groups' | 'create' | 'assign-module';
-
 interface ModuleSimple {
     id: number;
     name: string;
 }
-
 @Component({
     selector: 'app-sets-composer',
     standalone: true,
@@ -36,42 +33,33 @@ export class SetsComposerComponent implements OnInit {
     private moduleItemService   = inject(ModuleItemService);
     private messageService      = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     groups  = this.sentenceService.sets;
     stock   = this.sentenceService.stock;
     view    = signal<View>('groups');
     saving  = signal(false);
     submitted = false;
-
     newName      = signal('');
     newGroupName = signal('');
     newOrder     = signal(1);
     selectedStockIds = signal<number[]>([]);
-
     assignModuleId  = signal<number | null>(null);
     assignSetId     = signal<number | null>(null);
     assignSubmitted = false;
     assigning       = signal(false);
-
     modules = signal<ModuleSimple[]>([]);
-
     allSets = computed(() =>
         (this.sentenceService.sets.value() ?? [])
             .flatMap(g => g.sets)
             .map(s => ({ id: s.id, label: `${s.groupName} / ${s.name} (${s.itemCount} sentences)` }))
     );
-
     stockOptions = computed(() =>
         (this.stock.value() ?? [])
             .map(s => ({ id: s.id, label: `${s.polish} → ${s.englishTranslation}` }))
     );
-
     ngOnInit() {
         this.sentenceService.reloadSets();
         this.sentenceService.reloadStock();
-
         this.moduleItemService.modules.reload();
-
         const interval = setInterval(() => {
             const data = this.moduleItemService.modules.value();
             if (data !== undefined) {
@@ -87,12 +75,10 @@ export class SetsComposerComponent implements OnInit {
             }
         }, 100);
     }
-
     createSet() {
         this.submitted = true;
         if (!this.newName().trim() || !this.newGroupName().trim()
             || this.selectedStockIds().length === 0) return;
-
         this.saving.set(true);
         this.sentenceService.createSet({
             name: this.newName(),
@@ -112,13 +98,11 @@ export class SetsComposerComponent implements OnInit {
             error: () => this.saving.set(false)
         });
     }
-
     assignToModule() {
         this.assignSubmitted = true;
         const mid = this.assignModuleId();
         const sid = this.assignSetId();
         if (!mid || !sid) return;
-
         this.assigning.set(true);
         this.sentenceService.assignSetToModule(mid, sid).subscribe({
             next: () => {
@@ -134,7 +118,6 @@ export class SetsComposerComponent implements OnInit {
             error: () => this.assigning.set(false)
         });
     }
-
     confirmDeleteSet(setId: number, name: string) {
         this.confirmationService.confirm({
             message: `Delete set "${name}"?`,
@@ -152,7 +135,6 @@ export class SetsComposerComponent implements OnInit {
             }
         });
     }
-
     resetCreateForm() {
         this.newName.set('');
         this.newGroupName.set('');

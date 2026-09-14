@@ -10,7 +10,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AuthService } from '../../services/auth.service';
 import { UserService } from '../../services/user.service';
-
 interface RegisterForm {
   username: string;
   email: string;
@@ -18,7 +17,6 @@ interface RegisterForm {
   role: string;
   isActive: boolean;
 }
-
 @Component({
   selector: 'app-register-user',
   templateUrl: './register-user.component.html',
@@ -35,27 +33,21 @@ interface RegisterForm {
   providers: [MessageService]
 })
 export class RegisterUserComponent {
-
   private authService = inject<AuthService>(AuthService);
   private userService = inject(UserService);
   private messageService = inject(MessageService);
   private router = inject(Router);
-
   submitted = false;
   user: RegisterForm = this.emptyForm();
-
   roles = [
     { label: 'Admin', value: 'Admin' },
     { label: 'User',  value: 'User'  }
   ];
-
   register() {
     this.submitted = true;
-
     if (!this.user.username || !this.user.email || !this.user.password || !this.user.role) {
       return;
     }
-
     this.authService.register(this.user).subscribe({
       next: () => {
         this.userService.users.reload();
@@ -75,12 +67,10 @@ export class RegisterUserComponent {
       }
     });
   }
-
   clear() {
     this.user = this.emptyForm();
     this.submitted = false;
   }
-
   private emptyForm(): RegisterForm {
     return {
       username: '',

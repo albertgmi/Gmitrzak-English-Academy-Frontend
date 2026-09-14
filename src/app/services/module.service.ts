@@ -3,7 +3,6 @@ import { HttpClient } from '@angular/common/http';
 import { lastValueFrom } from 'rxjs';
 import { StudentModuleDto } from './student-services/student.service';
 import { environment } from '../../environments/environment';
-
 export interface ModuleItem {
     id: number;
     name: string;
@@ -13,13 +12,11 @@ export interface ModuleItem {
     matrices: MatrixSimple[];
     theaterItemId?: number | null;
 }
-
 export interface MatrixSimple {
     id: number;
     name: string;
     refreshIntervalDays: number;
 }
-
 export interface CreateModuleRequest {
     name: string;
     description?: string;
@@ -30,7 +27,6 @@ export interface CreateModuleRequest {
     presentationText?: string | null;
     essayPrompt?: string | null;
 }
-
 export interface UpdateModuleRequest {
     name?: string;
     description?: string;
@@ -40,20 +36,16 @@ export interface UpdateModuleRequest {
     presentationUrl?: string | null;
     presentationText?: string | null;
 }
-
 export interface AssignModuleToMatrixRequest {
     weekNumber: number;
     dayOfWeek: number;
     repeatWeeks?: number | null;
 }
-
 @Injectable({ providedIn: 'root' })
 export class ModuleItemService {
     private apiUrl = `${environment.apiUrl}/api/module`;
     private sentenceApiUrl = `${environment.apiUrl}/api/sentence`;
-
     http = inject(HttpClient);
-
     modules = resource<(ModuleItem & { matrixName: string })[], unknown>({
         loader: async () => {
             const data = await lastValueFrom(this.http.get<ModuleItem[]>(this.apiUrl));
@@ -65,44 +57,34 @@ export class ModuleItemService {
             }));
         }
     });
-
     reloadModules() { this.modules.reload(); }
-
     createModule(request: CreateModuleRequest) {
         return this.http.post<ModuleItem>(this.apiUrl, request);
     }
-
     updateModule(moduleId: number, request: UpdateModuleRequest) {
         return this.http.put<ModuleItem>(`${this.apiUrl}/${moduleId}`, request);
     }
-
     deleteModule(moduleId: number) {
         return this.http.delete(`${this.apiUrl}/${moduleId}`);
     }
-
     assignMatrix(moduleId: number, matrixId: number, week: number, day: number, repeatWeeks?: number | null) {
         return this.http.post(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`,
             { weekNumber: week, dayOfWeek: day, repeatWeeks: repeatWeeks ?? null });
     }
-
     removeMatrix(moduleId: number, matrixId: number) {
         return this.http.delete(`${this.apiUrl}/${moduleId}/matrix/${matrixId}`);
     }
-
     getSentenceModulesForStudent(studentId: number) {
         return this.http.get<StudentModuleDto[]>(
             `${this.apiUrl}/student/${studentId}/sentences`);
     }
-
     getAllSentenceSetsGrouped() {
         return this.http.get<any[]>(`${this.sentenceApiUrl}/sets`);
     }
-
     assignSentenceSetToModule(moduleId: number, sentenceSetId: number) {
         return this.http.post(`${this.sentenceApiUrl}/assign-to-module`,
             { moduleId, sentenceSetId });
     }
-
     getAllModulesForOnboard() {
         return this.http.get<ModuleItem[]>(this.apiUrl);
     }

@@ -13,7 +13,6 @@ import { MessageService } from 'primeng/api';
 import { LessonService, StudentSimple } from '../../services/lesson.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-switch-client',
     standalone: true,
@@ -27,7 +26,6 @@ export class SwitchClientComponent implements OnInit {
     private lessonContext = inject(LessonContextService);
     private router = inject(Router);
     private messageService = inject(MessageService);
-
     students = signal<StudentSimple[]>([]);
     loading = signal(true);
     activeStudent = this.lessonContext.activeStudent;
@@ -37,7 +35,6 @@ export class SwitchClientComponent implements OnInit {
             error: () => this.loading.set(false)
         });
     }
-
     selectStudent(student: StudentSimple) {
         this.lessonContext.setStudent(student);
         this.messageService.add({
@@ -46,7 +43,6 @@ export class SwitchClientComponent implements OnInit {
         });
         setTimeout(() => this.router.navigate(['/lesson/attendance']), 800);
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }

@@ -12,7 +12,6 @@ import { MessageService } from 'primeng/api';
 import { TextareaModule } from 'primeng/textarea';
 import { ContentService, MemoryDto } from '../../services/student-services/content.service';
 import { SectionActivityService } from '../../services/section-activity.service';
-
 @Component({
     selector: 'app-memories',
     standalone: true,
@@ -25,14 +24,11 @@ export class MemoriesComponent implements OnInit {
     private contentService = inject(ContentService);
     private activityService = inject(SectionActivityService);
     private messageService = inject(MessageService);
-
     memories = this.contentService.memories;
-
     revealedIds = signal<Set<number>>(new Set());
     editingId = signal<number | null>(null);
     editValue = signal('');
     savingId = signal<number | null>(null);
-
     ngOnInit() {
         this.activityService.logActivity('memories').subscribe({
             next: () => console.log('memories activity logged'),
@@ -40,15 +36,12 @@ export class MemoriesComponent implements OnInit {
         });
         this.contentService.memories.reload();
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     isRevealed(id: number): boolean {
         return this.revealedIds().has(id);
     }
-
     toggleReveal(id: number, event?: Event) {
         event?.stopPropagation();
         this.revealedIds.update(set => {
@@ -57,22 +50,18 @@ export class MemoriesComponent implements OnInit {
             return next;
         });
     }
-
     startEdit(m: MemoryDto, event?: Event) {
         event?.stopPropagation();
         this.editingId.set(m.id);
         this.editValue.set(m.notes || '');
         this.revealedIds.update(set => new Set(set).add(m.id));
-
         setTimeout(() => {
             document.getElementById('note-input-' + m.id)?.focus();
         });
     }
-
     saveNote(id: number) {
         const value = this.editValue().trim();
         this.savingId.set(id);
-
         this.contentService.addNotes(id, value).subscribe({
             next: () => {
                 this.memories.value.update(list =>
@@ -92,14 +81,12 @@ export class MemoriesComponent implements OnInit {
             }
         });
     }
-
     cancelEdit(id: number, event?: Event) {
         event?.stopPropagation();
         this.editingId.set(null);
         this.editValue.set('');
         this.hideAgain(id);
     }
-
     private hideAgain(id: number) {
         this.revealedIds.update(set => {
             const next = new Set(set);

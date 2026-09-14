@@ -1,5 +1,4 @@
 <p-toast />
-
 <div class="card">
   <div class="flex items-center gap-3 mb-6">
     <div class="bg-primary/10 text-primary w-12 h-12 rounded-xl flex items-center justify-center text-2xl">
@@ -12,7 +11,6 @@
       <p class="text-muted-color mt-0.5 m-0">Generate DOCX reports ZIP for all active students</p>
     </div>
   </div>
-
   <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-5 mb-6">
     <label class="block font-bold mb-3">Select date range & Download</label>
     <div class="flex flex-wrap gap-4 items-end">
@@ -34,7 +32,6 @@
           [showIcon]="true"
           placeholder="End date" />
       </div>
-
       <p-button 
         label="Download Active Students ZIP" 
         icon="pi pi-download"
@@ -44,7 +41,6 @@
         (click)="downloadZip()" />
     </div>
   </div>
-
   <div>
     <h3 class="text-sm font-semibold uppercase tracking-wider text-muted-color mb-4 flex items-center gap-2">
       <span>Students Included in Bulk Export</span>
@@ -52,22 +48,18 @@
         {{ activeStudents().length }} active
       </span>
     </h3>
-
     <div *ngIf="loadingUsers()" class="text-center py-10 text-muted-color">
       <i class="pi pi-spin pi-spinner text-3xl block mb-2"></i>
       <p>Loading active users list...</p>
     </div>
-
     <div *ngIf="!loadingUsers() && activeStudents().length > 0" class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
       <div *ngFor="let student of activeStudents()" 
            class="p-3 rounded-xl border border-surface-200 dark:border-surface-700 bg-white dark:bg-surface-900 flex items-center gap-3">
-        
         <app-avatar 
           [username]="student.username ?? '' "
           [avatarUrl]="$any(student).avatarUrl"
           customClass="w-9 h-9 text-sm" 
           fallbackBgClass="bg-primary/20 text-primary" />
-        
         <div class="overflow-hidden">
           <div class="font-semibold text-surface-900 dark:text-surface-0 truncate">
             {{ student.username }}
@@ -77,10 +69,8 @@
             <span>Active Student</span>
           </div>
         </div>
-
       </div>
     </div>
-
     <div *ngIf="!loadingUsers() && activeStudents().length === 0" class="text-center py-12 border rounded-xl border-dashed text-muted-color">
       <i class="pi pi-users text-4xl block mb-2"></i>
       <p>No active students found in the database.</p>

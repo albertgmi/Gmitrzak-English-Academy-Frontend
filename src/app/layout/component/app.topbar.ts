@@ -7,7 +7,6 @@ import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { AuthService } from '../../services/auth.service';
 import { AnnouncementService } from '../../services/announcement.service';
-
 @Component({
     selector: 'app-topbar',
     standalone: true,
@@ -21,41 +20,30 @@ import { AnnouncementService } from '../../services/announcement.service';
         .message-action {
             position: relative;
         }
-
         .message-action .message-badge {
             position: absolute;
             top: 0.2rem;
             right: 0.2rem;
-
             width: 1.1rem;
             height: 1.1rem;
-
             border-radius: 9999px;
-
             background: #ef4444;
             color: #ffffff;
-
             font-size: 0.65rem;
             font-weight: 700;
-
             display: flex;
             align-items: center;
             justify-content: center;
-
             z-index: 1000;
-
             line-height: 1;
-
             border: 2px solid var(--surface-card);
         }
-
         .layout-topbar-action {
             overflow: visible !important;
         }
     `],
     template: `
         <div class="layout-topbar">
-
             <div class="layout-topbar-logo-container">
                 <button
                     class="layout-menu-button layout-topbar-action"
@@ -63,19 +51,15 @@ import { AnnouncementService } from '../../services/announcement.service';
                 >
                     <i class="pi pi-bars"></i>
                 </button>
-
                 <a class="layout-topbar-logo" routerLink="/">
                     <span class="logo-text-desktop">Gmitrzak English Academy</span>
-
                     <div class="logo-text-mobile">
                         <span>Gmitrzak English</span>
                         <span>Academy</span>
                     </div>
                 </a>
             </div>
-
             <div class="layout-topbar-actions">
-
                 <div class="layout-config-menu">
                     <button
                         type="button"
@@ -91,7 +75,6 @@ import { AnnouncementService } from '../../services/announcement.service';
                             }"
                         ></i>
                     </button>
-
                     <div class="relative">
                         <button
                             class="layout-topbar-action"
@@ -105,11 +88,9 @@ import { AnnouncementService } from '../../services/announcement.service';
                         >
                             <i class="pi pi-palette"></i>
                         </button>
-
                         <app-configurator />
                     </div>
                 </div>
-
                 <div class="layout-topbar-menu-content">
                     <button
                         type="button"
@@ -119,7 +100,6 @@ import { AnnouncementService } from '../../services/announcement.service';
                         aria-label="Messages"
                     >
                         <i class="pi pi-inbox"></i>
-
                         <span
                             *ngIf="announcementService.unreadCount() > 0"
                             class="message-badge"
@@ -131,7 +111,6 @@ import { AnnouncementService } from '../../services/announcement.service';
                             }}
                         </span>
                     </button>
-
                     <button
                         type="button"
                         class="layout-topbar-action"
@@ -142,35 +121,27 @@ import { AnnouncementService } from '../../services/announcement.service';
                         <i class="pi pi-user"></i>
                     </button>
                 </div>
-
             </div>
-
         </div>
     `
 })
 export class AppTopbar implements OnInit {
     items!: MenuItem[];
-
     private authService = inject(AuthService);
     private router = inject(Router);
-
     public layoutService = inject(LayoutService);
     public announcementService = inject(AnnouncementService);
-
     ngOnInit(): void {
         this.announcementService.refreshUnreadCount();
     }
-
     toggleDarkMode(): void {
         this.layoutService.layoutConfig.update((state) => ({
             ...state,
             darkTheme: !state.darkTheme
         }));
     }
-
     goToProfile(): void {
         const userId = this.authService.getUserId();
-
         if (userId) {
             this.router.navigate(['/profiles', userId], {
                 replaceUrl: true
@@ -179,7 +150,6 @@ export class AppTopbar implements OnInit {
             this.router.navigate(['/login']);
         }
     }
-
     goToMessages(): void {
         this.router.navigate(['/messages']);
     }

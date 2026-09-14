@@ -1,9 +1,6 @@
 <p-toast />
 <p-confirmDialog />
-
 <div class="card">
-
-  <!-- Header -->
   <div class="flex items-center justify-between mb-6">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Plan Matrix</h2>
@@ -15,18 +12,13 @@
       icon="pi pi-plus"
       (onClick)="openAddForm()" />
   </div>
-
-  <!-- Add form -->
   <div *ngIf="showAddForm()"
     class="bg-surface-50 dark:bg-surface-800 rounded-xl p-6 mb-6 border border-surface-200 dark:border-surface-700">
-
     <div class="flex items-center justify-between mb-5">
       <h3 class="text-lg font-semibold m-0">New Assignment</h3>
       <p-button icon="pi pi-times" severity="secondary" [text]="true" (onClick)="closeAddForm()" />
     </div>
-
     <div class="grid grid-cols-1 md:grid-cols-3 gap-5">
-
       <div>
         <label class="block font-bold mb-2">Students <span class="text-red-500">*</span></label>
         <p-multiselect
@@ -42,7 +34,6 @@
           fluid />
         <small class="text-red-500" *ngIf="submitted && !selectedUserIds().length">At least one student is required.</small>
       </div>
-
       <div>
         <label class="block font-bold mb-2">Matrix <span class="text-red-500">*</span></label>
         <p-select
@@ -57,7 +48,6 @@
           fluid />
         <small class="text-red-500" *ngIf="submitted && !selectedMatrixId()">Matrix is required.</small>
       </div>
-
       <div>
         <label class="block font-bold mb-2">Start Date <span class="text-red-500">*</span></label>
         <p-datepicker
@@ -69,16 +59,12 @@
           fluid />
         <small class="text-red-500" *ngIf="submitted && !selectedStartDate()">Start date is required.</small>
       </div>
-
     </div>
-
     <div class="flex gap-3 mt-5">
       <p-button label="Assign" icon="pi pi-check" [loading]="loadingSubmit" (onClick)="submitAssignment()" />
       <p-button label="Cancel" severity="secondary" outlined (onClick)="closeAddForm()" />
     </div>
   </div>
-
-  <!-- Toolbar z filtrem -->
   <p-toolbar styleClass="mb-4">
     <ng-template #start>
       <p-select
@@ -100,8 +86,6 @@
         (onClick)="reload()" pTooltip="Refresh" />
     </ng-template>
   </p-toolbar>
-
-  <!-- Tabela -->
   <p-table
     #dt
     [value]="filteredAssignments()"
@@ -115,7 +99,6 @@
     currentPageReportTemplate="Showing {first} to {last} of {totalRecords} assignments"
     [showCurrentPageReport]="true"
     [rowsPerPageOptions]="[10, 20, 30]">
-
     <ng-template #header>
       <tr>
         <th pSortableColumn="username">Student <p-sortIcon field="username" /></th>
@@ -126,7 +109,6 @@
         <th style="width: 5rem"></th>
       </tr>
     </ng-template>
-
     <ng-template #body let-a>
       <tr>
         <td>
@@ -156,7 +138,6 @@
               <span class="text-xs text-muted-color">{{ progressPercentage(a) }}%</span>
             </div>
             <p-progressBar [value]="progressPercentage(a)" [showValue]="false" [style]="{ height: '6px' }" />
-
             <div class="flex gap-1 mt-2 flex-wrap">
               <span
                 *ngFor="let m of a.modules; let idx = index"
@@ -185,7 +166,6 @@
         </td>
       </tr>
     </ng-template>
-
     <ng-template #emptymessage>
       <tr>
         <td colspan="6" class="text-center text-muted-color py-10">
@@ -195,6 +175,5 @@
         </td>
       </tr>
     </ng-template>
-
   </p-table>
 </div>

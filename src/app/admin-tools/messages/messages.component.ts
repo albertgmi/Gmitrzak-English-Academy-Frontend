@@ -6,7 +6,6 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { AnnouncementService, AnnouncementInboxDto } from '../../services/announcement.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-messages',
     standalone: true,
@@ -17,24 +16,19 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
 export class MessagesComponent implements OnInit {
     private announcementService = inject(AnnouncementService);
     private messageService      = inject(MessageService);
-
     messages = signal<AnnouncementInboxDto[]>([]);
     loading  = signal(true);
     selected = signal<AnnouncementInboxDto | null>(null);
-
     unread = () => this.messages().filter(m => !m.isRead).length;
-
     ngOnInit() {
         this.load();
     }
-
     load() {
         this.announcementService.getInbox().subscribe({
             next: (d) => { this.messages.set(d); this.loading.set(false); },
             error: () => this.loading.set(false)
         });
     }
-
     getTypeColor(type: string): string {
         switch (type) {
             case 'Listing': return '#10B981';
@@ -42,7 +36,6 @@ export class MessagesComponent implements OnInit {
             default: return '#3B82F6';
         }
     }
-
     open(msg: AnnouncementInboxDto) {
         this.selected.set(msg);
         if (!msg.isRead) {
@@ -57,18 +50,15 @@ export class MessagesComponent implements OnInit {
             });
         }
     }
-
     back() {
         this.selected.set(null);
     }
-
     onSignUp(msg: AnnouncementInboxDto) {
         this.announcementService.signUp(msg.id).subscribe({
             next: () => {
                 const updatedStatus = !msg.signedUp;
                 this.messages.update(list => list.map(m => m.id === msg.id ? { ...m, signedUp: updatedStatus } : m));
                 this.selected.update(curr => curr ? { ...curr, signedUp: updatedStatus } : null);
-                
                 this.messageService.add({
                     severity: 'success', summary: 'Status updated',
                     detail: updatedStatus ? 'Signed up successfully' : 'Registration cancelled'
@@ -76,13 +66,11 @@ export class MessagesComponent implements OnInit {
             }
         });
     }
-
     onVote(msg: AnnouncementInboxDto, value: boolean) {
         this.announcementService.vote(msg.id, value).subscribe({
             next: () => {
                 this.messages.update(list => list.map(m => m.id === msg.id ? { ...m, vote: value } : m));
                 this.selected.update(curr => curr ? { ...curr, vote: value } : null);
-
                 this.messageService.add({
                     severity: 'success', summary: 'Vote registered',
                     detail: `You voted: ${value ? 'Yes' : 'No'}`
@@ -90,7 +78,6 @@ export class MessagesComponent implements OnInit {
             }
         });
     }
-
     markAllRead() {
         this.announcementService.markAllRead().subscribe({
             next: () => {

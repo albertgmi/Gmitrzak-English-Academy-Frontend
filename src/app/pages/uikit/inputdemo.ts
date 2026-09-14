@@ -30,7 +30,6 @@ import { CountryService } from '../service/country.service';
 import { NodeService } from '../service/node.service';
 import { TreeNode } from 'primeng/api';
 import { Country } from '../service/customer.service';
-
 @Component({
     selector: 'app-input-demo',
     standalone: true,
@@ -72,7 +71,6 @@ import { Country } from '../service/customer.service';
                         <input pInputText type="text" placeholder="Disabled" [disabled]="true" />
                         <input pInputText type="text" placeholder="Invalid" class="ng-dirty ng-invalid" />
                     </div>
-
                     <div class="font-semibold text-xl">Icons</div>
                     <p-iconfield>
                         <p-inputicon class="pi pi-user" />
@@ -82,31 +80,24 @@ import { Country } from '../service/customer.service';
                         <input pInputText type="text" placeholder="Search" />
                         <p-inputicon class="pi pi-search" />
                     </p-iconfield>
-
                     <div class="font-semibold text-xl">Float Label</div>
                     <p-floatlabel>
                         <input pInputText id="username" type="text" [(ngModel)]="floatValue" />
                         <label for="username">Username</label>
                     </p-floatlabel>
-
                     <div class="font-semibold text-xl">Textarea</div>
                     <textarea pTextarea placeholder="Your Message" [autoResize]="true" rows="3" cols="30"></textarea>
-
                     <div class="font-semibold text-xl">AutoComplete</div>
                     <p-autocomplete [(ngModel)]="selectedAutoValue" [suggestions]="autoFilteredValue" optionLabel="name" placeholder="Search" dropdown multiple display="chip" (completeMethod)="filterCountry($event)" />
-
                     <div class="font-semibold text-xl">DatePicker</div>
                     <p-datepicker [showIcon]="true" [showButtonBar]="true" [(ngModel)]="calendarValue"></p-datepicker>
-
                     <div class="font-semibold text-xl">InputNumber</div>
                     <p-inputnumber [(ngModel)]="inputNumberValue" showButtons mode="decimal"></p-inputnumber>
                 </div>
-
                 <div class="card flex flex-col gap-4">
                     <div class="font-semibold text-xl">Slider</div>
                     <input pInputText [(ngModel)]="sliderValue" type="number" />
                     <p-slider [(ngModel)]="sliderValue" />
-
                     <div class="flex flex-row mt-6">
                         <div class="flex flex-col gap-4 w-1/2">
                             <div class="font-semibold text-xl">Rating</div>
@@ -117,7 +108,6 @@ import { Country } from '../service/customer.service';
                             <p-colorpicker [style]="{ width: '2rem' }" [(ngModel)]="colorValue" />
                         </div>
                     </div>
-
                     <div class="font-semibold text-xl">Knob</div>
                     <p-knob [(ngModel)]="knobValue" [step]="10" [min]="-50" [max]="50" valueTemplate="{value}%" />
                 </div>
@@ -139,7 +129,6 @@ import { Country } from '../service/customer.service';
                             <label for="option3" class="leading-none ml-2">New York</label>
                         </div>
                     </div>
-
                     <div class="font-semibold text-xl">Checkbox</div>
                     <div class="flex flex-col md:flex-row gap-4">
                         <div class="flex items-center">
@@ -155,18 +144,14 @@ import { Country } from '../service/customer.service';
                             <label for="checkOption3" class="ml-2">New York</label>
                         </div>
                     </div>
-
                     <div class="font-semibold text-xl">ToggleSwitch</div>
                     <p-toggleswitch [(ngModel)]="switchValue" />
                 </div>
-
                 <div class="card flex flex-col gap-4">
                     <div class="font-semibold text-xl">Listbox</div>
                     <p-listbox [(ngModel)]="listboxValue" [options]="listboxValues" optionLabel="name" [filter]="true" />
-
                     <div class="font-semibold text-xl">Select</div>
                     <p-select [(ngModel)]="dropdownValue" [options]="dropdownValues" optionLabel="name" placeholder="Select" />
-
                     <div class="font-semibold text-xl">MultiSelect</div>
                     <p-multiselect [options]="multiselectCountries" [(ngModel)]="multiselectSelectedCountries" placeholder="Select Countries" optionLabel="name" display="chip" [filter]="true">
                         <ng-template #selecteditems let-countries>
@@ -184,21 +169,17 @@ import { Country } from '../service/customer.service';
                             </div>
                         </ng-template>
                     </p-multiselect>
-
                     <div class="font-semibold text-xl">TreeSelect</div>
                     <p-treeselect [(ngModel)]="selectedNode" [options]="treeSelectNodes" placeholder="Select Item"></p-treeselect>
                 </div>
-
                 <div class="card flex flex-col gap-4">
                     <div class="font-semibold text-xl">ToggleButton</div>
                     <p-togglebutton [(ngModel)]="toggleValue" onLabel="Yes" offLabel="No" [style]="{ width: '10em' }" />
-
                     <div class="font-semibold text-xl">SelectButton</div>
                     <p-selectbutton [(ngModel)]="selectButtonValue" [options]="selectButtonValues" optionLabel="name" />
                 </div>
             </div>
         </p-fluid>
-
         <p-fluid class="flex mt-8">
             <div class="card flex flex-col gap-6 w-full">
                 <div class="font-semibold text-xl">InputGroup</div>
@@ -239,29 +220,17 @@ import { Country } from '../service/customer.service';
 })
 export class InputDemo implements OnInit {
     floatValue: any = null;
-
     autoValue: any[] | undefined;
-
     autoFilteredValue: any[] = [];
-
     selectedAutoValue: any = null;
-
     calendarValue: any = null;
-
     inputNumberValue: any = null;
-
     sliderValue: number = 50;
-
     ratingValue: any = null;
-
     colorValue: string = '#1976D2';
-
     radioValue: any = null;
-
     checkboxValue: any[] = [];
-
     switchValue: boolean = false;
-
     listboxValues: any[] = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -269,9 +238,7 @@ export class InputDemo implements OnInit {
         { name: 'Istanbul', code: 'IST' },
         { name: 'Paris', code: 'PRS' }
     ];
-
     listboxValue: any = null;
-
     dropdownValues = [
         { name: 'New York', code: 'NY' },
         { name: 'Rome', code: 'RM' },
@@ -279,9 +246,7 @@ export class InputDemo implements OnInit {
         { name: 'Istanbul', code: 'IST' },
         { name: 'Paris', code: 'PRS' }
     ];
-
     dropdownValue: any = null;
-
     multiselectCountries: Country[] = [
         { name: 'Australia', code: 'AU' },
         { name: 'Brazil', code: 'BR' },
@@ -294,46 +259,31 @@ export class InputDemo implements OnInit {
         { name: 'Spain', code: 'ES' },
         { name: 'United States', code: 'US' }
     ];
-
     multiselectSelectedCountries!: Country[];
-
     toggleValue: boolean = false;
-
     selectButtonValue: any = null;
-
     selectButtonValues: any = [{ name: 'Option 1' }, { name: 'Option 2' }, { name: 'Option 3' }];
-
     knobValue: number = 50;
-
     inputGroupValue: boolean = false;
-
     treeSelectNodes!: TreeNode[];
-
     selectedNode: any = null;
-
     countryService = inject(CountryService);
-
     nodeService = inject(NodeService);
-
     ngOnInit() {
         this.countryService.getCountries().then((countries) => {
             this.autoValue = countries;
         });
-
         this.nodeService.getFiles().then((data) => (this.treeSelectNodes = data));
     }
-
     filterCountry(event: AutoCompleteCompleteEvent) {
         const filtered: any[] = [];
         const query = event.query;
-
         for (let i = 0; i < (this.autoValue as any[]).length; i++) {
             const country = (this.autoValue as any[])[i];
             if (country.name.toLowerCase().indexOf(query.toLowerCase()) == 0) {
                 filtered.push(country);
             }
         }
-
         this.autoFilteredValue = filtered;
     }
 }

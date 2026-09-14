@@ -1,6 +1,4 @@
 <div class="card p-6 sm:p-10 w-full min-h-[calc(100vh-10rem)] flex flex-col justify-center">
-  
-  <!-- Header Section -->
   <div class="flex flex-col items-center text-center mb-8 sm:mb-12">
     <span class="inline-flex items-center justify-center w-16 h-16 sm:w-20 sm:h-20 rounded-3xl bg-primary-100 dark:bg-primary-900/40 text-primary mb-4 shadow-sm">
       <i class="pi pi-list-check text-3xl sm:text-4xl"></i>
@@ -10,11 +8,7 @@
       Select your target irregular verbs collection to practice today in flashcard format.
     </p>
   </div>
-
-  <!-- Cards Grid -->
   <div class="grid grid-cols-1 md:grid-cols-2 gap-8 lg:gap-12 w-full max-w-6xl mx-auto my-auto">
-    
-    <!-- Card Basic Level -->
     <div class="bg-surface-0 dark:bg-surface-900 border-2 border-surface-200 dark:border-surface-700 rounded-3xl p-7 sm:p-10 flex flex-col justify-between hover:border-emerald-500 transition-all duration-300 shadow-md hover:shadow-xl min-h-[380px] sm:min-h-[440px]">
       <div>
         <div class="flex items-center justify-between mb-6">
@@ -23,14 +17,10 @@
           </span>
           <p-tag severity="success" value="Basic Level" class="text-sm px-3 py-1 font-semibold"></p-tag>
         </div>
-
         <h3 class="text-2xl sm:text-3xl font-extrabold text-surface-900 dark:text-surface-0 mb-3">Basic Irregular Verbs</h3>
-        
         <p class="text-muted-color text-base sm:text-lg mb-6 leading-relaxed">
           Master the core irregular verbs essential for fluent everyday communication and general English proficiency.
         </p>
-
-        <!-- Feature List -->
         <ul class="space-y-3 mb-8 text-surface-700 dark:text-surface-300 font-medium text-base sm:text-lg">
           <li class="flex items-center gap-3">
             <i class="pi pi-check-circle text-emerald-500 text-xl"></i>
@@ -42,7 +32,6 @@
           </li>
         </ul>
       </div>
-
       <button
         pButton
         label="Start Basic Review"
@@ -53,8 +42,6 @@
         [queryParams]="{ level: 'Basic' }">
       </button>
     </div>
-
-    <!-- Card Advanced Level -->
     <div class="bg-surface-0 dark:bg-surface-900 border-2 border-surface-200 dark:border-surface-700 rounded-3xl p-7 sm:p-10 flex flex-col justify-between hover:border-purple-500 transition-all duration-300 shadow-md hover:shadow-xl min-h-[380px] sm:min-h-[440px]">
       <div>
         <div class="flex items-center justify-between mb-6">
@@ -63,14 +50,10 @@
           </span>
           <p-tag severity="warn" value="Advanced Level" class="text-sm px-3 py-1 font-semibold"></p-tag>
         </div>
-
         <h3 class="text-2xl sm:text-3xl font-extrabold text-surface-900 dark:text-surface-0 mb-3">Advanced Irregular Verbs</h3>
-        
         <p class="text-muted-color text-base sm:text-lg mb-6 leading-relaxed">
           Expand your vocabulary with advanced, nuanced irregular verbs for higher level fluency.
         </p>
-
-        <!-- Feature List -->
         <ul class="space-y-3 mb-8 text-surface-700 dark:text-surface-300 font-medium text-base sm:text-lg">
           <li class="flex items-center gap-3">
             <i class="pi pi-check-circle text-purple-500 text-xl"></i>
@@ -82,7 +65,6 @@
           </li>
         </ul>
       </div>
-
       <button
         pButton
         label="Start Advanced Review"
@@ -93,7 +75,5 @@
         [queryParams]="{ level: 'Advanced' }">
       </button>
     </div>
-
   </div>
-
 </div>

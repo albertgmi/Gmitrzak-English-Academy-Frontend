@@ -21,7 +21,6 @@ import { DialogModule } from 'primeng/dialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { AnnouncementDetailsDto } from '../../services/announcement.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
     selector: 'app-announcements',
     standalone: true,
@@ -40,45 +39,35 @@ export class AnnouncementsComponent implements OnInit {
     private userService = inject(UserService);
     private messageService= inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     announcements = signal<AnnouncementDto[]>([]);
     loading = signal(true);
     showForm = signal(false);
     saving = signal(false);
     submitted = false;
     sendToAll = signal(true);
-
     title = signal('');
     content = signal('');
     selectedRecipients = signal<number[]>([]);
-    
     type = signal('Announcement');
-
     announcementTypes = [
         { label: 'Standard Announcement', value: 'Announcement' },
         { label: 'Listing (Sign up option)', value: 'Listing' },
         { label: 'Voting (Yes/No poll)', value: 'Voting' }
     ];
-
     selectedAnnouncementDetails = signal<AnnouncementDetailsDto | null>(null);
     selectedAnnouncementForView = signal<AnnouncementDto | null>(null);
-
     showDetailsDialog = signal(false);
-
     truncateText(text: string, limit: number = 80): string {
         if (!text) return '';
         return text.length > limit ? text.substring(0, limit) + '...' : text;
     }
-
     viewContent(a: AnnouncementDto) {
         this.selectedAnnouncementForView.set(a);
     }
-
     readCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.isRead).length ?? 0);
     registeredCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.signedUp).length ?? 0);
     yesCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.vote === true).length ?? 0);
     noCount = computed(() => this.selectedAnnouncementDetails()?.recipients.filter(r => r.vote === false).length ?? 0);
-
     getTypeColor(type: string): string {
         switch (type) {
             case 'Listing': return '#10B981';
@@ -86,32 +75,26 @@ export class AnnouncementsComponent implements OnInit {
             default: return '#3B82F6';
         }
     }
-
     students = computed(() =>
         (this.userService.users.value() ?? [])
             .filter(u => u.role === 'User')
             .map(u => ({ id: u.id, label: `${u.username} (${u.email})` }))
     );
-
     ngOnInit() {
         this.loadAnnouncements();
         this.userService.users.reload();
     }
-
     loadAnnouncements() {
         this.announcementService.getAll().subscribe({
             next: (d) => { this.announcements.set(d); this.loading.set(false); },
             error: () => this.loading.set(false)
         });
     }
-
     send() {
         this.submitted = true;
         if (!this.title().trim() || !this.content().trim()) return;
-
         this.saving.set(true);
         const recipients = this.sendToAll() ? undefined : this.selectedRecipients();
-
         this.announcementService.create(this.title(), this.content(), this.type(), recipients).subscribe({
             next: () => {
                 this.announcementService.refreshUnreadCount();
@@ -130,7 +113,6 @@ export class AnnouncementsComponent implements OnInit {
             }
         });
     }
-
     reset() {
         this.title.set('');
         this.content.set('');
@@ -141,7 +123,6 @@ export class AnnouncementsComponent implements OnInit {
         this.saving.set(false);
         this.showForm.set(false);
     }
-
     confirmDelete(ann: AnnouncementDto) {
         this.confirmationService.confirm({
             message: `Delete announcement "${ann.title}"?`,
@@ -159,11 +140,9 @@ export class AnnouncementsComponent implements OnInit {
             }
         });
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     showDetails(a: AnnouncementDto) {
         this.announcementService.getDetails(a.id)
             .subscribe(details => {

@@ -14,9 +14,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { CatalogueService, CatalogueDto, CatalogueEntryDto } from '../../services/catalogue.service';
-
 type View = 'list' | 'entries';
-
 @Component({
     selector: 'app-catalogues',
     standalone: true,
@@ -33,51 +31,40 @@ export class CataloguesComponent implements OnInit {
     private catalogueService = inject(CatalogueService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     catalogues = computed(() => this.catalogueService.catalogues.value());
     view = signal<View>('list');
     selectedCatalogue = signal<CatalogueDto | null>(null);
-
     uploading = signal(false);
     dragOver = signal(false);
-
     entries = signal<CatalogueEntryDto[]>([]);
     loadingEntries = signal(false);
-
     filterUserRef = signal('');
     filterDateFrom = signal<Date | null>(null);
     filterDateTo = signal<Date | null>(null);
-
     catalogueOptions = computed(() =>
         (this.catalogueService.catalogues.value() ?? [])
             .map(c => ({ label: c.name, value: c.name }))
     );
-
     ngOnInit() {
         this.catalogueService.reloadCatalogues();
     }
-
     onFileSelected(event: Event) {
         const file = (event.target as HTMLInputElement).files?.[0];
         if (file) this.uploadFile(file);
     }
-
     onDrop(event: DragEvent) {
         event.preventDefault();
         this.dragOver.set(false);
         const file = event.dataTransfer?.files?.[0];
         if (file) this.uploadFile(file);
     }
-
     onDragOver(event: DragEvent) {
         event.preventDefault();
         this.dragOver.set(true);
     }
-
     onDragLeave() {
         this.dragOver.set(false);
     }
-
     uploadFile(file: File) {
         const allowed = ['.xlsx', '.xls'];
         const ext = '.' + file.name.split('.').pop()?.toLowerCase();
@@ -88,7 +75,6 @@ export class CataloguesComponent implements OnInit {
             });
             return;
         }
-
         this.uploading.set(true);
         this.catalogueService.uploadCatalogue(file).subscribe({
             next: (result) => {
@@ -109,13 +95,11 @@ export class CataloguesComponent implements OnInit {
             }
         });
     }
-
     viewEntries(catalogue: CatalogueDto) {
         this.selectedCatalogue.set(catalogue);
         this.view.set('entries');
         this.loadEntries(catalogue.name);
     }
-
     backToList() {
         this.view.set('list');
         this.selectedCatalogue.set(null);
@@ -124,11 +108,9 @@ export class CataloguesComponent implements OnInit {
         this.filterDateFrom.set(null);
         this.filterDateTo.set(null);
     }
-
     loadEntries(catalogueName?: string) {
         const name = catalogueName ?? this.selectedCatalogue()?.name;
         if (!name) return;
-
         this.loadingEntries.set(true);
         this.catalogueService.getEntries({
             catalogueName: name,
@@ -140,7 +122,6 @@ export class CataloguesComponent implements OnInit {
             error: () => this.loadingEntries.set(false)
         });
     }
-
     onRowEditSave(entry: CatalogueEntryDto) {
         this.catalogueService.updateEntry(entry.id, { translatedEntry: entry.translatedEntry }).subscribe({
             next: () => {
@@ -158,7 +139,6 @@ export class CataloguesComponent implements OnInit {
             }
         });
     }
-
     applyFilters() { this.loadEntries(); }
     clearFilters() {
         this.filterUserRef.set('');
@@ -166,7 +146,6 @@ export class CataloguesComponent implements OnInit {
         this.filterDateTo.set(null);
         this.loadEntries();
     }
-
     confirmDelete(catalogue: CatalogueDto) {
         this.confirmationService.confirm({
             message: `Delete catalogue "${catalogue.name}" and all its ${catalogue.entryCount} entries?`,
@@ -189,14 +168,11 @@ export class CataloguesComponent implements OnInit {
             }
         });
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     formatDate(date: Date): string { 
         return new Intl.DateTimeFormat('sv-SE').format(date); 
     }
-    
     reload() { this.catalogueService.reloadCatalogues(); }
 }

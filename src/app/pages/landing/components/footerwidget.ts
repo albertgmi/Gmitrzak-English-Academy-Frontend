@@ -1,6 +1,5 @@
 import { Component } from '@angular/core';
 import { Router, RouterModule } from '@angular/router';
-
 @Component({
     selector: 'footer-widget',
     imports: [RouterModule],
@@ -29,7 +28,6 @@ import { Router, RouterModule } from '@angular/router';
                         <h4 class="font-medium text-3xl text-surface-900 dark:text-surface-0">SAKAI</h4>
                     </a>
                 </div>
-
                 <div class="col-span-12 md:col-span-10">
                     <div class="grid grid-cols-12 gap-8 text-center md:text-left">
                         <div class="col-span-12 md:col-span-3">
@@ -40,14 +38,12 @@ import { Router, RouterModule } from '@angular/router';
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Careers</a>
                             <a class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Media Kit</a>
                         </div>
-
                         <div class="col-span-12 md:col-span-3">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Resources</h4>
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Get Started</a>
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Learn</a>
                             <a class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Case Studies</a>
                         </div>
-
                         <div class="col-span-12 md:col-span-3">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Community</h4>
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Discord</a>
@@ -55,7 +51,6 @@ import { Router, RouterModule } from '@angular/router';
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">FAQ</a>
                             <a class="leading-normal text-xl block cursor-pointer text-surface-700 dark:text-surface-100">Blog</a>
                         </div>
-
                         <div class="col-span-12 md:col-span-3">
                             <h4 class="font-medium text-2xl leading-normal mb-6 text-surface-900 dark:text-surface-0">Legal</h4>
                             <a class="leading-normal text-xl block cursor-pointer mb-2 text-surface-700 dark:text-surface-100">Brand Policy</a>

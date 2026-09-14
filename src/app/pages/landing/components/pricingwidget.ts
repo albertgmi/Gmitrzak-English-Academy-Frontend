@@ -2,7 +2,6 @@ import { Component } from '@angular/core';
 import { ButtonModule } from 'primeng/button';
 import { DividerModule } from 'primeng/divider';
 import { RippleModule } from 'primeng/ripple';
-
 @Component({
     selector: 'pricing-widget',
     imports: [DividerModule, ButtonModule, RippleModule],
@@ -12,7 +11,6 @@ import { RippleModule } from 'primeng/ripple';
                 <div class="text-surface-900 dark:text-surface-0 font-normal mb-2 text-4xl">Matchless Pricing</div>
                 <span class="text-muted-color text-2xl">Amet consectetur adipiscing elit...</span>
             </div>
-
             <div class="grid grid-cols-12 gap-4 justify-between mt-20 md:mt-0">
                 <div class="col-span-12 lg:col-span-4 p-0 md:p-4">
                     <div class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all" style="border-radius: 10px">
@@ -46,7 +44,6 @@ import { RippleModule } from 'primeng/ripple';
                         </ul>
                     </div>
                 </div>
-
                 <div class="col-span-12 lg:col-span-4 p-0 md:p-4 mt-6 md:mt-0">
                     <div class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all" style="border-radius: 10px">
                         <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Startup</div>
@@ -79,7 +76,6 @@ import { RippleModule } from 'primeng/ripple';
                         </ul>
                     </div>
                 </div>
-
                 <div class="col-span-12 lg:col-span-4 p-0 md:p-4 mt-6 md:mt-0">
                     <div class="p-4 flex flex-col border-surface-200 dark:border-surface-600 pricing-card cursor-pointer border-2 hover:border-primary duration-300 transition-all" style="border-radius: 10px">
                         <div class="text-surface-900 dark:text-surface-0 text-center my-8 text-3xl">Enterprise</div>

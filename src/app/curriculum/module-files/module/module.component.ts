@@ -15,7 +15,6 @@ import { TooltipModule } from 'primeng/tooltip';
 import { ChipModule } from 'primeng/chip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { ModuleItem, ModuleItemService } from '../../../services/module.service';
-
 @Component({
     selector: 'app-module',
     standalone: true,
@@ -33,22 +32,17 @@ export class ModuleComponent implements OnInit {
     private moduleService = inject(ModuleItemService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     modules = this.moduleService.modules;
     selectedModule = signal<ModuleItem | null>(null);
-
     ngOnInit() {
         this.moduleService.reloadModules();
     }
-
     selectModule(module: ModuleItem) {
         this.selectedModule.set(module);
     }
-
     backToList() {
         this.selectedModule.set(null);
     }
-
     confirmDelete(module: ModuleItem) {
         this.confirmationService.confirm({
             message: `Are you sure you want to delete "${module.name}"?`,
@@ -74,11 +68,9 @@ export class ModuleComponent implements OnInit {
             }
         });
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload() {
         this.moduleService.reloadModules();
     }

@@ -11,7 +11,6 @@ import { FormsModule } from '@angular/forms';
 import { TooltipModule } from 'primeng/tooltip';
 import { TableModule } from 'primeng/table';
 import { Product, ProductService } from '../service/product.service';
-
 @Component({
     selector: 'app-overlay-demo',
     standalone: true,
@@ -31,7 +30,6 @@ import { Product, ProductService } from '../service/product.service';
                 </p-dialog>
                 <p-button label="Show" [style]="{ width: 'auto' }" (click)="open()" />
             </div>
-
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Popover</div>
                 <div class="flex flex-wrap gap-2">
@@ -57,7 +55,6 @@ import { Product, ProductService } from '../service/product.service';
                     <p-toast />
                 </div>
             </div>
-
             <div class="card">
                 <div class="font-semibold text-xl mb-4">Tooltip</div>
                 <div class="inline-flex gap-4">
@@ -75,48 +72,41 @@ import { Product, ProductService } from '../service/product.service';
                         consequat.
                     </p>
                 </p-drawer>
-
                 <p-drawer [(visible)]="visibleRight" header="Drawer" position="right">
                     <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                         consequat.
                     </p>
                 </p-drawer>
-
                 <p-drawer [(visible)]="visibleTop" header="Drawer" position="top">
                     <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                         consequat.
                     </p>
                 </p-drawer>
-
                 <p-drawer [(visible)]="visibleBottom" header="Drawer" position="bottom">
                     <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                         consequat.
                     </p>
                 </p-drawer>
-
                 <p-drawer [(visible)]="visibleFull" header="Drawer" position="full">
                     <p>
                         Lorem ipsum dolor sit amet, consectetur adipiscing elit, sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris nisi ut aliquip ex ea commodo
                         consequat.
                     </p>
                 </p-drawer>
-
                 <p-button icon="pi pi-arrow-right" (click)="visibleLeft = true" [style]="{ marginRight: '0.25em' }" />
                 <p-button icon="pi pi-arrow-left" (click)="visibleRight = true" [style]="{ marginRight: '0.25em' }" />
                 <p-button icon="pi pi-arrow-down" (click)="visibleTop = true" [style]="{ marginRight: '0.25em' }" />
                 <p-button icon="pi pi-arrow-up" (click)="visibleBottom = true" [style]="{ marginRight: '0.25em' }" />
                 <p-button icon="pi pi-external-link" (click)="visibleFull = true" />
             </div>
-
             <div class="card">
                 <div class="font-semibold text-xl mb-4">ConfirmPopup</div>
                 <p-confirmpopup></p-confirmpopup>
                 <p-button #popup (click)="confirm($event)" icon="pi pi-check" label="Confirm" class="mr-2"></p-button>
             </div>
-
             <div class="card">
                 <div class="font-semibold text-xl mb-4">ConfirmDialog</div>
                 <p-button label="Delete" icon="pi pi-trash" severity="danger" [style]="{ width: 'auto' }" (click)="openConfirmation()" />
@@ -137,34 +127,22 @@ import { Product, ProductService } from '../service/product.service';
 })
 export class OverlayDemo implements OnInit {
     images: any[] = [];
-
     display: boolean = false;
-
     products: Product[] = [];
-
     visibleLeft: boolean = false;
-
     visibleRight: boolean = false;
-
     visibleTop: boolean = false;
-
     visibleBottom: boolean = false;
-
     visibleFull: boolean = false;
-
     displayConfirmation: boolean = false;
-
     selectedProduct!: Product;
-
     constructor(
         private productService: ProductService,
         private confirmationService: ConfirmationService,
         private messageService: MessageService
     ) {}
-
     ngOnInit() {
         this.productService.getProductsSmall().then((products) => (this.products = products));
-
         this.images = [];
         this.images.push({
             source: 'assets/demo/images/sopranos/sopranos1.jpg',
@@ -187,7 +165,6 @@ export class OverlayDemo implements OnInit {
             title: 'Sopranos 4'
         });
     }
-
     confirm(event: Event) {
         this.confirmationService.confirm({
             key: 'confirm2',
@@ -202,28 +179,22 @@ export class OverlayDemo implements OnInit {
             }
         });
     }
-
     open() {
         this.display = true;
     }
-
     close() {
         this.display = false;
     }
-
     toggleDataTable(op: Popover, event: any) {
         op.toggle(event);
     }
-
     onProductSelect(op: Popover, event: any) {
         op.hide();
         this.messageService.add({ severity: 'info', summary: 'Product Selected', detail: event?.data.name, life: 3000 });
     }
-
     openConfirmation() {
         this.displayConfirmation = true;
     }
-
     closeConfirmation() {
         this.displayConfirmation = false;
     }

@@ -1,7 +1,5 @@
 <p-toast />
 <p-confirmDialog />
-
-<!-- DETAIL VIEW -->
 <div *ngIf="selectedCourse() as course; else listView" class="card">
   <div class="flex items-center gap-3 mb-6">
     <p-button icon="pi pi-arrow-left" severity="secondary" outlined
@@ -17,7 +15,6 @@
     <p-button icon="pi pi-trash" label="Delete" severity="danger" outlined
       (onClick)="confirmDelete(course)" />
   </div>
-
   <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-6">
     <div class="bg-surface-50 dark:bg-surface-800 rounded-lg p-4">
       <span class="text-xs font-semibold uppercase tracking-wider text-muted-color block mb-1">ID</span>
@@ -33,7 +30,6 @@
       <span class="text-surface-900 dark:text-surface-0">{{ course.description || '-' }}</span>
     </div>
   </div>
-
   <div class="mb-6">
     <h3 class="text-lg font-semibold mb-3 text-surface-900 dark:text-surface-0">
       Programs
@@ -46,7 +42,6 @@
       <span class="text-muted-color text-sm">Not assigned to any program.</span>
     </ng-template>
   </div>
-
   <div>
     <h3 class="text-lg font-semibold mb-3 text-surface-900 dark:text-surface-0">
       Matrices
@@ -85,8 +80,6 @@
     </p-table>
   </div>
 </div>
-
-<!-- LIST VIEW -->
 <ng-template #listView>
   <div class="card">
     <p-toolbar styleClass="mb-6">
@@ -102,7 +95,6 @@
           (onClick)="reload()" pTooltip="Refresh" />
       </ng-template>
     </p-toolbar>
-
     <p-table #dt [value]="courses.value() || []" dataKey="id" [loading]="courses.isLoading()"
       [rows]="10" [paginator]="true" [globalFilterFields]="['name', 'description']"
       [tableStyle]="{ 'min-width': '55rem' }" [rowHover]="true"
@@ -141,7 +133,7 @@
           <td>
             <div class="flex flex-wrap gap-1">
               <p-chip *ngFor="let p of course.programs" [label]="p.name" styleClass="text-xs" />
-              <span *ngIf="!course.programs?.length" class="text-muted-color text-sm">—</span>
+              <span *ngIf="!course.programs?.length" class="text-muted-color text-sm">-</span>
             </div>
           </td>
           <td>

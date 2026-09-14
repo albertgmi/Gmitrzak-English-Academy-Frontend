@@ -1,8 +1,6 @@
 <p-toast />
 <p-confirmdialog />
-
 <div class="card p-5">
-  <!-- Top Header -->
   <div class="flex justify-between items-center mb-6 flex-wrap gap-3">
     <div>
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0 flex items-center gap-2.5">
@@ -13,7 +11,6 @@
         View available exams, sign up, study materials, and earn reward credits upon passing.
       </p>
     </div>
-
     <div class="flex gap-2 items-center flex-wrap">
       <p-button
         *ngIf="isAdmin()"
@@ -22,8 +19,6 @@
         (onClick)="openCreateDialog()" />
     </div>
   </div>
-
-  <!-- Level Tabs: Junior / Senior -->
   <div class="flex gap-2 mb-6 flex-wrap">
     <p-button
       *ngFor="let levelTab of levelTabs"
@@ -32,20 +27,14 @@
       [outlined]="activeTab() !== levelTab.id"
       (onClick)="setTab(levelTab.id)" />
   </div>
-
-  <!-- Loading Spinner -->
   <div *ngIf="loading()" class="text-center py-12 text-muted-color">
     <i class="pi pi-spin pi-spinner text-4xl block mb-2"></i>
     <span class="text-base font-medium">Loading {{ activeTab() }} exams...</span>
   </div>
-
-  <!-- Exams List / Grid -->
   <div *ngIf="!loading()" class="grid grid-cols-1 lg:grid-cols-2 gap-6">
     <div
       *ngFor="let exam of exams()"
       class="bg-white dark:bg-surface-900 border border-surface-200 dark:border-surface-700 rounded-2xl p-6 shadow-sm hover:shadow-md transition-all flex flex-col justify-between">
-
-      <!-- Exam Card Header -->
       <div>
         <div class="flex justify-between items-start gap-3 mb-3">
           <div>
@@ -55,22 +44,15 @@
               <p-tag *ngIf="isAdmin() && !exam.isActive" value="Inactive" severity="danger" styleClass="text-xs px-2.5 py-0.5" />
             </div>
           </div>
-
-          <!-- Reward Credits Badge -->
           <div class="bg-amber-50 dark:bg-amber-900/30 border border-amber-300 dark:border-amber-700/60 rounded-xl px-3 py-1.5 flex items-center gap-1.5 shrink-0">
             <i class="pi pi-star-fill text-amber-500 text-lg"></i>
             <span class="font-bold text-amber-800 dark:text-amber-300 text-sm">+{{ exam.rewardCredits }} Credits</span>
           </div>
         </div>
-
-        <!-- Description -->
         <p class="text-surface-700 dark:text-surface-300 text-sm sm:text-base leading-relaxed mb-5 whitespace-pre-line font-normal">
           {{ exam.description }}
         </p>
-
-        <!-- Details Badges Grid -->
         <div class="grid grid-cols-1 sm:grid-cols-2 gap-2.5 mb-5 text-sm">
-          <!-- Passing Threshold -->
           <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700">
             <i class="pi pi-check-circle text-green-500 text-base"></i>
             <div>
@@ -78,8 +60,6 @@
               <span class="font-bold text-surface-900 dark:text-surface-0 text-sm">{{ exam.passingThreshold }}</span>
             </div>
           </div>
-
-          <!-- Deadline -->
           <div class="flex items-center gap-2.5 p-2.5 rounded-xl bg-surface-50 dark:bg-surface-800/60 border border-surface-200 dark:border-surface-700">
             <i class="pi pi-clock text-primary text-base"></i>
             <div>
@@ -90,8 +70,6 @@
             </div>
           </div>
         </div>
-
-        <!-- Multiple Materials Links -->
         <div *ngIf="exam.materials && exam.materials.length" class="mb-5">
           <span class="text-[11px] font-bold uppercase tracking-wider text-muted-color block mb-1.5">Study Materials & Resources:</span>
           <div class="flex flex-wrap gap-2">
@@ -107,19 +85,14 @@
           </div>
         </div>
       </div>
-
-      <!-- Footer Action Controls -->
       <div class="pt-4 border-t border-surface-200 dark:border-surface-800 flex flex-wrap justify-between items-center gap-3">
-        <!-- Student Sign Up / Status Actions (HIDDEN FOR ADMIN) -->
         <div class="flex items-center gap-2.5 flex-wrap">
           <ng-container *ngIf="!isAdmin()">
-            <!-- Registered/Passed/Failed Tag if signed up -->
             <ng-container *ngIf="exam.isCurrentUserSignedUp">
               <p-tag
                 [value]="'Status: ' + (exam.currentUserStatus || 'Registered')"
                 [severity]="getStatusSeverity(exam.currentUserStatus || 'Registered')"
                 styleClass="text-xs px-2.5 py-1 font-bold" />
-
               <p-button
                 *ngIf="exam.canUnsign"
                 label="Cancel Registration"
@@ -128,27 +101,19 @@
                 [outlined]="true"
                 (onClick)="unsign(exam)" />
             </ng-container>
-
-            <!-- Sign Up Button for Students -->
             <p-button
               *ngIf="!exam.isCurrentUserSignedUp && exam.canSignUp"
               label="Sign Up for Exam"
               icon="pi pi-user-plus"
               (onClick)="signUp(exam)" />
-
-            <!-- Signups Closed Info Tag -->
             <span *ngIf="!exam.isCurrentUserSignedUp && !exam.canSignUp" class="text-xs text-muted-color font-semibold flex items-center gap-1.5">
               <i class="pi pi-lock text-xs"></i> Signups closed
             </span>
           </ng-container>
-
-          <!-- Admin badge indicating management mode -->
           <span *ngIf="isAdmin()" class="text-xs text-muted-color font-medium italic">
             Admin View
           </span>
         </div>
-
-        <!-- Right Side Controls: Takers & Admin actions -->
         <div class="flex items-center gap-2 shrink-0">
           <p-button
             [label]="'Takers (' + exam.takersCount + ')'"
@@ -157,7 +122,6 @@
             [outlined]="true"
             (onClick)="openTakersDialog(exam)"
             [pTooltip]="'View registered students'" />
-
           <ng-container *ngIf="isAdmin()">
             <p-button
               icon="pi pi-pencil"
@@ -174,10 +138,7 @@
           </ng-container>
         </div>
       </div>
-
     </div>
-
-    <!-- Empty State -->
     <div
       *ngIf="!exams().length"
       class="col-span-full text-center py-16 bg-surface-50 dark:bg-surface-900/50 rounded-2xl border-2 border-dashed border-surface-300 dark:border-surface-700">
@@ -192,8 +153,6 @@
     </div>
   </div>
 </div>
-
-<!-- CREATE / EDIT DIALOG (Admin) -->
 <p-dialog
   [header]="editingExam() ? 'Edit Exam' : 'Create New Exam'"
   [visible]="showForm()"
@@ -201,7 +160,6 @@
   [modal]="true"
   [style]="{ width: '95%', maxWidth: '38rem' }"
   appendTo="body">
-
   <div class="flex flex-col gap-4 pt-2">
     <div>
       <label class="block text-sm font-bold mb-1">Title *</label>
@@ -213,7 +171,6 @@
         placeholder="e.g. B2 Advanced Writing & Grammar Exam"
         class="w-full text-sm p-2.5" />
     </div>
-
     <div>
       <label class="block text-sm font-bold mb-1">Description *</label>
       <textarea
@@ -224,7 +181,6 @@
         placeholder="Provide exam guidelines, topics covered, instructions..."
         class="w-full text-sm p-2.5"></textarea>
     </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-bold mb-1">Category Level *</label>
@@ -237,7 +193,6 @@
           appendTo="body"
           class="w-full text-sm" />
       </div>
-
       <div>
         <label class="block text-sm font-bold mb-1">Reward Credits *</label>
         <input
@@ -249,7 +204,6 @@
           class="w-full text-sm p-2.5" />
       </div>
     </div>
-
     <div class="grid grid-cols-1 sm:grid-cols-2 gap-4">
       <div>
         <label class="block text-sm font-bold mb-1">Passing Threshold *</label>
@@ -261,7 +215,6 @@
           placeholder="e.g. 80% or 40/50"
           class="w-full text-sm p-2.5" />
       </div>
-
       <div>
         <label class="block text-sm font-bold mb-1">Signup Deadline *</label>
         <p-datepicker
@@ -275,8 +228,6 @@
           styleClass="w-full text-sm" />
       </div>
     </div>
-
-    <!-- Multiple Materials Section -->
     <div>
       <div class="flex justify-between items-center mb-1.5">
         <label class="block text-sm font-bold">Study Materials & Links (Multiple)</label>
@@ -287,26 +238,22 @@
           [outlined]="true"
           (onClick)="addMaterial()" />
       </div>
-
       <div class="flex flex-col gap-2.5">
         <div
           *ngFor="let mat of formMaterials(); let i = index"
           class="flex items-center gap-2.5 p-2.5 bg-surface-50 dark:bg-surface-800/60 rounded-xl border border-surface-200 dark:border-surface-700">
-
           <input
             pInputText
             type="text"
             [(ngModel)]="mat.title"
             placeholder="Material Title (e.g. PDF Guide)"
             class="flex-1 text-xs sm:text-sm p-2" />
-
           <input
             pInputText
             type="url"
             [(ngModel)]="mat.url"
             placeholder="URL (https://...)"
             class="flex-1 text-xs sm:text-sm p-2" />
-
           <p-button
             icon="pi pi-trash"
             severity="danger"
@@ -314,13 +261,11 @@
             (onClick)="removeMaterial(i)"
             [pTooltip]="'Remove material link'" />
         </div>
-
         <div *ngIf="!formMaterials().length" class="text-xs text-muted-color italic">
           No materials added yet. Click "Add Link" to add study resources.
         </div>
       </div>
     </div>
-
     <div class="flex items-center gap-2 pt-1">
       <p-checkbox
         inputId="exam-is-active"
@@ -332,7 +277,6 @@
       </label>
     </div>
   </div>
-
   <ng-template pTemplate="footer">
     <div class="flex justify-end gap-2 pt-4 border-t border-surface-200 dark:border-surface-700">
       <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="showForm.set(false)" />
@@ -344,8 +288,6 @@
     </div>
   </ng-template>
 </p-dialog>
-
-<!-- TAKERS LIST DIALOG -->
 <p-dialog
   [header]="(selectedExamForTakers()?.title || 'Exam') + ' - Registered Takers'"
   [visible]="showTakersDialog()"
@@ -353,18 +295,14 @@
   [modal]="true"
   [style]="{ width: '95%', maxWidth: '42rem' }"
   appendTo="body">
-
   <div *ngIf="selectedExamForTakers()" class="pt-1">
     <p class="text-xs sm:text-sm text-muted-color mb-4">
       Total registered takers: <strong class="text-surface-900 dark:text-surface-0 text-sm sm:text-base">{{ selectedExamForTakers()?.takersCount }}</strong>
     </p>
-
     <div class="flex flex-col gap-3 max-h-[26rem] overflow-y-auto pr-1">
       <div
         *ngFor="let taker of selectedExamForTakers()?.takers"
         class="flex items-center justify-between p-3.5 bg-surface-50 dark:bg-surface-800/60 rounded-xl border border-surface-200 dark:border-surface-700 gap-3">
-
-        <!-- User Info -->
         <div class="flex items-center gap-3">
           <app-avatar [avatarUrl]="taker.avatarUrl" [username]="taker.username" size="md" />
           <div>
@@ -372,10 +310,7 @@
             <div class="text-xs text-muted-color">Signed up: {{ taker.signedUpAt | date:'dd/MM/yyyy, HH:mm' }}</div>
           </div>
         </div>
-
-        <!-- Status & Admin Actions -->
         <div class="flex items-center gap-2">
-          <!-- Admin Status Evaluator with appendTo="body" -->
           <ng-container *ngIf="isAdmin()">
             <p-select
               [options]="statusOptions"
@@ -386,21 +321,17 @@
               appendTo="body"
               class="w-44 text-xs sm:text-sm" />
           </ng-container>
-
-          <!-- Non-Admin Status Tag -->
           <ng-container *ngIf="!isAdmin()">
             <p-tag [value]="taker.status" [severity]="getStatusSeverity(taker.status)" styleClass="text-xs px-2.5 py-0.5" />
           </ng-container>
         </div>
       </div>
-
       <div *ngIf="!selectedExamForTakers()?.takers?.length" class="text-center py-8 text-muted-color">
         <i class="pi pi-users text-3xl block mb-2"></i>
         <span class="text-sm font-medium">No students have registered for this exam yet.</span>
       </div>
     </div>
   </div>
-
   <ng-template pTemplate="footer">
     <div class="flex justify-end pt-3">
       <p-button label="Close" severity="secondary" [outlined]="true" (onClick)="showTakersDialog.set(false)" />

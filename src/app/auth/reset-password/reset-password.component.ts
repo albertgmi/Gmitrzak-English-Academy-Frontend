@@ -6,7 +6,6 @@ import { MessageService } from 'primeng/api';
 import {PasswordModule} from 'primeng/password';
 import {DropdownModule} from 'primeng/dropdown';
 import {ToastModule} from 'primeng/toast';
-
 @Component({
   selector: 'app-reset-password',
   templateUrl: './reset-password.component.html',
@@ -17,7 +16,6 @@ import {ToastModule} from 'primeng/toast';
 export class ResetPasswordComponent implements OnInit {
   resetForm: FormGroup;
   token: string | null;
-
   constructor(
     private fb: FormBuilder,
     private route: ActivatedRoute,
@@ -30,7 +28,6 @@ export class ResetPasswordComponent implements OnInit {
       password: ['', [Validators.required, Validators.minLength(6)]]
     });
   }
-
   ngOnInit(): void {
     this.token = this.route.snapshot.queryParamMap.get('token');
     if (!this.token) {
@@ -38,7 +35,6 @@ export class ResetPasswordComponent implements OnInit {
       this.router.navigate(['/login']);
     }
   }
-
   onSubmit(): void {
     if (this.resetForm.valid && this.token) {
       this.authService.resetPassword(this.token, this.resetForm.value.password).subscribe(

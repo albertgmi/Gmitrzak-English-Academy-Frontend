@@ -1,7 +1,6 @@
 import { inject, Injectable } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { environment } from '../../environments/environment';
-
 export interface UserOptionsDto {
     userId: number;
     username: string;
@@ -13,20 +12,16 @@ export interface UserOptionsDto {
     incorrectStepThreeMinutes: number;
     incorrectStepFourMinutes: number;
 }
-
 @Injectable({ providedIn: 'root' })
 export class OptionsService {
     private apiUrl = `${environment.apiUrl}/api/options`;
     http = inject(HttpClient);
-
     getAll() {
         return this.http.get<UserOptionsDto[]>(this.apiUrl);
     }
-
     getByUser(userId: number) {
         return this.http.get<UserOptionsDto>(`${this.apiUrl}/${userId}`);
     }
-
     update(userId: number, opts: Partial<UserOptionsDto>) {
         return this.http.put(`${this.apiUrl}/${userId}`, opts);
     }

@@ -11,7 +11,6 @@ import { SelectButtonModule } from 'primeng/selectbutton';
 import { MessageService } from 'primeng/api';
 import { CreateMatrixRequest, MatrixService } from '../../../services/matrix.service';
 import { ToastModule } from 'primeng/toast';
-
 @Component({
     selector: 'app-matrix-adding',
     standalone: true,
@@ -27,18 +26,15 @@ export class MatrixAddingComponent {
     private messageService = inject(MessageService);
     private router = inject(Router);
     matrixAdded = output<void>();
-
     newMatrix: CreateMatrixRequest = this.getEmpty();
     submitted = false;
     loading = false;
-
     intervalPresets = [
         { label: 'Daily',     value: 1  },
         { label: 'Weekly',    value: 7  },
         { label: 'Bi-weekly', value: 14 },
         { label: 'Monthly',   value: 30 },
     ];
-
     save() {
         this.submitted = true;
         if (!this.newMatrix.name.trim()) {
@@ -48,7 +44,6 @@ export class MatrixAddingComponent {
             });
             return;
         }
-
         this.loading = true;
         this.matrixService.createMatrix(this.newMatrix).subscribe({
             next: () => {
@@ -70,18 +65,15 @@ export class MatrixAddingComponent {
             }
         });
     }
-
     reset() {
         this.newMatrix = this.getEmpty();
         this.submitted = false;
         this.loading = false;
     }
-
     cancel() {
         this.reset();
         this.router.navigate(['/curriculum/matrices']);
     }
-
     private getEmpty(): CreateMatrixRequest {
         return { name: '', description: '', refreshIntervalDays: 7, isHidden: false };
     }

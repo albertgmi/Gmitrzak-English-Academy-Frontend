@@ -9,7 +9,6 @@ import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { FlashcardService } from '../../services/student-services/flashcard.service';
-
 @Component({
     selector: 'app-vocabulary',
     standalone: true,
@@ -21,11 +20,9 @@ import { FlashcardService } from '../../services/student-services/flashcard.serv
 export class VocabularyComponent {
     private flashcardService = inject(FlashcardService);
     flashcards = this.flashcardService.flashcards;
-
     ngOnInit() {
         this.flashcardService.flashcards.reload();
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }

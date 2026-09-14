@@ -22,7 +22,6 @@ import {
 } from '../../../services/assignment.service';
 import { UserService } from '../../../services/user.service';
 import { MatrixService } from '../../../services/matrix.service';
-
 @Component({
     selector: 'app-plan-matrix',
     standalone: true,
@@ -43,48 +42,39 @@ export class PlanMatrixComponent implements OnInit {
     private matrixService = inject(MatrixService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     assignments = this.assignmentService.assignments;
     showAddForm = signal(false);
     submitted = false;
     loadingSubmit = false;
-
     selectedUserIds = signal<number[]>([]);
     selectedMatrixId = signal<number | null>(null);
     selectedStartDate = signal<Date | null>(null);
-
     filterUserId = signal<number | null>(null);
-
     users = computed(() =>
         (this.userService.users.value() ?? [])
             .filter(u => u.role === 'User')
             .map(u => ({ id: u.id, label: `${u.username} (${u.email})` }))
     );
-
     matrices = computed(() =>
         (this.matrixService.matrices.value() ?? [])
             .filter(m => !m.isHidden)
-            .map(m => ({ id: m.id, label: `${m.name} — every ${m.refreshIntervalDays}d` }))
+            .map(m => ({ id: m.id, label: `${m.name} - every ${m.refreshIntervalDays}d` }))
     );
-
     filteredAssignments = computed(() => {
         const all = this.assignments.value() ?? [];
         const uid = this.filterUserId();
         return uid ? all.filter(a => a.userId === uid) : all;
     });
-
     allUsers = computed(() =>
         (this.userService.users.value() ?? [])
             .filter(u => u.role === 'User')
             .map(u => ({ id: u.id, label: u.username }))
     );
-
     ngOnInit() {
         this.assignmentService.reloadAssignments();
         this.userService.users.reload();
         this.matrixService.reloadMatrices();
     }
-
     openAddForm() {
         this.selectedUserIds.set([]);
         this.selectedMatrixId.set(null);
@@ -92,39 +82,31 @@ export class PlanMatrixComponent implements OnInit {
         this.submitted = false;
         this.showAddForm.set(true);
     }
-
     closeAddForm() {
         this.showAddForm.set(false);
         this.submitted = false;
     }
-
     formatDate(date: Date): string {
         const year = date.getFullYear();
         const month = String(date.getMonth() + 1).padStart(2, '0');
         const day = String(date.getDate()).padStart(2, '0');
         return `${year}-${month}-${day}`;
     }
-
     submitAssignment() {
         this.submitted = true;
         const userIds = this.selectedUserIds();
         const matrixId = this.selectedMatrixId();
         const date = this.selectedStartDate();
-
         if (!userIds.length || !matrixId || !date) return;
-
         this.loadingSubmit = true;
-
         const request: CreateBulkMatrixAssignmentRequest = {
             matrixId,
             startDate: this.formatDate(date),
             userIds
         };
-
         this.assignmentService.createBulkMatrixAssignment(request).subscribe({
             next: (result) => {
                 this.assignmentService.reloadAssignments();
-
                 if (result.assignedUsernames.length) {
                     this.messageService.add({
                         severity: 'success', summary: 'Assigned',
@@ -150,7 +132,6 @@ export class PlanMatrixComponent implements OnInit {
             }
         });
     }
-
     confirmDelete(assignment: AssignmentDto) {
         this.confirmationService.confirm({
             message: `Remove matrix "${assignment.matrixName}" from ${assignment.username}?`,
@@ -173,23 +154,19 @@ export class PlanMatrixComponent implements OnInit {
             }
         });
     }
-
     progressPercentage(a: AssignmentDto): number {
         if (!a.modules || a.modules.length === 0) return 0;
         const unlockedCount = a.modules.filter(m => m.isUnlocked).length;
         return Math.round((unlockedCount / a.modules.length) * 100);
     }
-
     modulesLabel(a: AssignmentDto): string {
         if (!a.modules || a.modules.length === 0) return 'No modules';
         const unlockedCount = a.modules.filter(m => m.isUnlocked).length;
         return `Modules: ${unlockedCount} / ${a.modules.length}`;
     }
-
     onGlobalFilter(table: any, event: Event) {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload() {
         this.assignmentService.reloadAssignments();
     }

@@ -1,9 +1,6 @@
 <p-toast />
 <p-confirmdialog />
-
 <div class="space-y-4 sm:space-y-6 max-w-6xl mx-auto pb-10 px-1 sm:px-0">
-
-  <!-- Skeleton Loading State -->
   <div *ngIf="loading()" class="space-y-4 sm:space-y-6">
     <div class="card p-4 sm:p-6 space-y-4">
       <p-skeleton width="40%" height="2rem" />
@@ -16,10 +13,7 @@
       <p-skeleton width="100%" height="280px" />
     </div>
   </div>
-
   <div *ngIf="!loading() && moduleData() as m" class="space-y-4 sm:space-y-6">
-
-    <!-- Top Header Banner -->
     <div class="card !p-4 sm:!p-5 md:!p-6 border-b-2 border-primary/20">
       <div class="flex flex-col sm:flex-row sm:items-center justify-between gap-3 sm:gap-4">
         <div>
@@ -36,7 +30,6 @@
             </h1>
           </div>
         </div>
-
         <div class="flex items-center gap-2 shrink-0 self-start sm:self-auto">
           <p-tag
             *ngIf="submitted() && m.existingEssay?.isReviewed"
@@ -48,7 +41,7 @@
             *ngIf="submitted() && !m.existingEssay?.isReviewed"
             severity="info"
             icon="pi pi-clock"
-            value="Submitted — Awaiting Review"
+            value="Submitted - Awaiting Review"
             styleClass="px-2.5 sm:px-3 py-1 text-xs sm:text-sm font-semibold" />
           <p-tag
             *ngIf="!submitted()"
@@ -59,8 +52,6 @@
         </div>
       </div>
     </div>
-
-    <!-- Essay Prompt Card -->
     <div class="card !p-4 sm:!p-5 md:!p-6 border-l-4 border-primary bg-primary/5 dark:bg-primary/10 relative">
       <div class="flex items-start justify-between gap-3 mb-2.5 sm:mb-3 flex-wrap sm:flex-nowrap">
         <div class="flex items-center gap-2 sm:gap-2.5">
@@ -71,7 +62,6 @@
             Essay Prompt & Guidelines
           </span>
         </div>
-
         <div *ngIf="targetWordRange() as target" class="flex items-center gap-2 self-end sm:self-auto ml-auto sm:ml-0">
           <p-tag
             severity="secondary"
@@ -80,19 +70,12 @@
             styleClass="text-xs font-semibold" />
         </div>
       </div>
-
       <div class="text-surface-900 dark:text-surface-0 leading-relaxed font-medium text-sm sm:text-base md:text-lg pl-0.5 break-words">
         {{ m.essayPrompt }}
       </div>
     </div>
-
-    <!-- WRITING MODE (Not Submitted) -->
     <div *ngIf="!submitted()" class="space-y-4 sm:space-y-6">
-
-      <!-- Writing Dashboard & Progress Controls -->
       <div class="card p-3.5 sm:p-4 md:p-5 flex flex-col md:flex-row items-stretch md:items-center justify-between gap-3.5 sm:gap-4">
-        
-        <!-- Live Stats -->
         <div class="flex items-center gap-2.5 sm:gap-4 flex-wrap">
           <div class="flex items-center gap-2 bg-surface-100 dark:bg-surface-800 px-3 py-1.5 sm:px-3.5 sm:py-2 rounded-xl border border-surface-200 dark:border-surface-700">
             <i class="pi pi-align-left text-primary text-base sm:text-lg"></i>
@@ -103,15 +86,12 @@
               </div>
             </div>
           </div>
-
           <p-chip
             *ngIf="activeWritingTimeSeconds() > 0"
             [label]="formattedWritingTime() + ' writing active'"
             icon="pi pi-clock"
             styleClass="bg-surface-100 dark:bg-surface-800 text-surface-800 dark:text-surface-200 border border-surface-200 dark:border-surface-700 text-xs font-semibold px-2.5 sm:px-3 py-1.5" />
         </div>
-
-        <!-- Target Progress Bar (if target exists) -->
         <div *ngIf="targetWordRange() as target" class="w-full md:max-w-xs space-y-1 pt-1 md:pt-0">
           <div class="flex justify-between text-xs font-semibold text-muted-color">
             <span>Target Progress</span>
@@ -119,10 +99,7 @@
           </div>
           <p-progressbar [value]="wordProgressPercentage()" [showValue]="false" [style]="{'height': '8px'}" />
         </div>
-
       </div>
-
-      <!-- Real-time AI / Paste Warning Banner -->
       <div *ngIf="showAiWarning()"
         class="p-3.5 sm:p-4 md:p-5 bg-amber-50 dark:bg-amber-950/40 border border-amber-300 dark:border-amber-700 rounded-2xl flex items-start gap-3 sm:gap-3.5 text-amber-900 dark:text-amber-200 shadow-sm">
         <span class="w-8 h-8 sm:w-10 sm:h-10 rounded-xl bg-amber-100 dark:bg-amber-900/50 text-amber-600 dark:text-amber-400 flex items-center justify-center text-lg sm:text-xl shrink-0 mt-0.5">
@@ -141,8 +118,6 @@
           </div>
         </div>
       </div>
-
-      <!-- Quill Editor Canvas Card -->
       <div class="card p-0 overflow-hidden shadow-sm">
         <div class="essay-editor-wrapper">
           <quill-editor
@@ -154,21 +129,17 @@
             class="block w-full" />
         </div>
       </div>
-
-      <!-- Bottom Action Footer -->
       <div class="card p-4 md:p-5 flex flex-col sm:flex-row items-center justify-between gap-3.5 sm:gap-4">
         <div class="flex items-center gap-2 text-xs text-muted-color w-full sm:w-auto">
           <i class="pi pi-shield text-sm sm:text-base text-primary shrink-0"></i>
           <span class="leading-normal">Your essay will be submitted to your teacher for review. Editing is disabled after submission.</span>
         </div>
-
         <div class="flex items-center justify-between sm:justify-end gap-3 w-full sm:w-auto shrink-0">
           <p-tag
             severity="secondary"
             icon="pi pi-file"
             [value]="wordCount() + ' ' + (wordCount() === 1 ? 'word' : 'words')"
             styleClass="text-xs font-bold px-3 py-1.5" />
-
           <p-button
             label="Submit essay"
             icon="pi pi-send"
@@ -179,13 +150,8 @@
             (onClick)="confirmSubmit()" />
         </div>
       </div>
-
     </div>
-
-    <!-- SUBMITTED VIEW MODE -->
     <div *ngIf="submitted()" class="space-y-4 sm:space-y-6">
-
-      <!-- Success Notification Banner -->
       <div class="p-4 md:p-5 bg-green-50 dark:bg-green-950/40 border border-green-300 dark:border-green-700 rounded-2xl flex items-center gap-3.5 text-green-900 dark:text-green-200 shadow-sm">
         <span class="w-9 h-9 sm:w-10 sm:h-10 rounded-xl bg-green-100 dark:bg-green-900/50 text-green-600 dark:text-green-400 flex items-center justify-center text-lg sm:text-xl shrink-0">
           <i class="pi pi-check-circle"></i>
@@ -195,12 +161,10 @@
             Essay Submitted Successfully!
           </div>
           <div class="text-xs text-green-700 dark:text-green-300 font-medium">
-            Submitted on {{ m.existingEssay?.submittedDate ? (m.existingEssay?.submittedDate | date:'mediumDate') : '—' }}
+            Submitted on {{ m.existingEssay?.submittedDate ? (m.existingEssay?.submittedDate | date:'mediumDate') : '-' }}
           </div>
         </div>
       </div>
-
-      <!-- Submitted Essay Content Card -->
       <div class="card p-4 sm:p-6 space-y-3 sm:space-y-4">
         <div class="flex items-center justify-between pb-2.5 sm:pb-3 border-b border-surface-200 dark:border-surface-700">
           <div class="flex items-center gap-2">
@@ -209,15 +173,11 @@
           </div>
           <p-tag severity="secondary" icon="pi pi-align-left" [value]="wordCount() + ' words'" />
         </div>
-
         <div
           class="essay-content-box text-surface-900 dark:text-surface-0 leading-relaxed pt-1 sm:pt-2 break-words"
           [innerHTML]="content()">
         </div>
       </div>
-
     </div>
-
   </div>
-
 </div>

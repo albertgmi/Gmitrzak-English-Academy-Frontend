@@ -5,7 +5,6 @@ import { FormsModule } from '@angular/forms';
 import { TreeTableModule } from 'primeng/treetable';
 import { CommonModule } from '@angular/common';
 import { NodeService } from '../service/node.service';
-
 @Component({
     selector: 'app-tree-demo',
     standalone: true,
@@ -15,7 +14,6 @@ import { NodeService } from '../service/node.service';
             <div class="font-semibold text-xl">Tree</div>
             <p-tree [value]="treeValue" selectionMode="checkbox" [(selection)]="selectedTreeValue"></p-tree>
         </div>
-
         <div class="card">
             <div class="font-semibold text-xl mb-4">TreeTable</div>
             <p-treetable [value]="treeTableValue" [columns]="cols" selectionMode="checkbox" [(selectionKeys)]="selectedTreeTableValue" dataKey="key" [scrollable]="true" [tableStyle]="{ 'min-width': '50rem' }">
@@ -42,27 +40,19 @@ import { NodeService } from '../service/node.service';
 })
 export class TreeDemo implements OnInit {
     treeValue: TreeNode[] = [];
-
     treeTableValue: TreeNode[] = [];
-
     selectedTreeValue: TreeNode[] = [];
-
     selectedTreeTableValue = {};
-
     cols: any[] = [];
-
     nodeService = inject(NodeService);
-
     ngOnInit() {
         this.nodeService.getFiles().then((files) => (this.treeValue = files));
         this.nodeService.getTreeTableNodes().then((files: any) => (this.treeTableValue = files));
-
         this.cols = [
             { field: 'name', header: 'Name' },
             { field: 'size', header: 'Size' },
             { field: 'type', header: 'Type' }
         ];
-
         this.selectedTreeTableValue = {
             '0-0': {
                 partialChecked: false,

@@ -11,9 +11,7 @@ import { MessageService } from 'primeng/api';
 import { QuillModule } from 'ngx-quill';
 import { EssayService, UserEssayDto } from '../../services/essay.service';
 import { EssayDetectorService, EssayAnalysisResult } from '../../services/essay-detector.service';
-
 type FilterType = 'all' | 'pending' | 'reviewed';
-
 @Component({
     selector: 'app-check-essays',
     standalone: true,
@@ -29,7 +27,6 @@ export class CheckEssaysComponent implements OnInit {
     private essayService   = inject(EssayService);
     public essayDetectorService = inject(EssayDetectorService);
     private messageService = inject(MessageService);
-
     essays       = signal<UserEssayDto[]>([]);
     loading      = signal(true);
     selectedEssay = signal<UserEssayDto | null>(null);
@@ -39,7 +36,6 @@ export class CheckEssaysComponent implements OnInit {
     downloadingAll = signal(false);
     filter       = signal<FilterType>('all');
     search       = signal('');
-
     quillModules = {
         toolbar: [
             ['bold', 'italic', 'underline', 'strike'],
@@ -50,13 +46,11 @@ export class CheckEssaysComponent implements OnInit {
             ['clean']
         ]
     };
-
     filterOptions = [
         { label: 'All essays', value: 'all' },
         { label: 'Pending review', value: 'pending' },
         { label: 'Reviewed', value: 'reviewed' }
     ];
-
     filtered = computed(() => {
         const q = this.search().toLowerCase();
         return this.essays()
@@ -71,44 +65,36 @@ export class CheckEssaysComponent implements OnInit {
                 return matchFilter && matchSearch;
             });
     });
-
     pendingCount = computed(() =>
         this.essays().filter(e => !e.isReviewed).length
     );
-
     selectedEssayAnalysis = computed<EssayAnalysisResult | null>(() => {
         const essay = this.selectedEssay();
         if (!essay) return null;
         return this.essayDetectorService.analyzeEssay(essay.content);
     });
-
     selectedEssayHighlightedContent = computed<string>(() => {
         const analysis = this.selectedEssayAnalysis();
         if (!analysis) return '';
         return this.essayDetectorService.highlightAiPhrases(analysis.cleanContent, analysis.detectedPhrases);
     });
-
     selectedEssayWordCount = computed(() => {
         const analysis = this.selectedEssayAnalysis();
         if (!analysis || !analysis.cleanContent) return 0;
         return this.getWordCount(analysis.cleanContent);
     });
-
     getWordCount(content: string | undefined | null): number {
         if (!content) return 0;
         const text = content.replace(/<[^>]*>/g, ' ').replace(/&nbsp;/gi, ' ').trim();
         if (!text) return 0;
         return text.split(/\s+/).filter(w => w.length > 0).length;
     }
-
     getEssayAnalysis(content: string): EssayAnalysisResult {
         return this.essayDetectorService.analyzeEssay(content);
     }
-
     isAiGenerated(analysis: EssayAnalysisResult): boolean {
         return analysis.pastePercentage > 50 || analysis.riskLevel === 'high';
     }
-
     formatWritingTime(seconds: number): string {
         if (!seconds) return 'N/A';
         const m = Math.floor(seconds / 60);
@@ -116,24 +102,20 @@ export class CheckEssaysComponent implements OnInit {
         if (m > 0) return `${m}m ${s}s`;
         return `${s}s`;
     }
-
     ngOnInit() {
         this.essayService.getAllForAdmin().subscribe({
             next: data => { this.essays.set(data); this.loading.set(false); },
             error: () => this.loading.set(false)
         });
     }
-
     openReview(essay: UserEssayDto) {
         this.selectedEssay.set(essay);
         const analysis = this.essayDetectorService.analyzeEssay(essay.content);
         this.adminContent.set(essay.adminContent ?? analysis.cleanContent);
     }
-
     saveReview() {
         const essay = this.selectedEssay();
         if (!essay) return;
-
         this.saving.set(true);
         this.essayService.review(essay.id, this.adminContent()).subscribe({
             next: (updated) => {
@@ -152,7 +134,6 @@ export class CheckEssaysComponent implements OnInit {
             error: () => this.saving.set(false)
         });
     }
-
     download(essay: UserEssayDto) {
         this.downloading.set(essay.id);
         this.essayService.exportDocx(essay.id).subscribe({
@@ -169,7 +150,6 @@ export class CheckEssaysComponent implements OnInit {
             error: () => this.downloading.set(null)
         });
     }
-
     downloadAllReviewed() {
         this.downloadingAll.set(true);
         this.essayService.exportAllReviewedDocx().subscribe({
@@ -185,7 +165,6 @@ export class CheckEssaysComponent implements OnInit {
             error: () => this.downloadingAll.set(false)
         });
     }
-
     statusSeverity(e: UserEssayDto): 'success' | 'warn' {
         return e.isReviewed ? 'success' : 'warn';
     }

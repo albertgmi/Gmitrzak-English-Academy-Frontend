@@ -15,7 +15,6 @@ import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { ChipModule } from 'primeng/chip';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { Course, CourseService } from '../../../services/course.service';
-
 @Component({
     selector: 'app-course',
     standalone: true,
@@ -42,22 +41,17 @@ export class CourseComponent {
     private courseService = inject(CourseService);
     private messageService = inject(MessageService);
     private confirmationService = inject(ConfirmationService);
-
     courses = this.courseService.courses;
     selectedCourse = signal<Course | null>(null);
-
     ngOnInit() {
         this.courseService.reloadCourses();
     }
-
     selectCourse(course: Course): void {
         this.selectedCourse.set(course);
     }
-
     backToList(): void {
         this.selectedCourse.set(null);
     }
-
     confirmDelete(course: Course): void {
         this.confirmationService.confirm({
             message: `Are you sure you want to delete the course "${course.name}"?`,
@@ -89,11 +83,9 @@ export class CourseComponent {
             }
         });
     }
-
     onGlobalFilter(table: any, event: Event): void {
         table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
     }
-
     reload(): void {
         this.courseService.reloadCourses();
     }

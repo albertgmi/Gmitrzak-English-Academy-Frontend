@@ -16,7 +16,6 @@ import { MessageService, ConfirmationService } from 'primeng/api';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AdminPronunciationService, AdminPronunciationDto, UpdatePronunciationRequest } from '../../services/admin-pronunciation.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
-
 @Component({
   selector: 'app-lesson-pronunciation',
   standalone: true,
@@ -44,11 +43,9 @@ export class LessonPronunciationComponent implements OnInit {
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
   private router = inject(Router);
-
   activeStudent = this.lessonContext.activeStudent;
   pronunciations = signal<AdminPronunciationDto[]>([]);
   loading = signal<boolean>(false);
-
   editingEntry = signal<AdminPronunciationDto | null>(null);
   editForm = signal<UpdatePronunciationRequest>({
     word: '',
@@ -57,13 +54,11 @@ export class LessonPronunciationComponent implements OnInit {
     isInCurrentSession: false
   });
   saving = signal<boolean>(false);
-
   statusOptions = [
     { label: 'Pending', value: 'Pending' },
     { label: 'Correct', value: 'Correct' },
     { label: 'Incorrect', value: 'Incorrect' }
   ];
-
   constructor() {
     effect(() => {
       const student = this.activeStudent();
@@ -74,13 +69,10 @@ export class LessonPronunciationComponent implements OnInit {
       }
     });
   }
-
   ngOnInit(): void {}
-
   goToSwitchClient(): void {
     this.router.navigate(['/lesson/switch-client']);
   }
-
   loadPronunciation(studentId: number): void {
     this.loading.set(true);
     this.pronunciationService.getStudentPronunciation(studentId).subscribe({
@@ -98,7 +90,6 @@ export class LessonPronunciationComponent implements OnInit {
       }
     });
   }
-
   statusSeverity(status: string): 'success' | 'warn' | 'danger' | 'info' | 'secondary' {
     switch (status?.toLowerCase()) {
       case 'correct': return 'success';
@@ -107,7 +98,6 @@ export class LessonPronunciationComponent implements OnInit {
       default: return 'info';
     }
   }
-
   openEdit(item: AdminPronunciationDto): void {
     this.editingEntry.set(item);
     this.editForm.set({
@@ -117,11 +107,9 @@ export class LessonPronunciationComponent implements OnInit {
       isInCurrentSession: !!item.isInCurrentSession
     });
   }
-
   saveEdit(): void {
     const entry = this.editingEntry();
     if (!entry) return;
-
     const f = this.editForm();
     if (!f.word.trim()) {
       this.messageService.add({
@@ -131,7 +119,6 @@ export class LessonPronunciationComponent implements OnInit {
       });
       return;
     }
-
     this.saving.set(true);
     const payload: UpdatePronunciationRequest = {
       word: f.word.trim(),
@@ -139,7 +126,6 @@ export class LessonPronunciationComponent implements OnInit {
       sortOrder: f.sortOrder || 0,
       isInCurrentSession: f.isInCurrentSession
     };
-
     this.pronunciationService.updatePronunciation(entry.id, payload).subscribe({
       next: () => {
         this.messageService.add({
@@ -162,7 +148,6 @@ export class LessonPronunciationComponent implements OnInit {
       }
     });
   }
-
   confirmDelete(item: AdminPronunciationDto): void {
     this.confirmationService.confirm({
       message: `Are you sure you want to delete "${item.word}"?`,

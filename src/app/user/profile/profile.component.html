@@ -5,7 +5,6 @@
       <p class="text-muted-color mt-1">Select a user to view their profile</p>
     </div>
   </div>
-
   <p-table
     #dt
     [value]="users.value() || []"
@@ -28,7 +27,6 @@
         </p-iconfield>
       </div>
     </ng-template>
-
     <ng-template #header>
       <tr>
         <th pSortableColumn="username">Username <p-sortIcon field="username" /></th>
@@ -38,7 +36,6 @@
         <th></th>
       </tr>
     </ng-template>
-
     <ng-template #body let-user>
       <tr>
         <td>{{ user.username }}</td>
@@ -54,5 +51,4 @@
     </ng-template>
   </p-table>
 </div>
-
 <p-toast />

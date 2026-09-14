@@ -1,11 +1,9 @@
 <p-toast />
 <div class="card">
   <h2 class="text-2xl font-bold m-0 mb-6 text-surface-900 dark:text-surface-0">Grades</h2>
-
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
     <i class="pi pi-spin pi-spinner text-3xl"></i>
   </div>
-
   <p-table *ngIf="!loading()" [value]="grades()" [rows]="15"
     [paginator]="grades().length > 15" [rowHover]="true"
     [globalFilterFields]="['category', 'notes']"
@@ -29,7 +27,7 @@
         <td>
           <p-tag [value]="g.percentage + '%'" [severity]="gradeSeverity(g.percentage)" />
         </td>
-        <td class="text-muted-color">{{ g.notes || '—' }}</td>
+        <td class="text-muted-color">{{ g.notes || '-' }}</td>
       </tr>
     </ng-template>
     <ng-template #emptymessage>

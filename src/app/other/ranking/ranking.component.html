@@ -1,10 +1,7 @@
 <p-toast />
-
 <div class="grid grid-cols-12 gap-6 ranking-wrapper">
-
   <div class="col-span-12 xl:col-span-9">
     <div class="card ranking-card">
-
       <div class="ranking-header">
         <div>
           <h1 class="ranking-title">
@@ -12,12 +9,10 @@
             Leaderboard
             <span class="trophy">🏆</span>
           </h1>
-
           <p class="ranking-subtitle">
             Compete with other students and climb the rankings.
           </p>
         </div>
-
         <div class="period-selector">
           <button *ngFor="let opt of periodOptions"
             class="period-btn"
@@ -27,32 +22,26 @@
           </button>
         </div>
       </div>
-
       <div *ngIf="currentUserEntry() as me"
         class="my-status-bar"
         [class.on-podium]="ranking()?.currentUserOnPodium">
-
         <div class="status-content">
           <div class="status-icon">
             {{ ranking()?.currentUserOnPodium ? '👑' : '🎯' }}
           </div>
-
           <div class="status-text">
             <span *ngIf="ranking()?.currentUserOnPodium" class="podium-greeting">
               You're on the podium, {{ me.username }}! Everyone admires your score.
             </span>
-
             <span *ngIf="!ranking()?.currentUserOnPodium">
               You're at position <strong>#{{ me.position }}</strong>
-
               <span *ngIf="ranking()!.pointsToNextPosition > 0" class="chase-text">
-                — Only <strong>{{ ranking()!.pointsToNextPosition }} pts</strong> to climb higher.
+                - Only <strong>{{ ranking()!.pointsToNextPosition }} pts</strong> to climb higher.
               </span>
             </span>
           </div>
         </div>
       </div>
-
       <div *ngIf="loading()" class="loading-state">
         <div class="podium-skeleton">
           <div class="skeleton-col s2"></div>
@@ -60,15 +49,10 @@
           <div class="skeleton-col s3"></div>
         </div>
       </div>
-
       <div *ngIf="!loading() && ranking()">
-
         <div class="podium-section" [class.visible]="showPodium()">
-
           <div class="podium-stage">
-
             <div class="podium-slot place-2" *ngIf="podiumEntries().p2 as p2">
-
               <div class="avatar-wrapper silver-glow">
                 <app-avatar
                   [username]="p2.username"
@@ -77,7 +61,6 @@
                   fallbackBgClass="bg-slate-400 text-white" />
                 <span class="medal-badge">🥈</span>
               </div>
-
               <div class="podium-info">
                 <div class="podium-name flex items-center justify-center gap-1.5 flex-wrap">
                   {{ p2.username }}
@@ -88,14 +71,12 @@
                 </div>
                 <div class="podium-title">{{ p2.title }}</div>
                 <div class="podium-score">{{ p2.score }} pts</div>
-
                 <div class="podium-stats">
                   <span>⭐ {{ p2.averageGrade }}%</span>
                   <span>🃏 {{ p2.flashcardsDone }}</span>
                   <span><i class="pi pi-bolt text-amber-500 mr-0.5"></i> {{ p2.streak }} d streak</span>
                   <span>🎯 {{ p2.activityPoints }} AP</span>
                 </div>
-
                 <div class="reaction-row">
                   <button *ngFor="let emoji of ['👏','👑','🔥']"
                     class="reaction-btn"
@@ -103,35 +84,27 @@
                     [disabled]="isCurrentUser(p2)"
                     (click)="toggleReaction(p2, emoji)">
                     {{ emoji }}
-
                     <span *ngIf="getReactionCount(p2, emoji) > 0">
                       {{ getReactionCount(p2, emoji) }}
                     </span>
                   </button>
                 </div>
               </div>
-
               <div class="podium-block silver-block">
                 <span class="place-number">2</span>
               </div>
             </div>
-
             <div class="podium-slot place-1" *ngIf="podiumEntries().p1 as p1">
-
               <div class="crown-container">👑</div>
-
               <div class="avatar-wrapper gold-glow">
                 <div class="gold-ring"></div>
-
                 <app-avatar
                   [username]="p1.username"
                   [avatarUrl]="p1.avatarUrl"
                   customClass="w-28 h-28 text-3xl"
                   fallbackBgClass="bg-yellow-500 text-white" />
-
                 <span class="medal-badge">🥇</span>
               </div>
-
               <div class="podium-info">
                 <div class="podium-name champion flex items-center justify-center gap-1.5 flex-wrap">
                   {{ p1.username }}
@@ -140,22 +113,18 @@
                     Online
                   </span>
                 </div>
-
                 <div class="podium-title champion-title">
                   {{ p1.title }}
                 </div>
-
                 <div class="podium-score champion-score">
                   {{ p1.score }} pts
                 </div>
-
                 <div class="podium-stats">
                   <span>⭐ {{ p1.averageGrade }}%</span>
                   <span>🃏 {{ p1.flashcardsDone }}</span>
                   <span><i class="pi pi-bolt text-amber-500 mr-0.5"></i> {{ p1.streak }} d streak</span>
                   <span>🎯 {{ p1.activityPoints }} AP</span>
                 </div>
-
                 <div class="reaction-row">
                   <button *ngFor="let emoji of ['👏','👑','🔥']"
                     class="reaction-btn"
@@ -163,21 +132,17 @@
                     [disabled]="isCurrentUser(p1)"
                     (click)="toggleReaction(p1, emoji)">
                     {{ emoji }}
-
                     <span *ngIf="getReactionCount(p1, emoji) > 0">
                       {{ getReactionCount(p1, emoji) }}
                     </span>
                   </button>
                 </div>
               </div>
-
               <div class="podium-block gold-block">
                 <span class="place-number">1</span>
               </div>
             </div>
-
             <div class="podium-slot place-3" *ngIf="podiumEntries().p3 as p3">
-
               <div class="avatar-wrapper bronze-glow">
                 <app-avatar
                   [username]="p3.username"
@@ -186,7 +151,6 @@
                   fallbackBgClass="bg-amber-700 text-white" />
                 <span class="medal-badge">🥉</span>
               </div>
-
               <div class="podium-info">
                 <div class="podium-name flex items-center justify-center gap-1.5 flex-wrap">
                   {{ p3.username }}
@@ -197,14 +161,12 @@
                 </div>
                 <div class="podium-title">{{ p3.title }}</div>
                 <div class="podium-score">{{ p3.score }} pts</div>
-
                 <div class="podium-stats">
                   <span>⭐ {{ p3.averageGrade }}%</span>
                   <span>🃏 {{ p3.flashcardsDone }}</span>
                   <span><i class="pi pi-bolt text-amber-500 mr-0.5"></i> {{ p3.streak }} d streak</span>
                   <span>🎯 {{ p3.activityPoints }} AP</span>
                 </div>
-
                 <div class="reaction-row">
                   <button *ngFor="let emoji of ['👏','👑','🔥']"
                     class="reaction-btn"
@@ -212,14 +174,12 @@
                     [disabled]="isCurrentUser(p3)"
                     (click)="toggleReaction(p3, emoji)">
                     {{ emoji }}
-
                     <span *ngIf="getReactionCount(p3, emoji) > 0">
                       {{ getReactionCount(p3, emoji) }}
                     </span>
                   </button>
                 </div>
               </div>
-
               <div class="podium-block bronze-block">
                 <span class="place-number">3</span>
               </div>
@@ -227,7 +187,6 @@
           </div>
         </div>
         <div class="ranking-table-section" [class.visible]="showTable()">
-
           <div class="table-header-row">
             <span class="th-pos">#</span>
             <span class="th-user">Student</span>
@@ -241,7 +200,6 @@
           <div *ngFor="let entry of tableEntries()"
             class="table-row"
             [class.is-me]="isCurrentUser(entry)">
-
             <span class="td-pos">
               {{ entry.position }}
             </span>
@@ -316,7 +274,6 @@
       </div>
     </div>
   </div>
-
   <div class="col-span-12 xl:col-span-3">
     <div class="card side-card mb-6">
       <div class="side-title">
@@ -324,60 +281,47 @@
       </div>
       <div *ngIf="currentUserEntry() as me"
         class="side-rank">
-
         <div class="big-rank">
           #{{ me.position }}
         </div>
-
         <div class="side-username">
           {{ me.username }}
         </div>
-
         <div class="side-points">
           {{ me.score }} pts
         </div>
       </div>
     </div>
     <div class="card side-card">
-
       <div class="side-title">
         Top 3
       </div>
       <div class="mini-top-list">
-
         <div *ngFor="let top of ranking()?.entries?.slice(0,3)"
           class="mini-top-item">
-
           <div class="mini-pos">
             {{ top.position }}
           </div>
-
           <div class="mini-user">
             {{ top.username }}
           </div>
-
           <div class="mini-score">
             {{ top.score }}
           </div>
-
         </div>
       </div>
     </div>
-
     <div class="card side-card mt-6">
       <div class="side-title">
         📊 How scoring works
       </div>
-    
       <div class="scoring-explainer">
-      
         <div class="scoring-formula">
           <strong>Score</strong> = (Period Score + Activity Points) × 0.7
           <span class="plus">+</span> Avg. Grade × 0.3
         </div>
-      
         <div class="scoring-section">
-          <div class="scoring-section-title">Period Score (0–100)</div>
+          <div class="scoring-section-title">Period Score (0-100)</div>
           <ul class="scoring-list">
             <li><span class="weight">30%</span> Homework done on time</li>
             <li><span class="weight">20%</span> Lesson attendance (2/week = full)</li>
@@ -386,30 +330,26 @@
             <li><span class="weight">15%</span> Flashcards vs target</li>
           </ul>
         </div>
-      
         <div class="scoring-section">
           <div class="scoring-section-title">Activity Points</div>
           <p class="scoring-text">
-            Earned instantly for daily activity — flashcards, sentences,
+            Earned instantly for daily activity - flashcards, sentences,
             memories, pronunciation, essays and completed assignments.
             Added directly on top of your score.
           </p>
         </div>
-      
         <div class="scoring-section">
           <div class="scoring-section-title">Average Grade</div>
           <p class="scoring-text">
-            Your average grade percentage for the selected period —
+            Your average grade percentage for the selected period -
             contributes 30% to your final score.
           </p>
         </div>
-      
         <div class="scoring-note">
-          💡 Activity Points have no upper limit — the more consistent
+          💡 Activity Points have no upper limit - the more consistent
           you are every day, the higher you climb.
         </div>
       </div>
     </div>
-
   </div>
 </div>

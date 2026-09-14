@@ -9,15 +9,12 @@ import Nora from '@primeng/themes/nora';
 import { PrimeNG } from 'primeng/config';
 import { SelectButtonModule } from 'primeng/selectbutton';
 import { LayoutService } from '../service/layout.service';
-
 const presets = {
     Aura,
     Lara,
     Nora
 } as const;
-
 declare type KeyOfType<T> = keyof T extends infer U ? U : never;
-
 declare type SurfacesType = {
     name?: string;
     palette?: {
@@ -35,7 +32,6 @@ declare type SurfacesType = {
         950?: string;
     };
 };
-
 @Component({
     selector: 'app-configurator',
     standalone: true,
@@ -92,30 +88,21 @@ declare type SurfacesType = {
 })
 export class AppConfigurator {
     router = inject(Router);
-
     config: PrimeNG = inject(PrimeNG);
-
     layoutService: LayoutService = inject(LayoutService);
-
     platformId = inject(PLATFORM_ID);
-
     primeng = inject(PrimeNG);
-
     presets = Object.keys(presets);
-
     showMenuModeButton = signal(!this.router.url.includes('auth'));
-
     menuModeOptions = [
         { label: 'Static', value: 'static' },
         { label: 'Overlay', value: 'overlay' }
     ];
-
     ngOnInit() {
         if (isPlatformBrowser(this.platformId)) {
             this.onPresetChange(this.layoutService.layoutConfig().preset);
         }
     }
-
     surfaces: SurfacesType[] = [
         {
             name: 'slate',
@@ -254,36 +241,27 @@ export class AppConfigurator {
             }
         }
     ];
-
     selectedPrimaryColor = computed(() => {
         return this.layoutService.layoutConfig().primary;
     });
-
     selectedSurfaceColor = computed(() => this.layoutService.layoutConfig().surface);
-
     selectedPreset = computed(() => this.layoutService.layoutConfig().preset);
-
     menuMode = computed(() => this.layoutService.layoutConfig().menuMode);
-
     primaryColors = computed<SurfacesType[]>(() => {
         const presetPalette = presets[this.layoutService.layoutConfig().preset as KeyOfType<typeof presets>].primitive;
         const colors = ['emerald', 'green', 'lime', 'orange', 'amber', 'yellow', 'teal', 'cyan', 'sky', 'blue', 'indigo', 'violet', 'purple', 'fuchsia', 'pink', 'rose'];
         const palettes: SurfacesType[] = [{ name: 'noir', palette: {} }];
-
         colors.forEach((color) => {
             palettes.push({
                 name: color,
                 palette: presetPalette?.[color as KeyOfType<typeof presetPalette>] as SurfacesType['palette']
             });
         });
-
         return palettes;
     });
-
     getPresetExt() {
         const color: SurfacesType = this.primaryColors().find((c) => c.name === this.selectedPrimaryColor()) || {};
         const preset = this.layoutService.layoutConfig().preset;
-
         if (color.name === 'noir') {
             return {
                 semantic: {
@@ -408,7 +386,6 @@ export class AppConfigurator {
             }
         }
     }
-
     updateColors(event: any, type: string, color: any) {
         if (type === 'primary') {
             this.layoutService.layoutConfig.update((state) => ({ ...state, primary: color.name }));
@@ -416,10 +393,8 @@ export class AppConfigurator {
             this.layoutService.layoutConfig.update((state) => ({ ...state, surface: color.name }));
         }
         this.applyTheme(type, color);
-
         event.stopPropagation();
     }
-
     applyTheme(type: string, color: any) {
         if (type === 'primary') {
             updatePreset(this.getPresetExt());
@@ -427,14 +402,12 @@ export class AppConfigurator {
             updateSurfacePalette(color.palette);
         }
     }
-
     onPresetChange(event: any) {
         this.layoutService.layoutConfig.update((state) => ({ ...state, preset: event }));
         const preset = presets[event as KeyOfType<typeof presets>];
         const surfacePalette = this.surfaces.find((s) => s.name === this.selectedSurfaceColor())?.palette;
         $t().preset(preset).preset(this.getPresetExt()).surfacePalette(surfacePalette).use({ useDefaultOptions: true });
     }
-
     onMenuModeChange(event: string) {
         this.layoutService.layoutConfig.update((prev) => ({ ...prev, menuMode: event }));
     }

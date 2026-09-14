@@ -13,7 +13,6 @@ import { MessageService } from 'primeng/api';
 import { ProfileDto, ProfileService } from '../../services/profile.service';
 import { AuthService } from '../../services/auth.service';
 import { environment } from '../../../environments/environment.prod';
-
 @Component({
   selector: 'app-profile-detail',
   templateUrl: './profile-detail.component.html',
@@ -37,24 +36,19 @@ export class ProfileDetailComponent implements OnInit {
   private profileService = inject(ProfileService);
   private messageService = inject(MessageService);
   private authService = inject(AuthService);
-
   readonly apiUrl = environment.apiUrl;
-
   profile: ProfileDto | null = null;
   editMode = false;
   userId!: number;
-
   selectedFile: File | null = null;
   avatarPreview: string | null = null;
   avatarError: string | null = null;
-
   semesters = Array.from({ length: 20 }, (_, i) => i + 1);
   englishLevels = [
     { label: 'Basic', value: 'Basic' },
     { label: 'Communicative', value: 'Communicative' },
     { label: 'Advanced', value: 'Advanced' }
   ];
-
   ngOnInit() {
     this.route.paramMap.subscribe(params => {
         const id = params.get('userId');
@@ -64,7 +58,6 @@ export class ProfileDetailComponent implements OnInit {
         }
     });
   }
-
   loadProfile() {
     this.profileService.getProfile(this.userId).subscribe({
       next: (data) => this.profile = data,
@@ -75,15 +68,12 @@ export class ProfileDetailComponent implements OnInit {
       })
     });
   }
-
   get isAdmin(): boolean {
     return this.authService.getRole() === 'Admin';
   }
-
   get isOwnProfile(): boolean {
     return this.authService.getUserId() === this.userId;
   }
-
   get initials(): string {
     if (!this.profile?.username) return '?';
     return this.profile.username
@@ -93,7 +83,6 @@ export class ProfileDetailComponent implements OnInit {
       .substring(0, 2)
       .toUpperCase();
   }
-
   toggleEdit() {
     if (!this.isAdmin && !this.isOwnProfile) return;
     this.editMode = !this.editMode;
@@ -102,33 +91,27 @@ export class ProfileDetailComponent implements OnInit {
       this.clearSelectedFile();
     }
   }
-
   onFileSelected(event: Event) {
     this.avatarError = null;
     const file = (event.target as HTMLInputElement).files?.[0];
     if (!file) return;
-
     const allowedTypes = ['image/jpeg', 'image/jpg', 'image/png'];
     if (!allowedTypes.includes(file.type)) {
       this.avatarError = 'Only JPG, JPEG and PNG files are allowed';
       return;
     }
-
     this.selectedFile = file;
     const reader = new FileReader();
     reader.onload = (e) => this.avatarPreview = e.target?.result as string;
     reader.readAsDataURL(file);
   }
-
   clearSelectedFile() {
     this.selectedFile = null;
     this.avatarPreview = null;
     this.avatarError = null;
   }
-
   saveAvatar() {
     if (!this.selectedFile) return;
-
     this.profileService.uploadAvatar(this.userId, this.selectedFile).subscribe({
       next: (url) => {
         if (this.profile) this.profile.avatarUrl = url;
@@ -146,7 +129,6 @@ export class ProfileDetailComponent implements OnInit {
       })
     });
   }
-
   save() {
     if (!this.profile || (!this.isAdmin && !this.isOwnProfile)) return;
     if (this.selectedFile) {
@@ -165,7 +147,6 @@ export class ProfileDetailComponent implements OnInit {
       this.saveProfileData();
     }
   }
-
   private saveProfileData() {
     this.profileService.updateProfile(this.userId, this.profile!).subscribe({
       next: () => {
@@ -175,7 +156,6 @@ export class ProfileDetailComponent implements OnInit {
       error: () => this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Save failed' })
     });
   }
-
   goBack() {
     if (this.isAdmin) {
       this.router.navigate(['/profiles']);
@@ -183,7 +163,6 @@ export class ProfileDetailComponent implements OnInit {
       this.router.navigate(['/']);
     }
   }
-
   onAvatarError(event: Event) {
     if (this.profile) this.profile.avatarUrl = '';
   }

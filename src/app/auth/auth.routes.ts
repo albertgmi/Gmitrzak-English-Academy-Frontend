@@ -5,7 +5,6 @@ import {VerifyEmailComponent} from './verify-email/verify-email.component';
 import {ResetPasswordComponent} from './reset-password/reset-password.component';
 import {ProfileComponent} from '../user/profile/profile.component';
 import {AuthGuard} from '../shared/guards/auth.guard';
-
 export default [
     { path: 'access',
       loadComponent: () =>

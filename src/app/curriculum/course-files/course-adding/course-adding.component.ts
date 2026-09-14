@@ -9,7 +9,6 @@ import { CheckboxModule } from 'primeng/checkbox';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { CourseService, CreateCourseRequest } from '../../../services/course.service';
-
 @Component({
     selector: 'app-course-adding',
     standalone: true,
@@ -24,22 +23,17 @@ export class CourseAddingComponent {
     private router = inject(Router);
     private courseService = inject(CourseService);
     private messageService = inject(MessageService);
-
     course: CreateCourseRequest = {
         name: '',
         description: '',
         isHidden: false
     };
-
     submitted = false;
-
     saveCourse() {
         this.submitted = true;
-
         if (!this.course.name?.trim()) {
             return;
         }
-
         this.courseService.createCourse(this.course).subscribe({
             next: () => {
                 this.courseService.reloadCourses();

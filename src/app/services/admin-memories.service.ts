@@ -2,7 +2,6 @@ import { Injectable, inject } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
 import { Observable } from 'rxjs';
 import { environment } from '../../environments/environment';
-
 export interface AdminMemoryDto {
   id: number;
   userId: number;
@@ -12,7 +11,6 @@ export interface AdminMemoryDto {
   notes?: string;
   category?: string;
 }
-
 export interface UpdateMemoryRequest {
   content: string;
   optionA: string;
@@ -20,26 +18,21 @@ export interface UpdateMemoryRequest {
   notes?: string;
   category?: string;
 }
-
 @Injectable({
   providedIn: 'root'
 })
 export class AdminMemoriesService {
   private http = inject(HttpClient);
   private apiUrl = `${environment.apiUrl}/api/admin/memories`;
-
   getStudentMemories(studentId: number): Observable<AdminMemoryDto[]> {
     return this.http.get<AdminMemoryDto[]>(`${this.apiUrl}/student/${studentId}`);
   }
-
   updateMemory(id: number, request: UpdateMemoryRequest): Observable<void> {
     return this.http.put<void>(`${this.apiUrl}/${id}`, request);
   }
-
   deleteMemory(id: number): Observable<void> {
     return this.http.delete<void>(`${this.apiUrl}/${id}`);
   }
-
   importMemories(studentId: number, file: File): Observable<{ count: number }> {
     const formData = new FormData();
     formData.append('file', file);

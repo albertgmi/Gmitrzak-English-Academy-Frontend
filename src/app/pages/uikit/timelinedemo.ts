@@ -3,7 +3,6 @@ import { TimelineModule } from 'primeng/timeline';
 import { CardModule } from 'primeng/card';
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
-
 @Component({
     selector: 'app-timeline-demo',
     standalone: true,
@@ -83,14 +82,12 @@ import { ButtonModule } from 'primeng/button';
                         {{ event }}
                     </ng-template>
                 </p-timeline>
-
                 <div class="font-semibold mt-4 mb-2">Bottom Align</div>
                 <p-timeline [value]="events2" layout="horizontal" align="bottom">
                     <ng-template #content let-event>
                         {{ event }}
                     </ng-template>
                 </p-timeline>
-
                 <div class="font-semibold mt-4 mb-2">Alternate Align</div>
                 <p-timeline [value]="events2" layout="horizontal" align="alternate">
                     <ng-template #content let-event>
@@ -104,9 +101,7 @@ import { ButtonModule } from 'primeng/button';
 })
 export class TimelineDemo {
     events1: any[] = [];
-
     events2: any[] = [];
-
     ngOnInit() {
         this.events1 = [
             {
@@ -135,7 +130,6 @@ export class TimelineDemo {
                 color: '#607D8B'
             }
         ];
-
         this.events2 = ['2020', '2021', '2022', '2023'];
     }
 }

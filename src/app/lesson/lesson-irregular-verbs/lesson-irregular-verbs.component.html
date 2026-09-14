@@ -1,11 +1,9 @@
 <p-toast />
-
 <div *ngIf="!activeStudent()" class="card text-center py-16">
   <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
   <h3 class="text-xl font-semibold mb-2">No student selected</h3>
   <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
 </div>
-
 <div *ngIf="activeStudent() as student" class="card">
   <div class="flex items-center gap-3 mb-6">
     <app-avatar
@@ -13,21 +11,16 @@
       [avatarUrl]="$any(student).avatarUrl"
       customClass="w-10 h-10 text-base"
       fallbackBgClass="bg-primary text-white" />
-
     <div class="flex-1">
       <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Irregular Verbs</h2>
       <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
     </div>
     <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined size="small" (onClick)="goToSwitchClient()" />
   </div>
-
   <div *ngIf="loading()" class="text-center py-10 text-muted-color">
     <i class="pi pi-spin pi-spinner text-3xl"></i>
   </div>
-
   <div *ngIf="!loading() && data() as d">
-    
-    <!-- Stats Grid -->
     <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
       <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
         <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalCards }}</div>
@@ -46,8 +39,6 @@
         <div class="text-xs text-muted-color mt-1">Leeches</div>
       </div>
     </div>
-
-    <!-- Leeches Banner -->
     <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6">
       <div class="text-sm font-semibold text-red-500 mb-2 uppercase tracking-wider flex items-center gap-1">
         <i class="pi pi-exclamation-triangle"></i> Attention Required (Leeches)
@@ -60,17 +51,13 @@
         </span>
       </div>
     </div>
-
-    <!-- Table of Verbs -->
     <div>
       <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">
         <i class="pi pi-spin pi-spinner text-2xl"></i>
       </div>
-
       <div *ngIf="!loadingAll()">
         <div class="flex flex-col sm:flex-row justify-between items-center gap-3 mb-3">
           <h3 class="font-semibold text-surface-900 dark:text-surface-0 m-0">All Student Irregular Verbs</h3>
-
           <p-iconfield iconPosition="left">
             <p-inputicon styleClass="pi pi-search" />
             <input
@@ -81,7 +68,6 @@
               class="w-full sm:w-auto" />
           </p-iconfield>
         </div>
-
         <p-table #dt [value]="allVerbs()" [paginator]="true" [rows]="15" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['polishTranslation', 'englishForms']">
           <ng-template #header>
             <tr>
@@ -121,13 +107,10 @@
         </p-table>
       </div>
     </div>
-
-    <!-- Edit Interval Dialog -->
     <p-dialog header="Edit Verb Interval" [modal]="true" [(visible)]="editDialogVisible" [style]="{ width: '25rem' }">
       <div class="mb-4 text-muted-color text-sm">
         Adjusting the interval will automatically calculate a new Next Review Date from today.
       </div>
-      
       <div class="flex items-center gap-4 mb-6" *ngIf="selectedVerb() as verb">
         <label for="interval" class="font-semibold w-24">Interval (days)</label>
         <p-inputNumber 
@@ -143,7 +126,6 @@
           decrementButtonIcon="pi pi-minus"
           class="flex-1" />
       </div>
-      
       <div class="flex justify-end gap-2">
         <p-button label="Cancel" severity="secondary" (onClick)="editDialogVisible.set(false)" />
         <p-button label="Save" (onClick)="saveInterval()" [loading]="saving()" />
