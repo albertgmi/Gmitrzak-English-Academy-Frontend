@@ -106,6 +106,30 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
     selectedRangeIndex = signal<number>(0);
     selectedRangeLength = signal<number>(0);
     teacherNotes = signal<SentenceTeacherNoteEvent[]>([]);
+    sortedTeacherNotes = computed(() => {
+        const notes = [...this.teacherNotes()];
+        const rawContent = this.adminContent() || '';
+        const plainText = rawContent.replace(/<[^>]*>/g, '').toLowerCase();
+
+        return notes.sort((a, b) => {
+            const textA = (a.selectedText || '').trim().toLowerCase();
+            const textB = (b.selectedText || '').trim().toLowerCase();
+
+            const posA = textA ? plainText.indexOf(textA) : -1;
+            const posB = textB ? plainText.indexOf(textB) : -1;
+
+            if (posA !== -1 && posB === -1) return -1;
+            if (posA === -1 && posB !== -1) return 1;
+
+            if (posA !== -1 && posB !== -1 && posA !== posB) {
+                return posA - posB;
+            }
+
+            const timeA = new Date(a.timestamp || 0).getTime();
+            const timeB = new Date(b.timestamp || 0).getTime();
+            return timeA - timeB;
+        });
+    });
     showNoteModal = signal(false);
     newNoteText = signal('');
     showEditNoteModal = signal(false);
