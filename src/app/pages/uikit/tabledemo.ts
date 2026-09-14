@@ -422,7 +422,7 @@ export class TableDemo implements OnInit {
         this.customerService.getCustomersLarge().then((customers) => {
             this.customers1 = customers;
             this.loading = false;
-            this.customers1.forEach((customer) => (customer.date = new Date(customer.date)));
+            this.customers1.forEach((customer) => (customer.date = new Date(customer.date || '')));
         });
         this.customerService.getCustomersMedium().then((customers) => (this.customers2 = customers));
         this.customerService.getCustomersLarge().then((customers) => (this.customers3 = customers));
