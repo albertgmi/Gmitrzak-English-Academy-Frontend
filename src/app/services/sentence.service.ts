@@ -212,6 +212,9 @@ export class SentenceService {
     archiveSentenceComment(commentId: number) {
         return this.http.put(`${this.answersApiUrl}/live-room/comments/${commentId}/archive`, {});
     }
+    updateSentenceComment(commentId: number, noteContent: string) {
+        return this.http.put<SentenceAnswerCommentDto>(`${this.answersApiUrl}/live-room/comments/${commentId}`, { noteContent });
+    }
 }
 export interface SentenceModuleLiveDto {
     moduleId: number;

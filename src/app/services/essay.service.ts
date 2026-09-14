@@ -75,4 +75,7 @@ export class EssayService {
     archiveComment(commentId: number) {
         return this.http.put(`${this.apiUrl}/comments/${commentId}/archive`, {});
     }
+    updateComment(commentId: number, noteContent: string) {
+        return this.http.put<EssayCommentDto>(`${this.apiUrl}/comments/${commentId}`, { noteContent });
+    }
 }

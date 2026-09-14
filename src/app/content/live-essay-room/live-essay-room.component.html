@@ -285,6 +285,16 @@
                     appendTo="body">
                     <i class="pi pi-check text-[10px] sm:text-xs font-extrabold"></i> Resolve
                   </button>
+                  <button
+                    *ngIf="!isAdmin() && !note.isArchived"
+                    type="button"
+                    class="px-2 py-0.5 sm:px-3 sm:py-1 rounded-full text-[10px] sm:text-xs font-bold bg-blue-100 text-blue-800 hover:bg-blue-200 border border-blue-300 dark:bg-blue-950/80 dark:text-blue-300 dark:border-blue-700 shadow-sm flex items-center gap-1 transition-all cursor-pointer"
+                    (click)="$event.stopPropagation(); openEditCommentModal(note)"
+                    pTooltip="Edit comment"
+                    tooltipPosition="top"
+                    appendTo="body">
+                    <i class="pi pi-pencil text-[10px] sm:text-xs font-extrabold"></i> Edit
+                  </button>
                 </div>
               </div>
               <div *ngIf="note.selectedText" class="text-xs sm:text-sm font-semibold italic text-surface-800 dark:text-surface-200 bg-surface-200/50 dark:bg-surface-800 p-2.5 sm:p-3 rounded-lg border-l-4 border-primary leading-relaxed break-words"
@@ -344,6 +354,48 @@
         styleClass="text-xs sm:text-sm px-3 py-1.5"
         [disabled]="!newNoteText().trim()"
         (onClick)="addTeacherNote()" />
+    </div>
+  </ng-template>
+</p-dialog>
+<p-dialog
+  header="Edit Comment"
+  [(visible)]="showEditNoteModal"
+  [modal]="true"
+  [style]="{ width: '620px', maxWidth: '95vw' }"
+  [contentStyle]="{ 'overflow': 'visible', 'min-height': '260px' }"
+  styleClass="rounded-2xl">
+  <div class="flex flex-col gap-4 sm:gap-5 pt-2 sm:pt-3" *ngIf="editingNote() as note">
+    <div *ngIf="note.selectedText" class="text-xs sm:text-sm font-semibold text-muted-color">
+      Referenced Text Passage:
+      <div class="p-3 sm:p-4 rounded-xl bg-surface-100 dark:bg-surface-800 font-semibold italic text-sm sm:text-base text-surface-900 dark:text-surface-0 mt-1.5 border-l-4 border-primary max-h-36 overflow-y-auto leading-relaxed break-words">
+        "{{ note.selectedText }}"
+      </div>
+    </div>
+    <div>
+      <label class="block text-xs sm:text-sm font-bold text-surface-900 dark:text-surface-0 mb-1.5 sm:mb-2">Your Comment / Question</label>
+      <textarea
+        pTextarea
+        [ngModel]="editedNoteText()"
+        (ngModelChange)="editedNoteText.set($event)"
+        rows="4"
+        placeholder="Edit your comment..."
+        class="w-full text-xs sm:text-sm p-3 sm:p-4 rounded-xl leading-relaxed font-normal">
+      </textarea>
+    </div>
+  </div>
+  <ng-template pTemplate="footer">
+    <div class="flex items-center justify-end gap-2 sm:gap-3 pt-2">
+      <p-button
+        label="Cancel"
+        severity="secondary"
+        styleClass="text-xs sm:text-sm px-3 py-1.5"
+        (onClick)="showEditNoteModal.set(false)" />
+      <p-button
+        label="Save Changes"
+        icon="pi pi-check"
+        styleClass="text-xs sm:text-sm px-3 py-1.5"
+        [disabled]="!editedNoteText().trim()"
+        (onClick)="saveEditedComment()" />
     </div>
   </ng-template>
 </p-dialog>

@@ -108,6 +108,9 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
     teacherNotes = signal<SentenceTeacherNoteEvent[]>([]);
     showNoteModal = signal(false);
     newNoteText = signal('');
+    showEditNoteModal = signal(false);
+    editingNote = signal<SentenceTeacherNoteEvent | null>(null);
+    editedNoteText = signal('');
     newNoteCategory = signal<'Grammar' | 'Vocabulary' | 'Structure' | 'General'>('Grammar');
     categoryOptions = [
         { label: 'Grammar', value: 'Grammar' },
@@ -381,6 +384,41 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
             severity: 'info',
             summary: 'Comment Resolved',
             detail: 'Comment has been archived.'
+        });
+    }
+    openEditCommentModal(note: SentenceTeacherNoteEvent): void {
+        this.editingNote.set(note);
+        this.editedNoteText.set(note.noteContent);
+        this.showEditNoteModal.set(true);
+    }
+    saveEditedComment(): void {
+        const note = this.editingNote();
+        const newText = this.editedNoteText().trim();
+        if (!note || !newText) return;
+        const noteId = note.noteId || (note as any).id;
+        const numericId = typeof noteId === 'number' ? noteId : parseInt(String(noteId).replace('note_', ''), 10);
+        if (isNaN(numericId)) return;
+        this.sentenceService.updateSentenceComment(numericId, newText).subscribe({
+            next: (updated) => {
+                this.teacherNotes.update(notes =>
+                    notes.map(n => (n.noteId === note.noteId || (n as any).id === (note as any).id)
+                        ? { ...n, noteContent: updated.noteContent } : n)
+                );
+                this.showEditNoteModal.set(false);
+                this.editingNote.set(null);
+                this.messageService.add({
+                    severity: 'success',
+                    summary: 'Comment Updated',
+                    detail: 'Comment updated successfully.'
+                });
+            },
+            error: () => {
+                this.messageService.add({
+                    severity: 'error',
+                    summary: 'Error',
+                    detail: 'Failed to update comment.'
+                });
+            }
         });
     }
     focusNoteText(snippet: string): void {
