@@ -109,11 +109,28 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
     sortedTeacherNotes = computed(() => {
         const notes = [...this.teacherNotes()];
         const rawContent = this.adminContent() || '';
-        const plainText = rawContent.replace(/<[^>]*>/g, '').toLowerCase();
+        let plainText = '';
+        if (this.adminEditor?.quillEditor) {
+            try { plainText = this.adminEditor.quillEditor.getText() || ''; } catch {}
+        }
+        if (!plainText) {
+            plainText = rawContent;
+        }
+
+        const clean = (str: string) => (str || '')
+            .replace(/<[^>]*>/g, ' ')
+            .replace(/&nbsp;/gi, ' ')
+            .replace(/\u00a0/g, ' ')
+            .replace(/&[a-z0-9#]+;/gi, ' ')
+            .replace(/\s+/g, ' ')
+            .trim()
+            .toLowerCase();
+
+        const cleanedDocText = clean(plainText);
 
         return notes.sort((a, b) => {
-            const textA = (a.selectedText || '').trim().toLowerCase();
-            const textB = (b.selectedText || '').trim().toLowerCase();
+            const textA = clean(a.selectedText || '');
+            const textB = clean(b.selectedText || '');
 
             if (textA && textA === textB) {
                 const timeA = new Date(a.timestamp || 0).getTime();
@@ -121,8 +138,8 @@ export class LiveSentenceRoomComponent implements OnInit, OnDestroy {
                 return timeA - timeB;
             }
 
-            const posA = textA ? plainText.indexOf(textA) : -1;
-            const posB = textB ? plainText.indexOf(textB) : -1;
+            const posA = textA ? cleanedDocText.indexOf(textA) : -1;
+            const posB = textB ? cleanedDocText.indexOf(textB) : -1;
 
             if (posA !== -1 && posB === -1) return -1;
             if (posA === -1 && posB !== -1) return 1;
