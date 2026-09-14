@@ -68,7 +68,7 @@
               class="w-full sm:w-auto" />
           </p-iconfield>
         </div>
-        <p-table #dt [value]="allVerbs()" [paginator]="true" [rows]="15" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['polishTranslation', 'englishForms']">
+        <p-table #dt [value]="allVerbs()" [paginator]="true" [rows]="15" [rowsPerPageOptions]="[10, 15, 25, 50, 100]" [showCurrentPageReport]="true" currentPageReportTemplate="Showing {first} to {last} of {totalRecords} verbs" [tableStyle]="{'min-width': '100%'}" [globalFilterFields]="['polishTranslation', 'englishForms']">
           <ng-template #header>
             <tr>
               <th pSortableColumn="polishTranslation">Polish Translation <p-sortIcon field="polishTranslation" /></th>
