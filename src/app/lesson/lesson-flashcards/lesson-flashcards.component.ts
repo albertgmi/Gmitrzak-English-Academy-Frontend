@@ -15,6 +15,7 @@ import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { SelectModule } from 'primeng/select';
 import { TooltipModule } from 'primeng/tooltip';
+import { CheckboxModule } from 'primeng/checkbox';
 import { LessonPanelService, LessonFlashcardSummaryDto, LessonFlashcardDto } from '../../services/lesson-panel.service';
 import { LessonContextService } from '../../services/lesson-context.service';
 import { AvatarComponent } from '../../other/avatar/avatar.component';
@@ -24,7 +25,7 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
   imports: [
     CommonModule, TableModule, TagModule, ToastModule, ConfirmDialogModule, ButtonModule,
     AvatarComponent, IconFieldModule, InputIconModule, InputTextModule,
-    DialogModule, InputNumberModule, FormsModule, SelectModule, TooltipModule
+    DialogModule, InputNumberModule, FormsModule, SelectModule, TooltipModule, CheckboxModule
   ],
   providers: [MessageService, ConfirmationService],
   templateUrl: './lesson-flashcards.component.html'
@@ -69,6 +70,19 @@ export class LessonFlashcardsComponent implements OnInit {
       ...cats.map(c => ({ label: c, value: c }))
     ];
   });
+  isAllSelected = computed(() => {
+    const all = this.allFlashcards();
+    const selected = this.selectedCards();
+    return all.length > 0 && selected.length === all.length;
+  });
+  toggleSelectAll(checked: boolean) {
+    if (checked) {
+      this.selectedCards.set([...this.allFlashcards()]);
+    } else {
+      this.selectedCards.set([]);
+      this.selectedCategoryToSelect.set('');
+    }
+  }
   ngOnInit() {
     const id = this.lessonContext.studentId;
     if (!id) return;
