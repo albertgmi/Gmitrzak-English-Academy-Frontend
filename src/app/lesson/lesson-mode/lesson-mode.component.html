@@ -649,6 +649,10 @@
             [ngModel]="selectedCatalogueId()"
             (ngModelChange)="selectedCatalogueId.set($event)"
             placeholder="Choose a catalogue"
+            [filter]="true"
+            filterBy="label"
+            filterPlaceholder="Search catalogue..."
+            [showClear]="true"
             fluid />
         </div>
         <p-button label="Assign all flashcards" icon="pi pi-check"
@@ -674,6 +678,10 @@
             [ngModel]="selectedSentenceSetId()"
             (ngModelChange)="selectedSentenceSetId.set($event)"
             placeholder="Choose a sentence set"
+            [filter]="true"
+            filterBy="label"
+            filterPlaceholder="Search sentence set..."
+            [showClear]="true"
             fluid />
         </div>
         <p-button label="Assign all sentences" icon="pi pi-check"
