@@ -79,7 +79,7 @@
           <input 
             pInputText 
             type="text" 
-            (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+            (input)="onGlobalFilter($event)" 
             placeholder="Search Polish or English sentences..." 
             class="w-full sm:w-80" />
         </p-iconfield>

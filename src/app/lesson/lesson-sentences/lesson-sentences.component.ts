@@ -1,8 +1,8 @@
-import { Component, inject, signal, OnInit } from '@angular/core';
+import { Component, inject, signal, OnInit, ViewChild } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { Router } from '@angular/router';
 import { FormsModule } from '@angular/forms';
-import { TableModule } from 'primeng/table';
+import { TableModule, Table } from 'primeng/table';
 import { TagModule } from 'primeng/tag';
 import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
@@ -30,6 +30,7 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
   templateUrl: './lesson-sentences.component.html'
 })
 export class LessonSentencesComponent implements OnInit {
+  @ViewChild('dt') dt?: Table;
   private service = inject(LessonPanelService);
   private lessonContext = inject(LessonContextService);
   private router = inject(Router);
@@ -50,6 +51,11 @@ export class LessonSentencesComponent implements OnInit {
 
   toggleLeeches() {
     this.leechesExpanded.update(v => !v);
+  }
+
+  onGlobalFilter(event: Event) {
+    const value = (event.target as HTMLInputElement).value;
+    this.dt?.filterGlobal(value, 'contains');
   }
 
   ngOnInit() {
