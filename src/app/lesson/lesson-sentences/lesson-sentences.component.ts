@@ -13,6 +13,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { DialogModule } from 'primeng/dialog';
 import { InputNumberModule } from 'primeng/inputnumber';
 import { TextareaModule } from 'primeng/textarea';
+import { TooltipModule } from 'primeng/tooltip';
 import { LessonPanelService, LessonSentenceSummaryDto } from '../../services/lesson-panel.service';
 import { SentenceDto } from '../../services/student-services/content.service';
 import { LessonContextService } from '../../services/lesson-context.service';
@@ -24,7 +25,7 @@ import { AvatarComponent } from '../../other/avatar/avatar.component';
   imports: [
     CommonModule, TableModule, TagModule, ToastModule, ButtonModule,
     AvatarComponent, IconFieldModule, InputIconModule, InputTextModule,
-    DialogModule, InputNumberModule, TextareaModule, FormsModule
+    DialogModule, InputNumberModule, TextareaModule, TooltipModule, FormsModule
   ],
   providers: [MessageService],
   templateUrl: './lesson-sentences.component.html'
@@ -41,6 +42,9 @@ export class LessonSentencesComponent implements OnInit {
   loading = signal(true);
   allSentences = signal<SentenceDto[]>([]);
   loadingAll = signal(true);
+
+  editingId = signal<number | null>(null);
+  savingId = signal<number | null>(null);
 
   editDialogVisible = signal(false);
   selectedSentence = signal<SentenceDto | null>(null);
@@ -73,6 +77,42 @@ export class LessonSentencesComponent implements OnInit {
 
   goToSwitchClient() {
     this.router.navigate(['/lesson/switch-client']);
+  }
+
+  startInlineEdit(card: SentenceDto, event?: Event) {
+    if (event) event.stopPropagation();
+    this.editingId.set(card.id);
+    this.editTranslation.set(card.translation || '');
+  }
+
+  cancelInlineEdit() {
+    this.editingId.set(null);
+  }
+
+  saveInlineEdit(card: SentenceDto) {
+    const studentId = this.lessonContext.studentId;
+    if (!studentId || !card.id) return;
+
+    const newTranslation = this.editTranslation().trim();
+    if (!newTranslation) return;
+
+    this.savingId.set(card.id);
+    this.service.updateSentence(studentId, card.id, {
+      translation: newTranslation
+    }).subscribe({
+      next: () => {
+        this.allSentences.update(sentences =>
+          sentences.map(s => (s.id === card.id ? { ...s, translation: newTranslation } : s))
+        );
+        this.messageService.add({ severity: 'success', summary: 'Saved', detail: 'Translation updated' });
+        this.editingId.set(null);
+        this.savingId.set(null);
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'Failed to update translation' });
+        this.savingId.set(null);
+      }
+    });
   }
 
   openEditDialog(sentence: SentenceDto) {

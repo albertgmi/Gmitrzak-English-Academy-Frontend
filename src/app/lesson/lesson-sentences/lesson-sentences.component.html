@@ -100,38 +100,70 @@
           [globalFilterFields]="['content', 'translation', 'notes']">
           <ng-template #header>
             <tr>
-              <th>Polish Sentence</th>
-              <th>English Translation</th>
-              <th style="width: 6rem">Interval</th>
-              <th style="width: 8rem">Next Due</th>
-              <th style="width: 5rem" class="text-center">Action</th>
+              <th style="width: 38%">Polish Sentence</th>
+              <th style="width: 42%">English Translation (Click to edit)</th>
+              <th style="width: 8%">Interval</th>
+              <th style="width: 12%">Next Due</th>
             </tr>
           </ng-template>
           <ng-template #body let-card>
             <tr>
-              <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.content }}</td>
-              <td class="text-primary font-medium">{{ card.translation }}</td>
+              <td class="font-semibold text-surface-900 dark:text-surface-0 align-middle">{{ card.content }}</td>
+              
+              <!-- English Translation with Direct Inline Editing -->
+              <td class="align-middle">
+                <!-- Display Mode -->
+                <div 
+                  *ngIf="editingId() !== card.id" 
+                  (click)="startInlineEdit(card, $event)"
+                  class="group flex items-center justify-between gap-2 p-2 rounded-lg cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800/80 transition-all border border-transparent hover:border-surface-300 dark:hover:border-surface-700"
+                  pTooltip="Click to edit English translation"
+                  tooltipPosition="top">
+                  <span class="text-primary font-medium break-words text-base">{{ card.translation }}</span>
+                  <i class="pi pi-pencil text-xs text-muted-color opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"></i>
+                </div>
+
+                <!-- Inline Edit Form -->
+                <div *ngIf="editingId() === card.id" class="flex items-center gap-2" (click)="$event.stopPropagation()">
+                  <input 
+                    pInputText 
+                    type="text" 
+                    [ngModel]="editTranslation()" 
+                    (ngModelChange)="editTranslation.set($event)"
+                    (keydown.enter)="saveInlineEdit(card)"
+                    (keydown.escape)="cancelInlineEdit()"
+                    class="w-full text-base font-medium p-inputtext-sm"
+                    placeholder="Enter English translation..."
+                    autofocus />
+                  <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-check" 
+                    class="p-button-rounded p-button-success p-button-text p-button-sm flex-shrink-0"
+                    [loading]="savingId() === card.id"
+                    (click)="saveInlineEdit(card)"
+                    pTooltip="Save (Enter)"></button>
+                  <button 
+                    pButton 
+                    type="button" 
+                    icon="pi pi-times" 
+                    class="p-button-rounded p-button-secondary p-button-text p-button-sm flex-shrink-0"
+                    (click)="cancelInlineEdit()"
+                    pTooltip="Cancel (Esc)"></button>
+                </div>
+              </td>
+
               <td>
                 <p-tag [value]="card.interval + 'd'" [severity]="card.interval < 5 ? 'warn' : 'success'"></p-tag>
               </td>
               <td class="text-xs text-muted-color">
                 {{ card.nextReviewDate | date:'d MMM yyyy' }}
               </td>
-              <td class="text-center">
-                <p-button 
-                  icon="pi pi-pencil" 
-                  [text]="true" 
-                  [rounded]="true" 
-                  severity="secondary" 
-                  pTooltip="Edit translation" 
-                  tooltipPosition="top"
-                  (onClick)="openEditDialog(card)" />
-              </td>
             </tr>
           </ng-template>
           <ng-template #emptymessage>
             <tr>
-              <td colspan="5" class="text-center text-muted-color py-6 text-sm">
+              <td colspan="4" class="text-center text-muted-color py-6 text-sm">
                 No sentence flashcards found for this student yet.
               </td>
             </tr>
@@ -141,46 +173,3 @@
     </div>
   </div>
 </div>
-
-<p-dialog 
-  [header]="'Edit Sentence Translation'" 
-  [(visible)]="editDialogVisible" 
-  [modal]="true" 
-  [style]="{ width: '90%', maxWidth: '550px' }">
-  <div *ngIf="selectedSentence() as s" class="flex flex-col gap-4 py-2">
-    <div>
-      <label class="block text-xs font-semibold text-muted-color uppercase mb-1">Polish Sentence (Original)</label>
-      <div class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg text-surface-900 dark:text-surface-0 font-medium">
-        {{ s.content }}
-      </div>
-    </div>
-
-    <div>
-      <label for="englishTranslation" class="block text-sm font-semibold mb-1">English Translation</label>
-      <textarea 
-        id="englishTranslation" 
-        pTextarea 
-        [rows]="3" 
-        [(ngModel)]="editTranslation" 
-        class="w-full"
-        placeholder="Enter correct English translation..."></textarea>
-    </div>
-
-    <div>
-      <label for="sentenceInterval" class="block text-sm font-semibold mb-1">Interval (days)</label>
-      <p-inputNumber 
-        id="sentenceInterval" 
-        [(ngModel)]="editInterval" 
-        [min]="0" 
-        [max]="365" 
-        class="w-full" />
-    </div>
-  </div>
-
-  <ng-template #footer>
-    <div class="flex justify-end gap-2">
-      <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="editDialogVisible.set(false)" />
-      <p-button label="Save Changes" icon="pi pi-check" [loading]="saving()" (onClick)="saveSentence()" />
-    </div>
-  </ng-template>
-</p-dialog>
