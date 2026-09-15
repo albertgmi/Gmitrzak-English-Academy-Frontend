@@ -1,0 +1,186 @@
+<p-toast />
+<div *ngIf="!activeStudent()" class="card text-center py-16">
+  <i class="pi pi-user text-5xl text-muted-color block mb-4"></i>
+  <h3 class="text-xl font-semibold mb-2">No student selected</h3>
+  <p-button label="Switch Client" icon="pi pi-users" (onClick)="goToSwitchClient()" />
+</div>
+
+<div *ngIf="activeStudent() as student" class="card">
+  <div class="flex items-center gap-3 mb-6">
+    <app-avatar 
+      [username]="student.username" 
+      [avatarUrl]="$any(student).avatarUrl" 
+      customClass="w-10 h-10 text-base"
+      fallbackBgClass="bg-primary text-white" />
+    <div class="flex-1">
+      <h2 class="text-2xl font-bold m-0 text-surface-900 dark:text-surface-0">Sentence Flashcards</h2>
+      <p class="text-muted-color mt-0.5 m-0">{{ student.username }}</p>
+    </div>
+    <p-button label="Switch" icon="pi pi-arrows-h" severity="secondary" outlined size="small" (onClick)="goToSwitchClient()" />
+  </div>
+
+  <div *ngIf="loading()" class="text-center py-10 text-muted-color">
+    <i class="pi pi-spin pi-spinner text-3xl"></i>
+  </div>
+
+  <div *ngIf="!loading() && data() as d">
+    <div class="grid grid-cols-2 md:grid-cols-4 gap-4 mb-6">
+      <div class="bg-surface-50 dark:bg-surface-800 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-surface-900 dark:text-surface-0">{{ d.totalCards }}</div>
+        <div class="text-xs text-muted-color mt-1">Total Sentences</div>
+      </div>
+      <div class="bg-primary/10 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-primary">{{ d.dueCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Due Today</div>
+      </div>
+      <div class="bg-green-50 dark:bg-green-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-green-600">{{ d.studiedTodayCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Reviewed</div>
+      </div>
+      <div class="bg-red-50 dark:bg-red-900/20 rounded-xl p-4 text-center">
+        <div class="text-3xl font-bold text-red-500">{{ d.leechCount }}</div>
+        <div class="text-xs text-muted-color mt-1">Leeches</div>
+      </div>
+    </div>
+
+    <div *ngIf="d.leeches && d.leeches.length > 0" class="mb-6 border border-red-200 dark:border-red-900/50 rounded-xl overflow-hidden bg-red-50/40 dark:bg-red-950/20">
+      <div 
+        (click)="toggleLeeches()" 
+        class="p-4 flex items-center justify-between cursor-pointer select-none hover:bg-red-100/50 dark:hover:bg-red-900/30 transition-colors">
+        <div class="flex items-center gap-2">
+          <i class="pi pi-exclamation-triangle text-red-500 text-lg"></i>
+          <span class="font-bold text-red-700 dark:text-red-300 text-sm">
+            Attention Required ({{ d.leeches.length }} Leeches)
+          </span>
+          <span class="text-xs text-red-500 bg-red-100 dark:bg-red-900/50 px-2 py-0.5 rounded-full font-medium ml-1">
+            {{ leechesExpanded() ? 'Click to collapse' : 'Click to expand' }}
+          </span>
+        </div>
+        <i [class]="leechesExpanded() ? 'pi pi-chevron-up text-red-500 font-bold' : 'pi pi-chevron-down text-red-500 font-bold'"></i>
+      </div>
+      <div *ngIf="leechesExpanded()" class="p-4 pt-0 border-t border-red-200/60 dark:border-red-900/40 max-h-72 overflow-y-auto">
+        <div class="flex flex-col gap-2 pt-3">
+          <div *ngFor="let c of d.leeches" class="flex items-center justify-between px-3 py-2 bg-red-50 dark:bg-red-900/30 text-red-700 dark:text-red-300 text-sm rounded-lg border border-red-200 dark:border-red-800/50">
+            <div>
+              <span class="font-bold">{{ c.content }}</span> 
+              <span class="opacity-80 ml-2">&mdash; {{ c.translation }}</span>
+            </div>
+            <span class="text-xs bg-red-100 dark:bg-red-800/50 px-2 py-0.5 rounded font-mono">{{ c.interval }}d</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div>
+      <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
+        <h3 class="font-semibold text-lg text-surface-900 dark:text-surface-0 m-0">All Student Sentence Flashcards</h3>
+        <p-iconfield iconPosition="left">
+          <p-inputicon styleClass="pi pi-search" />
+          <input 
+            pInputText 
+            type="text" 
+            (input)="dt.filterGlobal($any($event.target).value, 'contains')" 
+            placeholder="Search Polish or English sentences..." 
+            class="w-full sm:w-80" />
+        </p-iconfield>
+      </div>
+
+      <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">
+        <i class="pi pi-spin pi-spinner text-2xl"></i>
+      </div>
+
+      <div *ngIf="!loadingAll()">
+        <p-table 
+          #dt 
+          [value]="allSentences()" 
+          dataKey="id"
+          [paginator]="true" 
+          [rows]="12" 
+          [tableStyle]="{'min-width': '100%'}" 
+          [globalFilterFields]="['content', 'translation', 'notes']">
+          <ng-template #header>
+            <tr>
+              <th>Polish Sentence</th>
+              <th>English Translation</th>
+              <th style="width: 6rem">Interval</th>
+              <th style="width: 8rem">Next Due</th>
+              <th style="width: 5rem" class="text-center">Action</th>
+            </tr>
+          </ng-template>
+          <ng-template #body let-card>
+            <tr>
+              <td class="font-semibold text-surface-900 dark:text-surface-0">{{ card.content }}</td>
+              <td class="text-primary font-medium">{{ card.translation }}</td>
+              <td>
+                <p-tag [value]="card.interval + 'd'" [severity]="card.interval < 5 ? 'warn' : 'success'"></p-tag>
+              </td>
+              <td class="text-xs text-muted-color">
+                {{ card.nextReviewDate | date:'d MMM yyyy' }}
+              </td>
+              <td class="text-center">
+                <p-button 
+                  icon="pi pi-pencil" 
+                  [text]="true" 
+                  [rounded]="true" 
+                  severity="secondary" 
+                  pTooltip="Edit translation" 
+                  tooltipPosition="top"
+                  (onClick)="openEditDialog(card)" />
+              </td>
+            </tr>
+          </ng-template>
+          <ng-template #emptymessage>
+            <tr>
+              <td colspan="5" class="text-center text-muted-color py-6 text-sm">
+                No sentence flashcards found for this student yet.
+              </td>
+            </tr>
+          </ng-template>
+        </p-table>
+      </div>
+    </div>
+  </div>
+</div>
+
+<p-dialog 
+  [header]="'Edit Sentence Translation'" 
+  [(visible)]="editDialogVisible" 
+  [modal]="true" 
+  [style]="{ width: '90%', maxWidth: '550px' }">
+  <div *ngIf="selectedSentence() as s" class="flex flex-col gap-4 py-2">
+    <div>
+      <label class="block text-xs font-semibold text-muted-color uppercase mb-1">Polish Sentence (Original)</label>
+      <div class="p-3 bg-surface-100 dark:bg-surface-800 rounded-lg text-surface-900 dark:text-surface-0 font-medium">
+        {{ s.content }}
+      </div>
+    </div>
+
+    <div>
+      <label for="englishTranslation" class="block text-sm font-semibold mb-1">English Translation</label>
+      <textarea 
+        id="englishTranslation" 
+        pTextarea 
+        [rows]="3" 
+        [(ngModel)]="editTranslation" 
+        class="w-full"
+        placeholder="Enter correct English translation..."></textarea>
+    </div>
+
+    <div>
+      <label for="sentenceInterval" class="block text-sm font-semibold mb-1">Interval (days)</label>
+      <p-inputNumber 
+        id="sentenceInterval" 
+        [(ngModel)]="editInterval" 
+        [min]="0" 
+        [max]="365" 
+        class="w-full" />
+    </div>
+  </div>
+
+  <ng-template #footer>
+    <div class="flex justify-end gap-2">
+      <p-button label="Cancel" severity="secondary" [outlined]="true" (onClick)="editDialogVisible.set(false)" />
+      <p-button label="Save Changes" icon="pi pi-check" [loading]="saving()" (onClick)="saveSentence()" />
+    </div>
+  </ng-template>
+</p-dialog>

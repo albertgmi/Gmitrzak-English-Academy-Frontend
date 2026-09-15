@@ -92,6 +92,7 @@ import { IrregularVerbsSelectionComponent } from './student-view/irregular-verbs
 import { IrregularVerbsStudyComponent } from './student-view/irregular-verbs-study/irregular-verbs-study.component';
 import {IrregularVerbsPanelComponent} from './student-view/irregular-verbs-panel/irregular-verbs-panel.component';
 import {LessonIrregularVerbsComponent} from './lesson/lesson-irregular-verbs/lesson-irregular-verbs.component';
+import {LessonSentencesComponent} from './lesson/lesson-sentences/lesson-sentences.component';
 export const appRoutes: Routes = [
   {
     path: '',
@@ -149,6 +150,7 @@ export const appRoutes: Routes = [
       { path: 'lesson/activity-points', component: LessonActivityPointsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards', component: LessonFlashcardsComponent, canActivate: [AuthGuard] },
       { path: 'lesson/irregular-verbs', component: LessonIrregularVerbsComponent, canActivate: [AuthGuard] },
+      { path: 'lesson/sentences', component: LessonSentencesComponent, canActivate: [AuthGuard] },
       { path: 'lesson/attendance', component: AttendanceComponent, canActivate: [AuthGuard] },
       { path: 'lesson/flashcards-study-time', component: LessonStudyTimeComponent, canActivate: [AuthGuard] },
       { path: 'lesson/last-week', component: LessonLastWeekComponent, canActivate: [AuthGuard] },

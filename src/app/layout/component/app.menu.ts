@@ -228,6 +228,7 @@ export class AppMenu implements OnInit {
       { label: 'Activity Points', icon: 'pi pi-history', routerLink: ['/lesson/activity-points'] },
       { label: 'Flashcards', icon: 'pi pi-clone', routerLink: ['/lesson/flashcards'] },
       { label: 'Irregular Verbs', icon: 'pi pi-list-check', routerLink: ['/lesson/irregular-verbs'] },
+      { label: 'Sentences', icon: 'pi pi-align-left', routerLink: ['/lesson/sentences'] },
       { label: 'Report Listening', icon: 'pi pi-video', routerLink: ['/lesson/listening'] },
       { label: 'Flashcard Study Time', icon: 'pi pi-clock', routerLink: ['/lesson/flashcards-study-time'] },
       { label: 'Last Week', icon: 'pi pi-calendar-times', routerLink: ['/lesson/last-week'] },
