@@ -55,7 +55,7 @@
                   Open assignment
                   <i class="pi pi-arrow-right text-[10px]"></i>
                 </button>
-                <div class="text-xs text-muted-color">
+                <div class="text-sm font-bold text-red-600 dark:text-red-400">
                   Due: {{ a.dueDate | date:'d MMM yyyy' }}
                 </div>
               </div>
@@ -142,7 +142,8 @@
                   Open assignment
                   <i class="pi pi-arrow-right text-[10px]"></i>
                 </button>
-                <div class="text-xs text-muted-color">
+                <div class="text-sm font-semibold text-surface-900 dark:text-surface-0 flex items-center gap-1">
+                  <i class="pi pi-calendar text-primary text-xs"></i>
                   Due: {{ a.dueDate | date:'d MMM yyyy' }}
                 </div>
               </div>

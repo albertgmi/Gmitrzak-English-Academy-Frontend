@@ -74,7 +74,12 @@ import { errorInterceptor } from './shared/interceptors/error.interceptor';
         provideRouter(appRoutes, withInMemoryScrolling({ anchorScrolling: 'enabled', scrollPositionRestoration: 'enabled' }), withEnabledBlockingInitialNavigation()),
         provideHttpClient(withInterceptors([authInterceptor, errorInterceptor])),
         provideAnimationsAsync(),
-        providePrimeNG({ theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } } }),
+        providePrimeNG({
+            theme: { preset: Aura, options: { darkModeSelector: '.app-dark' } },
+            translation: {
+                firstDayOfWeek: 1
+            }
+        }),
         MessageService,
         DatePipe,
         BrowserModule,
