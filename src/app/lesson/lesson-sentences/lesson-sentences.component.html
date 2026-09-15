@@ -116,9 +116,7 @@
                 <div 
                   *ngIf="editingId() !== card.id" 
                   (click)="startInlineEdit(card, $event)"
-                  class="group flex items-center justify-between gap-2 p-2 rounded-lg cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800/80 transition-all border border-transparent hover:border-surface-300 dark:hover:border-surface-700"
-                  pTooltip="Click to edit English translation"
-                  tooltipPosition="top">
+                  class="group flex items-center justify-between gap-2 p-2 rounded-lg cursor-pointer hover:bg-surface-100 dark:hover:bg-surface-800/80 transition-all border border-transparent hover:border-surface-300 dark:hover:border-surface-700">
                   <span class="text-primary font-medium break-words text-base">{{ card.translation }}</span>
                   <i class="pi pi-pencil text-xs text-muted-color opacity-0 group-hover:opacity-100 transition-opacity flex-shrink-0"></i>
                 </div>
