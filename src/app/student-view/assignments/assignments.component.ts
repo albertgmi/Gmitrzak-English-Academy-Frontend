@@ -7,6 +7,7 @@ import { Router } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
 import { MessageService } from 'primeng/api';
 import { ContentService, AssignmentStudentDto } from '../../services/student-services/content.service';
+import { StudentService } from '../../services/student-services/student.service';
 type View = 'active' | 'history';
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
 @Component({
@@ -18,11 +19,39 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
 })
 export class AssignmentsComponent implements OnInit {
     private contentService = inject(ContentService);
+    private studentService = inject(StudentService);
+    private messageService = inject(MessageService);
     private router         = inject(Router);
     activeView        = signal<View>('active');
     activeAssignments = this.contentService.assignments;
     history           = signal<AssignmentStudentDto[]>([]);
     loadingHistory    = signal(false);
+    completingId      = signal<number | null>(null);
+    completeAssignment(a: AssignmentStudentDto, event?: Event) {
+        event?.stopPropagation();
+        this.completingId.set(a.id);
+        const action = a.isFromMatrix
+            ? this.studentService.completeModule(a.id)
+            : this.studentService.completeSingleModule(a.id);
+        action.subscribe({
+            next: () => {
+                this.completingId.set(null);
+                this.messageService.add({
+                    severity: 'success', summary: 'Success',
+                    detail: 'Assignment marked as done!', life: 3000
+                });
+                this.contentService.assignments.reload();
+            },
+            error: (err: any) => {
+                this.completingId.set(null);
+                const detail = err?.error?.message || 'Failed to complete assignment.';
+                this.messageService.add({
+                    severity: 'error', summary: 'Error',
+                    detail, life: 3000
+                });
+            }
+        });
+    }
     expandedDescriptions = signal<Set<number>>(new Set());
     toggleDescription(id: number, event?: Event) {
         event?.stopPropagation();
