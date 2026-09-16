@@ -11,6 +11,7 @@ import { ToastModule } from 'primeng/toast';
 import { MessageService } from 'primeng/api';
 import { TextareaModule } from 'primeng/textarea';
 import { ContentService, MemoryDto } from '../../services/student-services/content.service';
+import { ActivatedRoute, Router } from '@angular/router';
 import { SectionActivityService } from '../../services/section-activity.service';
 @Component({
     selector: 'app-memories',
@@ -24,6 +25,16 @@ export class MemoriesComponent implements OnInit {
     private contentService = inject(ContentService);
     private activityService = inject(SectionActivityService);
     private messageService = inject(MessageService);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    goBack() {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/assignments']);
+        }
+    }
     memories = this.contentService.memories;
     revealedIds = signal<Set<number>>(new Set());
     editingId = signal<number | null>(null);

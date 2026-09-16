@@ -8,6 +8,7 @@ import { TooltipModule } from 'primeng/tooltip';
 import { DialogModule } from 'primeng/dialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { MessageService } from 'primeng/api';
+import { ActivatedRoute, Router } from '@angular/router';
 import { ContentService, CorrectPronunciationDto, PronunciationAttemptDto } from '../../services/student-services/content.service';
 import { SectionActivityService } from '../../services/section-activity.service';
 type PronunciationView = 'practice' | 'mastered';
@@ -22,6 +23,16 @@ export class PronunciationComponent implements OnInit, OnDestroy {
     private contentService  = inject(ContentService);
     private messageService  = inject(MessageService);
     private activityService = inject(SectionActivityService);
+    private route           = inject(ActivatedRoute);
+    private router          = inject(Router);
+    goBack() {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/assignments']);
+        }
+    }
     entries         = this.contentService.pronunciation;
     correctEntries  = signal<CorrectPronunciationDto[]>([]);
     loadingCorrect  = signal(false);

@@ -2,7 +2,7 @@ import { Component, inject, signal, computed, OnInit, DestroyRef } from '@angula
 import { CommonModule } from '@angular/common';
 import { ButtonModule } from 'primeng/button';
 import { TagModule } from 'primeng/tag';
-import { RouterModule } from '@angular/router';
+import { ActivatedRoute, Router, RouterModule } from '@angular/router';
 import { takeUntilDestroyed } from '@angular/core/rxjs-interop';
 import { take } from 'rxjs';
 import { FlashcardService, FlashcardDto } from '../../services/student-services/flashcard.service';
@@ -20,6 +20,16 @@ interface SessionCard extends FlashcardDto {
 export class FlashcardStudyModeComponent implements OnInit {
     private flashcardService = inject(FlashcardService);
     private destroyRef = inject(DestroyRef);
+    private route = inject(ActivatedRoute);
+    private router = inject(Router);
+    goBack() {
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/assignments']);
+        }
+    }
     queue = signal<SessionCard[]>([]);
     pendingQueue = signal<SessionCard[]>([]);
     currentCard = signal<SessionCard | null>(null);

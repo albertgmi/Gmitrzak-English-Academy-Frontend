@@ -138,7 +138,12 @@ export class ModulePlayerComponent implements OnInit, OnDestroy {
         });
     }
     goBack() {
-        this.router.navigate(['/courses']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/courses']);
+        }
     }
     private triggerCelebration() {
         const duration = 1500;

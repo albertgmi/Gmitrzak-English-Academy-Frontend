@@ -180,7 +180,12 @@ export class EssayModuleComponent implements OnInit, OnDestroy {
         });
     }
     goBack() {
-        this.router.navigate(['/assignments']);
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        if (returnUrl) {
+            this.router.navigateByUrl(returnUrl);
+        } else {
+            this.router.navigate(['/assignments']);
+        }
     }
     confirmSubmit() {
         this.confirmationService.confirm({

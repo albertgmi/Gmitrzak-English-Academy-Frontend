@@ -141,43 +141,33 @@ export class UserCourseComponent implements OnInit {
     }
     handleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        const queryParams = returnUrl ? { returnUrl } : undefined;
         switch (module.category) {
             case 'Watching':
                 this.router.navigate(['/modules', module.id, 'player'],
-                    { queryParams: { isSingle: false } });
+                    { queryParams: { isSingle: false, ...(returnUrl ? { returnUrl } : {}) } });
                 return;
             case 'Sentences':
-                this.router.navigate(['/modules', module.moduleId, 'sentences']);
+                this.router.navigate(['/modules', module.moduleId, 'sentences'], { queryParams });
                 return;
             case 'SentenceFlashcards':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/sentences-cards']);
-                else if (!module.isCompleted && module.canComplete)
-                    this.toggleComplete(module);
+                this.router.navigate(['/sentences-cards'], { queryParams });
                 return;
             case 'Presentation':
-                this.router.navigate(['/modules', 'matrix', module.id, 'presentation']);
+                this.router.navigate(['/modules', 'matrix', module.id, 'presentation'], { queryParams });
                 return;
             case 'Flashcards':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/flashcards']);
-                else if (!module.isCompleted && module.canComplete)
-                    this.toggleComplete(module);
+                this.router.navigate(['/flashcards'], { queryParams });
                 return;
             case 'Memories':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/memories']);
-                else if (!module.isCompleted && module.canComplete)
-                    this.toggleComplete(module);
+                this.router.navigate(['/memories'], { queryParams });
                 return;
             case 'Pronunciation':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/pronunciation']);
-                else if (!module.isCompleted && module.canComplete)
-                    this.toggleComplete(module);
+                this.router.navigate(['/pronunciation'], { queryParams });
                 return;
             case 'Essay':
-                this.router.navigate(['/modules', module.moduleId, 'essay']);
+                this.router.navigate(['/modules', module.moduleId, 'essay'], { queryParams });
                 return;
         }
         if (this.isDescriptionLong(module.description)) {
@@ -186,51 +176,34 @@ export class UserCourseComponent implements OnInit {
     }
     handleSingleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
+        const returnUrl = this.route.snapshot.queryParams['returnUrl'];
+        const queryParams = returnUrl ? { returnUrl } : undefined;
+        const navOptions = { replaceUrl: true, ...(queryParams ? { queryParams } : {}) };
         switch (module.category) {
             case 'Watching':
                 this.router.navigate(['/modules', module.id, 'player'],
-                    { queryParams: { isSingle: true } });
+                    { replaceUrl: true, queryParams: { isSingle: true, ...(returnUrl ? { returnUrl } : {}) } });
                 return;
             case 'Sentences':
-                this.router.navigate(['/modules', module.moduleId, 'sentences']);
+                this.router.navigate(['/modules', module.moduleId, 'sentences'], navOptions);
                 return;
             case 'SentenceFlashcards':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/sentences-cards']);
-                else if (!module.isCompleted && module.canComplete) {
-                    this.triggerTeamsCelebration();
-                    this.toggleSingleModule(module);
-                }
+                this.router.navigate(['/sentences-cards'], navOptions);
                 return;
             case 'Presentation':
-                this.router.navigate(['/modules', 'single', module.id, 'presentation']);
+                this.router.navigate(['/modules', 'single', module.id, 'presentation'], navOptions);
                 return;
             case 'Flashcards':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/flashcards']);
-                else if (!module.isCompleted && module.canComplete) {
-                    this.triggerTeamsCelebration();
-                    this.toggleSingleModule(module);
-                }
+                this.router.navigate(['/flashcards'], navOptions);
                 return;
             case 'Memories':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/memories']);
-                else if (!module.isCompleted && module.canComplete) {
-                    this.triggerTeamsCelebration();
-                    this.toggleSingleModule(module);
-                }
+                this.router.navigate(['/memories'], navOptions);
                 return;
             case 'Pronunciation':
-                if (!module.isCompleted && !module.canComplete)
-                    this.router.navigate(['/pronunciation']);
-                else if (!module.isCompleted && module.canComplete) {
-                    this.triggerTeamsCelebration();
-                    this.toggleSingleModule(module);
-                }
+                this.router.navigate(['/pronunciation'], navOptions);
                 return;
             case 'Essay':
-                this.router.navigate(['/modules', module.moduleId, 'essay']);
+                this.router.navigate(['/modules', module.moduleId, 'essay'], navOptions);
                 return;
         }
         if (this.isDescriptionLong(module.description)) {
