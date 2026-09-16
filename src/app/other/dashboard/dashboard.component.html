@@ -320,7 +320,7 @@
                     [ngClass]="a.isOverdue ? 'text-red-600 dark:text-red-400 font-bold' : (daysUntil(a.dueDate) <= 2 ? 'text-amber-700 dark:text-amber-400 font-bold' : 'text-surface-700 dark:text-surface-300')">
                     <i class="pi pi-calendar mr-1 text-xs"></i>Due: {{ a.dueDate | date:'dd MMM yyyy' }}
                   </span>
-                  <span *ngIf="!a.isOverdue && daysUntil(a.dueDate) >= 0"
+                  <span *ngIf="!a.isOverdue && daysUntil(a.dueDate) >= 0 && isThreeDayTask(a.category)"
                     class="inline-flex items-center gap-1 text-xs font-semibold px-2 py-0.5 rounded-full"
                     [ngClass]="daysUntil(a.dueDate) <= 2 ? 'bg-amber-100 text-amber-800 dark:bg-amber-900/50 dark:text-amber-300' : 'bg-surface-100 text-surface-600 dark:bg-surface-800 dark:text-surface-400'">
                     Requires 3 sessions • Start today!

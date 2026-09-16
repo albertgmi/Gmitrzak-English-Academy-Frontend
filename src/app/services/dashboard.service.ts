@@ -31,6 +31,7 @@ export interface RecentGradeDto {
 export interface UpcomingAssignmentDto {
     id: number;
     moduleName: string;
+    category?: string;
     dueDate: string;
     isOverdue: boolean;
 }

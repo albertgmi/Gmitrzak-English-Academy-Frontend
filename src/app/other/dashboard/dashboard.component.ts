@@ -102,4 +102,9 @@ export class Dashboard implements OnInit {
         if (days === 1) return 'Tomorrow';
         return `In ${days} days`;
     }
+    isThreeDayTask(category?: string): boolean {
+        if (!category) return true;
+        const threeDayCategories = ['Flashcards', 'SentenceFlashcards', 'Memories', 'Pronunciation'];
+        return threeDayCategories.includes(category);
+    }
 }
