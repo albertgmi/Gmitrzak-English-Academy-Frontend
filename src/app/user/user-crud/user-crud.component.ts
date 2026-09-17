@@ -66,7 +66,7 @@ export class UserCrudComponent implements OnInit {
   public router = inject(Router);
   route = inject(ActivatedRoute);
   userDialog: boolean = false;
-  user!: User;
+  user: User = { id: 0, isActive: true };
   selectedUsers!: User[] | null;
   submitted: boolean = false;
   roles!: any[];
