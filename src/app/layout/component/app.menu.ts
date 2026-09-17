@@ -50,10 +50,11 @@ export class AppMenu implements OnInit {
         }
       ]
     };
-    if (role === 'Admin') {
+    const r = role?.toLowerCase();
+    if (r === 'admin') {
       return [...base, ...this.adminMenu(), account];
     }
-    if (role === 'User') {
+    if (r === 'user') {
       return [...base, ...this.studentMenu(), account];
     }
     return [{

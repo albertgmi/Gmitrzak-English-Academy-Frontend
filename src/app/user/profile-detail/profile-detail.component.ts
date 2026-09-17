@@ -69,7 +69,7 @@ export class ProfileDetailComponent implements OnInit {
     });
   }
   get isAdmin(): boolean {
-    return this.authService.getRole() === 'Admin';
+    return this.authService.getRole()?.toLowerCase() === 'admin';
   }
   get isOwnProfile(): boolean {
     return this.authService.getUserId() === this.userId;

@@ -23,7 +23,7 @@ export class Dashboard implements OnInit {
     studentData = signal<StudentDashboardDto | null>(null);
     loading = signal(true);
     ngOnInit() {
-        if (this.role === 'Admin') {
+        if (this.role?.toLowerCase() === 'admin') {
             this.dashboardService.getAdminDashboard().subscribe({
                 next: (data) => { this.adminData.set(data); this.loading.set(false); },
                 error: () => this.loading.set(false)

@@ -25,7 +25,8 @@ export class UserService {
   authService = inject(AuthService);
   users = resource<User[], never>({
     loader: () => {
-      if (this.authService.getRole() !== 'Admin') {
+      const role = this.authService.getRole();
+      if (role?.toLowerCase() !== 'admin') {
         return Promise.resolve([]);
       }
       return lastValueFrom(
@@ -35,7 +36,8 @@ export class UserService {
   });
   inactiveUsers = resource<User[], never>({
     loader: () => {
-      if (this.authService.getRole() !== 'Admin') {
+      const role = this.authService.getRole();
+      if (role?.toLowerCase() !== 'admin') {
         return Promise.resolve([]);
       }
       return lastValueFrom(

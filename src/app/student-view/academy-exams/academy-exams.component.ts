@@ -47,7 +47,7 @@ export class AcademyExamsComponent implements OnInit {
   activeTab = signal<ExamLevel>('Junior');
   exams = signal<AcademyExamDto[]>([]);
   loading = signal<boolean>(true);
-  isAdmin = computed(() => this.authService.getRole() === 'Admin');
+  isAdmin = computed(() => this.authService.getRole()?.toLowerCase() === 'admin');
   showForm = signal<boolean>(false);
   editingExam = signal<AcademyExamDto | null>(null);
   saving = signal<boolean>(false);

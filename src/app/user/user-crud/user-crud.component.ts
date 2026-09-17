@@ -1,5 +1,7 @@
 import { Component, computed, inject, OnInit, ViewChild } from '@angular/core';
-import { Router, ActivatedRoute } from '@angular/router';
+import { Router, ActivatedRoute, NavigationEnd } from '@angular/router';
+import { toSignal } from '@angular/core/rxjs-interop';
+import { filter, map } from 'rxjs';
 import { ConfirmationService, MessageService } from 'primeng/api';
 import { Table, TableModule } from 'primeng/table';
 import { CommonModule } from '@angular/common';
@@ -21,6 +23,7 @@ import { IconFieldModule } from 'primeng/iconfield';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { CheckboxModule } from 'primeng/checkbox';
 import { User, UserService } from '../../services/user.service';
+
 interface Column {
   field: string;
   header: string;
@@ -56,7 +59,7 @@ interface ExportColumn {
     ConfirmDialogModule,
     CheckboxModule
   ],
-  providers: [MessageService, UserService, ConfirmationService]
+  providers: [MessageService, ConfirmationService]
 })
 export class UserCrudComponent implements OnInit {
   userService = inject(UserService);
@@ -70,8 +73,17 @@ export class UserCrudComponent implements OnInit {
   exportColumns!: ExportColumn[];
   cols!: Column[];
   @ViewChild('dt') dt!: Table;
+
+  private isInactiveRoute = toSignal(
+    this.router.events.pipe(
+      filter((e): e is NavigationEnd => e instanceof NavigationEnd),
+      map(() => this.router.url.includes('inactive'))
+    ),
+    { initialValue: this.router.url.includes('inactive') }
+  );
+
   displayUsers = computed(() => {
-    return this.router.url.includes('inactive')
+    return this.isInactiveRoute()
       ? this.userService.inactiveUsers.value() || []
       : this.userService.users.value() || [];
   });
