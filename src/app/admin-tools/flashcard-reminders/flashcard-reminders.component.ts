@@ -15,9 +15,11 @@ import { TextareaModule } from 'primeng/textarea';
 import { DialogModule } from 'primeng/dialog';
 import { MessageService, ConfirmationService } from 'primeng/api';
 import { EmailReminderService, FlashcardInactiveUser } from '../../services/email-reminder.service';
-const DEFAULT_SUBJECT = 'Gmitrzak English Academy: Time for your flashcards review!';
+import { BrandService } from '../../core/services/brand.service';
+
 const DEFAULT_BODY = `We noticed that you haven't reviewed your flashcards for at least 3 days.
 Consistency is key to mastering the English language! Log in to the platform and complete your daily review session.`;
+
 @Component({
   selector: 'app-flashcard-reminders',
   standalone: true,
@@ -44,54 +46,63 @@ export class FlashcardRemindersComponent implements OnInit {
   private reminderService = inject(EmailReminderService);
   private messageService = inject(MessageService);
   private confirmationService = inject(ConfirmationService);
+  public brandService = inject(BrandService);
+
   allStudents = signal<FlashcardInactiveUser[]>([]);
   selectedStudents = signal<FlashcardInactiveUser[]>([]);
   loading = signal(true);
   sending = signal(false);
   allowCustomSelection = signal(false);
-  customSubject = signal<string>(DEFAULT_SUBJECT);
+  customSubject = signal<string>(`${this.brandService.brand().fullName}: Time for your flashcards review!`);
   customBody = signal<string>(DEFAULT_BODY);
   showPreview = signal(false);
+
   inactiveStudents = computed(() =>
     this.allStudents().filter(s => s.isInactiveForThreeDays)
   );
+
   displayedStudents = computed(() => {
     return this.allowCustomSelection()
       ? this.allStudents()
       : this.inactiveStudents();
   });
+
   previewUsername = computed(() => {
     const selected = this.selectedStudents();
     return selected.length > 0 ? selected[0].username : 'Student Username';
   });
+
   previewSubject = computed(() => {
     return this.customSubject().replace('{username}', this.previewUsername());
   });
+
   previewHtml = computed(() => {
     const username = this.previewUsername();
     const text = this.customBody().replace('{username}', username);
+    const brand = this.brandService.brand();
     const paragraphs = text
       .split('\n')
       .map(p => p.trim() ? `<p style="margin: 0 0 12px 0; line-height: 1.6;">${p}</p>` : '<br/>')
       .join('');
+
     return `
       <div style="font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; padding: 24px; border: 1px solid #e2e8f0; border-radius: 12px; background-color: #ffffff; color: #1e293b;">
         <div style="text-align: center; padding-bottom: 16px; border-bottom: 2px solid #f1f5f9; margin-bottom: 20px;">
-          <h1 style="color: #2563eb; margin: 0; font-size: 22px;">Gmitrzak English Academy</h1>
+          <h1 style="color: #2563eb; margin: 0; font-size: 22px;">${brand.fullName}</h1>
         </div>
         <h2 style="color: #0f172a; font-size: 18px; margin-top: 0;">Hello ${username}! 👋</h2>
         <div style="font-size: 15px; color: #334155;">
           ${paragraphs}
         </div>
         <div style="text-align: center; margin: 28px 0;">
-          <a href="https://www.gmitrzak-english-academy.pl" 
+          <a href="https://www.${brand.domain}" 
              style="background-color: #2563eb; color: #ffffff; padding: 14px 28px; text-decoration: none; border-radius: 8px; font-weight: bold; display: inline-block; font-size: 15px;">
             Go to Flashcards 🚀
           </a>
         </div>
         <hr style="border: none; border-top: 1px solid #f1f5f9; margin: 24px 0;"/>
         <p style="font-size: 13px; color: #64748b; margin: 0; text-align: center;">
-          Best of luck with your studies,<br/><strong>The Gmitrzak English Academy Team</strong>
+          Best of luck with your studies,<br/><strong>The ${brand.fullName} Team</strong>
         </p>
       </div>`;
   });
@@ -123,7 +134,7 @@ export class FlashcardRemindersComponent implements OnInit {
     }
   }
   resetTemplateToDefault() {
-    this.customSubject.set(DEFAULT_SUBJECT);
+    this.customSubject.set(`${this.brandService.brand().fullName}: Time for your flashcards review!`);
     this.customBody.set(DEFAULT_BODY);
     this.messageService.add({
       severity: 'info',

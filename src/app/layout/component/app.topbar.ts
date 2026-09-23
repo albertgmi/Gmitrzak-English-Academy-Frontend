@@ -7,6 +7,8 @@ import { AppConfigurator } from './app.configurator';
 import { LayoutService } from '../service/layout.service';
 import { AuthService } from '../../services/auth.service';
 import { AnnouncementService } from '../../services/announcement.service';
+import { BrandService } from '../../core/services/brand.service';
+
 @Component({
     selector: 'app-topbar',
     standalone: true,
@@ -52,9 +54,9 @@ import { AnnouncementService } from '../../services/announcement.service';
                     <i class="pi pi-bars"></i>
                 </button>
                 <a class="layout-topbar-logo" routerLink="/">
-                    <span class="logo-text-desktop">Gmitrzak English Academy</span>
+                    <span class="logo-text-desktop">{{ brandService.brand().fullName }}</span>
                     <div class="logo-text-mobile">
-                        <span>Gmitrzak English</span>
+                        <span>{{ brandService.brand().shortTitle }}</span>
                         <span>Academy</span>
                     </div>
                 </a>
@@ -127,6 +129,7 @@ import { AnnouncementService } from '../../services/announcement.service';
 })
 export class AppTopbar implements OnInit {
     items!: MenuItem[];
+    public brandService = inject(BrandService);
     private authService = inject(AuthService);
     private router = inject(Router);
     public layoutService = inject(LayoutService);

@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormsModule } from '@angular/forms';
 import { RouterModule } from '@angular/router';
 import { ButtonModule } from 'primeng/button';
@@ -7,6 +7,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { PasswordModule } from 'primeng/password';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
+import { BrandService } from '../../core/services/brand.service';
+
 @Component({
     selector: 'app-login',
     standalone: true,
@@ -35,7 +37,7 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
                                     />
                                 </g>
                             </svg>
-                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">Gmitrzak English Academy</div>
+                            <div class="text-surface-900 dark:text-surface-0 text-3xl font-medium mb-4">{{ brandService.brand().fullName }}</div>
                             <span class="text-muted-color font-medium">Sign in to continue</span>
                         </div>
                         <div>
@@ -58,6 +60,7 @@ import { AppFloatingConfigurator } from '../../layout/component/app.floatingconf
     `
 })
 export class Login {
+    public brandService = inject(BrandService);
     username: string = '';
     password: string = '';
     checked: boolean = false;

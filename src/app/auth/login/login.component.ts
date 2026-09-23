@@ -1,4 +1,4 @@
-import { Component } from '@angular/core';
+import { Component, inject } from '@angular/core';
 import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
 import { Router, RouterModule } from '@angular/router';
 import { AuthService } from '../../services/auth.service';
@@ -11,6 +11,8 @@ import { InputTextModule } from 'primeng/inputtext';
 import { RippleModule } from 'primeng/ripple';
 import { AppFloatingConfigurator } from '../../layout/component/app.floatingconfigurator';
 import { AnnouncementService } from '../../services/announcement.service';
+import { BrandService } from '../../core/services/brand.service';
+
 @Component({
   standalone: true,
   selector: 'app-login',
@@ -22,6 +24,8 @@ import { AnnouncementService } from '../../services/announcement.service';
 })
 export class LoginComponent {
   loginForm: FormGroup;
+  public brandService = inject(BrandService);
+
   constructor(
     private fb: FormBuilder,
     private authService: AuthService,
