@@ -184,4 +184,7 @@ export class LessonPanelService {
     deleteFlashcardsBulk(studentUserId: number, flashcardIds: number[]) {
         return this.http.post<void>(`${this.apiUrl}/flashcards/${studentUserId}/delete-bulk`, { flashcardIds });
     }
+    deleteSentencesBulk(studentUserId: number, sentenceIds: number[]) {
+        return this.http.post<void>(`${this.apiUrl}/sentences/${studentUserId}/delete-bulk`, { sentenceIds });
+    }
 }
