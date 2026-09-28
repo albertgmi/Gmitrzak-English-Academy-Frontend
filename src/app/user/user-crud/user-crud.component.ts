@@ -172,8 +172,25 @@ export class UserCrudComponent implements OnInit {
       isActive: this.user.isActive,
       streakOverride: this.user.streakOverride ?? null,
       autoAddSentenceFlashcards: this.user.autoAddSentenceFlashcards ?? true
+    }).subscribe({
+      next: () => {
+        this.messageService.add({
+          severity: 'success',
+          summary: 'Successful',
+          detail: 'User updated successfully',
+          life: 3000
+        });
+        this.userDialog = false;
+        this.submitted = false;
+      },
+      error: () => {
+        this.messageService.add({
+          severity: 'error',
+          summary: 'Error',
+          detail: 'Failed to update user',
+          life: 3000
+        });
+      }
     });
-    this.userDialog = false;
-    this.submitted = false;
   }
 }

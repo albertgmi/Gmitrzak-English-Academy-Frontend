@@ -1,6 +1,6 @@
 import { inject, Injectable, resource } from '@angular/core';
 import { HttpClient } from '@angular/common/http';
-import { Observable, lastValueFrom } from 'rxjs';
+import { Observable, lastValueFrom, tap } from 'rxjs';
 import { environment } from '../../environments/environment';
 import { AuthService } from './auth.service';
 export interface User {
@@ -61,16 +61,13 @@ export class UserService {
       }
     });
   }
-  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string; isActive?: boolean; streakOverride?: number | null; autoAddSentenceFlashcards?: boolean }) {
-    this.http.put(`${this.apiUrl}/update/${userId}`, request).subscribe({
-      next: () => {
+  updateUser(userId: number, request: { username?: string; email?: string; role?: string; password?: string; isActive?: boolean; streakOverride?: number | null; autoAddSentenceFlashcards?: boolean }): Observable<any> {
+    return this.http.put(`${this.apiUrl}/update/${userId}`, request).pipe(
+      tap(() => {
         this.users.reload();
         this.inactiveUsers.reload();
-      },
-      error: (err) => {
-        console.error('Error updating user:', err);
-      }
-    });
+      })
+    );
   }
   getAllUsers(): Observable<User[]> {
     return this.http.get<User[]>(`${this.apiUrl}/users`);
