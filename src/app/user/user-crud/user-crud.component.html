@@ -110,6 +110,13 @@
           inputId="isActive" />
         <label for="isActive" class="font-bold">Active Account</label>
       </div>
+      <div class="flex items-center gap-2">
+        <p-checkbox 
+          [(ngModel)]="user.autoAddSentenceFlashcards" 
+          [binary]="true" 
+          inputId="autoAddSentenceFlashcards" />
+        <label for="autoAddSentenceFlashcards" class="font-bold">Automatycznie dodawaj zdania z zadań do fiszek</label>
+      </div>
     </div>
   </ng-template>
   <ng-template #footer>

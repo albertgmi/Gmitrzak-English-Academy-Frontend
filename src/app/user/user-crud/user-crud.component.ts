@@ -113,14 +113,15 @@ export class UserCrudComponent implements OnInit {
     table.filterGlobal((event.target as HTMLInputElement).value, 'contains');
   }
   openNew() {
-    this.user = { id: 0, isActive: true };
+    this.user = { id: 0, isActive: true, autoAddSentenceFlashcards: true };
     this.submitted = false;
     this.userDialog = true;
   }
   editUser(user: User) {
     this.user = {
       ...user,
-      streakOverride: user.streakOverride ?? null
+      streakOverride: user.streakOverride ?? null,
+      autoAddSentenceFlashcards: user.autoAddSentenceFlashcards ?? true
     };
     this.userDialog = true;
   }
@@ -169,7 +170,8 @@ export class UserCrudComponent implements OnInit {
       role: this.user.role,
       password: this.user.password || undefined,
       isActive: this.user.isActive,
-      streakOverride: this.user.streakOverride ?? null
+      streakOverride: this.user.streakOverride ?? null,
+      autoAddSentenceFlashcards: this.user.autoAddSentenceFlashcards ?? true
     });
     this.userDialog = false;
     this.submitted = false;
