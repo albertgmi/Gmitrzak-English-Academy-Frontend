@@ -50,6 +50,7 @@ export class PlanMatrixComponent implements OnInit {
     selectedMatrixId = signal<number | null>(null);
     selectedStartDate = signal<Date | null>(null);
     filterUserId = signal<number | null>(null);
+    selectedAssignments = signal<AssignmentDto[]>([]);
     users = computed(() =>
         (this.userService.users.value() ?? [])
             .filter(u => u.role === 'User')
@@ -150,6 +151,39 @@ export class PlanMatrixComponent implements OnInit {
                         severity: 'error', summary: 'Error',
                         detail: 'Failed to remove assignment.', life: 3000
                     })
+                });
+            }
+        });
+    }
+    confirmDeleteSelected() {
+        const selected = this.selectedAssignments();
+        if (!selected || selected.length === 0) return;
+        this.confirmationService.confirm({
+            message: `Are you sure you want to delete ${selected.length} selected matrix assignment(s)?`,
+            header: 'Confirm Bulk Delete',
+            icon: 'pi pi-exclamation-triangle',
+            accept: () => {
+                const ids = selected.map(a => a.id);
+                this.assignmentService.deleteBulkAssignments(ids).subscribe({
+                    next: (deletedCount) => {
+                        this.selectedAssignments.set([]);
+                        this.assignmentService.reloadAssignments();
+                        this.messageService.add({
+                            severity: 'success',
+                            summary: 'Deleted',
+                            detail: `Successfully deleted ${deletedCount} matrix assignment(s).`,
+                            life: 3000
+                        });
+                    },
+                    error: (err) => {
+                        console.error(err);
+                        this.messageService.add({
+                            severity: 'error',
+                            summary: 'Error',
+                            detail: 'Failed to delete selected assignments.',
+                            life: 3000
+                        });
+                    }
                 });
             }
         });

@@ -7,6 +7,7 @@ import { InputTextModule } from 'primeng/inputtext';
 import { IconFieldModule } from 'primeng/iconfield';
 import { InputIconModule } from 'primeng/inputicon';
 import { SelectModule } from 'primeng/select';
+import { MultiSelectModule } from 'primeng/multiselect';
 import { DatePickerModule } from 'primeng/datepicker';
 import { TagModule } from 'primeng/tag';
 import { ToolbarModule } from 'primeng/toolbar';
@@ -14,7 +15,7 @@ import { ToastModule } from 'primeng/toast';
 import { ConfirmDialogModule } from 'primeng/confirmdialog';
 import { TooltipModule } from 'primeng/tooltip';
 import { MessageService, ConfirmationService } from 'primeng/api';
-import { AssignmentService, ModuleAssignmentDto, CreateModuleAssignmentRequest } from '../../../services/assignment.service';
+import { AssignmentService, ModuleAssignmentDto, CreateBulkModuleAssignmentRequest } from '../../../services/assignment.service';
 import { UserService } from '../../../services/user.service';
 import { ModuleItemService } from '../../../services/module.service';
 type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'contrast' | undefined;
@@ -24,7 +25,7 @@ type SeverityType = 'success' | 'info' | 'warn' | 'danger' | 'secondary' | 'cont
     imports: [
         CommonModule, FormsModule,
         TableModule, ButtonModule, InputTextModule,
-        IconFieldModule, InputIconModule, SelectModule,
+        IconFieldModule, InputIconModule, SelectModule, MultiSelectModule,
         DatePickerModule, TagModule, ToolbarModule,
         ToastModule, ConfirmDialogModule, TooltipModule
     ],
@@ -41,7 +42,7 @@ export class PlanModuleComponent implements OnInit {
     showAddForm = signal(false);
     submitted = false;
     loadingSubmit = false;
-    selectedUserId = signal<number | null>(null);
+    selectedUserIds = signal<number[]>([]);
     selectedModuleId = signal<number | null>(null);
     selectedDueDate = signal<Date | null>(null);
     filterUserId = signal<number | null>(null);
@@ -71,7 +72,7 @@ export class PlanModuleComponent implements OnInit {
         this.moduleService.reloadModules();
     }
     openAddForm() {
-        this.selectedUserId.set(null);
+        this.selectedUserIds.set([]);
         this.selectedModuleId.set(null);
         this.selectedDueDate.set(null);
         this.submitted = false;
@@ -83,23 +84,31 @@ export class PlanModuleComponent implements OnInit {
     }
     submitAssignment() {
         this.submitted = true;
-        const userId = this.selectedUserId();
+        const userIds = this.selectedUserIds();
         const moduleId = this.selectedModuleId();
         const date = this.selectedDueDate();
-        if (!userId || !moduleId || !date) return;
+        if (!userIds.length || !moduleId || !date) return;
         this.loadingSubmit = true;
-        const request: CreateModuleAssignmentRequest = {
-            userId,
+        const request: CreateBulkModuleAssignmentRequest = {
+            userIds,
             moduleId,
             dueDate: this.formatDate(date)
         };
-        this.assignmentService.createModuleAssignment(request).subscribe({
-            next: () => {
+        this.assignmentService.createBulkModuleAssignment(request).subscribe({
+            next: (result) => {
                 this.assignmentService.reloadModuleAssignments();
-                this.messageService.add({
-                    severity: 'success', summary: 'Assigned',
-                    detail: 'Module assigned successfully.', life: 3000
-                });
+                if (result.assignedUsernames.length) {
+                    this.messageService.add({
+                        severity: 'success', summary: 'Assigned',
+                        detail: `Assigned to: ${result.assignedUsernames.join(', ')}`, life: 4000
+                    });
+                }
+                if (result.skipped.length) {
+                    this.messageService.add({
+                        severity: 'warn', summary: 'Some assignments skipped',
+                        detail: result.skipped.join(' • '), life: 6000
+                    });
+                }
                 this.closeAddForm();
                 this.loadingSubmit = false;
             },

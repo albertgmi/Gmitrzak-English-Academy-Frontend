@@ -54,6 +54,14 @@ export interface CreateBulkMatrixAssignmentRequest {
     startDate: string;
     userIds: number[];
 }
+export interface DeleteBulkMatrixAssignmentsRequest {
+    assignmentIds: number[];
+}
+export interface CreateBulkModuleAssignmentRequest {
+    moduleId: number;
+    dueDate: string;
+    userIds: number[];
+}
 export interface CreateCourseAssignmentRequest {
     courseId: number;
     startDate: string;
@@ -77,6 +85,11 @@ export class AssignmentService {
     deleteAssignment(id: number) {
         return this.http.delete(`${this.apiUrl}/matrix/${id}`);
     }
+    deleteBulkAssignments(assignmentIds: number[]) {
+        return this.http.request<number>('delete', `${this.apiUrl}/matrix/bulk`, {
+            body: { assignmentIds }
+        });
+    }
     getMatrixByUser(userId: number) {
         return this.http.get<MatrixAssignmentDto[]>(`${this.apiUrl}/matrix/user/${userId}`);
     }
@@ -88,6 +101,9 @@ export class AssignmentService {
     }
     createModuleAssignment(request: CreateModuleAssignmentRequest) {
         return this.http.post<ModuleAssignmentDto>(`${this.apiUrl}/module`, request);
+    }
+    createBulkModuleAssignment(request: CreateBulkModuleAssignmentRequest) {
+        return this.http.post<BulkAssignmentResultDto>(`${this.apiUrl}/module/bulk`, request);
     }
     deleteModuleAssignment(id: number) {
         return this.http.delete(`${this.apiUrl}/module/${id}`);

@@ -67,15 +67,23 @@
   </div>
   <p-toolbar styleClass="mb-4">
     <ng-template #start>
-      <p-select
-        [options]="allUsers()"
-        [ngModel]="filterUserId()"
-        (ngModelChange)="filterUserId.set($event)"
-        optionLabel="label"
-        optionValue="id"
-        placeholder="Filter by student"
-        [showClear]="true"
-        styleClass="w-56" />
+      <div class="flex items-center gap-3">
+        <p-select
+          [options]="allUsers()"
+          [ngModel]="filterUserId()"
+          (ngModelChange)="filterUserId.set($event)"
+          optionLabel="label"
+          optionValue="id"
+          placeholder="Filter by student"
+          [showClear]="true"
+          styleClass="w-56" />
+        <p-button
+          *ngIf="selectedAssignments().length > 0"
+          [label]="'Delete Selected (' + selectedAssignments().length + ')'"
+          icon="pi pi-trash"
+          severity="danger"
+          (onClick)="confirmDeleteSelected()" />
+      </div>
     </ng-template>
     <ng-template #end>
       <p-iconfield>
@@ -90,6 +98,8 @@
     #dt
     [value]="filteredAssignments()"
     dataKey="id"
+    [selection]="selectedAssignments()"
+    (selectionChange)="selectedAssignments.set($event)"
     [loading]="assignments.isLoading()"
     [rows]="10"
     [paginator]="true"
@@ -101,6 +111,7 @@
     [rowsPerPageOptions]="[10, 20, 30]">
     <ng-template #header>
       <tr>
+        <th style="width: 4rem"><p-tableHeaderCheckbox /></th>
         <th pSortableColumn="username">Student <p-sortIcon field="username" /></th>
         <th pSortableColumn="matrixName">Matrix <p-sortIcon field="matrixName" /></th>
         <th style="width: 9rem">Interval</th>
@@ -111,6 +122,9 @@
     </ng-template>
     <ng-template #body let-a>
       <tr>
+        <td>
+          <p-tableCheckbox [value]="a" />
+        </td>
         <td>
           <div class="flex items-center gap-2">
             <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-sm flex-shrink-0">
@@ -168,7 +182,7 @@
     </ng-template>
     <ng-template #emptymessage>
       <tr>
-        <td colspan="6" class="text-center text-muted-color py-10">
+        <td colspan="7" class="text-center text-muted-color py-10">
           <i class="pi pi-calendar-times text-4xl block mb-3"></i>
           <span class="text-lg block">No assignments found.</span>
           <span class="text-sm">Click "Assign Matrix" to get started.</span>
