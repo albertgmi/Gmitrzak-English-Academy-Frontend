@@ -57,6 +57,33 @@ export class LessonSentencesComponent implements OnInit {
   editInterval = signal<number>(0);
   saving = signal(false);
   leechesExpanded = signal(false);
+  exportingPdf = signal(false);
+
+  exportPdf() {
+    const studentId = this.lessonContext.studentId;
+    if (!studentId) return;
+
+    this.exportingPdf.set(true);
+    this.service.exportSentencesPdf(studentId).subscribe({
+      next: (blob) => {
+        this.downloadFile(blob, `sentences_${studentId}.pdf`);
+        this.exportingPdf.set(false);
+      },
+      error: () => {
+        this.messageService.add({ severity: 'error', summary: 'Error', detail: 'PDF export failed' });
+        this.exportingPdf.set(false);
+      }
+    });
+  }
+
+  private downloadFile(blob: Blob, filename: string) {
+    const url = window.URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = filename;
+    a.click();
+    window.URL.revokeObjectURL(url);
+  }
 
   isAllSelected = computed(() => {
     const all = this.allSentences();

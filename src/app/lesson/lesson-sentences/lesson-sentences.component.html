@@ -75,15 +75,25 @@
     <div>
       <div class="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-4">
         <h3 class="font-semibold text-lg text-surface-900 dark:text-surface-0 m-0">All Student Sentence Flashcards</h3>
-        <p-iconfield iconPosition="left">
-          <p-inputicon styleClass="pi pi-search" />
-          <input 
-            pInputText 
-            type="text" 
-            (input)="onGlobalFilter($event)" 
-            placeholder="Search Polish or English sentences..." 
-            class="w-full sm:w-80" />
-        </p-iconfield>
+        <div class="flex items-center gap-2">
+          <p-button
+            label="PDF"
+            icon="pi pi-file-pdf"
+            severity="danger"
+            [outlined]="true"
+            size="small"
+            [loading]="exportingPdf()"
+            (onClick)="exportPdf()" />
+          <p-iconfield iconPosition="left">
+            <p-inputicon styleClass="pi pi-search" />
+            <input 
+              pInputText 
+              type="text" 
+              (input)="onGlobalFilter($event)" 
+              placeholder="Search Polish or English sentences..." 
+              class="w-full sm:w-80" />
+          </p-iconfield>
+        </div>
       </div>
 
       <div *ngIf="loadingAll()" class="flex justify-center py-6 text-muted-color">

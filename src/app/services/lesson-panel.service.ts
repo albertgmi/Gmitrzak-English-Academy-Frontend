@@ -176,6 +176,11 @@ export class LessonPanelService {
             responseType: 'blob'
         });
     }
+    exportSentencesPdf(studentUserId: number) {
+        return this.http.get(`${this.apiUrl}/sentences/${studentUserId}/pdf`, {
+            responseType: 'blob'
+        });
+    }
     exportFlashcardsExcel(studentUserId: number) {
         return this.http.get(`${this.apiUrl}/flashcards/${studentUserId}/excel`, {
             responseType: 'blob'
