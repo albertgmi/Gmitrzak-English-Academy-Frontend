@@ -177,8 +177,11 @@ export class UserCourseComponent implements OnInit {
     handleSingleModuleClick(module: StudentModuleDto) {
         if (!module.isUnlocked) return;
         const returnUrl = this.route.snapshot.queryParams['returnUrl'];
-        const queryParams = returnUrl ? { returnUrl } : undefined;
-        const navOptions = { replaceUrl: true, ...(queryParams ? { queryParams } : {}) };
+        const queryParams = {
+            userModuleAssignmentId: module.id,
+            ...(returnUrl ? { returnUrl } : {})
+        };
+        const navOptions = { replaceUrl: true, queryParams };
         switch (module.category) {
             case 'Watching':
                 this.router.navigate(['/modules', module.id, 'player'],

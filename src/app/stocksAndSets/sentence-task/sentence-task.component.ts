@@ -36,6 +36,7 @@ export class SentenceTaskComponent implements OnInit {
     private route           = inject(ActivatedRoute);
     private sentenceService = inject(SentenceService);
     private messageService  = inject(MessageService);
+    userModuleAssignmentId?: number;
     session       = signal<ModuleSentenceSessionDto | null>(null);
     sentences     = signal<SentenceState[]>([]);
     loading       = signal(true);
@@ -59,7 +60,11 @@ export class SentenceTaskComponent implements OnInit {
     );
     ngOnInit() {
         const moduleId = Number(this.route.snapshot.paramMap.get('moduleId'));
-        this.sentenceService.getModuleSentences(moduleId).subscribe({
+        const assignmentIdParam = this.route.snapshot.queryParamMap.get('userModuleAssignmentId');
+        if (assignmentIdParam) {
+            this.userModuleAssignmentId = Number(assignmentIdParam);
+        }
+        this.sentenceService.getModuleSentences(moduleId, this.userModuleAssignmentId).subscribe({
             next: (session) => {
                 this.session.set(session);
                 this.sentences.set(session.sentences.map(s => {
@@ -112,7 +117,8 @@ export class SentenceTaskComponent implements OnInit {
         this.sentenceService.submitAnswer(
             session.moduleId,
             s.sentenceStockId,
-            s.userAnswer
+            s.userAnswer,
+            this.userModuleAssignmentId
         ).subscribe({
             next: (result) => {
                 this.sentences.update(list =>

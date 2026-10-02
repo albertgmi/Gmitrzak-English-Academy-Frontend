@@ -128,14 +128,16 @@ export class SentenceService {
     removeSetFromModule(moduleId: number, setId: number) {
         return this.http.delete(`${this.apiUrl}/module/${moduleId}/set/${setId}`);
     }
-    getModuleSentences(moduleId: number) {
-        return this.http.get<ModuleSentenceSessionDto>(
-            `${this.studentLearningApiUrl}/module/${moduleId}/sentences`
-        );
+    getModuleSentences(moduleId: number, userModuleAssignmentId?: number) {
+        let url = `${this.studentLearningApiUrl}/module/${moduleId}/sentences`;
+        if (userModuleAssignmentId) {
+            url += `?userModuleAssignmentId=${userModuleAssignmentId}`;
+        }
+        return this.http.get<ModuleSentenceSessionDto>(url);
     }
-    submitAnswer(moduleId: number, sentenceStockId: number, userAnswer: string) {
+    submitAnswer(moduleId: number, sentenceStockId: number, userAnswer: string, userModuleAssignmentId?: number) {
         return this.http.post<AnswerResultDto>(this.answersApiUrl,
-            { moduleId, sentenceStockId, userAnswer });
+            { moduleId, sentenceStockId, userAnswer, userModuleAssignmentId });
     }
     getAnswersForModule(moduleId: number) {
         return this.http.get<AnswerResultDto[]>(`${this.answersApiUrl}/module/${moduleId}`);
