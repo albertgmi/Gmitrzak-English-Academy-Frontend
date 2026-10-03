@@ -84,6 +84,7 @@ import { LessonMemoriesComponent } from './lesson/lesson-memories/lesson-memorie
 import { LessonPronunciationComponent } from './lesson/lesson-pronunciation/lesson-pronunciation.component';
 import { FlashcardRemindersComponent } from './admin-tools/flashcard-reminders/flashcard-reminders.component';
 import { AttendanceListComponent } from './admin-tools/attendance-list/attendance-list.component';
+import { MenuVisibilityComponent } from './admin-tools/menu-visibility/menu-visibility.component';
 import { StudentEssaysComponent } from './student-view/student-essays/student-essays.component';
 import { LiveEssayRoomComponent } from './content/live-essay-room/live-essay-room.component';
 import { LiveSentenceRoomComponent } from './content/live-sentence-room/live-sentence-room.component';
@@ -187,6 +188,7 @@ export const appRoutes: Routes = [
       { path: 'system/student-activity', component: StudentActivityComponent, canActivate: [AuthGuard] },
       { path: 'system/flashcard-reminders', component: FlashcardRemindersComponent, canActivate: [AuthGuard] },
       { path: 'system/attendance-list', component: AttendanceListComponent, canActivate: [AuthGuard] },
+      { path: 'system/menu-visibility', component: MenuVisibilityComponent, canActivate: [AuthGuard] },
       { path: 'curriculum/courses/plan', component: AssignCourseComponent, canActivate: [AuthGuard] },
       { path: 'alphabet-test', component: AlphabetTestComponent, canActivate: [AuthGuard] },
       { path: 'lesson/alphabet', component: AlphabetLessonTestComponent, canActivate: [AuthGuard] },

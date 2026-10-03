@@ -4,6 +4,7 @@ import { RouterModule } from '@angular/router';
 import { MenuItem } from 'primeng/api';
 import { AppMenuitem } from './app.menuitem';
 import { AuthService } from '../../services/auth.service';
+import { MenuVisibilityService } from '../../services/menu-visibility.service';
 @Component({
   selector: 'app-menu',
   standalone: true,
@@ -17,13 +18,25 @@ import { AuthService } from '../../services/auth.service';
 })
 export class AppMenu implements OnInit {
   authService = inject(AuthService);
+  menuVisibilityService = inject(MenuVisibilityService);
   model: MenuItem[] = [];
   ngOnInit() {
     const role = this.authService.getRole();
     const userId = this.authService.getUserId();
     this.model = this.buildMenu(role, userId);
+
+    if (role?.toLowerCase() === 'user') {
+      this.menuVisibilityService.getMyHiddenKeys().subscribe({
+        next: (hiddenKeys) => {
+          if (hiddenKeys && hiddenKeys.length > 0) {
+            this.model = this.buildMenu(role, userId, hiddenKeys);
+          }
+        },
+        error: (err) => console.error('Failed to load student menu visibility', err)
+      });
+    }
   }
-  private buildMenu(role: string | null, userId: number | null): MenuItem[] {
+  private buildMenu(role: string | null, userId: number | null, hiddenKeys: string[] = []): MenuItem[] {
     const homeItems: MenuItem[] = [
       { label: 'Dashboard', icon: 'pi pi-home', routerLink: ['/'] },
       { label: 'Ranking', icon: 'pi pi-trophy', routerLink: ['/ranking'] },
@@ -55,7 +68,9 @@ export class AppMenu implements OnInit {
       return [...base, ...this.adminMenu(), account];
     }
     if (r === 'user') {
-      return [...base, ...this.studentMenu(), account];
+      const visibleBase = this.filterSections(base, hiddenKeys);
+      const visibleStudentMenu = this.filterSections(this.studentMenu(), hiddenKeys);
+      return [...visibleBase, ...visibleStudentMenu, account];
     }
     return [{
       label: 'Account',
@@ -63,6 +78,24 @@ export class AppMenu implements OnInit {
         { label: 'Login', icon: 'pi pi-sign-in', routerLink: ['/login'] }
       ]
     }];
+  }
+
+  private filterSections(sections: MenuItem[], hiddenKeys: string[]): MenuItem[] {
+    if (!hiddenKeys || hiddenKeys.length === 0) return sections;
+    const hiddenSet = new Set(hiddenKeys);
+    return sections
+      .map(section => {
+        if (!section.items) return section;
+        const filteredItems = section.items.filter(item => {
+          const link = Array.isArray(item.routerLink) ? item.routerLink[0] : item.routerLink;
+          return !link || !hiddenSet.has(link);
+        });
+        return {
+          ...section,
+          items: filteredItems
+        };
+      })
+      .filter(section => (section.items ? section.items.length > 0 : true));
   }
   private adminMenu(): MenuItem[] {
     return [
@@ -136,7 +169,8 @@ export class AppMenu implements OnInit {
               { label: 'Student Activity', icon: 'pi pi-history', routerLink: ['/system/student-activity'] },
               { label: 'Attendance List', icon: 'pi pi-calendar', routerLink: ['/system/attendance-list'] },
               { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },
-              { label: 'Flashcard Reminders', icon: 'pi pi-send', routerLink: ['/system/flashcard-reminders'] }
+              { label: 'Flashcard Reminders', icon: 'pi pi-send', routerLink: ['/system/flashcard-reminders'] },
+              { label: 'Menu Visibility', icon: 'pi pi-eye', routerLink: ['/system/menu-visibility'] }
             ]
           }
         ]
