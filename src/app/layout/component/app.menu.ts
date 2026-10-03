@@ -178,7 +178,7 @@ export class AppMenu implements OnInit {
             routerLink: ['/wordfinder']
           },
           { label: 'Alphabet Test', icon: 'pi pi-language', routerLink: ['/alphabet-test'] },
-          { label: 'Assignments', icon: 'pi pi-file', routerLink: ['/assignments'] },
+          { label: 'Homework', icon: 'pi pi-file', routerLink: ['/assignments'] },
           { label: 'Exams', icon: 'pi pi-graduation-cap', routerLink: ['/exams'] },
           { label: 'My Essays', icon: 'pi pi-file-edit', routerLink: ['/my-essays'] },
           { label: 'Movie Theater', icon: 'pi pi-video', routerLink: ['/weekly-movies'] }

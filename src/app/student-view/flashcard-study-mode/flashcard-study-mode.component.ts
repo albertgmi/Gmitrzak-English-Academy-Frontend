@@ -195,6 +195,7 @@ export class FlashcardStudyModeComponent implements OnInit {
                 }
             }
         }
+        this.shuffleArray(toReview);
         this.savePendingQueue(restoredPending);
         const priorityOrder = this.flashcardService.categoryPriorityOrder().map(p => p.trim().toLowerCase());
         if (priorityOrder.length > 0) {
@@ -218,6 +219,13 @@ export class FlashcardStudyModeComponent implements OnInit {
             this.currentCard.set(null);
             this.isFinished.set(true);
         }
+    }
+    private shuffleArray<T>(array: T[]): T[] {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
     }
     nextCard() {
         if (this.activeTimeout) clearTimeout(this.activeTimeout);
